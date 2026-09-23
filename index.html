@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <style>
   :root{
     --bg:#f5f3fa; --card:#ffffff; --line:#e9e5f2; --line2:#d9d3e8;
@@ -322,25 +322,36 @@ VIEWS.scan={ render:function(v){
   v.onLeave=stopScan; liveScan(v);
 }};
 var scanStream=null, scanRAF=null, camTarget=null;
+var bd = ('BarcodeDetector' in window) ? new BarcodeDetector({formats:['qr_code']}) : null;
+function decodeCanvas(cv){ // 동기: jsQR
+  if(typeof jsQR==='undefined') return null;
+  var ctx=cv.getContext('2d'); var r=jsQR(ctx.getImageData(0,0,cv.width,cv.height).data,cv.width,cv.height,{inversionAttempts:'attemptBoth'}); return r&&r.data?r.data:null; }
+function decodeAsync(src){ // 비동기: BarcodeDetector → jsQR
+  if(bd){ return bd.detect(src).then(function(codes){ return codes&&codes.length?codes[0].rawValue:null; }).catch(function(){ return null; }); }
+  return Promise.resolve(null); }
 function stopScan(){ if(scanRAF) cancelAnimationFrame(scanRAF); scanRAF=null; if(scanStream){ scanStream.getTracks().forEach(function(t){t.stop();}); scanStream=null; } }
 function liveScan(v){
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof jsQR==='undefined'){ scanFail('이 브라우저는 카메라를 지원하지 않아요. 아래 버튼으로 사진을 찍어 읽어주세요.'); return; }
-  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:1280}}}).then(function(stream){
-    scanStream=stream; var vid=$('vid'); if(!vid){ stopScan(); return; } vid.srcObject=stream; vid.setAttribute('playsinline',''); vid.play();
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ scanFail('이 브라우저는 카메라를 지원하지 않아요. 아래 버튼으로 사진을 찍어 읽어주세요.'); return; }
+  if(!bd && typeof jsQR==='undefined'){ scanFail('QR 인식 모듈을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'); return; }
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:1280}},audio:false}).then(function(stream){
+    scanStream=stream; var vid=$('vid'); if(!vid){ stopScan(); return; } vid.srcObject=stream; vid.setAttribute('playsinline',''); vid.muted=true; vid.play().catch(function(){});
     $('scanmsg').textContent='QR을 비추면 자동으로 열립니다';
-    var cv=document.createElement('canvas'), ctx=cv.getContext('2d',{willReadFrequently:true});
-    (function tick(){ if(!scanStream) return;
-      if(vid.readyState>=2){ var w=vid.videoWidth,hh=vid.videoHeight; if(w&&hh){ var s=Math.min(w,hh); cv.width=s; cv.height=s; ctx.drawImage(vid,(w-s)/2,(hh-s)/2,s,s,0,0,s,s);
-        var r=jsQR(ctx.getImageData(0,0,s,s).data,s,s,{inversionAttempts:'dontInvert'}); if(r&&r.data){ handleScanned(r.data); return; } } }
-      scanRAF=requestAnimationFrame(tick); })();
-  }).catch(function(){ scanFail('카메라 권한을 허용해 주세요 (주소창 자물쇠 → 카메라). 아래 버튼으로 사진을 찍어 읽을 수도 있어요.'); });
+    var cv=document.createElement('canvas'), ctx=cv.getContext('2d',{willReadFrequently:true}); var busy=false, last=0;
+    (function tick(ts){ if(!scanStream) return; scanRAF=requestAnimationFrame(tick);
+      if(busy || ts-last<120) return; last=ts;
+      if(vid.readyState<2) return; var w=vid.videoWidth,hh=vid.videoHeight; if(!w||!hh) return;
+      var s=Math.min(w,hh); cv.width=Math.min(s,800); cv.height=cv.width; ctx.drawImage(vid,(w-s)/2,(hh-s)/2,s,s,0,0,cv.width,cv.height);
+      busy=true;
+      (bd ? decodeAsync(vid) : Promise.resolve(null)).then(function(t){ if(!t) t=decodeCanvas(cv); busy=false; if(t&&scanStream){ handleScanned(t); } });
+    })(0);
+  }).catch(function(err){ var n=err&&err.name||''; scanFail(n==='NotAllowedError'?'카메라 권한이 거부됐어요. 주소창 자물쇠 → 권한 → 카메라 허용 후 새로고침.':(n==='NotFoundError'?'이 기기에 카메라가 없어요.':'카메라를 열 수 없어요 ('+n+'). 아래 버튼으로 사진을 찍어 읽어주세요.')); });
 }
 function scanFail(msg){ var b=$('scanbox'); if(b) b.style.display='none'; var m=$('scanmsg'); if(m){ m.textContent=msg; m.style.margin='0 0 14px'; } }
 $('camfile').addEventListener('change',function(){
   var f=this.files&&this.files[0]; this.value=''; if(!f) return; toast('읽는 중…');
   var img=new Image(); img.onload=function(){ var max=1200, sc=Math.min(1,max/Math.max(img.width,img.height)); var cv=document.createElement('canvas'); cv.width=img.width*sc; cv.height=img.height*sc;
-    var ctx=cv.getContext('2d'); ctx.drawImage(img,0,0,cv.width,cv.height); var r=(typeof jsQR!=='undefined')?jsQR(ctx.getImageData(0,0,cv.width,cv.height).data,cv.width,cv.height):null;
-    URL.revokeObjectURL(img.src); if(r&&r.data) handleScanned(r.data); else toast('QR을 못 읽었어요. 더 가까이서 다시 찍어주세요'); };
+    var ctx=cv.getContext('2d'); ctx.drawImage(img,0,0,cv.width,cv.height);
+    decodeAsync(cv).then(function(t){ if(!t) t=decodeCanvas(cv); URL.revokeObjectURL(img.src); if(t) handleScanned(t); else toast('QR을 못 읽었어요. 더 가까이서 다시 찍어주세요'); }); };
   img.src=URL.createObjectURL(f);
 });
 function handleScanned(text){
