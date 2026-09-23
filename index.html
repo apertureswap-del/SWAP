@@ -251,7 +251,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '2.9';
+var APP_VER = '3.0';
 var STATUS_IN  = ['입고','수리대기','수리완료','재고','출고대기'];
 var STATUS_OUT = ['출고준비중','출고준비완료'];
 var STATUSES   = STATUS_IN.concat(STATUS_OUT);
@@ -609,10 +609,21 @@ VIEWS.me={ render:function(v){
     '<li><span><b>출고 기기</b> → 출고 준비완료 한 번</span></li>'+
     '<li><span><b>용지 재사용</b> → 기기가 나간 뒤 태그 비우기</span></li>'+
     '<li><span><b>뒤로가기</b> → 왼쪽 위 ‹ 또는 화면 왼쪽 끝에서 오른쪽으로 밀기</span></li></ul></div>'+
+    '<div class="card"><h3>앱으로 쓰기</h3><p class="muted" style="margin:0 0 10px">홈 화면에 아이콘으로 두면 앱처럼 바로 열립니다.</p>'+
+    '<button class="btn" id="installbtn" onclick="installApp()">홈 화면에 설치</button></div>'+
     '<div class="card"><h3>기록</h3><p class="muted" style="margin:0">등록·이력은 "SWAP 입출고 QR" 구글시트의 태그·이력 탭에 쌓입니다.</p></div>'+
     '<p class="muted" style="text-align:center;font-size:12px">SWAP 입출고 v'+APP_VER+' · '+(('BarcodeDetector' in window)?'내장 스캐너':'jsQR')+' · '+(window.isSecureContext?'https':'http')+'</p>'; }};
 
 /* ================= 시작 ================= */
+/* PWA: 설치 프롬프트 잡아두기 + 서비스워커 등록 */
+var installEvt=null;
+window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); installEvt=e; var b=$('installbtn'); if(b) b.style.display=''; });
+window.addEventListener('appinstalled',function(){ installEvt=null; toast('홈 화면에 설치됐어요'); var b=$('installbtn'); if(b) b.style.display='none'; });
+function installApp(){ if(installEvt){ installEvt.prompt(); installEvt.userChoice.then(function(){ installEvt=null; }); return; }
+  var ios=/iPhone|iPad|iPod/.test(navigator.userAgent);
+  openSheet('<h3>홈 화면에 추가</h3><p>'+(ios?'사파리 아래 <b>공유</b> 버튼(네모에 화살표) → <b>홈 화면에 추가</b>를 누르세요.':'크롬 오른쪽 위 <b>⋮ 메뉴</b> → <b>홈 화면에 추가</b>(또는 <b>앱 설치</b>)를 누르세요.')+'</p><button class="btn" onclick="closeSheet()">확인</button>'); }
+if('serviceWorker' in navigator){ window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
+
 goTab('home');
 if(CODE) push('tag',{code:CODE});
 setTimeout(prefetch, 800);
