@@ -276,7 +276,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '3.3';
+var APP_VER = '3.4';
 var STATUS_IN  = ['입고','수리대기','수리완료','재고','출고대기'];
 var STATUS_OUT = ['출고준비중','출고준비완료'];
 var STATUSES   = STATUS_IN.concat(STATUS_OUT);
@@ -292,13 +292,13 @@ var toastT; function toast(msg){ var t=$('toast'); t.textContent=msg; t.classLis
 function spin(msg){ var sk='<div class="sk"><i class="t"></i><i class="w8"></i><i class="w6"></i></div><div class="sk"><div class="r"><s></s><div><i class="w6"></i><i class="w8"></i></div></div><div class="r"><s></s><div><i class="w6"></i><i class="w8"></i></div></div><div class="r"><s></s><div><i class="w6"></i><i class="w8"></i></div></div></div>';
   return (msg?'<div class="skcap"><i></i>'+esc(msg)+'</div>':'')+sk; }
 /* 숫자 카운트업 (토스 느낌) */
-function countUp(root,prev){ prev=prev||{}; var t0=null;
-  var items=[].map.call((root||document).querySelectorAll('[data-to]'),function(el){ var k=el.getAttribute('data-k')||''; return {el:el,from:(k in prev)?prev[k]:0,to:parseInt(el.getAttribute('data-to'),10)||0}; });
-  items.forEach(function(i){ i.el.textContent=i.from; });
-  if(!items.length||items.every(function(i){return i.from===i.to;})){ items.forEach(function(i){ i.el.textContent=i.to; }); return; }
-  requestAnimationFrame(function frame(ts){ if(t0===null) t0=ts; var k=Math.min(1,(ts-t0)/700); var e=1-Math.pow(1-k,3);
-    items.forEach(function(i){ i.el.textContent=Math.round(i.from+(i.to-i.from)*e); }); if(k<1) requestAnimationFrame(frame); }); }
-function numsOf(root){ var o={}; [].forEach.call(root.querySelectorAll('[data-to]'),function(el){ o[el.getAttribute('data-k')||'']=parseInt(el.getAttribute('data-to'),10)||0; }); return o; }
+function countUp(root){ var t0=null;
+  var items=[].map.call((root||document).querySelectorAll('[data-to]'),function(el){ return {el:el,to:parseInt(el.getAttribute('data-to'),10)||0}; }).filter(function(i){ return i.to>0; });
+  if(!items.length) return; var maxv=Math.max.apply(null,items.map(function(i){return i.to;}));
+  var dur=Math.max(600,Math.min(1300,300+maxv*90)); // 작은 수는 1,2,3… 한 칸씩 보이게 천천히
+  items.forEach(function(i){ i.el.textContent='0'; });
+  requestAnimationFrame(function frame(ts){ if(t0===null) t0=ts; var k=Math.min(1,(ts-t0)/dur); var e=1-(1-k)*(1-k);
+    items.forEach(function(i){ i.el.textContent=Math.round(i.to*e); }); if(k<1) requestAnimationFrame(frame); }); }
 function num(x,k){ return '<b class="num" data-to="'+x+'" data-k="'+k+'">'+x+'</b>'; }
 function initials(n){ n=String(n||'').trim(); return n? n.slice(0,1) : '?'; }
 /* 서버 호출: <script> 태그(JSONP) 방식 — 브라우저 CORS 제한을 받지 않아 Apps Script와 가장 잘 맞는다 */
@@ -428,7 +428,7 @@ function drawHome(v,tags){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true
   tags.slice(0,8).forEach(function(t){ h+=itemTag(t); }); h+='</div>';
   var keep=(document.activeElement&&document.activeElement.id==='manual')?$('manual').value:null;
   v.el.innerHTML=h; $('manual').addEventListener('keydown',function(e){ if(e.key==='Enter') openManual(); }); if(keep!==null){ $('manual').value=keep; $('manual').focus(); }
-  countUp(v.el,v._nums||{}); v._nums=numsOf(v.el); }
+  countUp(v.el); }
 function openManual(){ var c=($('manual').value||'').trim().toUpperCase(); if(!c){ toast('코드를 입력해 주세요'); return; } openCode(c); }
 function openCode(code){ push('tag',{code:code}); }
 function itemTag(t){
@@ -499,7 +499,7 @@ function drawStatus(v){ var f=v.state.filter; var tags=v.state.tags||[];
   h+='<div class="chips" style="margin-bottom:12px">'+STATUSES.map(function(s){ return '<button class="'+(f===s?'on':'')+'" style="padding:7px 11px;font-size:12.5px" onclick="setFilter(\''+s+'\')">'+s+'</button>'; }).join('')+'</div>';
   h+='<p class="muted" style="margin:0 6px 10px;font-weight:600">'+num(list.length,'cnt')+'건</p>';
   if(!list.length) h+='<div class="card"><div class="empty">해당하는 기기가 없어요.</div></div>';
-  else { h+='<div class="list">'; list.forEach(function(t){ h+=itemTag(t); }); h+='</div>'; } v.el.innerHTML=h; countUp(v.el,v._nums||{}); v._nums=numsOf(v.el); }
+  else { h+='<div class="list">'; list.forEach(function(t){ h+=itemTag(t); }); h+='</div>'; } v.el.innerHTML=h; countUp(v.el); }
 function setFilter(s){ var v=stack[stack.length-1]; v.state.filter=s; drawStatus(v); }
 
 /* ================= 태그 메인 ================= */
@@ -595,7 +595,7 @@ function drawItems(){ var v=stack[stack.length-1]; var q=(($('q')||{}).value||''
       '<div class="sub">'+esc(it.type)+' · '+esc(it.model)+' '+esc(it.color)+(it.changeModel?' → '+esc(it.changeModel)+' '+esc(it.changeColor):'')+'</div>'+
       '<div class="sub">'+(it.serial?'<span class="sn">'+esc(it.serial)+'</span>':'<span style="color:var(--muted2)">신규 배송 · 수거 기기 없음</span>')+'</div></div></button>'; });
   if(list.length) h+='</div>';
-  $('items').innerHTML=h; countUp($('items'),v._nums||{}); v._nums=numsOf($('items')); drawConfirm(); }
+  $('items').innerHTML=h; countUp($('items')); drawConfirm(); }
 function pick(i){ var v=stack[stack.length-1]; v.state.selected=(v.state.selected===i?null:i); v.state.dev=null; drawItems();
   if(v.state.selected!==null){ getDevCached(v.state.list[i].reqId); } }
 function drawConfirm(){ var v=stack[stack.length-1]; var box=$('confirm'); if(!box) return; if(v.state.selected===null){ box.innerHTML=''; return; } var it=v.state.list[v.state.selected];
