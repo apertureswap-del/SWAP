@@ -23,7 +23,7 @@
     --r:20px; --r2:14px; --ease:cubic-bezier(.32,.72,0,1); --spring:cubic-bezier(.22,1.2,.36,1); --dur:.42s; --tab-h:64px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%;margin:0;overflow:hidden}
+  html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
   body{background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5;
        font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased;
        font-feature-settings:"tnum"}
@@ -33,7 +33,7 @@
 
   .app{position:fixed;inset:0;display:flex;flex-direction:column;max-width:600px;margin:0 auto;background:var(--bg)}
   .stage{position:relative;flex:1;overflow:hidden}
-  .view{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg);
+  .view{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg);overscroll-behavior-y:contain;
         padding:calc(16px + env(safe-area-inset-top)) 20px calc(var(--tab-h) + 28px);will-change:transform,opacity;
         transition:transform var(--dur) var(--ease),opacity var(--dur) var(--ease);
         box-shadow:-12px 0 32px rgba(25,31,40,.16)}
@@ -63,6 +63,11 @@
          z-index:6;opacity:0;pointer-events:none;transform:scale(.8);
          backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:opacity .2s,transform .35s var(--spring)}
   .fback.on{opacity:1;pointer-events:auto;transform:none}
+  .ptr{position:absolute;left:50%;top:calc(8px + env(safe-area-inset-top));width:38px;height:38px;border-radius:50%;background:#fff;box-shadow:0 2px 12px rgba(25,31,40,.14);
+       display:flex;align-items:center;justify-content:center;z-index:7;opacity:0;transform:translate(-50%,-14px);pointer-events:none}
+  .ptr i{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--p);display:block;transition:border-color .15s}
+  .ptr.ready i{border-color:var(--p-soft2);border-top-color:var(--p)} .ptr.spin i{animation:rot .8s linear infinite}
+  .ptr.done{transition:opacity .25s,transform .25s}
   .fback:active{background:#fff;transform:scale(.88)}
   .ptitle{display:flex;align-items:center;gap:10px;margin:2px 0 18px;min-height:42px}
   .ptitle.indent{padding-left:54px}
@@ -248,6 +253,7 @@
 <body>
 <div class="app">
   <div class="stage" id="stage">
+    <div class="ptr" id="ptr"><i></i></div>
     <button class="fback" id="back" onclick="pop()" aria-label="뒤로">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#17141f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
@@ -270,7 +276,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '3.2';
+var APP_VER = '3.3';
 var STATUS_IN  = ['입고','수리대기','수리완료','재고','출고대기'];
 var STATUS_OUT = ['출고준비중','출고준비완료'];
 var STATUSES   = STATUS_IN.concat(STATUS_OUT);
@@ -286,10 +292,14 @@ var toastT; function toast(msg){ var t=$('toast'); t.textContent=msg; t.classLis
 function spin(msg){ var sk='<div class="sk"><i class="t"></i><i class="w8"></i><i class="w6"></i></div><div class="sk"><div class="r"><s></s><div><i class="w6"></i><i class="w8"></i></div></div><div class="r"><s></s><div><i class="w6"></i><i class="w8"></i></div></div><div class="r"><s></s><div><i class="w6"></i><i class="w8"></i></div></div></div>';
   return (msg?'<div class="skcap"><i></i>'+esc(msg)+'</div>':'')+sk; }
 /* 숫자 카운트업 (토스 느낌) */
-function countUp(root){ var els=(root||document).querySelectorAll('[data-to]'); var t0=null;
-  function frame(ts){ if(t0===null) t0=ts; var k=Math.min(1,(ts-t0)/700); var e=1-Math.pow(1-k,3);
-    els.forEach(function(el){ el.textContent=Math.round(parseInt(el.getAttribute('data-to'),10)*e); }); if(k<1) requestAnimationFrame(frame); }
-  requestAnimationFrame(frame); }
+function countUp(root,prev){ prev=prev||{}; var t0=null;
+  var items=[].map.call((root||document).querySelectorAll('[data-to]'),function(el){ var k=el.getAttribute('data-k')||''; return {el:el,from:(k in prev)?prev[k]:0,to:parseInt(el.getAttribute('data-to'),10)||0}; });
+  items.forEach(function(i){ i.el.textContent=i.from; });
+  if(!items.length||items.every(function(i){return i.from===i.to;})){ items.forEach(function(i){ i.el.textContent=i.to; }); return; }
+  requestAnimationFrame(function frame(ts){ if(t0===null) t0=ts; var k=Math.min(1,(ts-t0)/700); var e=1-Math.pow(1-k,3);
+    items.forEach(function(i){ i.el.textContent=Math.round(i.from+(i.to-i.from)*e); }); if(k<1) requestAnimationFrame(frame); }); }
+function numsOf(root){ var o={}; [].forEach.call(root.querySelectorAll('[data-to]'),function(el){ o[el.getAttribute('data-k')||'']=parseInt(el.getAttribute('data-to'),10)||0; }); return o; }
+function num(x,k){ return '<b class="num" data-to="'+x+'" data-k="'+k+'">'+x+'</b>'; }
 function initials(n){ n=String(n||'').trim(); return n? n.slice(0,1) : '?'; }
 /* 서버 호출: <script> 태그(JSONP) 방식 — 브라우저 CORS 제한을 받지 않아 Apps Script와 가장 잘 맞는다 */
 var _rid=0; var READ_FNS={getTag:1,listTags:1,getWorkList:1,getTaskDevices:1,getConfig:1};
@@ -331,16 +341,48 @@ function reanim(v){ if(!v||!v.el) return; v.el.classList.remove('anim'); void v.
 function mount(v){ $('stage').insertBefore(v.el,$('back')); reanim(v); try{ VIEWS[v.name].render(v); }catch(e){ v.el.innerHTML=errBox(e); } }
 function syncChrome(){ var v=stack[stack.length-1]; if(!v) return; $('back').classList.toggle('on',stack.length>1);
   var tab=TAB_OF[v.name]||'home'; [].forEach.call($('tabs').children,function(b){ b.classList.toggle('on',b.dataset.tab===tab); }); }
-function push(name,params){ if(animating) return; haptic(6); var v=makeView(name,params); var prev=stack[stack.length-1]; stack.push(v); v.el.classList.add('enter'); mount(v);
+/* 브라우저/폰 뒤로가기와 동기화: 화면을 열 때마다 history 항목을 하나 쌓고, 뒤로가기(popstate)가 오면 그 항목만큼 닫는다.
+   순서: 시트 → 이전 화면 → 홈 탭 → (홈에서 한 번 더) 앱 종료 */
+var hDepth=0, ignorePop=0;
+function hPush(){ hDepth++; try{ history.pushState({d:hDepth},''); }catch(e){} }
+function hReplace(){ try{ history.replaceState({d:hDepth},''); }catch(e){} }
+function hBack(n){ n=n||1; if(hDepth<=0) return false; n=Math.min(n,hDepth); hDepth-=n; ignorePop++; clearTimeout(hBack._t); hBack._t=setTimeout(function(){ ignorePop=0; },1200); try{ history.go(-n); }catch(e){ ignorePop--; } return true; }
+window.addEventListener('popstate',function(e){
+  if(ignorePop>0){ ignorePop--; hDepth=(e.state&&e.state.d)||0; return; }
+  hDepth=(e.state&&e.state.d)||0;
+  if(sheetOpen){ sheetOpen=false; hideSheet(); return; }
+  if(stack.length>1){ popView(); return; }
+  var cur=stack[0]; if(cur&&cur.name!=='home'){ tabTo('home'); if(hDepth>0) hBack(hDepth); }
+});
+function push(name,params){ if(animating) return; hPush(); pushView(name,params); }
+function pushView(name,params){ haptic(6); var v=makeView(name,params); var prev=stack[stack.length-1]; stack.push(v); v.el.classList.add('enter'); mount(v);
   animating=true; requestAnimationFrame(function(){ requestAnimationFrame(function(){ v.el.classList.remove('enter'); if(prev) prev.el.classList.add('under'); setTimeout(function(){animating=false;},380); }); }); syncChrome(); }
-function pop(){ if(animating||stack.length<2) return; haptic(6); var v=stack.pop(); var prev=stack[stack.length-1]; if(v.onLeave) v.onLeave(v);
+function pop(){ if(animating||stack.length<2) return; popView(); hBack(1); }
+function popView(){ if(stack.length<2) return; haptic(6); var v=stack.pop(); var prev=stack[stack.length-1]; if(v.onLeave) v.onLeave(v);
   animating=true; v.el.classList.add('enter'); prev.el.classList.remove('under'); setTimeout(function(){ v.el.remove(); animating=false; if(prev.onResume) prev.onResume(prev); },380); syncChrome(); }
 function replace(name,params){ var cur=stack.pop(); if(cur){ if(cur.onLeave) cur.onLeave(cur); cur.el.remove(); } var v=makeView(name,params); stack.push(v); v.el.classList.add('fade-in'); mount(v); syncChrome(); }
 function haptic(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||8); }catch(e){} }
 function goTab(name){ var cur=stack[stack.length-1]; if(cur&&cur.name===name&&stack.length===1){ cur.el.scrollTo({top:0,behavior:'smooth'}); return; }
-  haptic(6);
+  if(sheetOpen) closeSheet();
+  if(name==='home'){ tabTo('home'); if(hDepth>0) hBack(hDepth); return; }
+  if(hDepth===0) hPush(); else hReplace();
+  tabTo(name); }
+function tabTo(name){ haptic(6);
   var olds=stack.slice(); stack=[]; olds.forEach(function(v){ if(v.onLeave) v.onLeave(v); v.el.classList.add('fade-out'); setTimeout(function(){ v.el.remove(); },200); });
   var v=makeView(name,{}); stack.push(v); v.el.classList.add('fade-in'); mount(v); syncChrome(); }
+/* 당겨서 새로고침: 화면 맨 위에서 아래로 끌면 현재 화면의 refresh() 실행 */
+(function(){ var st=$('stage'), ind=$('ptr'), sy=null, dy=0, busy=false, el=null;
+  function reset(){ sy=null; dy=0; if(el){ el.style.transition=''; el.style.transform=''; } ind.classList.remove('ready','spin'); ind.style.opacity=''; ind.style.transform=''; }
+  st.addEventListener('touchstart',function(e){ var v=stack[stack.length-1]; sy=null; if(!v||!v.refresh||busy||animating||sheetOpen) return; var t=e.touches[0]; if(t.clientX<=28||v.el.scrollTop>0) return; sy=t.clientY; dy=0; el=v.el; },{passive:true});
+  st.addEventListener('touchmove',function(e){ if(sy===null) return; var d=e.touches[0].clientY-sy; if(d<=0||el.scrollTop>0){ if(dy===0){ sy=null; } return; }
+    dy=Math.min(d,140); if(e.cancelable) e.preventDefault(); var p=Math.min(1,dy/80); el.style.transition='none'; el.style.transform='translateY('+(dy*.45)+'px)';
+    ind.style.opacity=p; ind.style.transform='translate(-50%,'+(dy*.45-14)+'px) rotate('+(dy*2.5)+'deg)'; ind.classList.toggle('ready',p>=1); },{passive:false});
+  st.addEventListener('touchend',function(){ if(sy===null) return; var v=stack[stack.length-1]; var ready=dy>=80; sy=null;
+    if(!ready||!v||!v.refresh){ el.style.transition='transform .35s var(--spring)'; el.style.transform=''; setTimeout(reset,350); return; }
+    busy=true; haptic(10); el.style.transition='transform .3s var(--spring)'; el.style.transform='translateY(44px)'; ind.classList.add('spin'); ind.style.transform='translate(-50%,30px)';
+    var done=function(){ el.style.transform=''; ind.style.opacity='0'; setTimeout(function(){ reset(); busy=false; },350); };
+    var t0=Date.now(); Promise.resolve().then(function(){ return v.refresh(v); }).catch(function(e){ toast('새로고침 실패: '+(e&&e.message||e)); }).then(function(){ setTimeout(done,Math.max(0,500-(Date.now()-t0))); }); });
+})();
 (function(){ var sx=null,dragging=false,top=null,under=null,st=$('stage');
   st.addEventListener('touchstart',function(e){ if(stack.length<2) return; var t=e.touches[0]; if(t.clientX>28) return; sx=t.clientX; dragging=true;
     top=stack[stack.length-1].el; under=stack[stack.length-2].el; top.style.transition='none'; under.style.transition='none'; },{passive:true});
@@ -349,8 +391,10 @@ function goTab(name){ var cur=stack[stack.length-1]; if(cur&&cur.name===name&&st
 })();
 
 /* ================= 바텀시트 / 이름 ================= */
-function openSheet(html){ $('sheet').innerHTML='<div class="grab"></div>'+html; $('sheet').classList.add('on'); $('dim').classList.add('on'); }
-function closeSheet(){ $('sheet').classList.remove('on'); $('dim').classList.remove('on'); }
+var sheetOpen=false;
+function openSheet(html){ $('sheet').innerHTML='<div class="grab"></div>'+html; $('sheet').classList.add('on'); $('dim').classList.add('on'); if(!sheetOpen){ sheetOpen=true; hPush(); } }
+function hideSheet(){ $('sheet').classList.remove('on'); $('dim').classList.remove('on'); }
+function closeSheet(){ hideSheet(); if(sheetOpen){ sheetOpen=false; hBack(1); } }
 var pendingAfterName=null;
 function openNameSheet(after){ pendingAfterName=after||null;
   openSheet('<h3>작업자 이름</h3><p>등록·상태 변경 기록에 남습니다. 한 번만 입력하면 이 폰에 저장돼요.</p>'+
@@ -364,16 +408,17 @@ function needWorker(then){ if(worker){ then(); return; } openNameSheet(then); }
 /* ================= 홈 ================= */
 VIEWS.home={ render:function(v){
   v.onResume=function(){ VIEWS.home.render(v); };
+  v.refresh=function(){ return run('listTags',60).then(function(tags){ lsSet('tags',tags); if(stack.indexOf(v)>=0) drawHome(v,tags); }); };
   var cached=lsGet('tags'); if(cached) drawHome(v,cached);
   run('listTags',60).then(function(tags){ lsSet('tags',tags); if(stack.indexOf(v)>=0) drawHome(v,tags); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)+' — 이전 데이터 표시 중'); });
 }};
 function drawHome(v,tags){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true; reanim(v); }
   var sum={}; STATUSES.forEach(function(s){sum[s]=0;}); tags.forEach(function(t){ if(sum[t['상태']]!==undefined) sum[t['상태']]++; });
-  var n=function(x){ return first?'<b class="num" data-to="'+x+'">0</b>':'<b class="num">'+x+'</b>'; };
+  var n=function(x,k){ return num(x,k); };
   var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1>경기남부점 입출고</h1></div>';
-  h+='<div class="card sum"><div class="lb">관리 중인 기기</div><div class="big">'+n(tags.length)+'<span>대</span></div>'+
+  h+='<div class="card sum"><div class="lb">관리 중인 기기</div><div class="big">'+n(tags.length,'all')+'<span>대</span></div>'+
     '<div class="stats">'+[['입고','입고'],['수리대기','수리대기'],['수리완료','수리완료'],['재고','재고'],['출고대기','출고대기'],['출고준비중','출고 준비중'],['출고준비완료','출고 준비완료']].map(function(x){
-      return '<button class="'+(x[0]==='출고준비완료'&&sum[x[0]]?'hot':'')+'" onclick="push(\'status\',{filter:\''+x[0]+'\'})"><span><i class="dot s-'+x[0]+'"></i>'+x[1]+'</span>'+n(sum[x[0]])+'</button>'; }).join('')+
+      return '<button class="'+(x[0]==='출고준비완료'&&sum[x[0]]?'hot':'')+'" onclick="push(\'status\',{filter:\''+x[0]+'\'})"><span><i class="dot s-'+x[0]+'"></i>'+x[1]+'</span>'+n(sum[x[0]],x[0])+'</button>'; }).join('')+
     '<button onclick="push(\'status\',{})"><span>전체 보기</span><b style="font-size:18px;color:var(--muted)">›</b></button></div></div>';
   h+='<div class="card"><h3>QR 열기</h3>'+
      '<button class="btn" onclick="startScan()"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.2"/></svg>카메라로 QR 찍기</button>'+
@@ -383,7 +428,7 @@ function drawHome(v,tags){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true
   tags.slice(0,8).forEach(function(t){ h+=itemTag(t); }); h+='</div>';
   var keep=(document.activeElement&&document.activeElement.id==='manual')?$('manual').value:null;
   v.el.innerHTML=h; $('manual').addEventListener('keydown',function(e){ if(e.key==='Enter') openManual(); }); if(keep!==null){ $('manual').value=keep; $('manual').focus(); }
-  if(first) countUp(v.el); }
+  countUp(v.el,v._nums||{}); v._nums=numsOf(v.el); }
 function openManual(){ var c=($('manual').value||'').trim().toUpperCase(); if(!c){ toast('코드를 입력해 주세요'); return; } openCode(c); }
 function openCode(code){ push('tag',{code:code}); }
 function itemTag(t){
@@ -439,25 +484,27 @@ function handleScanned(text){
   if(camTarget){ var el=$(camTarget); camTarget=null; if(el){ el.value=String(text).trim(); toast('읽었어요'); } return; }
   var code=null; var m=String(text).match(/[?&]q=([A-Za-z0-9]+)/); if(m) code=m[1].toUpperCase(); else if(/^[A-Za-z0-9]{4,10}$/.test(text.trim())) code=text.trim().toUpperCase();
   if(!code){ toast('입출고 QR이 아닙니다'); return; }
-  stopScan(); try{ history.replaceState(null,'',WEBAPP+'?q='+code); }catch(e){} var cur=stack[stack.length-1]; if(cur&&cur.name==='scan') replace('tag',{code:code}); else push('tag',{code:code});
+  stopScan(); try{ history.replaceState({d:hDepth},'',WEBAPP+'?q='+code); }catch(e){} var cur=stack[stack.length-1]; if(cur&&cur.name==='scan') replace('tag',{code:code}); else push('tag',{code:code});
 }
 
 /* ================= 현황 ================= */
 VIEWS.status={ render:function(v){ v.state.filter=v.state.filter||v.params.filter||'전체'; v.onResume=function(){ VIEWS.status.render(v); };
+  v.refresh=function(){ return run('listTags',500).then(function(tags){ lsSet('tags',tags); if(stack.indexOf(v)>=0){ v.state.tags=tags; drawStatus(v); } }); };
   var cached=lsGet('tags'); if(cached){ v.state.tags=cached; drawStatus(v); }
   run('listTags',500).then(function(tags){ lsSet('tags',tags); if(stack.indexOf(v)<0) return; v.state.tags=tags; drawStatus(v); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)); }); }};
 function drawStatus(v){ var f=v.state.filter; var tags=v.state.tags||[];
   var list=tags.filter(function(t){ if(f==='전체') return true; if(f==='수거') return !isOut(t); if(f==='출고') return isOut(t); return t['상태']===f; });
-  var h=title('입출고 현황', tags.length+'건 등록됨');
+  var h=title('입출고 현황', num(tags.length,'all')+'건 등록됨');
   h+='<div class="seg">'+['전체','수거','출고'].map(function(s){ return '<button class="'+(f===s?'on':'')+'" onclick="setFilter(\''+s+'\')">'+s+'</button>'; }).join('')+'</div>';
   h+='<div class="chips" style="margin-bottom:12px">'+STATUSES.map(function(s){ return '<button class="'+(f===s?'on':'')+'" style="padding:7px 11px;font-size:12.5px" onclick="setFilter(\''+s+'\')">'+s+'</button>'; }).join('')+'</div>';
-  h+='<p class="muted" style="margin:0 6px 10px;font-weight:600">'+list.length+'건</p>';
+  h+='<p class="muted" style="margin:0 6px 10px;font-weight:600">'+num(list.length,'cnt')+'건</p>';
   if(!list.length) h+='<div class="card"><div class="empty">해당하는 기기가 없어요.</div></div>';
-  else { h+='<div class="list">'; list.forEach(function(t){ h+=itemTag(t); }); h+='</div>'; } v.el.innerHTML=h; }
+  else { h+='<div class="list">'; list.forEach(function(t){ h+=itemTag(t); }); h+='</div>'; } v.el.innerHTML=h; countUp(v.el,v._nums||{}); v._nums=numsOf(v.el); }
 function setFilter(s){ var v=stack[stack.length-1]; v.state.filter=s; drawStatus(v); }
 
 /* ================= 태그 메인 ================= */
 VIEWS.tag={ render:function(v){ var code=v.params.code;
+  v.refresh=function(){ return run('getTag',code).then(function(tag){ if(stack.indexOf(v)<0) return; if(tag){ v.state.tag=tag; drawTag(v); } else replace('register',{code:code}); }); };
   if(v.params.tag){ v.state.tag=v.params.tag; drawTag(v); return; }
   run('getTag',code).then(function(tag){ if(tag){ v.state.tag=tag; drawTag(v); } else replace('register',{code:code}); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }};
 function accList(str){ return String(str||'').split(/[,、\n]/).map(function(x){return x.trim();}).filter(Boolean); }
@@ -526,11 +573,12 @@ function releaseNow(){ var v=stack[stack.length-1]; var code=v.params.code; v.el
 
 /* ================= 등록 위저드 ================= */
 /* 단계: 1 작업 선택 → 2 출고/수거 → 3 일련번호 → 4 액세서리 → 5 특이사항 → 등록 */
-VIEWS.register={ render:function(v){ v.state.step=1; v.state.date=todayISO(0); v.state.selected=null; v.state.kind=null; v.state.serial=''; v.state.frame=''; v.state.acc=''; v.state.note=''; v.state.dev=null; loadList(v,v.state.date); }};
+VIEWS.register={ render:function(v){ v.refresh=function(){ if(v.state.step===1) return loadList(v,v.state.date,true); };
+  v.state.step=1; v.state.date=todayISO(0); v.state.selected=null; v.state.kind=null; v.state.serial=''; v.state.frame=''; v.state.acc=''; v.state.note=''; v.state.dev=null; loadList(v,v.state.date); }};
 function stepsBar(n){ var h='<div class="steps">'; for(var i=1;i<=5;i++) h+='<i class="'+(i<=n?'on':'')+'"></i>'; return h+'</div>'; }
-function loadList(v,date,force){ v.state.date=date; v.state.selected=null; var c=wlCache[date]; if(!(c&&!force)) v.el.innerHTML=spin('작업리스트 불러오는 중');
-  getWorkListCached(date,force).then(function(res){ if(v.state.date!==date) return; v.state.list=res.items||[]; v.state.err=res.error; drawStep1(v); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }
-function drawStep1(v){ reanim(v); var d=v.state.date;
+function loadList(v,date,force){ v.state.date=date; v.state.selected=null; v.state.step=1; var c=wlCache[date]; if(!(c&&!force)) v.el.innerHTML=spin('작업리스트 불러오는 중');
+  return getWorkListCached(date,force).then(function(res){ if(v.state.date!==date) return; v.state.list=res.items||[]; v.state.err=res.error; drawStep1(v); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }
+function drawStep1(v){ reanim(v); v.state.step=1; var d=v.state.date;
   var h=title('<span class="code-badge">'+esc(v.params.code)+'</span>','1/5 · 어떤 작업의 기기인가요?')+stepsBar(1);
   h+='<div class="seg">'+[['어제',-1],['오늘',0],['내일',1]].map(function(x){ var iso=todayISO(x[1]); return '<button class="'+(d===iso?'on':'')+'" onclick="loadList(stack[stack.length-1],\''+iso+'\')">'+x[0]+'</button>'; }).join('')+'</div>';
   h+='<div class="row" style="margin:0 0 10px"><input type="date" class="input" style="flex:1" value="'+esc(d)+'" onchange="loadList(stack[stack.length-1],this.value)"><input class="input" style="flex:1.4" id="q" placeholder="이름·모델·일련번호" oninput="drawItems()"><button class="btn line sm" style="flex:0 0 auto;padding:0 14px" onclick="loadList(stack[stack.length-1],stack[stack.length-1].state.date,true)" title="새로고침">↻</button></div>';
@@ -538,7 +586,7 @@ function drawStep1(v){ reanim(v); var d=v.state.date;
   h+='<div id="items"></div><div id="confirm"></div>'; v.el.innerHTML=h; drawItems(); }
 function drawItems(){ var v=stack[stack.length-1]; var q=(($('q')||{}).value||'').trim().toLowerCase();
   var list=(v.state.list||[]).filter(function(it){ return !q||[it.name,it.model,it.color,it.serial,it.frame,it.type,it.reqId].join(' ').toLowerCase().indexOf(q)>=0; });
-  var h='<p class="muted" style="margin:0 4px 8px">'+esc(v.state.date)+' 작업 <b style="color:var(--ink)">'+list.length+'건</b></p>';
+  var h='<p class="muted" style="margin:0 4px 8px">'+esc(v.state.date)+' 작업 <b style="color:var(--ink)">'+num(list.length,'wl')+'건</b></p>';
   if(!list.length) h+='<div class="card"><div class="empty">작업 건이 없어요.<br>날짜를 바꿔 보세요.</div></div>';
   else h+='<div class="list">';
   list.forEach(function(it){ var idx=v.state.list.indexOf(it); var kinds=it.registeredKinds||[];
@@ -547,7 +595,7 @@ function drawItems(){ var v=stack[stack.length-1]; var q=(($('q')||{}).value||''
       '<div class="sub">'+esc(it.type)+' · '+esc(it.model)+' '+esc(it.color)+(it.changeModel?' → '+esc(it.changeModel)+' '+esc(it.changeColor):'')+'</div>'+
       '<div class="sub">'+(it.serial?'<span class="sn">'+esc(it.serial)+'</span>':'<span style="color:var(--muted2)">신규 배송 · 수거 기기 없음</span>')+'</div></div></button>'; });
   if(list.length) h+='</div>';
-  $('items').innerHTML=h; drawConfirm(); }
+  $('items').innerHTML=h; countUp($('items'),v._nums||{}); v._nums=numsOf($('items')); drawConfirm(); }
 function pick(i){ var v=stack[stack.length-1]; v.state.selected=(v.state.selected===i?null:i); v.state.dev=null; drawItems();
   if(v.state.selected!==null){ getDevCached(v.state.list[i].reqId); } }
 function drawConfirm(){ var v=stack[stack.length-1]; var box=$('confirm'); if(!box) return; if(v.state.selected===null){ box.innerHTML=''; return; } var it=v.state.list[v.state.selected];
@@ -556,7 +604,7 @@ function drawConfirm(){ var v=stack[stack.length-1]; var box=$('confirm'); if(!b
 function toStep2(){ var v=stack[stack.length-1]; var it=v.state.list[v.state.selected];
   if(!v.state.kind) v.state.kind = /주문|재배송/.test(it.type) ? '출고' : (/해지|철회|대차 진행 X/.test(it.type) ? '입고' : null);
   drawStep2(v); }
-function drawStep2(v){ reanim(v); var it=v.state.list[v.state.selected]; var k=v.state.kind;
+function drawStep2(v){ reanim(v); v.state.step=2; var it=v.state.list[v.state.selected]; var k=v.state.kind;
   var h=title(esc(it.name),'2/5 · 이 QR을 붙인 기기는?')+stepsBar(2);
   h+='<div class="card"><div class="kindpick">'+
     '<button class="out '+(k==='출고'?'on':'')+'" onclick="setKind(\'출고\')"><div class="ic">📦</div><b>출고 기기</b><span>고객에게 나가는 기기'+(it.changeModel?'<br>'+esc(it.changeModel)+' '+esc(it.changeColor):(isOrderType(it.type)?'<br>'+esc(it.model)+' '+esc(it.color):''))+'</span></button>'+
@@ -571,7 +619,7 @@ function toStep3(){ var v=stack[stack.length-1]; if(!v.state.kind){ toast('출�
     getDevCached(it.reqId).then(function(dev){ v.state.dev=dev||{ok:false}; applyDev(v); drawStep3(v); }); }
   else { applyDev(v); drawStep3(v); } }
 function applyDev(v){ var d=v.state.dev; if(!d||!d.ok) return; if(!v.state.serial){ if(v.state.kind==='출고'&&d.outSerial){ v.state.serial=d.outSerial; v.state.frame=d.outFrame||''; } if(v.state.kind==='입고'&&d.inSerial){ v.state.serial=d.inSerial; v.state.frame=d.inFrame||''; } } }
-function drawStep3(v){ reanim(v); var it=v.state.list[v.state.selected]; var d=v.state.dev||{}; var auto=d.ok && ((v.state.kind==='출고'&&d.outSerial)||(v.state.kind==='입고'&&d.inSerial));
+function drawStep3(v){ reanim(v); v.state.step=3; var it=v.state.list[v.state.selected]; var d=v.state.dev||{}; var auto=d.ok && ((v.state.kind==='출고'&&d.outSerial)||(v.state.kind==='입고'&&d.inSerial));
   var h=title(esc(it.name)+' '+kindBadge(v.state.kind),'3/5 · 기기 일련번호')+stepsBar(3);
   h+='<div class="card"><label class="muted" style="font-size:12.5px;font-weight:600">일련번호</label><input class="input code" id="f_serial" value="'+esc(v.state.serial)+'" placeholder="예: S9-1-1504" style="letter-spacing:1px;font-size:20px;text-transform:none;margin-top:6px">'+
     (auto?'<p class="muted" style="margin:8px 0 0;color:var(--green-ink);font-weight:600">어드민에서 자동으로 가져왔어요. 기기 라벨과 같은지 확인하세요.</p>':(d.ok===false?'<p class="muted" style="margin:8px 0 0">어드민에서 못 가져와서 직접 입력해 주세요.</p>':'<p class="muted" style="margin:8px 0 0">기기 라벨의 일련번호를 입력하세요.</p>'))+
@@ -579,13 +627,13 @@ function drawStep3(v){ reanim(v); var it=v.state.list[v.state.selected]; var d=v
   h+='<div class="row"><button class="btn line sm" onclick="stack[stack.length-1].state.serial=$(\'f_serial\').value;drawStep2(stack[stack.length-1])">이전</button><button class="btn sm" style="flex:2" onclick="toStep4()">다음 · 액세서리</button></div>';
   v.el.innerHTML=h; }
 function toStep4(){ var v=stack[stack.length-1]; v.state.serial=($('f_serial').value||'').trim(); drawStep4(v); }
-function drawStep4(v){ reanim(v); var it=v.state.list[v.state.selected];
+function drawStep4(v){ reanim(v); v.state.step=4; var it=v.state.list[v.state.selected];
   var h=title(esc(it.name)+' '+kindBadge(v.state.kind),'4/5 · 함께 '+(v.state.kind==='출고'?'나가는':'들어온')+' 액세서리')+stepsBar(4);
   h+='<div class="card">'+accSheetHtml(v.state.acc)+'<p class="muted" style="margin:10px 0 0">배터리·충전기도 꼭 체크하세요. 없으면 그냥 다음.</p></div>';
   h+='<div class="row"><button class="btn line sm" onclick="stack[stack.length-1].state.acc=collectAcc();drawStep3(stack[stack.length-1])">이전</button><button class="btn sm" style="flex:2" onclick="toStep5()">다음 · 특이사항</button></div>';
   v.el.innerHTML=h; }
 function toStep5(){ var v=stack[stack.length-1]; v.state.acc=collectAcc(); drawStep5(v); }
-function drawStep5(v){ reanim(v); var it=v.state.list[v.state.selected];
+function drawStep5(v){ reanim(v); v.state.step=5; var it=v.state.list[v.state.selected];
   var h=title(esc(it.name)+' '+kindBadge(v.state.kind),'5/5 · 특이사항')+stepsBar(5);
   h+='<div class="card"><textarea class="input" id="f_note" placeholder="파손·분실·고객 요청 등 (없으면 비워두세요)">'+esc(v.state.note)+'</textarea>'+
     (it.note?'<div class="note" style="margin-top:10px"><b>작업리스트 메모</b><br>'+esc(it.note)+'</div>':'')+'</div>';
@@ -603,7 +651,7 @@ function doRegister(force){ needWorker(function(){ var v=stack[stack.length-1]; 
 /* ================= 라벨 ================= */
 var ALPHA='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function genCode(){ var a=new Uint32Array(6); crypto.getRandomValues(a); var s=''; for(var i=0;i<6;i++) s+=ALPHA[a[i]%ALPHA.length]; return s; }
-VIEWS.labels={ render:function(v){
+VIEWS.labels={ render:function(v){ v.refresh=function(){ buildLabels(); toast('새 코드로 다시 만들었어요'); };
   v.el.innerHTML=title('QR 라벨 인쇄','기기에 붙일 무작위 코드 라벨')+
     '<div class="card"><div class="lab-opts"><div class="field"><label>A4 장수</label><input class="input" type="number" id="lpages" min="1" max="20" value="1"></div>'+
     '<div class="field"><label>한 장당</label><select class="input" id="lper"><option value="4">4개 (크게)</option><option value="8" selected>8개</option><option value="12">12개 (작게)</option></select></div></div>'+
@@ -617,7 +665,7 @@ function qrUrl(c){ return WEBAPP+(WEBAPP.indexOf('?')>=0?'&':'?')+'q='+c; }
 function buildLabels(){ var pages=Math.max(1,Math.min(20,parseInt($('lpages').value,10)||1)); var per=parseInt($('lper').value,10);
   labelCodes=[]; for(var i=0;i<pages*per;i++) labelCodes.push(genCode());
   var pv=$('lprev'); pv.innerHTML=''; labelCodes.slice(0,8).forEach(function(c){ var el=document.createElement('div'); el.className='lb'; el.innerHTML='<div class="qr"></div><div><div class="c">'+c+'</div><div class="t">경기남부점 입출고</div></div>'; pv.appendChild(el); drawQR(el.querySelector('.qr'),qrUrl(c),64); });
-  $('lcount').textContent='미리보기 · 총 '+labelCodes.length+'개 (A4 '+pages+'장)';
+  $('lcount').innerHTML='미리보기 · 총 '+num(labelCodes.length,'lc')+'개 (A4 '+pages+'장)'; countUp($('lcount'));
   var pa=$('printarea'); pa.innerHTML=''; var cols=per===12?3:2; var px=per===4?420:(per===8?300:220);
   for(var p=0;p<pages;p++){ var sh=document.createElement('div'); sh.className='psheet c'+cols+' sz'+per;
     for(var k=0;k<per;k++){ var c=labelCodes[p*per+k]; var lb=document.createElement('div'); lb.className='plabel';
@@ -629,7 +677,7 @@ function downloadLabels(){ var css=document.querySelector('style').textContent.s
   var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download='SWAP_QR라벨.html'; a.click(); }
 
 /* ================= 내 정보 ================= */
-VIEWS.me={ render:function(v){
+VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); };
   v.el.innerHTML=title('내 정보','')+
     '<div class="card"><div style="display:flex;align-items:center;gap:14px"><div style="flex:0 0 56px;height:56px;border-radius:18px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px">'+esc(initials(worker))+'</div>'+
     '<div style="flex:1"><div style="font-weight:800;font-size:21px;letter-spacing:-.5px">'+esc(worker||'이름 없음')+'</div><div class="muted">등록·상태 변경 기록에 남는 이름</div></div></div>'+
@@ -640,7 +688,8 @@ VIEWS.me={ render:function(v){
     '<li><span><b>수거 기기</b> → 입고 → 수리대기 → 수리완료 → 재고 → 출고대기</span></li>'+
     '<li><span><b>출고 기기</b> → 출고 준비완료 한 번</span></li>'+
     '<li><span><b>용지 재사용</b> → 기기가 나간 뒤 태그 비우기</span></li>'+
-    '<li><span><b>뒤로가기</b> → 왼쪽 위 ‹ 또는 화면 왼쪽 끝에서 오른쪽으로 밀기</span></li></ul></div>'+
+    '<li><span><b>뒤로가기</b> → 폰 뒤로가기 버튼, 왼쪽 위 ‹, 또는 화면 왼쪽 끝에서 오른쪽으로 밀기</span></li>'+
+    '<li><span><b>새로고침</b> → 화면 맨 위에서 아래로 당기기</span></li></ul></div>'+
     '<div class="card"><h3>앱으로 쓰기</h3><p class="muted" style="margin:0 0 10px">홈 화면에 아이콘으로 두면 앱처럼 바로 열립니다.</p>'+
     '<button class="btn" id="installbtn" onclick="installApp()">홈 화면에 설치</button></div>'+
     '<div class="card"><h3>기록</h3><p class="muted" style="margin:0">등록·이력은 "SWAP 입출고 QR" 구글시트의 태그·이력 탭에 쌓입니다.</p></div>'+
@@ -656,7 +705,8 @@ function installApp(){ if(installEvt){ installEvt.prompt(); installEvt.userChoic
   openSheet('<h3>홈 화면에 추가</h3><p>'+(ios?'사파리 아래 <b>공유</b> 버튼(네모에 화살표) → <b>홈 화면에 추가</b>를 누르세요.':'크롬 오른쪽 위 <b>⋮ 메뉴</b> → <b>홈 화면에 추가</b>(또는 <b>앱 설치</b>)를 누르세요.')+'</p><button class="btn" onclick="closeSheet()">확인</button>'); }
 if('serviceWorker' in navigator){ window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
 
-goTab('home');
+try{ history.replaceState({d:0},''); }catch(e){}
+tabTo('home');
 if(CODE) push('tag',{code:CODE});
 setTimeout(prefetch, 800);
 </script>
