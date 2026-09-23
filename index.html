@@ -205,15 +205,24 @@
   @media print{
     @page{size:A4 portrait;margin:0} html,body{overflow:visible;height:auto;background:#fff}
     .app,.toast,.dim,.sheet{display:none !important} #printarea{display:block}
-    .psheet{width:210mm;height:297mm;padding:10mm;display:grid;gap:4mm;align-content:start;page-break-after:always;background:#fff}
+    /* A4 한 장을 라벨이 꽉 채우도록: 행 높이를 균등 분배 */
+    .psheet{width:210mm;height:297mm;padding:8mm;display:grid;gap:4mm;align-content:stretch;page-break-after:always;background:#fff;box-sizing:border-box}
     .psheet.c2{grid-template-columns:repeat(2,1fr)} .psheet.c3{grid-template-columns:repeat(3,1fr)}
-    .plabel{border:1.5px dashed #9aa3ad;border-radius:3mm;padding:5mm;display:flex;gap:5mm;align-items:center;break-inside:avoid}
-    .plabel .qr img,.plabel .qr canvas{display:block} .plabel .meta{flex:1;min-width:0}
-    .plabel .code{font-family:ui-monospace,Menlo,monospace;font-weight:800;letter-spacing:2px} .plabel .ttl{font-weight:700} .plabel .sub{color:#6b7280;line-height:1.35}
-    .plabel .lines div{border-bottom:1px solid #c9ced5;margin-top:3.2mm}
-    .sz4 .plabel{min-height:62mm} .sz4 .code{font-size:18pt} .sz4 .ttl{font-size:12pt} .sz4 .sub{font-size:8.5pt}
-    .sz8 .plabel{min-height:32mm} .sz8 .code{font-size:14pt} .sz8 .ttl{font-size:10pt} .sz8 .sub{font-size:7.5pt}
-    .sz12 .plabel{min-height:30mm} .sz12 .code{font-size:11pt} .sz12 .ttl{font-size:8.5pt} .sz12 .sub{font-size:7pt}
+    .sz4{grid-template-rows:repeat(2,1fr)} .sz8{grid-template-rows:repeat(4,1fr)} .sz12{grid-template-rows:repeat(4,1fr)}
+    /* 라벨: 세로 반 분할 — 왼쪽 QR, 오른쪽 하단에 코드·고객 성함 칸·지점명. 위쪽은 테이프 여백 */
+    .plabel{border:1.5px dashed #9aa3ad;border-radius:3mm;padding:4mm 5mm;display:flex;align-items:stretch;gap:4mm;
+            break-inside:avoid;height:100%;box-sizing:border-box;overflow:hidden}
+    .plabel .left{flex:0 0 50%;display:flex;justify-content:center;align-items:center;box-sizing:border-box}
+    .plabel .qr img,.plabel .qr canvas{display:block}
+    .plabel .right{flex:1;min-width:0;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-end;text-align:center}
+    .plabel .code{font-family:ui-monospace,Menlo,monospace;font-weight:800;letter-spacing:2px;line-height:1.1}
+    .plabel .box{width:100%;border:1.5px solid #9aa3ad;border-radius:2mm;padding:1.2mm 2mm;text-align:left;box-sizing:border-box}
+    .plabel .box b{font-weight:700;color:#6b7280;line-height:1}
+    .plabel .brand{font-weight:800;color:#111;letter-spacing:.3px;white-space:nowrap}
+    .sz4 .qr img,.sz4 .qr canvas{width:78mm;height:78mm} .sz4 .code{font-size:26pt} .sz4 .box{height:20mm;margin-top:3mm} .sz4 .box b{font-size:10pt} .sz4 .brand{font-size:13pt;margin-top:3mm}
+    .sz8 .qr img,.sz8 .qr canvas{width:40mm;height:40mm} .sz8 .code{font-size:18pt} .sz8 .box{height:12mm;margin-top:2mm} .sz8 .box b{font-size:7pt} .sz8 .brand{font-size:9pt;margin-top:2mm}
+    .sz12 .qr img,.sz12 .qr canvas{width:26mm;height:26mm} .sz12 .code{font-size:12pt} .sz12 .box{height:9mm;margin-top:1.5mm} .sz12 .box b{font-size:6.5pt} .sz12 .brand{font-size:7.5pt;margin-top:1.5mm}
+    .sz12 .plabel{padding:3mm 3.5mm;gap:2.5mm}
   }
 </style>
 </head>
@@ -242,7 +251,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '2.4';
+var APP_VER = '2.9';
 var STATUS_IN  = ['입고','수리대기','수리완료','재고','출고대기'];
 var STATUS_OUT = ['출고준비중','출고준비완료'];
 var STATUSES   = STATUS_IN.concat(STATUS_OUT);
@@ -577,10 +586,11 @@ function buildLabels(){ var pages=Math.max(1,Math.min(20,parseInt($('lpages').va
   labelCodes=[]; for(var i=0;i<pages*per;i++) labelCodes.push(genCode());
   var pv=$('lprev'); pv.innerHTML=''; labelCodes.slice(0,8).forEach(function(c){ var el=document.createElement('div'); el.className='lb'; el.innerHTML='<div class="qr"></div><div><div class="c">'+c+'</div><div class="t">경기남부점 입출고</div></div>'; pv.appendChild(el); drawQR(el.querySelector('.qr'),qrUrl(c),64); });
   $('lcount').textContent='미리보기 · 총 '+labelCodes.length+'개 (A4 '+pages+'장)';
-  var pa=$('printarea'); pa.innerHTML=''; var cols=per===12?3:2; var px=per===4?150:(per===8?96:82);
+  var pa=$('printarea'); pa.innerHTML=''; var cols=per===12?3:2; var px=per===4?420:(per===8?300:220);
   for(var p=0;p<pages;p++){ var sh=document.createElement('div'); sh.className='psheet c'+cols+' sz'+per;
     for(var k=0;k<per;k++){ var c=labelCodes[p*per+k]; var lb=document.createElement('div'); lb.className='plabel';
-      lb.innerHTML='<div class="qr"></div><div class="meta"><div class="ttl">SWAP 경기남부점 입출고</div><div class="code">'+c+'</div><div class="sub">QR을 찍어 기기를 등록하세요</div><div class="lines"><div></div><div></div></div></div>';
+      lb.innerHTML='<div class="left"><div class="qr"></div></div>'+
+        '<div class="right"><div class="code">'+c+'</div><div class="box"><b>고객 성함</b></div><div class="brand">SWAP 경기남부점</div></div>';
       sh.appendChild(lb); drawQR(lb.querySelector('.qr'),qrUrl(c),px); } pa.appendChild(sh); } }
 function downloadLabels(){ var css=document.querySelector('style').textContent.split('@media print{')[1]||''; css=css.slice(0,css.lastIndexOf('}'));
   var html='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>SWAP QR 라벨</title><style>body{margin:0;font-family:Pretendard,-apple-system,sans-serif}#printarea{display:block}'+css+'</style></head><body><div id="printarea">'+$('printarea').innerHTML+'</div></body></html>';
