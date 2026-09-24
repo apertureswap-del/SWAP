@@ -343,7 +343,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '5.3';
+var APP_VER = '5.4';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -440,9 +440,10 @@ function syncChrome(){ var v=stack[stack.length-1]; if(!v) return; $('back').cla
 var hDepth=0, ignorePop=0;
 function hPush(){ hDepth++; try{ history.pushState({d:hDepth},''); }catch(e){} }
 function hReplace(){ try{ history.replaceState({d:hDepth},''); }catch(e){} }
-function hBack(n){ n=n||1; if(hDepth<=0) return false; n=Math.min(n,hDepth); hDepth-=n; ignorePop++; clearTimeout(hBack._t); hBack._t=setTimeout(function(){ ignorePop=0; },1200); try{ history.go(-n); }catch(e){ ignorePop--; } return true; }
+function hBack(n){ n=n||1; if(hDepth<=0) return false; n=Math.min(n,hDepth); hDepth-=n; ignorePop++; clearTimeout(hBack._t); hBack._t=setTimeout(function(){ ignorePop=0; runAfterPop(); },1200); try{ history.go(-n); }catch(e){ ignorePop--; runAfterPop(); } return true; }
+var afterPop=null; function runAfterPop(){ if(afterPop){ var f=afterPop; afterPop=null; setTimeout(f,0); } }
 window.addEventListener('popstate',function(e){
-  if(ignorePop>0){ ignorePop--; hDepth=(e.state&&e.state.d)||0; return; }
+  if(ignorePop>0){ ignorePop--; hDepth=(e.state&&e.state.d)||0; runAfterPop(); return; }
   hDepth=(e.state&&e.state.d)||0;
   if(sheetOpen){ sheetOpen=false; hideSheet(); return; }
   if(stack.length>1){ popView(); return; }
@@ -491,15 +492,15 @@ function tabTo(name){ haptic(6);
 var sheetOpen=false;
 function openSheet(html){ $('sheet').innerHTML='<div class="grab"></div>'+html; $('sheet').classList.add('on'); $('dim').classList.add('on'); if(!sheetOpen){ sheetOpen=true; hPush(); } }
 function hideSheet(){ $('sheet').classList.remove('on'); $('dim').classList.remove('on'); }
-function closeSheet(){ hideSheet(); if(sheetOpen){ sheetOpen=false; hBack(1); } }
+function closeSheet(cb){ hideSheet(); if(sheetOpen){ sheetOpen=false; afterPop=cb||null; if(!hBack(1)) runAfterPop(); } else if(cb){ setTimeout(cb,0); } }
 var pendingAfterName=null;
 function openNameSheet(after){ pendingAfterName=after||null;
   openSheet('<h3>작업자 이름</h3><p>등록·상태 변경 기록에 남습니다. 한 번만 입력하면 이 폰에 저장돼요.</p>'+
     '<input class="input" id="nm" placeholder="예: 홍길동" value="'+esc(worker)+'" style="margin-bottom:12px"><button class="btn" onclick="saveName()">저장</button>');
   setTimeout(function(){ $('nm').focus(); },380); $('nm').addEventListener('keydown',function(e){ if(e.key==='Enter') saveName(); }); }
-function saveName(){ var v=($('nm').value||'').trim(); if(!v){ toast('이름을 입력해 주세요'); return; } worker=v; localStorage.setItem('swapWorker',v); closeSheet();
+function saveName(){ var v=($('nm').value||'').trim(); if(!v){ toast('이름을 입력해 주세요'); return; } worker=v; localStorage.setItem('swapWorker',v);
   var cur=stack[stack.length-1]; if(cur&&cur.name==='me') VIEWS.me.render(cur);
-  if(pendingAfterName){ var f=pendingAfterName; pendingAfterName=null; setTimeout(f,300); } }
+  closeSheet(function(){ if(pendingAfterName){ var f=pendingAfterName; pendingAfterName=null; f(); } }); }
 function needWorker(then){ if(worker){ then(); return; } openNameSheet(then); }
 
 /* ================= 홈 ================= */
@@ -656,7 +657,7 @@ function pickSearch(key){ var v=stack[stack.length-1]; var it=key[0]==='w' ? v.s
   openSheet('<h3>'+esc(dispName(it))+' <span class="muted" style="font-size:14px;font-weight:600">'+esc(it.type||'')+'</span></h3>'+
     '<p>'+esc([it.model,it.color].filter(Boolean).join(' '))+(it.serial?' · '+esc(it.serial):'')+(it.date?'<br>작업 예정 '+esc(it.date):'')+(it.reqId?'<br>고객요청 '+esc(it.reqId):'')+'</p>'+
     (kinds.length?'<div class="note" style="margin:0 0 14px">이미 '+kinds.map(function(k){return k==='출고'?'출고':'수거';}).join('·')+' 기기가 QR에 등록된 건이에요.</div>':'')+
-    '<button class="btn" onclick="closeSheet();matchQR(stack[stack.length-1].state.picked)"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.2"/></svg>QR 찍어서 매칭하기</button>'+
+    '<button class="btn" onclick="closeSheet(function(){ matchQR(stack[stack.length-1].state.picked); })"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.2"/></svg>QR 찍어서 매칭하기</button>'+
     (it.reqId?'<a class="btn line" style="margin-top:8px" href="https://swap.admin.swingmobility.dev/task-v2/'+esc(it.reqId)+'" target="_blank">어드민 작업 상세</a>':''));
   v.state.picked=it; }
 function manualStock(q){ q=q||''; var isSerial=/[0-9]/.test(q);
@@ -667,7 +668,7 @@ function manualStock(q){ q=q||''; var isSerial=/[0-9]/.test(q);
     '<button class="btn dark" style="margin-top:6px" onclick="manualStockGo()">QR 찍어서 매칭하기</button>'); setTimeout(function(){ var i=$('ms_serial'); if(i) i.focus(); },400); }
 function manualStockGo(){ var serial=($('ms_serial').value||'').trim(); if(!serial){ toast('일련번호를 입력해 주세요'); return; }
   var it={reqId:'',name:($('ms_name').value||'').trim()||'재고',type:'재고 등록',model:($('ms_model').value||'').trim(),color:'',serial:serial,stock:true,kind:'재고'};
-  closeSheet(); setTimeout(function(){ matchQR(it); },250); }
+  closeSheet(function(){ matchQR(it); }); }
 
 /* ================= 내 작업 현황 ================= */
 function openMyWork(){ needWorker(function(){ push('mywork',{}); }); }
