@@ -323,7 +323,7 @@
   @keyframes lcardin{from{opacity:0;transform:translateY(22px) scale(.96)}to{opacity:1;transform:none}}
   .lcard .lt{font-size:22px;font-weight:800;letter-spacing:-.6px;line-height:1.25} .lcard .lt em{font-style:normal;color:#a56bff}
   .lcard .ll{margin:16px 0 8px;font-size:13px;font-weight:600;color:rgba(255,255,255,.62);letter-spacing:.3px}
-  .lcard .linput{width:100%;box-sizing:border-box;padding:12px 4px 10px;border:0;border-bottom:2px solid rgba(255,255,255,.55);border-radius:0;background:transparent;color:#fff;outline:none;
+  .lcard .linput{width:100%;box-sizing:border-box;margin-top:22px;padding:12px 4px 10px;border:0;border-bottom:2px solid rgba(255,255,255,.55);border-radius:0;background:transparent;color:#fff;outline:none;
          font-family:ui-monospace,Menlo,monospace;font-size:28px;font-weight:700;letter-spacing:8px;text-align:center;text-transform:uppercase;transition:border-color .15s}
   .lcard .linput::placeholder{letter-spacing:0;font-size:15px;font-family:inherit;font-weight:500;color:rgba(255,255,255,.35);text-transform:none}
   .lcard .linput:focus{border-bottom-color:#c9a6ff}
@@ -369,8 +369,7 @@
   <div class="glitch" id="glitch" aria-hidden="true"></div>
   <form class="lcard" id="lcard" onsubmit="doLogin();return false" autocomplete="off">
     <div class="lt"><em>SWAP</em> 경기남부점 입출고</div>
-    <div class="ll">접속 코드 입력</div>
-    <input class="linput" id="lcode" maxlength="8" placeholder="코드를 입력하세요" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="latin">
+    <input class="linput" id="lcode" maxlength="8" placeholder="접속 코드 입력" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="latin">
     <button class="btn" id="lbtn" type="submit">접속</button>
     <div class="lerr" id="lerr"></div>
   </form>
@@ -401,7 +400,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '6.2';
+var APP_VER = '6.3';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
