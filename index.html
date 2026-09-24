@@ -299,7 +299,7 @@
          padding:24px calc(20px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));transition:opacity .45s,transform .45s var(--spring)}
   .login.out{opacity:0;transform:scale(1.04);pointer-events:none}
   .login::before{content:"";position:absolute;inset:-20%;background:radial-gradient(55% 40% at 50% 30%,rgba(120,32,232,.32),transparent 70%);pointer-events:none}
-  .glitch{position:relative;flex:0 0 auto;width:112vw;max-width:760px;aspect-ratio:56.3/15.5;pointer-events:none;filter:drop-shadow(0 0 22px rgba(120,32,232,.35))}
+  .glitch{position:relative;flex:0 0 auto;width:92vw;max-width:640px;aspect-ratio:56.3/15.5;pointer-events:none;filter:drop-shadow(0 0 22px rgba(120,32,232,.35))}
   .glitch .g{position:absolute;left:0;top:0;width:100%;display:block;color:#fff}
   .glitch .g .logo{width:100%;height:auto;display:block;fill:currentColor;overflow:visible}
   .glitch .g .logo .l{animation:none}
@@ -321,13 +321,13 @@
          box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);text-align:center;
          animation:lcardin .7s var(--spring) both;animation-delay:.15s}
   @keyframes lcardin{from{opacity:0;transform:translateY(22px) scale(.96)}to{opacity:1;transform:none}}
-  .lcard .lt{font-size:22px;font-weight:800;letter-spacing:-.6px;line-height:1.25} .lcard .lt em{font-style:normal;color:#c9a6ff}
+  .lcard .lt{font-size:22px;font-weight:800;letter-spacing:-.6px;line-height:1.25} .lcard .lt em{font-style:normal;color:#a56bff}
   .lcard .ll{margin:16px 0 8px;font-size:13px;font-weight:600;color:rgba(255,255,255,.62);letter-spacing:.3px}
-  .lcard .linput{width:100%;box-sizing:border-box;padding:16px 12px;border-radius:16px;border:1.5px solid rgba(255,255,255,.14);background:rgba(0,0,0,.35);color:#fff;outline:none;
-         font-family:ui-monospace,Menlo,monospace;font-size:26px;font-weight:700;letter-spacing:8px;text-align:center;text-transform:uppercase;transition:border-color .15s,box-shadow .15s}
+  .lcard .linput{width:100%;box-sizing:border-box;padding:12px 4px 10px;border:0;border-bottom:2px solid rgba(255,255,255,.55);border-radius:0;background:transparent;color:#fff;outline:none;
+         font-family:ui-monospace,Menlo,monospace;font-size:28px;font-weight:700;letter-spacing:8px;text-align:center;text-transform:uppercase;transition:border-color .15s}
   .lcard .linput::placeholder{letter-spacing:0;font-size:15px;font-family:inherit;font-weight:500;color:rgba(255,255,255,.35);text-transform:none}
-  .lcard .linput:focus{border-color:#a56bff;box-shadow:0 0 0 4px rgba(120,32,232,.28)}
-  .lcard .btn{margin-top:12px;box-shadow:0 10px 30px rgba(120,32,232,.45)} .lcard .btn:disabled{opacity:.6}
+  .lcard .linput:focus{border-bottom-color:#c9a6ff}
+  .lcard .btn{margin:22px auto 0;width:auto;min-width:112px;padding:10px 26px;font-size:14px;border-radius:12px;box-shadow:0 8px 22px rgba(120,32,232,.4)} .lcard .btn:disabled{opacity:.6}
   .lcard .lerr{min-height:20px;margin-top:12px;font-size:13.5px;font-weight:600;color:#ff8fa3}
   .lcard.shake{animation:shake .5s}
   @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
@@ -368,7 +368,7 @@
 <div class="login" id="login" style="display:none">
   <div class="glitch" id="glitch" aria-hidden="true"></div>
   <form class="lcard" id="lcard" onsubmit="doLogin();return false" autocomplete="off">
-    <div class="lt">SWAP <em>경기남부점</em> 입출고</div>
+    <div class="lt"><em>SWAP</em> 경기남부점 입출고</div>
     <div class="ll">접속 코드 입력</div>
     <input class="linput" id="lcode" maxlength="8" placeholder="코드를 입력하세요" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="latin">
     <button class="btn" id="lbtn" type="submit">접속</button>
@@ -401,7 +401,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '6.0';
+var APP_VER = '6.2';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
