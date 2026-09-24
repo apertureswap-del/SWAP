@@ -328,6 +328,11 @@
   .lcard .linput::placeholder{letter-spacing:0;font-size:15px;font-family:inherit;font-weight:500;color:rgba(255,255,255,.35);text-transform:none}
   .lcard .linput:focus{border-bottom-color:#c9a6ff}
   .lcard .btn{margin:22px auto 0;width:auto;min-width:112px;padding:10px 26px;font-size:14px;border-radius:12px;box-shadow:0 8px 22px rgba(120,32,232,.4)} .lcard .btn:disabled{opacity:.6}
+  .lcard .lauto{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;user-select:none}
+  .lcard .lauto input{position:absolute;opacity:0;width:0;height:0}
+  .lcard .lauto i{width:20px;height:20px;border-radius:7px;border:1.5px solid rgba(255,255,255,.45);background:rgba(0,0,0,.25);display:inline-flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s}
+  .lcard .lauto i::after{content:'';width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px);opacity:0;transition:opacity .15s}
+  .lcard .lauto input:checked+i{background:var(--p);border-color:var(--p)} .lcard .lauto input:checked+i::after{opacity:1}
   .lcard .lerr{min-height:20px;margin-top:12px;font-size:13.5px;font-weight:600;color:#ff8fa3}
   .lcard.shake{animation:shake .5s}
   @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
@@ -371,6 +376,7 @@
     <div class="lt"><em>SWAP</em> 경기남부점 입출고</div>
     <input class="linput" id="lcode" maxlength="8" placeholder="접속 코드 입력" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="latin">
     <button class="btn" id="lbtn" type="submit">접속</button>
+    <label class="lauto"><input type="checkbox" id="lauto"><i></i>자동 로그인</label>
     <div class="lerr" id="lerr"></div>
   </form>
   <div class="lver" id="lver"></div>
@@ -400,7 +406,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '6.3';
+var APP_VER = '6.4';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -1021,16 +1027,23 @@ function addCodeGo(){ var name=($('ncn').value||'').trim(); var v=codeView(); cl
 
 /* ================= 로그인 ================= */
 function setLoginErr(m){ var e=$('lerr'); if(e) e.textContent=m||''; }
-function showLogin(msg){ var l=$('login'); if(!$('glitch').innerHTML) $('glitch').innerHTML='<span class="g g1">'+LOGO+'</span><span class="g g2">'+LOGO+'</span><span class="g g3">'+LOGO+'</span>';
-  $('lver').textContent='SWAP 입출고 v'+APP_VER; l.style.display=''; l.classList.remove('out'); setLoginErr(msg||''); $('lcode').value=''; $('lbtn').disabled=false;
-  setTimeout(function(){ try{ $('lcode').focus(); }catch(e){} },500); }
+function showLogin(msg,prefill){ var l=$('login'); if(!$('glitch').innerHTML) $('glitch').innerHTML='<span class="g g1">'+LOGO+'</span><span class="g g2">'+LOGO+'</span><span class="g g3">'+LOGO+'</span>';
+  $('lver').textContent='SWAP 입출고 v'+APP_VER; l.style.display=''; l.classList.remove('out'); setLoginErr(msg||''); $('lcode').value=prefill||''; $('lbtn').disabled=false; $('lbtn').textContent='접속';
+  $('lauto').checked=!!prefill;
+  if(!prefill) setTimeout(function(){ try{ $('lcode').focus(); }catch(e){} },500); }
 function hideLogin(){ var l=$('login'); l.classList.add('out'); setTimeout(function(){ l.style.display='none'; },480); }
-function doLogin(){ var code=($('lcode').value||'').trim().toUpperCase(); var card=$('lcard');
-  if(code.length<5){ setLoginErr('코드는 5자리예요'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); return; }
+function loginFail(msg){ var card=$('lcard'); $('glitch').classList.remove('wild'); $('lbtn').disabled=false; $('lbtn').textContent='접속'; setLoginErr(msg||'접속 실패'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); }
+function doLogin(){ var code=($('lcode').value||'').trim().toUpperCase();
+  if(code.length<5){ loginFail('코드는 5자리예요'); return; }
   $('lbtn').disabled=true; $('lbtn').textContent='확인 중…'; setLoginErr(''); $('glitch').classList.add('wild');
-  run('login',code).then(function(a){ applyAuth(a); $('glitch').classList.remove('wild'); if(navigator.vibrate) navigator.vibrate([10,30,10]); hideLogin(); startApp(); })
-    .catch(function(e){ $('glitch').classList.remove('wild'); $('lbtn').disabled=false; $('lbtn').textContent='접속'; setLoginErr(e.message||'접속 실패'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); }); }
-function applyAuth(a){ AUTH={code:a.code,name:a.name||'',admin:!!a.admin}; try{ localStorage.setItem('swapAuth',JSON.stringify(AUTH)); }catch(e){}
+  run('login',code).then(function(a){ applyAuth(a,$('lauto').checked); $('glitch').classList.remove('wild'); if(navigator.vibrate) navigator.vibrate([10,30,10]); hideLogin(); startApp(); })
+    .catch(function(e){ loginFail(e.message); }); }
+/* 자동 로그인: 로그인 화면을 1.5초 보여준 뒤(그동안 코드가 아직 유효한지 확인) 들어감 */
+function autoLogin(){ showLogin('',AUTH.code); $('lbtn').disabled=true; $('lbtn').textContent='자동 접속 중…'; $('glitch').classList.add('wild');
+  var wait=new Promise(function(r){ setTimeout(r,1500); });
+  var check=run('login',AUTH.code).then(function(a){ applyAuth(a,true); return true; }).catch(function(e){ if(e.auth===false){ loginFail(e.message); return false; } return true; /* 네트워크 오류면 저장된 코드로 진행 */ });
+  Promise.all([wait,check]).then(function(r){ if(!r[1]) return; $('glitch').classList.remove('wild'); hideLogin(); startApp(); }); }
+function applyAuth(a,auto){ AUTH={code:a.code,name:a.name||'',admin:!!a.admin,auto:!!auto}; try{ localStorage.setItem('swapAuth',JSON.stringify(AUTH)); }catch(e){}
   if(a.name&&!a.admin&&worker!==a.name){ worker=a.name; localStorage.setItem('swapWorker',a.name); } }
 var loggingOut=false;
 function logout(msg){ if(loggingOut) return; loggingOut=true; AUTH=null; try{ localStorage.removeItem('swapAuth'); }catch(e){}
@@ -1045,9 +1058,8 @@ function startApp(){ if(appStarted) return; appStarted=true;
 function boot(){ try{ history.replaceState({d:0},''); }catch(e){}
   var bye=new URLSearchParams(location.search).get('bye');
   if(bye){ try{ history.replaceState({d:0},'',location.pathname); }catch(e){} }
-  if(AUTH&&AUTH.code&&!bye){ startApp();   // 저장된 코드로 바로 시작하고, 뒤에서 아직 쓸 수 있는 코드인지 확인
-    run('login',AUTH.code).then(applyAuth).catch(function(e){ if(e.auth===false) logout(e.message); }); }
-  else showLogin(bye||''); }
+  if(AUTH&&AUTH.code&&AUTH.auto&&!bye) autoLogin();
+  else { if(AUTH&&!AUTH.auto){ AUTH=null; try{ localStorage.removeItem('swapAuth'); }catch(e){} } showLogin(bye||''); } }
 
 /* ================= 시작 ================= */
 /* PWA: 설치 프롬프트 잡아두기 + 서비스워커 등록 */
