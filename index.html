@@ -298,11 +298,11 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '3.6';
+var APP_VER = '3.7';
 var STATUS_IN  = ['입고','수리대기','수리완료','재고','출고대기'];
 var STATUS_OUT = ['출고준비중','출고준비완료'];
 var STATUSES   = STATUS_IN.concat(STATUS_OUT);
-var ACC_PRESET = ['배터리','충전기','SWAP백','키','헬멧','체인락','폰거치대','바구니','짐받이','레인커버'];
+var ACC_PRESET = ['배터리','충전기','SWAP백','시동키','카드키','배터리키','헬멧','체인락','폰거치대','바구니','짐받이','레인커버'];
 var worker = localStorage.getItem('swapWorker') || '';
 
 /* ================= 유틸 ================= */
