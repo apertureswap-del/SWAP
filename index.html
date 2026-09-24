@@ -343,7 +343,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '5.1';
+var APP_VER = '5.2';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -391,7 +391,7 @@ var _rid=0; var READ_FNS={getTag:1,listTags:1,getWorkList:1,getTaskDevices:1,get
 /* 전산미완료: 재고/출고준비완료인데 어드민 고객요청이 완료가 아닌 기기 */
 function sysPending(t){ if(!t) return false; if(typeof t.sysPending==='boolean') return t.sysPending;
   var st=String(t['어드민상태']||'').trim(); return ['재고','출고준비완료'].indexOf(t['상태'])>=0 && !!t['고객요청ID'] && (!st || /^(PENDING|IN_PROGRESS|WAITING|READY)$/i.test(st)); }
-function sysBadge(t,small){ return sysPending(t) ? '<span class="pill sys'+(small?' sm':'')+'">❗전산미완료</span>' : ''; }
+function sysBadge(t,small){ return sysPending(t) ? '<span class="pill sys'+(small?' sm':'')+'">⚠️전산미완료</span>' : ''; }
 var sysRefreshT=0;
 function refreshSysBg(){ if(Date.now()-sysRefreshT<60000) return; sysRefreshT=Date.now();
   run('refreshSysStatus',4).then(function(r){ if(r&&r.n>0){ run('listTags',500).then(function(tags){ lsSet('tags',tags); var v=stack[stack.length-1]; if(!v) return;
@@ -514,7 +514,7 @@ function drawHome(v,tags){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true
   var n=function(x,k){ return num(x,k); };
   var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span class="hlogo">'+LOGO+'</span>경기남부점 입출고</h1></div>';
   var sysN=tags.filter(sysPending).length;
-  h+='<div class="card sum"><div class="lb">관리 중인 기기'+(sysN?' <span class="pill sys sm" style="margin-left:6px;vertical-align:middle" onclick="push(\'status\',{filter:\'전산미완료\'})">❗전산미완료 '+sysN+'</span>':'')+'</div><div class="big">'+n(tags.length,'all')+'<span>대</span></div>'+
+  h+='<div class="card sum"><div class="lb">관리 중인 기기'+(sysN?' <span class="pill sys sm" style="margin-left:6px;vertical-align:middle" onclick="push(\'status\',{filter:\'전산미완료\'})">⚠️전산미완료 '+sysN+'</span>':'')+'</div><div class="big">'+n(tags.length,'all')+'<span>대</span></div>'+
     '<div class="stats">'+[['입고','입고'],['수리대기','수리대기'],['수리가능','수리가능'],['재고','재고'],['출고대기중','출고 대기중'],['출고준비완료','출고 준비완료']].map(function(x){
       return '<button class="'+(x[0]==='출고준비완료'&&sum[x[0]]?'hot':'')+'" onclick="push(\'status\',{filter:\''+x[0]+'\'})"><span><i class="dot s-'+x[0]+'"></i>'+x[1]+'</span>'+n(sum[x[0]],x[0])+'</button>'; }).join('')+
     '<button class="wide" onclick="push(\'status\',{})"><span>전체 보기</span><b style="font-size:18px;color:var(--muted)">›</b></button></div></div>';
@@ -604,7 +604,7 @@ function drawStatus(v){ var f=v.state.filter; var tags=v.state.tags||[]; tags.fo
   var h=title('입출고 현황', num(tags.length,'all')+'건 등록됨',
     '<button class="hbtn" onclick="openMyWork()"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>내 작업 현황</button>');
   h+='<div class="seg">'+['전체','수거','출고'].map(function(s){ return '<button class="'+(f===s?'on':'')+'" onclick="setFilter(\''+s+'\')">'+s+'</button>'; }).join('')+'</div>';
-  h+='<div class="chips" style="margin-bottom:12px">'+STATUSES.concat(['전산미완료']).map(function(s){ return '<button class="'+(f===s?'on':'')+'" style="padding:7px 11px;font-size:12.5px'+(s==='전산미완료'?';color:var(--danger)':'')+'" onclick="setFilter(\''+s+'\')">'+(s==='전산미완료'?'❗':'')+s+'</button>'; }).join('')+'</div>';
+  h+='<div class="chips" style="margin-bottom:12px">'+STATUSES.concat(['전산미완료']).map(function(s){ return '<button class="'+(f===s?'on':'')+'" style="padding:7px 11px;font-size:12.5px'+(s==='전산미완료'?';color:var(--danger)':'')+'" onclick="setFilter(\''+s+'\')">'+(s==='전산미완료'?'⚠️':'')+s+'</button>'; }).join('')+'</div>';
   h+='<p class="muted" style="margin:0 6px 10px;font-weight:600">'+num(list.length,'cnt')+'건</p>';
   if(!list.length) h+='<div class="card"><div class="empty">해당하는 기기가 없어요.</div></div>';
   else { h+='<div class="list">'; list.forEach(function(t){ h+=itemTag(t); }); h+='</div>'; } v.el.innerHTML=h; countUp(v.el); }
@@ -731,7 +731,7 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
       '<div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:26px;font-weight:800;letter-spacing:-.8px;line-height:1.2">'+esc(t['고객명'])+'</span>'+kindBadge(t['구분'])+'</div>'+
       '<div class="muted" style="margin-top:3px">'+esc(t['작업타입'])+' · '+esc(t['작업예정일'])+'</div></div>'+
       '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="pill s-'+esc(t['상태'])+'">'+esc(t['상태'])+'</span>'+sysBadge(t)+'</div></div>'+
-    (sysPending(t)?'<div class="note" style="margin-top:12px;background:var(--danger-soft);color:var(--danger)"><b>❗전산미완료</b> — 어드민 고객요청이 아직 완료 처리되지 않았어요'+(t['어드민상태']?' (현재: '+esc(t['어드민상태'])+')':' (상태 미확인)')+'. 어드민에서 완료 처리 후 "어드민 새로고침"을 누르면 사라집니다.</div>':'')+
+    (sysPending(t)?'<div class="note" style="margin-top:12px;background:var(--danger-soft);color:var(--danger)"><b>⚠️전산미완료</b> — 어드민 고객요청이 아직 완료 처리되지 않았어요'+(t['어드민상태']?' (현재: '+esc(t['어드민상태'])+')':' (상태 미확인)')+'. 어드민에서 완료 처리 후 "어드민 새로고침"을 누르면 사라집니다.</div>':'')+
     '<div class="block">'+
       '<div class="field-row"><div class="muted" style="font-size:13px;font-weight:600">'+(out?'출고 기기':(t['구분']==='재고'?'재고 기기':'수거 기기'))+' · '+esc(t['모델'])+' '+esc(t['색상'])+'</div><button class="edit" onclick="editSerial()">수정</button></div>'+
       '<div class="sn-big">'+(t['일련번호']?esc(t['일련번호']):'<span class="muted" style="font-weight:600;font-size:15px;font-family:inherit">일련번호 없음</span>')+'</div>'+
@@ -918,7 +918,7 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); };
     '<li><span><b>자전거 주문</b> → 출고 QR 1장 · <b>교체수리</b> → 출고 1장 + 수거 1장</span></li>'+
     '<li><span><b>수거 기기</b> → 입고 → 수리대기 → <b>수리가능</b> → 재고 또는 출고 대기중 (수리가능을 지나야 넘어감)</span></li>'+
     '<li><span><b>출고 기기</b> → 등록하면 바로 출고 준비완료</span></li>'+
-    '<li><span><b>❗전산미완료</b> → 재고·출고준비완료 기기인데 어드민 고객요청이 완료가 아닐 때 표시. 어드민에서 완료 처리하면 사라짐(15분마다 자동 확인, 상세 화면 열면 즉시 확인)</span></li>'+
+    '<li><span><b>⚠️전산미완료</b> → 재고·출고준비완료 기기인데 어드민 고객요청이 완료가 아닐 때 표시. 어드민에서 완료 처리하면 사라짐(15분마다 자동 확인, 상세 화면 열면 즉시 확인)</span></li>'+
     '<li><span><b>용지 재사용</b> → 기기가 나간 뒤 태그 비우기</span></li>'+
     '<li><span><b>뒤로가기</b> → 폰 뒤로가기 버튼, 왼쪽 위 ‹, 또는 화면 왼쪽 끝에서 오른쪽으로 밀기</span></li>'+
     '<li><span><b>새로고침</b> → 화면 맨 위에서 아래로 당기기</span></li>'+
