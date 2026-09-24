@@ -425,7 +425,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '7.1';
+var APP_VER = '7.2';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -1027,33 +1027,29 @@ function drawStock(v){ var r=v.state.pv; var changed=r.items.filter(function(i){
   var h=title('재고 시트 반영','<a href="'+esc(r.sheetUrl)+'" target="_blank" style="color:var(--p);font-weight:700">'+esc(r.tab)+' 열기 ›</a>');
   h+='<div class="card sum"><div class="lb">앱에 재고로 있는 기기</div><div class="big">'+num(r.total,'st')+'<span>대</span></div>'+
      '<div class="muted" style="margin-top:6px">신품 '+num(r.newTotal,'sn')+'대 · 중고 '+num(r.total-r.newTotal,'su')+'대'+(r.updated?' · 시트 마지막 반영 '+esc(r.updated):'')+'</div></div>';
-  if(r.baseline){
-    h+='<div class="card"><h3>처음 실행 · 기준 잡기</h3><p class="muted" style="margin:0;font-size:13px">지금 시트 숫자를 그대로 두고, 앱에 재고로 있는 '+r.tracked+'대를 "이미 반영됨"으로 기억만 해요. 이 다음부터 새로 재고가 된 기기는 +1, 재고에서 빠진 기기는 -1로 시트에 더하고 빼요. 신품은 <b>새제품</b> 칸, 중고는 <b>중고-중</b> 칸에 각각 따로 들어가요.</p></div>';
-  } else {
-    h+='<div class="card"><h3>바뀔 줄 '+changed.length+'개</h3><p class="muted" style="margin:0 0 6px;font-size:13px">새로 재고가 된 기기는 +1, 빠진 기기는 -1. 신품 → <b>새제품</b> 칸, 중고 → <b>중고-중</b> 칸에 각각 따로. 시트에 있던 숫자는 덮어쓰지 않아요.</p>';
-    if(!changed.length) h+='<div class="empty">지난 반영 이후 들어오거나 빠진 기기가 없어요.</div>';
-    else changed.forEach(function(i){ var who=i.added.map(function(d){ return '+ '+esc(d.serial||d.code)+(d.isNew?' 신품':''); }).concat(i.removed.map(function(d){ return '− '+esc(d.serial||d.code)+(d.isNew?' 신품':''); })).join(', ');
-      h+='<div class="srow"><div class="sn"><b>'+esc(i.model)+' '+esc(i.color)+'</b><span>'+who+(i.floor?' · <span style="color:var(--danger)">시트 값이 0이라 더 못 뺌</span>':'')+'</span></div>'+
-      '<div class="sv">'+cell(i.sheetNew,i.newNew,i.dNew,'새제품')+cell(i.sheetUsed,i.newUsed,i.dUsed,'중')+'</div></div>'; });
-    h+='</div>';
-  }
+  h+='<div class="card"><h3>바뀔 줄 '+changed.length+'개</h3><p class="muted" style="margin:0 0 6px;font-size:13px">'+(r.first?'<b>처음 실행</b>이라 앱 재고 '+r.tracked+'대 전부를 기종·색상별로 나눠 +1씩 더해요. ':'새로 재고가 된 기기는 +1, 빠진 기기는 -1. ')+'신품 → <b>새제품</b> 칸, 중고 → <b>중고-중</b> 칸에 각각 따로. 시트에 있던 숫자는 덮어쓰지 않아요.</p>';
+  if(!changed.length) h+='<div class="empty">지난 반영 이후 들어오거나 빠진 기기가 없어요.</div>';
+  else changed.forEach(function(i){ var who=i.added.map(function(d){ return '+ '+esc(d.serial||d.code)+(d.isNew?' 신품':''); }).concat(i.removed.map(function(d){ return '− '+esc(d.serial||d.code)+(d.isNew?' 신품':''); })).join(', ');
+    h+='<div class="srow"><div class="sn"><b>'+esc(i.model)+' '+esc(i.color)+'</b><span>'+who+(i.floor?' · <span style="color:var(--danger)">시트 값이 0이라 더 못 뺌</span>':'')+'</span></div>'+
+    '<div class="sv">'+cell(i.sheetNew,i.newNew,i.dNew,'새제품')+cell(i.sheetUsed,i.newUsed,i.dUsed,'중')+'</div></div>'; });
+  h+='</div>';
   if(r.gone&&r.gone.length){ h+='<div class="card"><h3 style="color:var(--danger)">빼야 하는데 시트 줄을 못 찾은 기기 '+r.gone.length+'대</h3><p class="muted" style="margin:0 0 6px;font-size:13px">지난번에 더해 둔 기기가 재고에서 빠졌는데, 시트에서 그 줄을 못 찾아 -1을 못 해요. 시트에서 직접 빼 주세요.</p>';
     r.gone.forEach(function(d){ h+='<div class="srow dim"><div class="sn"><b>'+esc(d.model)+' '+esc(d.color)+'</b><span>'+esc(d.serial||d.code)+(d.isNew?' · 새제품 칸':' · 중고-중 칸')+'</span></div></div>'; }); h+='</div>'; }
   if(r.ambiguous.length||r.unmatched.length){ h+='<div class="card"><h3 style="color:var(--danger)">시트 줄을 못 찾은 기기 '+(r.ambiguous.length+r.unmatched.length)+'대</h3><p class="muted" style="margin:0 0 6px;font-size:13px">이 기기들은 반영에서 빠져요. 태그의 모델·색상을 시트 표기와 맞게 고치면 다음 반영 때 들어가요.</p>';
     r.ambiguous.forEach(function(d){ h+='<div class="srow dim"><div class="sn"><b>'+esc(d.model)+' '+esc(d.color)+'</b><span>'+esc(d.serial||d.code)+' · 시트에 '+d.options.map(esc).join(' / ')+' 가 있어 애매함</span></div><button class="edit" onclick="push(\'tag\',{code:\''+esc(d.code)+'\'})">태그</button></div>'; });
     r.unmatched.forEach(function(d){ h+='<div class="srow dim"><div class="sn"><b>'+esc(d.model||'모델 없음')+' '+esc(d.color)+'</b><span>'+esc(d.serial||d.code)+' · 시트에 같은 기종·색상 줄이 없음</span></div><button class="edit" onclick="push(\'tag\',{code:\''+esc(d.code)+'\'})">태그</button></div>'; });
     h+='</div>'; }
-  var can=r.baseline||changed.length>0;
-  h+='<button class="btn" '+(can?'':'disabled style="opacity:.5"')+' onclick="stockApplyAsk()">'+(r.baseline?'지금 재고를 기준으로 등록':'시트에 반영 ('+changed.length+'줄)')+'</button>';
+  h+='<button class="btn" '+(changed.length?'':'disabled style="opacity:.5"')+' onclick="stockApplyAsk(\'\')">시트에 반영 ('+changed.length+'줄)</button>';
+  if(r.first) h+='<button class="btn line" style="margin-top:8px" onclick="stockApplyAsk(\'baseline\')">시트에 이미 넣어둠 · 더하지 않고 기억만</button>';
   v.el.innerHTML=h; countUp(v.el);
   function cell(a,b,d,label){ var ch=a!==b; return '<em class="'+(ch?'ch':'')+'">'+label+' '+(ch?'<s>'+a+'</s>':'')+b+(d?' <small>('+(d>0?'+':'')+d+')</small>':'')+'</em>'; } }
-function stockApplyAsk(){ needWorker(function(){ var v=stack[stack.length-1]; var r=v.state.pv; var changed=r.items.filter(function(i){ return i.changed; }); if(!r.baseline&&!changed.length) return;
-  var msg=r.baseline ? '시트 숫자는 그대로 두고, 앱 재고 '+r.tracked+'대를 이미 반영된 것으로 기억해요. 다음부터 들어오고 빠지는 기기만 ±1 해요.'
-                     : esc(r.tab)+' 탭의 '+changed.length+'줄에서 새제품·중고-중 칸에 더하고 빼요. 다른 칸은 그대로예요.';
-  openSheet('<h3>'+(r.baseline?'기준으로 등록할까요?':'시트에 반영할까요?')+'</h3><p>'+msg+'</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ stockApplyGo(); })">'+(r.baseline?'등록':'반영')+'</button></div>'); }); }
-function stockApplyGo(){ var v=stack[stack.length-1]; var changed=v.state.pv.items.filter(function(i){ return i.changed; }).map(function(i){ return {row:i.row,model:i.model,dNew:i.dNew,dUsed:i.dUsed}; });
-  v.el.innerHTML=title('재고 시트 반영','')+spin(v.state.pv.baseline?'기준 등록하는 중':'시트에 쓰는 중');
-  run('stockApply',changed,worker).then(function(res){ if(stack.indexOf(v)<0) return; if(res.ok){ haptic([12,40,18]); toast(res.baseline?'기준 등록 완료 ('+res.tracked+'대)':res.n+'줄 반영 완료'); } else toast(res.error); return loadStock(v); }).catch(function(e){ v.el.innerHTML=title('재고 시트 반영','')+errBox(e); }); }
+function stockApplyAsk(mode){ needWorker(function(){ var v=stack[stack.length-1]; var r=v.state.pv; var changed=r.items.filter(function(i){ return i.changed; }); var base=(mode==='baseline'); if(!base&&!changed.length) return;
+  var msg=base ? '시트 숫자는 그대로 두고, 앱 재고 '+r.tracked+'대를 이미 반영된 것으로 기억만 해요. 다음부터 들어오고 빠지는 기기만 ±1 해요.'
+               : esc(r.tab)+' 탭의 '+changed.length+'줄에서 새제품·중고-중 칸에 더하고 빼요. 다른 칸은 그대로예요.';
+  openSheet('<h3>'+(base?'기억만 할까요?':'시트에 반영할까요?')+'</h3><p>'+msg+'</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ stockApplyGo(\''+(base?'baseline':'')+'\'); })">'+(base?'기억만':'반영')+'</button></div>'); }); }
+function stockApplyGo(mode){ var v=stack[stack.length-1]; var changed=v.state.pv.items.filter(function(i){ return i.changed; }).map(function(i){ return {row:i.row,model:i.model,dNew:i.dNew,dUsed:i.dUsed}; });
+  v.el.innerHTML=title('재고 시트 반영','')+spin(mode==='baseline'?'기억하는 중':'시트에 쓰는 중');
+  run('stockApply',changed,worker,mode||'').then(function(res){ if(stack.indexOf(v)<0) return; if(res.ok){ haptic([12,40,18]); toast(res.baseline?'기억 완료 ('+res.tracked+'대)':res.n+'줄 반영 완료'); } else toast(res.error); return loadStock(v); }).catch(function(e){ v.el.innerHTML=title('재고 시트 반영','')+errBox(e); }); }
 
 /* ================= 환경설정 ================= */
 VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return AUTH&&AUTH.admin ? loadCodes(v,true) : Promise.resolve(); };
