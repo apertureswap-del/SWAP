@@ -293,9 +293,56 @@
   .lab-preview .lb .c{font-family:ui-monospace,Menlo,monospace;font-weight:800;letter-spacing:1.5px;font-size:13px}
   .lab-preview .lb .t{font-size:10px;color:var(--muted)}
   #printarea{display:none}
+
+  /* ===== 로그인 (접속 코드) ===== */
+  .login{position:fixed;inset:0;z-index:60;background:#08070c;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,5vh,44px);overflow:hidden;
+         padding:24px calc(20px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));transition:opacity .45s,transform .45s var(--spring)}
+  .login.out{opacity:0;transform:scale(1.04);pointer-events:none}
+  .login::before{content:"";position:absolute;inset:-20%;background:radial-gradient(55% 40% at 50% 30%,rgba(120,32,232,.32),transparent 70%);pointer-events:none}
+  .glitch{position:relative;flex:0 0 auto;width:112vw;max-width:760px;aspect-ratio:56.3/15.5;pointer-events:none;filter:drop-shadow(0 0 22px rgba(120,32,232,.35))}
+  .glitch .g{position:absolute;left:0;top:0;width:100%;display:block;color:#fff}
+  .glitch .g .logo{width:100%;height:auto;display:block;fill:currentColor;overflow:visible}
+  .glitch .g .logo .l{animation:none}
+  .glitch .g2{color:#8a3dff;opacity:.9;mix-blend-mode:screen;animation:glz 2.7s steps(1,end) infinite}
+  .glitch .g3{color:#9a9aaa;opacity:.7;animation:glz2 3.4s steps(1,end) infinite}
+  .glitch .g1{z-index:2;animation:gl1 3.1s steps(1,end) infinite}
+  @keyframes gl1{0%,84%,100%{clip-path:inset(0);transform:none}
+    85%{clip-path:inset(18% 0 62% 0);transform:translateX(-9px)} 86.5%{clip-path:inset(0);transform:none} 87.5%{clip-path:inset(55% 0 20% 0);transform:translateX(7px)}
+    89%{clip-path:inset(0);transform:none} 90.5%{clip-path:inset(4% 0 82% 0);transform:translateX(-5px)} 91.5%{clip-path:inset(0);transform:none}
+    41%{clip-path:inset(30% 0 40% 0);transform:translateX(6px)} 42%{clip-path:inset(0);transform:none}}
+  @keyframes glz{0%,100%{transform:translate(-7px,4px)} 20%{transform:translate(-4px,3px)} 35%{transform:translate(-12px,6px)}
+    36.5%{transform:translate(9px,-5px);clip-path:inset(20% 0 30% 0)} 38%{transform:translate(-7px,4px);clip-path:inset(0)}
+    62%{transform:translate(-3px,2px)} 78%{transform:translate(-9px,5px)} 79.5%{transform:translate(14px,1px);clip-path:inset(50% 0 5% 0)} 81%{clip-path:inset(0);transform:translate(-7px,4px)}}
+  @keyframes glz2{0%,100%{transform:translate(6px,-3px)} 15%{transform:translate(3px,-2px)} 30%{transform:translate(10px,-5px)}
+    52%{transform:translate(-11px,2px);clip-path:inset(10% 0 55% 0)} 53.5%{transform:translate(6px,-3px);clip-path:inset(0)}
+    70%{transform:translate(8px,-4px)} 88%{transform:translate(-8px,6px);clip-path:inset(65% 0 0 0)} 89.5%{transform:translate(6px,-3px);clip-path:inset(0)}}
+  .glitch.wild .g1{animation-duration:.9s} .glitch.wild .g2{animation-duration:.7s} .glitch.wild .g3{animation-duration:1.1s}
+  .lcard{position:relative;flex:0 0 auto;width:100%;max-width:340px;padding:26px 22px 22px;border-radius:28px;background:rgba(22,17,34,.62);border:1px solid rgba(255,255,255,.13);
+         box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);text-align:center;
+         animation:lcardin .7s var(--spring) both;animation-delay:.15s}
+  @keyframes lcardin{from{opacity:0;transform:translateY(22px) scale(.96)}to{opacity:1;transform:none}}
+  .lcard .lt{font-size:22px;font-weight:800;letter-spacing:-.6px;line-height:1.25} .lcard .lt em{font-style:normal;color:#c9a6ff}
+  .lcard .ll{margin:16px 0 8px;font-size:13px;font-weight:600;color:rgba(255,255,255,.62);letter-spacing:.3px}
+  .lcard .linput{width:100%;box-sizing:border-box;padding:16px 12px;border-radius:16px;border:1.5px solid rgba(255,255,255,.14);background:rgba(0,0,0,.35);color:#fff;outline:none;
+         font-family:ui-monospace,Menlo,monospace;font-size:26px;font-weight:700;letter-spacing:8px;text-align:center;text-transform:uppercase;transition:border-color .15s,box-shadow .15s}
+  .lcard .linput::placeholder{letter-spacing:0;font-size:15px;font-family:inherit;font-weight:500;color:rgba(255,255,255,.35);text-transform:none}
+  .lcard .linput:focus{border-color:#a56bff;box-shadow:0 0 0 4px rgba(120,32,232,.28)}
+  .lcard .btn{margin-top:12px;box-shadow:0 10px 30px rgba(120,32,232,.45)} .lcard .btn:disabled{opacity:.6}
+  .lcard .lerr{min-height:20px;margin-top:12px;font-size:13.5px;font-weight:600;color:#ff8fa3}
+  .lcard.shake{animation:shake .5s}
+  @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
+  .lver{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,.35)}
+  /* 토글 스위치 */
+  .sw{position:relative;flex:0 0 auto;width:48px;height:28px;border-radius:999px;background:#d9dbe3;border:0;padding:0;transition:background .2s;cursor:pointer}
+  .sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .22s var(--spring)}
+  .sw.on{background:var(--p)} .sw.on::after{transform:translateX(20px)}
+  .crow{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)} .crow:last-child{border-bottom:0}
+  .crow .cc{font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:16px;letter-spacing:1.5px;flex:0 0 78px;color:var(--p-ink)}
+  .crow.off .cc{color:var(--muted);text-decoration:line-through}
+  .crow .cn{flex:1;min-width:0} .crow .cn .input{padding:10px 12px;font-size:15px} .crow .cm{font-size:11.5px;color:var(--muted);margin-top:3px;padding-left:2px}
   @media print{
     @page{size:A4 portrait;margin:0} html,body{overflow:visible;height:auto;background:#fff}
-    .app,.toast,.dim,.sheet{display:none !important} #printarea{display:block}
+    .app,.toast,.dim,.sheet,.login{display:none !important} #printarea{display:block}
     /* A4 한 장을 라벨이 꽉 채우도록: 행 높이를 균등 분배 */
     .psheet{width:210mm;height:297mm;padding:8mm;display:grid;gap:4mm;align-content:stretch;page-break-after:always;background:#fff;box-sizing:border-box}
     .psheet.c2{grid-template-columns:repeat(2,1fr)} .psheet.c3{grid-template-columns:repeat(3,1fr)}
@@ -318,6 +365,17 @@
 </style>
 </head>
 <body>
+<div class="login" id="login" style="display:none">
+  <div class="glitch" id="glitch" aria-hidden="true"></div>
+  <form class="lcard" id="lcard" onsubmit="doLogin();return false" autocomplete="off">
+    <div class="lt">SWAP <em>경기남부점</em> 입출고</div>
+    <div class="ll">접속 코드 입력</div>
+    <input class="linput" id="lcode" maxlength="8" placeholder="코드를 입력하세요" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="latin">
+    <button class="btn" id="lbtn" type="submit">접속</button>
+    <div class="lerr" id="lerr"></div>
+  </form>
+  <div class="lver" id="lver"></div>
+</div>
 <div class="app">
   <div class="stage" id="stage">
     <div class="ptr" id="ptr"><svg class="logo" viewBox="0 0 56.3 15.5"><path class="l" d="M 0.234,11.775 L 0.15,9.755 C 2.889,10.029 5.176,10.149 7.28,10.217 C 8.416,10.251 9.518,10.269 10.72,10.235 L 10.72,7.29 L 3.474,6.708 C 0.968,6.504 0.0,5.596 0.0,3.475 C 0.0,0.975 1.369,0.0 4.993,0.0 C 7.647,0.0 9.718,0.069 12.223,0.24 L 12.29,2.26 A 75.0,75.0 0.0 0,0 5.21,1.815 A 56.0,56.0 0.0 0,0 2.254,1.815 L 2.254,4.725 L 9.084,5.272 C 11.888,5.494 12.974,6.402 12.974,8.592 C 12.974,11.107 11.638,12.049 7.664,12.049 C 5.076,12.049 2.771,11.946 0.234,11.775"/><path class="l" d="M 17.218,11.844 L 14.163,3.372 L 14.163,3.287 L 16.167,3.287 L 18.722,10.595 L 18.772,10.595 L 20.876,4.588 L 23.164,4.588 L 25.217,10.595 L 25.284,10.595 L 27.856,3.287 L 29.81,3.287 L 29.81,3.372 L 26.654,11.844 L 23.932,11.844 L 22.012,6.367 L 21.962,6.367 L 20.024,11.844 L 17.22,11.844 L 17.218,11.844"/><path class="l" d="M 38.439,3.08 C 37.069,3.08 35.499,3.165 32.093,3.353 L 32.026,5.151 C 34.765,4.86 38.138,4.689 40.291,4.689 L 40.291,6.008 C 40.291,6.008 35.625,6.751 33.796,7.128 C 31.966,7.507 30.774,8.087 30.774,9.678 C 30.774,11.561 31.488,12.166 33.292,12.166 C 34.782,12.166 38.308,11.211 40.46,10.586 L 40.876,11.638 L 42.228,11.638 L 42.228,5.922 C 42.228,3.8 41.394,3.081 38.438,3.081 L 38.439,3.08 M 40.292,9.238 L 32.879,10.871 L 32.712,8.755 L 40.292,7.309 L 40.292,9.238"/><path class="l" d="M 56.269,7.334 C 56.159,10.577 55.653,11.217 52.527,11.069 L 46.918,10.753 L 46.918,15.479 L 44.964,15.479 L 44.964,3.158 L 46.333,3.158 L 46.883,4.133 C 49.222,3.398 51.559,2.953 53.245,2.953 C 55.583,2.953 56.267,3.928 56.267,7.333 L 56.269,7.333 L 56.269,7.334 M 54.148,9.464 L 54.148,4.63 C 51.744,4.63 49.356,5.006 46.918,5.794 L 46.918,9.076 L 54.148,9.464"/></svg></div>
@@ -329,7 +387,7 @@
     <button data-tab="home" onclick="goTab('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>홈</button>
     <button data-tab="search" onclick="goTab('search')"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>검색</button>
     <button data-tab="labels" onclick="goTab('labels')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v7h-7"/></svg>라벨</button>
-    <button data-tab="me" onclick="goTab('me')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>내 정보</button>
+    <button data-tab="me" onclick="goTab('me')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>환경설정</button>
   </nav>
 </div>
 <div class="toast" id="toast"></div>
@@ -343,7 +401,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '5.5';
+var APP_VER = '6.0';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -351,6 +409,7 @@ var STATUS_OUT = ['출고준비완료'];
 var STATUSES   = STATUS_IN.concat(STATUS_OUT);
 var ACC_PRESET = ['배터리','충전기','SWAP백','시동키','카드키','배터리키','헬멧','체인락','폰거치대','바구니','짐받이','레인커버'];
 var worker = localStorage.getItem('swapWorker') || '';
+var AUTH=null; try{ AUTH=JSON.parse(localStorage.getItem('swapAuth')||'null'); }catch(e){}   // {code,name,admin}
 
 /* ================= 유틸 ================= */
 function $(id){ return document.getElementById(id); }
@@ -409,10 +468,10 @@ function runOnce(fn,args){
   return new Promise(function(res,rej){
     var cb='swapcb_'+(++_rid)+'_'+Math.floor(Math.random()*1e6); var s=document.createElement('script'); var done=false, t;
     function cleanup(){ done=true; try{ delete window[cb]; }catch(e){ window[cb]=undefined; } if(s.parentNode) s.parentNode.removeChild(s); clearTimeout(t); }
-    window[cb]=function(j){ if(done) return; cleanup(); if(!j||!j.ok) rej(new Error((j&&j.error)||'서버 오류')); else res(j.result); };
+    window[cb]=function(j){ if(done) return; cleanup(); if(!j||!j.ok){ var er=new Error((j&&j.error)||'서버 오류'); if(j&&j.auth===false){ er.auth=false; if(fn!=='login') logout(er.message); } rej(er); } else res(j.result); };
     s.onerror=function(){ if(done) return; cleanup(); rej(new Error('서버 연결 실패(네트워크)')); };
     t=setTimeout(function(){ if(done) return; cleanup(); rej(new Error('서버 응답 없음(25초)')); },25000);
-    s.src=API+'?api=1&callback='+cb+'&fn='+encodeURIComponent(fn)+'&args='+encodeURIComponent(JSON.stringify(args))+'&_='+Date.now();
+    s.src=API+'?api=1&callback='+cb+'&fn='+encodeURIComponent(fn)+'&args='+encodeURIComponent(JSON.stringify(args))+'&auth='+encodeURIComponent(AUTH&&AUTH.code||'')+'&_='+Date.now();
     document.head.appendChild(s);
   }); }
 /* 화면 캐시: 마지막 데이터를 폰에 저장해 두고 먼저 그린 뒤 뒤에서 갱신 */
@@ -916,12 +975,17 @@ function downloadLabels(){ var css=document.querySelector('style').textContent.s
   var html='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>SWAP QR 라벨</title><style>body{margin:0;font-family:Pretendard,-apple-system,sans-serif}#printarea{display:block}'+css+'</style></head><body><div id="printarea">'+$('printarea').innerHTML+'</div></body></html>';
   var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download='SWAP_QR라벨.html'; a.click(); }
 
-/* ================= 내 정보 ================= */
-VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); };
-  v.el.innerHTML=title('내 정보','')+
+/* ================= 환경설정 ================= */
+VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return AUTH&&AUTH.admin ? loadCodes(v,true) : Promise.resolve(); };
+  var fixedName=!!(AUTH&&!AUTH.admin&&AUTH.name);
+  v.el.innerHTML=title('환경설정','')+
     '<div class="card"><div style="display:flex;align-items:center;gap:14px"><div style="flex:0 0 56px;height:56px;border-radius:18px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px">'+esc(initials(worker))+'</div>'+
-    '<div style="flex:1"><div style="font-weight:800;font-size:21px;letter-spacing:-.5px">'+esc(worker||'이름 없음')+'</div><div class="muted">등록·상태 변경 기록에 남는 이름</div></div></div>'+
-    '<button class="btn line" style="margin-top:16px" onclick="openNameSheet()">'+(worker?'이름 변경':'이름 입력')+'</button></div>'+
+    '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:21px;letter-spacing:-.5px">'+esc(worker||'이름 없음')+(AUTH&&AUTH.admin?' <span class="pill sys sm" style="background:var(--p-soft);color:var(--p-ink);vertical-align:middle">관리자</span>':'')+'</div>'+
+    '<div class="muted">접속 코드 <b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:1px;color:var(--ink2)">'+esc(AUTH&&AUTH.code||'-')+'</b>'+(fixedName?' · 이름은 관리자가 설정':'')+'</div></div></div>'+
+    '<div class="row" style="margin-top:16px;gap:8px">'+(fixedName?'':'<button class="btn line sm" onclick="openNameSheet()">'+(worker?'이름 변경':'이름 입력')+'</button>')+
+    '<button class="btn line sm" style="color:#d6336c" onclick="logoutAsk()">로그아웃</button></div></div>'+
+    (AUTH&&AUTH.admin?'<div class="card" id="codecard"><h3 style="display:flex;justify-content:space-between;align-items:center">접속 코드 관리<button class="more" onclick="addCodeAsk()">+ 코드 추가</button></h3>'+
+      '<p class="muted" style="margin:0 0 6px;font-size:13px">이름을 넣으면 그 코드로 접속한 사람의 작업자 이름이 자동으로 정해져요. 스위치를 끄면 그 코드로는 접속할 수 없어요.</p><div id="codes">'+spin()+'</div></div>':'')+
     '<div class="card"><h3>쓰는 법</h3><ul class="hist">'+
     '<li><span><b>등록</b> → 기기에 QR 붙이고 찍기 → 작업 선택 → 출고/수거 → 일련번호 → 액세서리 → 특이사항</span></li>'+
     '<li><span><b>검색</b> → 고객명·일련번호로 등록 QR/작업리스트/어드민 찾기 → 항목 선택 → QR 찍어 매칭. 작업이 없는 기기는 <b>재고 기기</b>로 등록</span></li>'+
@@ -936,8 +1000,55 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); };
     '<li><span><b>작업 보고</b> → 현황 화면 오른쪽 위 <b>내 작업 현황</b> → 날짜 선택 → 슬랙으로 보내기</span></li></ul></div>'+
     '<div class="card"><h3>앱으로 쓰기</h3><p class="muted" style="margin:0 0 10px">홈 화면에 아이콘으로 두면 앱처럼 바로 열립니다.</p>'+
     '<button class="btn" id="installbtn" onclick="installApp()">홈 화면에 설치</button></div>'+
-    '<div class="card"><h3>기록</h3><p class="muted" style="margin:0">등록·이력은 "SWAP 입출고 QR" 구글시트의 태그·이력 탭에 쌓입니다.</p></div>'+
-    '<p class="muted" style="text-align:center;font-size:12px">SWAP 입출고 v'+APP_VER+' · '+(('BarcodeDetector' in window)?'내장 스캐너':'jsQR')+' · '+(window.isSecureContext?'https':'http')+'</p>'; }};
+    '<div class="card"><h3>기록</h3><p class="muted" style="margin:0">등록·이력은 "SWAP 입출고 QR" 구글시트의 태그·이력 탭에 쌓입니다. 접속 코드는 접속코드 탭.</p></div>'+
+    '<p class="muted" style="text-align:center;font-size:12px">SWAP 입출고 v'+APP_VER+' · '+(('BarcodeDetector' in window)?'내장 스캐너':'jsQR')+' · '+(window.isSecureContext?'https':'http')+'</p>';
+  if(AUTH&&AUTH.admin) loadCodes(v); }};
+function loadCodes(v){ return run('listCodes').then(function(list){ if(stack.indexOf(v)<0) return; v.state.codes=list; drawCodes(v); }).catch(function(e){ var el=$('codes'); if(el) el.innerHTML='<p class="muted">'+esc(e.message)+'</p>'; }); }
+function drawCodes(v){ var el=$('codes'); if(!el) return; var list=v.state.codes||[];
+  if(!list.length){ el.innerHTML='<div class="empty">코드가 없어요. 오른쪽 위 + 코드 추가</div>'; return; }
+  el.innerHTML=list.map(function(c){ return '<div class="crow'+(c.active?'':' off')+'"><div class="cc">'+esc(c.code)+'</div>'+
+    '<div class="cn"><input class="input" value="'+esc(c.name)+'" placeholder="이름 (예: 홍길동)" data-code="'+esc(c.code)+'" onchange="saveCodeName(this)" onkeydown="if(event.key===\'Enter\') this.blur()">'+
+    '<div class="cm">'+(c.last?'최근 접속 '+esc(String(c.last).slice(5,16))+' · '+(c.count||0)+'회':'아직 접속 안 함')+'</div></div>'+
+    '<button class="sw'+(c.active?' on':'')+'" aria-label="사용" onclick="toggleCode(\''+esc(c.code)+'\','+(c.active?'false':'true')+',this)"></button></div>'; }).join(''); }
+function codeView(){ var v=stack[stack.length-1]; return (v&&v.name==='me')?v:null; }
+function saveCodeName(inp){ var v=codeView(); var code=inp.getAttribute('data-code'); var name=inp.value.trim();
+  run('setCodeName',code,name).then(function(list){ if(v){ v.state.codes=list; } toast(code+' 이름 저장'); if(v) drawCodes(v); }).catch(function(e){ toast('저장 실패: '+e.message); }); }
+function toggleCode(code,active,btn){ var v=codeView(); btn.classList.toggle('on',active); if(navigator.vibrate) navigator.vibrate(8);
+  run('setCodeActive',code,active).then(function(list){ if(v){ v.state.codes=list; drawCodes(v); } toast(code+(active?' 사용':' 사용 중지')); }).catch(function(e){ btn.classList.toggle('on',!active); toast('변경 실패: '+e.message); }); }
+function addCodeAsk(){ openSheet('<h3>새 접속 코드</h3><p>코드는 자동으로 만들어져요. 이름은 나중에 바꿀 수 있어요.</p>'+
+  '<input class="input" id="ncn" placeholder="이름 (선택)" style="margin-bottom:12px"><button class="btn" onclick="addCodeGo()">코드 만들기</button>'); setTimeout(function(){ $('ncn').focus(); },380); }
+function addCodeGo(){ var name=($('ncn').value||'').trim(); var v=codeView(); closeSheet(function(){ toast('코드 만드는 중…');
+  run('addCode',name).then(function(list){ if(v){ v.state.codes=list; drawCodes(v); } var nw=list[list.length-1]; toast('새 코드: '+(nw?nw.code:'')); }).catch(function(e){ toast('추가 실패: '+e.message); }); }); }
+
+/* ================= 로그인 ================= */
+function setLoginErr(m){ var e=$('lerr'); if(e) e.textContent=m||''; }
+function showLogin(msg){ var l=$('login'); if(!$('glitch').innerHTML) $('glitch').innerHTML='<span class="g g1">'+LOGO+'</span><span class="g g2">'+LOGO+'</span><span class="g g3">'+LOGO+'</span>';
+  $('lver').textContent='SWAP 입출고 v'+APP_VER; l.style.display=''; l.classList.remove('out'); setLoginErr(msg||''); $('lcode').value=''; $('lbtn').disabled=false;
+  setTimeout(function(){ try{ $('lcode').focus(); }catch(e){} },500); }
+function hideLogin(){ var l=$('login'); l.classList.add('out'); setTimeout(function(){ l.style.display='none'; },480); }
+function doLogin(){ var code=($('lcode').value||'').trim().toUpperCase(); var card=$('lcard');
+  if(code.length<5){ setLoginErr('코드는 5자리예요'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); return; }
+  $('lbtn').disabled=true; $('lbtn').textContent='확인 중…'; setLoginErr(''); $('glitch').classList.add('wild');
+  run('login',code).then(function(a){ applyAuth(a); $('glitch').classList.remove('wild'); if(navigator.vibrate) navigator.vibrate([10,30,10]); hideLogin(); startApp(); })
+    .catch(function(e){ $('glitch').classList.remove('wild'); $('lbtn').disabled=false; $('lbtn').textContent='접속'; setLoginErr(e.message||'접속 실패'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); }); }
+function applyAuth(a){ AUTH={code:a.code,name:a.name||'',admin:!!a.admin}; try{ localStorage.setItem('swapAuth',JSON.stringify(AUTH)); }catch(e){}
+  if(a.name&&!a.admin&&worker!==a.name){ worker=a.name; localStorage.setItem('swapWorker',a.name); } }
+var loggingOut=false;
+function logout(msg){ if(loggingOut) return; loggingOut=true; AUTH=null; try{ localStorage.removeItem('swapAuth'); }catch(e){}
+  try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('swapc:')===0) localStorage.removeItem(k); }); }catch(e){}
+  var u=location.pathname+(msg?'?bye='+encodeURIComponent(msg):''); location.replace(u); }
+function logoutAsk(){ openSheet('<h3>로그아웃</h3><p>다시 들어오려면 접속 코드를 입력해야 해요.</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#d6336c" onclick="logout()">로그아웃</button></div>'); }
+var appStarted=false;
+function startApp(){ if(appStarted) return; appStarted=true;
+  tabTo('home');
+  if(CODE) push('tag',{code:CODE});
+  setTimeout(prefetch, 800); }
+function boot(){ try{ history.replaceState({d:0},''); }catch(e){}
+  var bye=new URLSearchParams(location.search).get('bye');
+  if(bye){ try{ history.replaceState({d:0},'',location.pathname); }catch(e){} }
+  if(AUTH&&AUTH.code&&!bye){ startApp();   // 저장된 코드로 바로 시작하고, 뒤에서 아직 쓸 수 있는 코드인지 확인
+    run('login',AUTH.code).then(applyAuth).catch(function(e){ if(e.auth===false) logout(e.message); }); }
+  else showLogin(bye||''); }
 
 /* ================= 시작 ================= */
 /* PWA: 설치 프롬프트 잡아두기 + 서비스워커 등록 */
@@ -949,10 +1060,7 @@ function installApp(){ if(installEvt){ installEvt.prompt(); installEvt.userChoic
   openSheet('<h3>홈 화면에 추가</h3><p>'+(ios?'사파리 아래 <b>공유</b> 버튼(네모에 화살표) → <b>홈 화면에 추가</b>를 누르세요.':'크롬 오른쪽 위 <b>⋮ 메뉴</b> → <b>홈 화면에 추가</b>(또는 <b>앱 설치</b>)를 누르세요.')+'</p><button class="btn" onclick="closeSheet()">확인</button>'); }
 if('serviceWorker' in navigator){ window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
 
-try{ history.replaceState({d:0},''); }catch(e){}
-tabTo('home');
-if(CODE) push('tag',{code:CODE});
-setTimeout(prefetch, 800);
+boot();
 </script>
 </body>
 </html>
