@@ -69,7 +69,29 @@
   .ptr.ready i{border-color:var(--p-soft2);border-top-color:var(--p)} .ptr.spin i{animation:rot .8s linear infinite}
   .ptr.done{transition:opacity .25s,transform .25s}
   .fback:active{background:#fff;transform:scale(.88)}
-  .ptitle{display:flex;align-items:center;gap:10px;margin:2px 0 18px;min-height:42px}
+  .ptitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 18px;min-height:42px}
+  .ptitle .rt{flex:0 0 auto}
+  .hbtn{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:999px;background:var(--p);color:#fff;font-weight:700;font-size:13.5px;letter-spacing:-.2px;
+        box-shadow:0 8px 18px rgba(120,32,232,.28);transition:transform .25s var(--spring),box-shadow .2s}
+  .hbtn:active{transform:scale(.94);box-shadow:0 3px 8px rgba(120,32,232,.2)}
+  .hbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .view.anim .hbtn{animation:pop .5s var(--spring) .1s both}
+  .days{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;margin:0 -2px 8px;scrollbar-width:none} .days::-webkit-scrollbar{display:none}
+  .days button{flex:0 0 auto;padding:9px 14px;border-radius:999px;background:#fff;font-weight:600;font-size:14px;color:var(--ink2);box-shadow:0 1px 3px rgba(25,31,40,.04);transition:all .2s var(--spring)}
+  .days button b{margin-left:5px;color:var(--muted);font-weight:700} .days button.on{background:var(--ink);color:#fff} .days button.on b{color:rgba(255,255,255,.7)}
+  .days button:active{transform:scale(.93)}
+  .tl{margin:0;padding:0;list-style:none}
+  .tl li{display:flex;gap:12px;padding:13px 4px;border-top:1px solid var(--fill);align-items:flex-start}
+  .tl li:first-child{border-top:0}
+  .tl .tm{flex:0 0 46px;font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:14px;color:var(--ink2);padding-top:1px}
+  .tl .dt{flex:0 0 10px;width:10px;height:10px;border-radius:50%;margin-top:6px;background:var(--muted2)}
+  .tl .dt.a-등록{background:var(--p)} .tl .dt.a-상태변경{background:#3182f6} .tl .dt.a-수정,.tl .dt.a-출고기기수정{background:#f5a524} .tl .dt.a-태그해제{background:var(--green)}
+  .tl .bd{flex:1;min-width:0} .tl .nm{font-weight:700;font-size:15.5px;letter-spacing:-.2px} .tl .ds{font-size:13.5px;color:var(--muted);margin-top:1px}
+  .tl .sn{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--muted2);margin-left:6px}
+  .brk{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  .brk span{background:var(--fill);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:600;color:var(--ink2)} .brk span b{color:var(--ink);margin-left:3px}
+  .view.anim .tl li{animation:rise .42s var(--spring) both}
+  .tl li:nth-child(2){animation-delay:.03s}.tl li:nth-child(3){animation-delay:.06s}.tl li:nth-child(4){animation-delay:.09s}.tl li:nth-child(5){animation-delay:.12s}.tl li:nth-child(6){animation-delay:.15s}.tl li:nth-child(7){animation-delay:.18s}.tl li:nth-child(n+8){animation-delay:.21s}
   .ptitle.indent{padding-left:54px}
   .ptitle h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.6px;line-height:1.25}
   .ptitle .sub{font-size:14.5px;color:var(--muted);margin-top:3px;font-weight:500}
@@ -276,7 +298,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '3.4';
+var APP_VER = '3.5';
 var STATUS_IN  = ['입고','수리대기','수리완료','재고','출고대기'];
 var STATUS_OUT = ['출고준비중','출고준비완료'];
 var STATUSES   = STATUS_IN.concat(STATUS_OUT);
@@ -302,7 +324,7 @@ function countUp(root){ var t0=null;
 function num(x,k){ return '<b class="num" data-to="'+x+'" data-k="'+k+'">'+x+'</b>'; }
 function initials(n){ n=String(n||'').trim(); return n? n.slice(0,1) : '?'; }
 /* 서버 호출: <script> 태그(JSONP) 방식 — 브라우저 CORS 제한을 받지 않아 Apps Script와 가장 잘 맞는다 */
-var _rid=0; var READ_FNS={getTag:1,listTags:1,getWorkList:1,getTaskDevices:1,getConfig:1};
+var _rid=0; var READ_FNS={getTag:1,listTags:1,getWorkList:1,getTaskDevices:1,getConfig:1,getMyWork:1};
 function run(fn){ var args=[].slice.call(arguments,1);
   return runOnce(fn,args).catch(function(e){ if(READ_FNS[fn]) return runOnce(fn,args); throw e; }); }
 function runOnce(fn,args){
@@ -327,7 +349,7 @@ function prefetch(){ getWorkListCached(todayISO(0)).catch(function(){}); }
 function slimItem(it){ return { reqId:it.reqId, subId:it.subId, name:it.name, type:it.type, model:it.model, color:it.color, serial:it.serial, frame:it.frame,
   grade:it.grade, date:it.date, changeModel:it.changeModel, changeColor:it.changeColor, note:String(it.note||'').slice(0,200) }; }
 function errBox(e){ return '<div class="card"><h3>오류가 발생했습니다</h3><p class="muted">'+esc(e&&e.message?e.message:e)+'</p></div>'; }
-function title(h1,sub){ var indent=stack.length>1; return '<div class="ptitle '+(indent?'indent':'')+'"><div><h1>'+h1+'</h1>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div></div>'; }
+function title(h1,sub,right){ var indent=stack.length>1; return '<div class="ptitle '+(indent?'indent':'')+'"><div><h1>'+h1+'</h1>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>'+(right?'<div class="rt">'+right+'</div>':'')+'</div>'; }
 function isCollectType(type){ return /교체|스왑|해지|철회|대차|재배송|변경|수리/.test(type||''); }
 function isOrderType(type){ return /주문/.test(type||''); }
 function kindBadge(k){ return k==='출고' ? '<span class="kind out">출고기기</span>' : '<span class="kind in">수거기기</span>'; }
@@ -335,7 +357,7 @@ function isOut(t){ return t['구분']==='출고'; }
 
 /* ================= 네비게이션 ================= */
 var stack=[]; var animating=false; var VIEWS={};
-var TAB_OF={home:'home',status:'status',labels:'labels',me:'me',tag:'home',register:'home',scan:'home'};
+var TAB_OF={home:'home',status:'status',labels:'labels',me:'me',tag:'home',register:'home',scan:'home',mywork:'status'};
 function makeView(name,params){ var el=document.createElement('div'); el.className='view'; el.innerHTML=spin(); return {name:name,params:params||{},el:el,state:{}}; }
 function reanim(v){ if(!v||!v.el) return; v.el.classList.remove('anim'); void v.el.offsetWidth; v.el.classList.add('anim'); clearTimeout(v._at); v._at=setTimeout(function(){ v.el.classList.remove('anim'); },900); }
 function mount(v){ $('stage').insertBefore(v.el,$('back')); reanim(v); try{ VIEWS[v.name].render(v); }catch(e){ v.el.innerHTML=errBox(e); } }
@@ -494,13 +516,62 @@ VIEWS.status={ render:function(v){ v.state.filter=v.state.filter||v.params.filte
   run('listTags',500).then(function(tags){ lsSet('tags',tags); if(stack.indexOf(v)<0) return; v.state.tags=tags; drawStatus(v); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)); }); }};
 function drawStatus(v){ var f=v.state.filter; var tags=v.state.tags||[];
   var list=tags.filter(function(t){ if(f==='전체') return true; if(f==='수거') return !isOut(t); if(f==='출고') return isOut(t); return t['상태']===f; });
-  var h=title('입출고 현황', num(tags.length,'all')+'건 등록됨');
+  var h=title('입출고 현황', num(tags.length,'all')+'건 등록됨',
+    '<button class="hbtn" onclick="openMyWork()"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>내 작업 현황</button>');
   h+='<div class="seg">'+['전체','수거','출고'].map(function(s){ return '<button class="'+(f===s?'on':'')+'" onclick="setFilter(\''+s+'\')">'+s+'</button>'; }).join('')+'</div>';
   h+='<div class="chips" style="margin-bottom:12px">'+STATUSES.map(function(s){ return '<button class="'+(f===s?'on':'')+'" style="padding:7px 11px;font-size:12.5px" onclick="setFilter(\''+s+'\')">'+s+'</button>'; }).join('')+'</div>';
   h+='<p class="muted" style="margin:0 6px 10px;font-weight:600">'+num(list.length,'cnt')+'건</p>';
   if(!list.length) h+='<div class="card"><div class="empty">해당하는 기기가 없어요.</div></div>';
   else { h+='<div class="list">'; list.forEach(function(t){ h+=itemTag(t); }); h+='</div>'; } v.el.innerHTML=h; countUp(v.el); }
 function setFilter(s){ var v=stack[stack.length-1]; v.state.filter=s; drawStatus(v); }
+
+/* ================= 내 작업 현황 ================= */
+function openMyWork(){ needWorker(function(){ push('mywork',{}); }); }
+VIEWS.mywork={ render:function(v){ v.state.date=v.state.date||todayISO(0); v.state.note=v.state.note||'';
+  v.refresh=function(){ return loadMyWork(v,v.state.date,true); };
+  loadMyWork(v,v.state.date); }};
+function loadMyWork(v,date,silent){ v.state.date=date; if(!silent) v.el.innerHTML=title('내 작업 현황',esc(worker))+spin('내 작업을 불러오는 중');
+  return run('getMyWork',worker,date).then(function(w){ if(stack.indexOf(v)<0) return; if(v.state.date!==date) return; v.state.w=w; drawMyWork(v); }).catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('내 작업 현황','')+errBox(e); }); }
+function dayLabel(iso){ var t=todayISO(0), y=todayISO(-1); if(iso===t) return '오늘'; if(iso===y) return '어제'; var p=iso.split('-'); return (+p[1])+'/'+(+p[2]); }
+function fmtDateK(iso){ var p=iso.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]); return (+p[1])+'월 '+(+p[2])+'일 '+'일월화수목금토'[d.getDay()]+'요일'; }
+function drawMyWork(v){ reanim(v); var w=v.state.w||{items:[],days:[]}; var d=v.state.date; var items=w.items||[];
+  var keepNote=$('f_report')?$('f_report').value:v.state.note; v.state.note=keepNote;
+  var days=(w.days||[]).slice(); if(!days.some(function(x){return x.date===todayISO(0);})) days.unshift({date:todayISO(0),count:0});
+  if(!days.some(function(x){return x.date===d;})) days.push({date:d,count:items.length}); days.sort(function(a,b){return b.date.localeCompare(a.date);});
+  var counts={}; items.forEach(function(it){ counts[it.action]=(counts[it.action]||0)+1; });
+  var h=title('내 작업 현황',esc(worker)+' · '+fmtDateK(d));
+  h+='<div class="days">'+days.map(function(x){ return '<button class="'+(x.date===d?'on':'')+'" onclick="loadMyWork(stack[stack.length-1],\''+x.date+'\')">'+dayLabel(x.date)+(x.count?'<b>'+x.count+'</b>':'')+'</button>'; }).join('')+
+    '</div><input type="date" class="input" style="margin-bottom:12px" value="'+esc(d)+'" onchange="loadMyWork(stack[stack.length-1],this.value)">';
+  h+='<div class="card sum"><div class="lb">'+(d===todayISO(0)?'오늘':fmtDateK(d))+' 처리한 기기</div><div class="big">'+num(items.length,'my')+'<span>건</span></div>'+
+    (items.length?'<div class="brk">'+[['등록','등록'],['상태변경','상태변경'],['수정','수정'],['출고기기수정','출고기기수정'],['태그해제','비우기']].filter(function(x){return counts[x[0]];}).map(function(x){ return '<span>'+x[1]+'<b>'+counts[x[0]]+'</b></span>'; }).join('')+'</div>':'')+'</div>';
+  h+='<div class="card"><h3>작업 내역</h3>';
+  if(!items.length) h+='<div class="empty">이 날 내 이름으로 처리한 기기가 없어요.</div>';
+  else { h+='<ul class="tl">'+items.map(function(it){ return '<li><span class="tm">'+esc(it.time)+'</span><i class="dt a-'+esc(it.action)+'"></i><div class="bd"><div class="nm">'+esc(it.name||it.code)+(it.model?' <span class="muted" style="font-weight:500">'+esc(it.model)+'</span>':'')+(it.serial?'<span class="sn">'+esc(it.serial)+'</span>':'')+'</div><div class="ds">'+esc(it.desc)+'</div></div></li>'; }).join('')+'</ul>'; }
+  h+='</div>';
+  h+='<div class="card"><h3>특이사항 및 보고사항</h3><textarea class="input" id="f_report" placeholder="파손·분실·고객 요청, 오늘 보고할 내용 (없으면 비워두세요)">'+esc(keepNote)+'</textarea>'+
+    '<button class="btn" style="margin-top:12px" onclick="sendReport()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>슬랙으로 보내기</button>'+
+    '<button class="btn line" style="margin-top:8px" onclick="copyReport()">내용 복사</button>'+
+    '<p class="muted" style="margin:12px 0 0;font-size:13px;text-align:center">'+fmtDateK(d)+' 작업 '+items.length+'건 + 보고사항이 함께 전송됩니다.</p></div>';
+  v.el.innerHTML=h; countUp(v.el); }
+function reportText(v){ var w=v.state.w||{items:[]}; var note=($('f_report')?$('f_report').value:'').trim(); var d=v.state.date;
+  var lines=['['+fmtDateK(d)+' 작업 보고 · '+worker+'] 총 '+w.items.length+'건',''];
+  w.items.forEach(function(it){ lines.push(it.time+'  '+[it.name,it.model].filter(Boolean).join(' · ')+(it.serial?' ('+it.serial+')':'')+' — '+it.desc); });
+  if(note){ lines.push(''); lines.push('■ 특이사항 및 보고사항'); lines.push(note); }
+  return lines.join('\n'); }
+function copyReport(){ var v=stack[stack.length-1]; var t=reportText(v);
+  var done=function(){ toast('복사했어요. 슬랙에 붙여넣기 하세요'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done,function(){ fallbackCopy(t); done(); }); else { fallbackCopy(t); done(); } }
+function fallbackCopy(t){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); }catch(e){} ta.remove(); }
+function sendReport(){ var v=stack[stack.length-1]; var w=v.state.w||{items:[]}; var note=($('f_report').value||'').trim(); v.state.note=note;
+  if(!w.items.length&&!note){ toast('보낼 작업이나 보고사항이 없어요'); return; }
+  openSheet('<h3>슬랙으로 보낼까요?</h3><p>'+esc(fmtDateK(v.state.date))+' · '+esc(worker)+' · 작업 '+w.items.length+'건'+(note?' + 보고사항':'')+'</p>'+
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="flex:2" onclick="closeSheet();sendReportNow()">보내기</button></div>'); }
+function sendReportNow(){ var v=stack[stack.length-1]; var note=v.state.note||''; haptic(12); toast('보내는 중…');
+  run('sendSlackReport',worker,v.state.date,note).then(function(res){ $('toast').classList.remove('on');
+    if(res.ok){ toast('슬랙으로 보냈어요 ('+res.count+'건)'); if($('f_report')){ $('f_report').value=''; v.state.note=''; } return; }
+    if(res.noHook){ openSheet('<h3>슬랙 연결이 아직 안 됐어요</h3><p>관리자가 Apps Script → 프로젝트 설정 → 스크립트 속성에 <b>SLACK_WEBHOOK</b>(슬랙 Incoming Webhook 주소)을 넣으면 바로 전송돼요. 지금은 내용을 복사해서 붙여넣을 수 있어요.</p>'+
+      '<button class="btn" onclick="closeSheet();copyReport()">내용 복사</button>'); return; }
+    toast(res.error||'전송 실패'); }).catch(function(e){ toast('전송 실패: '+(e&&e.message||e)); }); }
 
 /* ================= 태그 메인 ================= */
 VIEWS.tag={ render:function(v){ var code=v.params.code;
@@ -689,7 +760,8 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); };
     '<li><span><b>출고 기기</b> → 출고 준비완료 한 번</span></li>'+
     '<li><span><b>용지 재사용</b> → 기기가 나간 뒤 태그 비우기</span></li>'+
     '<li><span><b>뒤로가기</b> → 폰 뒤로가기 버튼, 왼쪽 위 ‹, 또는 화면 왼쪽 끝에서 오른쪽으로 밀기</span></li>'+
-    '<li><span><b>새로고침</b> → 화면 맨 위에서 아래로 당기기</span></li></ul></div>'+
+    '<li><span><b>새로고침</b> → 화면 맨 위에서 아래로 당기기</span></li>'+
+    '<li><span><b>작업 보고</b> → 현황 탭 오른쪽 위 <b>내 작업 현황</b> → 날짜 선택 → 슬랙으로 보내기</span></li></ul></div>'+
     '<div class="card"><h3>앱으로 쓰기</h3><p class="muted" style="margin:0 0 10px">홈 화면에 아이콘으로 두면 앱처럼 바로 열립니다.</p>'+
     '<button class="btn" id="installbtn" onclick="installApp()">홈 화면에 설치</button></div>'+
     '<div class="card"><h3>기록</h3><p class="muted" style="margin:0">등록·이력은 "SWAP 입출고 QR" 구글시트의 태그·이력 탭에 쌓입니다.</p></div>'+
