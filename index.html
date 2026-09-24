@@ -138,7 +138,7 @@
   .stats button.hot{background:var(--p);color:#fff} .stats button.hot span{color:rgba(255,255,255,.85)}
   .stats button.wide{grid-column:span 2;display:flex;align-items:center;justify-content:center;gap:6px} .stats button.wide b{margin:0}
   .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted2);flex:0 0 auto}
-  .dot.s-입고{background:var(--p)} .dot.s-수리대기{background:#f5a524} .dot.s-수리완료{background:#3182f6} .dot.s-재고{background:var(--green)} .dot.s-출고대기{background:#8b95a1}
+  .dot.s-입고{background:var(--p)} .dot.s-수리대기{background:#f5a524} .dot.s-수리가능{background:#3182f6} .dot.s-재고{background:var(--green)} .dot.s-출고대기중{background:#14b8a6}
   .dot.s-출고준비중{background:#f5a524} .dot.s-출고준비완료{background:var(--green)} .hot .dot{background:#fff}
 
   .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border-radius:16px;font-weight:700;font-size:16px;
@@ -175,9 +175,31 @@
   .pill{display:inline-flex;align-items:center;font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:999px;letter-spacing:-.1px;white-space:nowrap}
   .s-입고{background:var(--p-soft);color:var(--p-ink)}
   .s-수리대기{background:var(--amber);color:var(--amber-ink)}
-  .s-수리완료{background:var(--blue-soft);color:var(--blue-ink)}
+  .s-수리가능{background:var(--blue-soft);color:var(--blue-ink)}
   .s-재고{background:var(--lime);color:var(--lime-ink)}
-  .s-출고대기{background:#eef0f3;color:#4e5968}
+  .s-출고대기중{background:#dcf7f2;color:#0b6e63}
+  .flow{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:0 0 12px;font-size:12.5px;font-weight:700;color:var(--muted2)}
+  .flow span{padding:4px 9px;border-radius:999px;background:var(--fill)} .flow span.on{background:var(--ink);color:#fff} .flow span.done{color:var(--ink2)} .flow i{font-style:normal;color:var(--line2)}
+  .btn.lock{pointer-events:none}
+  /* 재고/출고대기중 버튼: 자물쇠 잠금·해제 모션 */
+  .btn.fin{position:relative;overflow:hidden}
+  .btn.fin .lk{position:absolute;left:14px;top:50%;width:20px;height:20px;margin-top:-10px;display:none;opacity:.75}
+  .btn.fin .lk svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;overflow:visible;display:block}
+  .btn.fin .lk .sh{transform-origin:16px 11px}
+  .btn.fin.lock{background:var(--fill);color:var(--muted2);padding-left:34px} .btn.fin.lock .lk{display:block} .btn.fin.lock .lb{opacity:.75}
+  .btn.fin.unlocking,.btn.fin.locking{pointer-events:none}
+  .btn.fin.unlocking{animation:btnun 1.6s ease both} .btn.fin.unlocking .lk{display:block;animation:lkun 1.6s cubic-bezier(.3,1.2,.5,1) both}
+  .btn.fin.unlocking .lk .sh{animation:shopen 1.6s ease both} .btn.fin.unlocking .lb{animation:lbun 1.6s ease both}
+  @keyframes btnun{0%,78%{background:var(--fill);color:var(--muted2)}100%{background:var(--fin);color:#fff}}
+  @keyframes lkun{0%{left:14px;transform:scale(1);opacity:.75}22%{left:50%;transform:translateX(-50%) scale(1.9);opacity:1}72%{left:50%;transform:translateX(-50%) scale(1.9);opacity:1}100%{left:50%;transform:translateX(-50%) scale(0);opacity:0}}
+  @keyframes shopen{0%,38%{transform:none}52%{transform:rotate(38deg) translateY(-1px)}60%{transform:rotate(30deg) translateY(-1px)}100%{transform:rotate(32deg) translateY(-1px)}}
+  @keyframes lbun{0%{opacity:.75}18%,72%{opacity:0}100%{opacity:1}}
+  .btn.fin.locking{animation:btnlk 1.6s ease both} .btn.fin.locking .lk{display:block;animation:lklk 1.6s cubic-bezier(.3,1.2,.5,1) both}
+  .btn.fin.locking .lk .sh{animation:shclose 1.6s ease both} .btn.fin.locking .lb{animation:lblk 1.6s ease both}
+  @keyframes btnlk{0%{background:var(--fin);color:#fff}22%,100%{background:var(--fill);color:var(--muted2)}}
+  @keyframes lklk{0%{left:50%;transform:translateX(-50%) scale(0);opacity:0}22%{left:50%;transform:translateX(-50%) scale(1.9);opacity:1}72%{left:50%;transform:translateX(-50%) scale(1.9);opacity:1}100%{left:14px;transform:scale(1);opacity:.75}}
+  @keyframes shclose{0%,38%{transform:rotate(32deg) translateY(-1px)}50%{transform:rotate(-4deg)}58%,100%{transform:none}}
+  @keyframes lblk{0%{opacity:1}18%,72%{opacity:0}100%{opacity:.75}}
   .s-출고준비중{background:var(--amber);color:var(--amber-ink)}
   .s-출고준비완료{background:var(--lime);color:var(--lime-ink)}
   .kind{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;padding:4px 10px;border-radius:8px;letter-spacing:-.2px}
@@ -320,8 +342,10 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '4.4';
-var STATUS_IN  = ['입고','수리대기','수리완료','재고'];
+var APP_VER = '4.6';
+var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
+var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
+var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
 var STATUS_OUT = ['출고준비중','출고준비완료'];
 var STATUSES   = STATUS_IN.concat(STATUS_OUT);
 var ACC_PRESET = ['배터리','충전기','SWAP백','시동키','카드키','배터리키','헬멧','체인락','폰거치대','바구니','짐받이','레인커버'];
@@ -335,6 +359,7 @@ function fmtToday(){ var d=new Date(); return (d.getMonth()+1)+'월 '+d.getDate(
 var toastT; function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('on');},2600); }
 function spin(msg){ var sk='<div class="sk"><i class="t"></i><i class="w8"></i><i class="w6"></i></div><div class="sk"><div class="r"><s></s><div><i class="w6"></i><i class="w8"></i></div></div><div class="r"><s></s><div><i class="w6"></i><i class="w8"></i></div></div><div class="r"><s></s><div><i class="w6"></i><i class="w8"></i></div></div></div>';
   return '<div class="loadlogo">'+LOGO+(msg?'<span>'+esc(msg)+'</span>':'')+'</div>'+sk; }
+var LOCK_SVG='<svg viewBox="0 0 24 24"><path class="sh" d="M8 11V7a4 4 0 0 1 8 0v4"/><rect x="5" y="11" width="14" height="10" rx="2.5"/><circle cx="12" cy="16" r="1.3" fill="currentColor" stroke="none"/></svg>';
 var LOGO='<svg class="logo" viewBox="0 0 56.3 15.5"><path class="l" d="M 0.234,11.775 L 0.15,9.755 C 2.889,10.029 5.176,10.149 7.28,10.217 C 8.416,10.251 9.518,10.269 10.72,10.235 L 10.72,7.29 L 3.474,6.708 C 0.968,6.504 0.0,5.596 0.0,3.475 C 0.0,0.975 1.369,0.0 4.993,0.0 C 7.647,0.0 9.718,0.069 12.223,0.24 L 12.29,2.26 A 75.0,75.0 0.0 0,0 5.21,1.815 A 56.0,56.0 0.0 0,0 2.254,1.815 L 2.254,4.725 L 9.084,5.272 C 11.888,5.494 12.974,6.402 12.974,8.592 C 12.974,11.107 11.638,12.049 7.664,12.049 C 5.076,12.049 2.771,11.946 0.234,11.775"/><path class="l" d="M 17.218,11.844 L 14.163,3.372 L 14.163,3.287 L 16.167,3.287 L 18.722,10.595 L 18.772,10.595 L 20.876,4.588 L 23.164,4.588 L 25.217,10.595 L 25.284,10.595 L 27.856,3.287 L 29.81,3.287 L 29.81,3.372 L 26.654,11.844 L 23.932,11.844 L 22.012,6.367 L 21.962,6.367 L 20.024,11.844 L 17.22,11.844 L 17.218,11.844"/><path class="l" d="M 38.439,3.08 C 37.069,3.08 35.499,3.165 32.093,3.353 L 32.026,5.151 C 34.765,4.86 38.138,4.689 40.291,4.689 L 40.291,6.008 C 40.291,6.008 35.625,6.751 33.796,7.128 C 31.966,7.507 30.774,8.087 30.774,9.678 C 30.774,11.561 31.488,12.166 33.292,12.166 C 34.782,12.166 38.308,11.211 40.46,10.586 L 40.876,11.638 L 42.228,11.638 L 42.228,5.922 C 42.228,3.8 41.394,3.081 38.438,3.081 L 38.439,3.08 M 40.292,9.238 L 32.879,10.871 L 32.712,8.755 L 40.292,7.309 L 40.292,9.238"/><path class="l" d="M 56.269,7.334 C 56.159,10.577 55.653,11.217 52.527,11.069 L 46.918,10.753 L 46.918,15.479 L 44.964,15.479 L 44.964,3.158 L 46.333,3.158 L 46.883,4.133 C 49.222,3.398 51.559,2.953 53.245,2.953 C 55.583,2.953 56.267,3.928 56.267,7.333 L 56.269,7.333 L 56.269,7.334 M 54.148,9.464 L 54.148,4.63 C 51.744,4.63 49.356,5.006 46.918,5.794 L 46.918,9.076 L 54.148,9.464"/></svg>';
 /* 숫자 카운트업 (토스 느낌) */
 function countUp(root){ var t0=null;
@@ -458,14 +483,14 @@ VIEWS.home={ render:function(v){
   var cached=lsGet('tags'); if(cached) drawHome(v,cached);
   run('listTags',60).then(function(tags){ lsSet('tags',tags); if(stack.indexOf(v)>=0) drawHome(v,tags); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)+' — 이전 데이터 표시 중'); });
 }};
-function drawHome(v,tags){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true; reanim(v); }
+function drawHome(v,tags){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true; reanim(v); } tags.forEach(normStatus);
   var sum={}; STATUSES.forEach(function(s){sum[s]=0;}); tags.forEach(function(t){ if(sum[t['상태']]!==undefined) sum[t['상태']]++; });
   var n=function(x,k){ return num(x,k); };
   var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span class="hlogo">'+LOGO+'</span>경기남부점 입출고</h1></div>';
   h+='<div class="card sum"><div class="lb">관리 중인 기기</div><div class="big">'+n(tags.length,'all')+'<span>대</span></div>'+
-    '<div class="stats">'+[['입고','입고'],['수리대기','수리대기'],['수리완료','수리완료'],['재고','재고'],['출고준비중','출고 준비중'],['출고준비완료','출고 준비완료']].map(function(x){
+    '<div class="stats">'+[['입고','입고'],['수리대기','수리대기'],['수리가능','수리가능'],['재고','재고'],['출고대기중','출고 대기중'],['출고준비중','출고 준비중'],['출고준비완료','출고 준비완료']].map(function(x){
       return '<button class="'+(x[0]==='출고준비완료'&&sum[x[0]]?'hot':'')+'" onclick="push(\'status\',{filter:\''+x[0]+'\'})"><span><i class="dot s-'+x[0]+'"></i>'+x[1]+'</span>'+n(sum[x[0]],x[0])+'</button>'; }).join('')+
-    '<button class="wide" onclick="push(\'status\',{})"><span>전체 보기</span><b style="font-size:18px;color:var(--muted)">›</b></button></div></div>';
+    '<button onclick="push(\'status\',{})"><span>전체 보기</span><b style="font-size:18px;color:var(--muted)">›</b></button></div></div>';
   h+='<div class="card"><h3>QR 열기</h3>'+
      '<button class="btn" onclick="startScan()"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.2"/></svg>카메라로 QR 찍기</button>'+
      '<div class="row" style="margin-top:10px"><input class="input code" id="manual" maxlength="8" placeholder="코드 입력" autocapitalize="characters" autocomplete="off" style="flex:1"><button class="btn line sm" style="flex:0 0 auto;padding:0 20px" onclick="openManual()">열기</button></div></div>';
@@ -547,7 +572,7 @@ VIEWS.status={ render:function(v){ v.state.filter=v.state.filter||v.params.filte
   v.refresh=function(){ return run('listTags',500).then(function(tags){ lsSet('tags',tags); if(stack.indexOf(v)>=0){ v.state.tags=tags; drawStatus(v); } }); };
   var cached=lsGet('tags'); if(cached){ v.state.tags=cached; drawStatus(v); }
   run('listTags',500).then(function(tags){ lsSet('tags',tags); if(stack.indexOf(v)<0) return; v.state.tags=tags; drawStatus(v); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)); }); }};
-function drawStatus(v){ var f=v.state.filter; var tags=v.state.tags||[];
+function drawStatus(v){ var f=v.state.filter; var tags=v.state.tags||[]; tags.forEach(normStatus);
   var list=tags.filter(function(t){ if(f==='전체') return true; if(f==='수거') return !isOut(t); if(f==='출고') return isOut(t); return t['상태']===f; });
   var h=title('입출고 현황', num(tags.length,'all')+'건 등록됨',
     '<button class="hbtn" onclick="openMyWork()"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>내 작업 현황</button>');
@@ -671,7 +696,7 @@ VIEWS.tag={ render:function(v){ var code=v.params.code;
   if(v.params.tag){ v.state.tag=v.params.tag; drawTag(v); return; }
   run('getTag',code).then(function(tag){ if(tag){ v.state.tag=tag; drawTag(v); } else replace('register',{code:code}); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }};
 function accList(str){ return String(str||'').split(/[,、\n]/).map(function(x){return x.trim();}).filter(Boolean); }
-function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=v.state.tag; var out=isOut(t);
+function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=normStatus(v.state.tag); var out=isOut(t);
   var pair = out ? (t['수거일련번호']||'') : (t['출고일련번호']||'');
   var h=title('<span class="code-badge">'+esc(t['코드'])+'</span>','');
   h+='<div class="card">'+
@@ -699,10 +724,19 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=v.st
       ? '<p class="muted" style="margin:0">출고 준비가 완료된 기기입니다.</p><button class="btn line" style="margin-top:10px" onclick="setStatus(\'출고준비중\')">준비중으로 되돌리기</button>'
       : '<button class="btn green" onclick="setStatus(\'출고준비완료\')">출고 준비완료</button>';
   } else {
-    var cur=STATUS_IN.indexOf(t['상태']);
+    var curS=t['상태'], cur=STATUS_IN.indexOf(curS); var unlocked=(curS===STATUS_READY||STATUS_FINAL.indexOf(curS)>=0);
+    var prevUn=v.state.unlocked; v.state.unlocked=unlocked; var lockAnim=(prevUn!==undefined&&prevUn!==unlocked)?(unlocked?'unlocking':'locking'):'';
+    var steps=['입고','수리대기','수리가능']; var passed=Math.max(cur, steps.length-1);
+    h+='<div class="flow">'+steps.map(function(s,i){ return '<span class="'+(s===curS?'on':(i<cur?'done':''))+'">'+s+'</span>'; }).join('<i>›</i>')+'<i>›</i><span class="'+(STATUS_FINAL.indexOf(curS)>=0?'on':'')+'">'+(STATUS_FINAL.indexOf(curS)>=0?curS:'재고 / 출고 대기중')+'</span></div>';
     h+='<div class="row" style="margin-top:0;flex-wrap:wrap">';
-    STATUS_IN.forEach(function(s,i){ if(s===t['상태']) return; h+='<button class="btn sm '+(i===cur+1?'':'line')+'" style="min-width:45%" onclick="setStatus(\''+s+'\')">'+s+'</button>'; });
-    h+='</div>';
+    steps.forEach(function(s,i){ if(s===curS) return; h+='<button class="btn sm '+(i===cur+1?'':'line')+'" style="min-width:30%" onclick="setStatus(\''+s+'\')">'+s+'</button>'; });
+    h+='</div><div class="row">';
+    STATUS_FINAL.forEach(function(s){ if(s===curS) return; var fin=(s==='재고'?'var(--green)':'var(--ink)');
+      var cls=lockAnim ? (lockAnim==='unlocking'?(s==='재고'?'green':'dark'):'') + ' ' + lockAnim : (unlocked?(s==='재고'?'green':'dark'):'lock');
+      h+='<button class="btn sm fin '+cls+'" style="--fin:'+fin+'" onclick="setStatus(\''+s+'\')"><span class="lk">'+LOCK_SVG+'</span><span class="lb">'+s+'</span></button>'; });
+    h+='</div>'+(unlocked?'':'<p class="muted" style="margin:10px 0 0;font-size:13px">수리가능 상태가 되어야 재고·출고대기중으로 넘길 수 있어요.</p>');
+    if(lockAnim){ setTimeout(function(){ if(stack.indexOf(v)<0) return; haptic(lockAnim==='unlocking'?[12,40,18]:10);
+      [].forEach.call(v.el.querySelectorAll('.btn.fin.'+lockAnim),function(b){ b.classList.remove(lockAnim); if(!unlocked) b.classList.add('lock'); }); },1650); }
   }
   h+='</div>';
   h+='<div class="card"><h3>이력</h3><ul class="hist">';
@@ -856,7 +890,7 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); };
     '<li><span><b>검색</b> → 고객명·일련번호로 등록 QR/작업리스트/어드민 찾기 → 항목 선택 → QR 찍어 매칭. 작업이 없는 기기는 <b>재고 기기</b>로 등록</span></li>'+
     '<li><span><b>현황</b> → 홈의 상태 칸이나 전체 보기. 오른쪽 위 <b>내 작업 현황</b>에서 슬랙 보고</span></li>'+
     '<li><span><b>자전거 주문</b> → 출고 QR 1장 · <b>교체수리</b> → 출고 1장 + 수거 1장</span></li>'+
-    '<li><span><b>수거 기기</b> → 입고 → 수리대기 → 수리완료 → 재고</span></li>'+
+    '<li><span><b>수거 기기</b> → 입고 → 수리대기 → <b>수리가능</b> → 재고 또는 출고 대기중 (수리가능을 지나야 넘어감)</span></li>'+
     '<li><span><b>출고 기기</b> → 출고 준비완료 한 번</span></li>'+
     '<li><span><b>용지 재사용</b> → 기기가 나간 뒤 태그 비우기</span></li>'+
     '<li><span><b>뒤로가기</b> → 폰 뒤로가기 버튼, 왼쪽 위 ‹, 또는 화면 왼쪽 끝에서 오른쪽으로 밀기</span></li>'+
