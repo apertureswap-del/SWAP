@@ -294,6 +294,25 @@
   .lab-preview .lb .t{font-size:10px;color:var(--muted)}
   #printarea{display:none}
 
+  /* 추가기능 메뉴 */
+  .mitem{display:flex;align-items:center;gap:14px;width:100%;padding:16px 14px;border-radius:18px;background:#fff;text-align:left;margin-bottom:10px;box-shadow:0 1px 2px rgba(25,31,40,.04),0 6px 20px rgba(25,31,40,.05);transition:transform .15s}
+  .mitem:active{transform:scale(.98)} .mitem .mi{flex:0 0 46px;height:46px;border-radius:14px;background:var(--p-soft);color:var(--p);display:flex;align-items:center;justify-content:center}
+  .mitem .mi svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .mitem .mt{flex:1;min-width:0} .mitem .mt b{display:block;font-size:16.5px;font-weight:800;letter-spacing:-.3px} .mitem .mt span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+  .mitem .ar{color:var(--muted2);font-size:20px}
+  /* 신품 체크 */
+  .chk{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink2);cursor:pointer;user-select:none;padding:8px 12px;border-radius:12px;background:var(--fill)}
+  .chk input{position:absolute;opacity:0;width:0;height:0}
+  .chk i{width:20px;height:20px;border-radius:7px;border:1.5px solid var(--line2);background:#fff;display:inline-flex;align-items:center;justify-content:center;transition:all .15s}
+  .chk i::after{content:'';width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px);opacity:0}
+  .chk input:checked+i{background:var(--p);border-color:var(--p)} .chk input:checked+i::after{opacity:1}
+  .chk.on{background:var(--p-soft);color:var(--p-ink)}
+  /* 재고 시트 반영 표 */
+  .srow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)} .srow:last-child{border-bottom:0}
+  .srow .sn{flex:1;min-width:0} .srow .sn b{font-weight:800;font-size:15px} .srow .sn span{display:block;font-size:12.5px;color:var(--muted)}
+  .srow .sv{display:flex;gap:6px;flex:0 0 auto} .srow .sv em{font-style:normal;font-size:12.5px;font-weight:700;padding:5px 9px;border-radius:9px;background:var(--fill);color:var(--muted);white-space:nowrap}
+  .srow .sv em.ch{background:var(--p-soft);color:var(--p-ink)} .srow .sv em s{text-decoration:line-through;opacity:.55;margin-right:4px}
+  .srow.dim .sn b{color:var(--muted)}
   /* ===== 로그인 (접속 코드) ===== */
   .login{position:fixed;inset:0;z-index:60;background:#08070c;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,5vh,44px);overflow:hidden;
          padding:24px calc(20px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));transition:opacity .45s,transform .45s var(--spring)}
@@ -391,7 +410,7 @@
   <nav class="tabbar" id="tabs">
     <button data-tab="home" onclick="goTab('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>홈</button>
     <button data-tab="search" onclick="goTab('search')"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>검색</button>
-    <button data-tab="labels" onclick="goTab('labels')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v7h-7"/></svg>라벨</button>
+    <button data-tab="extras" onclick="goTab('extras')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></svg>추가기능</button>
     <button data-tab="me" onclick="goTab('me')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>환경설정</button>
   </nav>
 </div>
@@ -406,7 +425,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '6.4';
+var APP_VER = '7.0';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -500,7 +519,7 @@ function isOut(t){ return t['구분']==='출고'; }
 
 /* ================= 네비게이션 ================= */
 var stack=[]; var animating=false; var VIEWS={};
-var TAB_OF={home:'home',status:'home',labels:'labels',me:'me',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
+var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',me:'me',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
 function makeView(name,params){ var el=document.createElement('div'); el.className='view'; el.innerHTML=spin(); return {name:name,params:params||{},el:el,state:{}}; }
 function reanim(v){ if(!v||!v.el) return; v.el.classList.remove('anim'); void v.el.offsetWidth; v.el.classList.add('anim'); clearTimeout(v._at); v._at=setTimeout(function(){ v.el.classList.remove('anim'); },900); }
 function mount(v){ $('stage').insertBefore(v.el,$('back')); reanim(v); try{ VIEWS[v.name].render(v); }catch(e){ v.el.innerHTML=errBox(e); } }
@@ -610,12 +629,12 @@ function itemTag(t){
 
 /* ================= 카메라 스캔 ================= */
 function startScan(){ push('scan',{}); }
-VIEWS.scan={ render:function(v){ var m=v.params.match;
-  v.el.innerHTML=title(m?'QR 매칭':'QR 스캔', m?('<b>'+esc(m.name||m.serial||'기기')+'</b>'+(m.serial?' · '+esc(m.serial):'')+' 에 붙일 QR을 찍으세요'):'라벨의 QR을 화면 가운데에 맞추세요')+
+VIEWS.scan={ render:function(v){ var m=v.params.match; var rm=v.params.rematch; if(rm) m={name:v.params.name};
+  v.el.innerHTML=title(rm?'QR 교체':(m?'QR 매칭':'QR 스캔'), rm?('<b>'+esc(v.params.name||'기기')+'</b> ('+esc(rm)+') 에 새로 붙일 QR을 찍으세요'):(m?('<b>'+esc(m.name||m.serial||'기기')+'</b>'+(m.serial?' · '+esc(m.serial):'')+' 에 붙일 QR을 찍으세요'):'라벨의 QR을 화면 가운데에 맞추세요'))+
     '<div class="scan" id="scanbox"><video id="vid" playsinline muted></video><div class="frame"></div></div>'+
     '<div id="scanmsg" class="muted" style="text-align:center;margin-bottom:12px">카메라 준비 중…</div>'+
     '<button class="btn line" onclick="camTarget=null;$(\'camfile\').click()"><svg viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg>사진으로 찍어서 읽기</button>'+
-    (m?'<div class="row" style="margin-top:10px"><input class="input code" id="mcode" maxlength="8" placeholder="코드 직접 입력" autocapitalize="characters" autocomplete="off" style="flex:1"><button class="btn line sm" style="flex:0 0 auto;padding:0 18px" onclick="handleScanned($(\'mcode\').value)">확인</button></div>':'');
+    ((m||rm)?'<div class="row" style="margin-top:10px"><input class="input code" id="mcode" maxlength="8" placeholder="코드 직접 입력" autocapitalize="characters" autocomplete="off" style="flex:1"><button class="btn line sm" style="flex:0 0 auto;padding:0 18px" onclick="handleScanned($(\'mcode\').value)">확인</button></div>':'');
   v.onLeave=stopScan; liveScan(v);
 }};
 var scanStream=null, scanRAF=null, camTarget=null;
@@ -656,6 +675,15 @@ function handleScanned(text){
   var code=null; var m=String(text).match(/[?&]q=([A-Za-z0-9]+)/); if(m) code=m[1].toUpperCase(); else if(/^[A-Za-z0-9]{4,10}$/.test(text.trim())) code=text.trim().toUpperCase();
   if(!code){ toast('입출고 QR이 아닙니다'); return; }
   var cur=stack[stack.length-1];
+  if(cur&&cur.name==='scan'&&cur.params.rematch){ // QR 교체: 기존 태그를 새 코드로
+    var oldc=cur.params.rematch; stopScan(); var bx=$('scanbox'); if(bx) bx.style.display='none'; $('scanmsg').textContent=code+' 로 교체 중…';
+    run('rematchTag',oldc,code,worker).then(function(res){ if(stack.indexOf(cur)<0) return;
+      if(!res.ok){ toast(res.error); liveScan(cur); if(bx) bx.style.display=''; return; }
+      haptic([12,40,18]); toast('QR 교체 완료: '+oldc+' → '+code); try{ history.replaceState({d:hDepth},'',WEBAPP+'?q='+code); }catch(e){}
+      // 이전 태그 화면(구 코드)도 새 코드로 바꿔 둔다
+      var prev=stack[stack.length-2]; if(prev&&prev.name==='tag'){ prev.params.code=code; prev.state.tag=res.tag; prev._tagDrawn=false; drawTag(prev); }
+      pop(); }).catch(function(e){ toast('교체 실패: '+(e&&e.message||e)); liveScan(cur); if(bx) bx.style.display=''; });
+    return; }
   if(cur&&cur.name==='scan'&&cur.params.match){ // 검색 결과 → QR 매칭
     var m=cur.params.match; stopScan(); var box=$('scanbox'); if(box) box.style.display='none'; $('scanmsg').textContent=code+' 확인 중…';
     run('getTag',code).then(function(tag){ if(stack.indexOf(cur)<0) return;
@@ -673,6 +701,8 @@ VIEWS.status={ render:function(v){ v.state.filter=v.state.filter||v.params.filte
   run('listTags',500).then(function(tags){ lsSet('tags',tags); if(stack.indexOf(v)<0) return; v.state.tags=tags; drawStatus(v); refreshSysBg(); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)); }); }};
 function drawStatus(v){ var f=v.state.filter; var tags=v.state.tags||[]; tags.forEach(normStatus);
   var list=tags.filter(function(t){ if(f==='전체') return true; if(f==='수거') return !isOut(t); if(f==='출고') return isOut(t); if(f==='전산미완료') return sysPending(t); return t['상태']===f; });
+  var mk=function(x){ return String(x||'').toLowerCase().replace(/\s+/g,''); };   // 같은 기종끼리, 그 안에서 같은 색끼리, 그 안에서는 최근 순
+  list.sort(function(a,b){ var A=mk(a['모델']),B=mk(b['모델']); if(A!==B) return (A||'\uffff')<(B||'\uffff')?-1:1; var ac=mk(a['색상']),bc=mk(b['색상']); if(ac!==bc) return (ac||'\uffff')<(bc||'\uffff')?-1:1; return String(b['최종변경시각']||'').localeCompare(String(a['최종변경시각']||'')); });
   var h=title('입출고 현황', num(tags.length,'all')+'건 등록됨',
     '<button class="hbtn" onclick="openMyWork()"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>내 작업 현황</button>');
   h+='<div class="seg">'+['전체','수거','출고'].map(function(s){ return '<button class="'+(f===s?'on':'')+'" onclick="setFilter(\''+s+'\')">'+s+'</button>'; }).join('')+'</div>';
@@ -809,6 +839,7 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
       '<div class="sn-big">'+(t['일련번호']?esc(t['일련번호']):'<span class="muted" style="font-weight:600;font-size:15px;font-family:inherit">일련번호 없음</span>')+'</div>'+
       (t['차대번호']?'<div class="muted" style="font-size:12px">차대 '+esc(t['차대번호'])+'</div>':'')+
       (pair?'<div class="muted" style="font-size:12px;margin-top:6px">짝 기기 ('+(out?'수거':'출고')+') <span class="mono">'+esc(pair)+'</span>'+(!out&&t['출고모델']?' · '+esc(t['출고모델']):'')+'</div>':'')+
+      (t['구분']==='재고'?'<div style="margin-top:10px"><label class="chk'+(t.isNew?' on':'')+'"><input type="checkbox" '+(t.isNew?'checked':'')+' onchange="saveFields({isNew:this.checked},this.checked?\'신품으로 표시\':\'중고로 표시\')"><i></i>신품 (새 제품)</label><span class="muted" style="font-size:12px;margin-left:8px">재고 시트에 새제품으로 집계</span></div>':'')+
     '</div>'+
     '<div class="sect"><div class="field-row"><h3>액세서리</h3><button class="edit" onclick="editAcc()">수정</button></div>'+
       (accList(t['액세서리']).length?'<div class="acc">'+accList(t['액세서리']).map(function(a){return '<span>'+esc(a)+'</span>';}).join('')+'</div>':'<p class="muted" style="margin:4px 0 0">없음</p>')+'</div>'+
@@ -840,7 +871,8 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
   h+='<div class="card"><h3>이력</h3><ul class="hist">';
   (t.history||[]).forEach(function(x){ h+='<li><span><b>'+esc(x['동작'])+'</b> · '+esc(x['상태'])+' · '+esc(x['처리자'])+(x['메모']?' <span style="color:var(--muted2)">'+esc(x['메모'])+'</span>':'')+'</span><span style="white-space:nowrap">'+esc(String(x['시각']).slice(5,16))+'</span></li>'; });
   if(!(t.history||[]).length) h+='<li>이력이 없습니다.</li>'; h+='</ul></div>';
-  h+='<button class="btn danger" onclick="doRelease()">태그 비우기</button><p class="muted" style="text-align:center;margin:10px 0 0">기기가 나간 뒤 용지를 다른 기기에 다시 쓸 때 누르세요. 이력은 남습니다.</p>';
+  h+='<button class="btn line" style="margin-bottom:10px" onclick="rematchAsk()"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 12h8M12 8v8"/></svg>QR 교체 (라벨이 찢어졌을 때)</button>'+
+     '<button class="btn danger" onclick="doRelease()">태그 비우기</button><p class="muted" style="text-align:center;margin:10px 0 0">기기가 나간 뒤 용지를 다른 기기에 다시 쓸 때 누르세요. 이력은 남습니다.</p>';
   v.el.innerHTML=h;
 }
 function setStatus(s){ haptic(12); needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('저장 중');
@@ -863,6 +895,8 @@ function syncAdmin(){ var v=stack[stack.length-1]; v.el.innerHTML=spin('어드�
   run('syncFromAdmin',v.params.code,worker).then(function(res){ if(res.ok){ v.state.tag=res.tag; drawTag(v); toast('어드민 동기화 완료'); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }
 function doRelease(){ needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code;
   openSheet('<h3>태그를 비울까요?</h3><p>'+esc(code)+' 용지를 다른 기기에 다시 쓸 수 있게 됩니다. 이력은 그대로 남습니다.</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--danger);color:#fff" onclick="closeSheet();releaseNow()">비우기</button></div>'); }); }
+function rematchAsk(){ needWorker(function(){ var v=stack[stack.length-1]; var t=v.state.tag;
+  openSheet('<h3>QR 교체</h3><p><b>'+esc(t['고객명'])+'</b> · '+esc(t['모델'])+' '+esc(t['일련번호'])+' 의 정보는 그대로 두고 QR만 새 라벨로 바꿔요. 다음 화면에서 <b>새 QR</b>을 찍으세요.</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ push(\'scan\',{rematch:\''+esc(t['코드'])+'\',name:\''+esc(t['고객명']||'').replace(/'/g,'')+'\'}); })">새 QR 찍기</button></div>'); }); }
 function releaseNow(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('처리 중');
   run('releaseTag',code,worker).then(function(res){ if(res.ok){ toast('태그를 비웠습니다'); replace('register',{code:code}); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }
 
@@ -980,6 +1014,38 @@ function downloadLabels(){ var css=document.querySelector('style').textContent.s
   var html='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>SWAP QR 라벨</title><style>body{margin:0;font-family:Pretendard,-apple-system,sans-serif}#printarea{display:block}'+css+'</style></head><body><div id="printarea">'+$('printarea').innerHTML+'</div></body></html>';
   var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download='SWAP_QR라벨.html'; a.click(); }
 
+/* ================= 추가기능 ================= */
+VIEWS.extras={ render:function(v){ reanim(v);
+  v.el.innerHTML=title('추가기능','')+
+    '<button class="mitem" onclick="push(\'labels\',{})"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v7h-7"/></svg></span><span class="mt"><b>QR 라벨 생성</b><span>A4에 인쇄할 무작위 코드 라벨</span></span><span class="ar">›</span></button>'+
+    '<button class="mitem" onclick="push(\'stocksync\',{})"><span class="mi" style="background:var(--green-soft,#e6f7ee);color:var(--green,#1f9d55)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg></span><span class="mt"><b>재고 시트 반영</b><span>앱의 재고 기기를 Swap_재고 테이블에 자동 기입</span></span><span class="ar">›</span></button>'; }};
+
+/* ================= 재고 시트 반영 ================= */
+VIEWS.stocksync={ render:function(v){ v.refresh=function(){ return loadStock(v); }; v.el.innerHTML=title('재고 시트 반영','')+spin('시트와 앱 재고를 비교하는 중'); loadStock(v); }};
+function loadStock(v){ return run('stockPreview').then(function(r){ if(stack.indexOf(v)<0) return; v.state.pv=r; drawStock(v); }).catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('재고 시트 반영','')+errBox(e); }); }
+function drawStock(v){ var r=v.state.pv; var changed=r.items.filter(function(i){ return i.changed; }); var same=r.items.length-changed.length;
+  var h=title('재고 시트 반영','<a href="'+esc(r.sheetUrl)+'" target="_blank" style="color:var(--p);font-weight:700">'+esc(r.tab)+' 열기 ›</a>');
+  h+='<div class="card sum"><div class="lb">앱에 재고로 있는 기기</div><div class="big">'+num(r.total,'st')+'<span>대</span></div>'+
+     '<div class="muted" style="margin-top:6px">신품 '+num(r.newTotal,'sn')+'대 · 중고 '+num(r.total-r.newTotal,'su')+'대'+(r.updated?' · 시트 마지막 반영 '+esc(r.updated):'')+'</div></div>';
+  h+='<div class="card"><h3>바뀔 줄 '+changed.length+'개</h3><p class="muted" style="margin:0 0 6px;font-size:13px">신품 → <b>새제품</b> 칸, 나머지 → <b>중고-중</b> 칸. 재고총수량·중고(합)은 시트 수식이 알아서 계산해요. 여기 없는 줄은 건드리지 않아요.</p>';
+  if(!changed.length) h+='<div class="empty">시트와 앱 재고가 같아요. 반영할 게 없어요.</div>';
+  else changed.forEach(function(i){ h+='<div class="srow"><div class="sn"><b>'+esc(i.model)+' '+esc(i.color)+'</b><span>'+i.devices.map(function(d){ return esc(d.serial||d.code); }).join(', ')+'</span></div>'+
+      '<div class="sv">'+cell(i.sheetNew,i.appNew,'새제품')+cell(i.sheetUsed,i.appUsed,'중')+'</div></div>'; });
+  if(same) h+='<p class="muted" style="margin:10px 0 0;font-size:13px;text-align:center">이미 같은 줄 '+same+'개</p>';
+  h+='</div>';
+  if(r.ambiguous.length||r.unmatched.length){ h+='<div class="card"><h3 style="color:var(--danger)">시트 줄을 못 찾은 기기 '+(r.ambiguous.length+r.unmatched.length)+'대</h3><p class="muted" style="margin:0 0 6px;font-size:13px">이 기기들은 반영에서 빠져요. 태그의 모델·색상을 시트 표기와 맞게 고치면 다음 반영 때 들어가요.</p>';
+    r.ambiguous.forEach(function(d){ h+='<div class="srow dim"><div class="sn"><b>'+esc(d.model)+' '+esc(d.color)+'</b><span>'+esc(d.serial||d.code)+' · 시트에 '+d.options.map(esc).join(' / ')+' 가 있어 애매함</span></div><button class="edit" onclick="push(\'tag\',{code:\''+esc(d.code)+'\'})">태그</button></div>'; });
+    r.unmatched.forEach(function(d){ h+='<div class="srow dim"><div class="sn"><b>'+esc(d.model||'모델 없음')+' '+esc(d.color)+'</b><span>'+esc(d.serial||d.code)+' · 시트에 같은 기종·색상 줄이 없음</span></div><button class="edit" onclick="push(\'tag\',{code:\''+esc(d.code)+'\'})">태그</button></div>'; });
+    h+='</div>'; }
+  h+='<button class="btn" '+(changed.length?'':'disabled style="opacity:.5"')+' onclick="stockApplyAsk()">시트에 반영 ('+changed.length+'줄)</button>';
+  v.el.innerHTML=h; countUp(v.el);
+  function cell(a,b,label){ var ch=a!==b; return '<em class="'+(ch?'ch':'')+'">'+label+' '+(ch?'<s>'+a+'</s>':'')+b+'</em>'; } }
+function stockApplyAsk(){ needWorker(function(){ var v=stack[stack.length-1]; var changed=v.state.pv.items.filter(function(i){ return i.changed; }); if(!changed.length) return;
+  openSheet('<h3>시트에 반영할까요?</h3><p>'+esc(v.state.pv.tab)+' 탭의 '+changed.length+'줄에서 새제품·중고-중 값을 앱 집계로 바꿔요. 다른 칸은 그대로예요.</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ stockApplyGo(); })">반영</button></div>'); }); }
+function stockApplyGo(){ var v=stack[stack.length-1]; var changed=v.state.pv.items.filter(function(i){ return i.changed; }).map(function(i){ return {row:i.row,model:i.model,appNew:i.appNew,appUsed:i.appUsed}; });
+  v.el.innerHTML=title('재고 시트 반영','')+spin('시트에 쓰는 중');
+  run('stockApply',changed,worker).then(function(res){ if(stack.indexOf(v)<0) return; if(res.ok){ haptic([12,40,18]); toast(res.n+'줄 반영 완료'); } else toast(res.error); return loadStock(v); }).catch(function(e){ v.el.innerHTML=title('재고 시트 반영','')+errBox(e); }); }
+
 /* ================= 환경설정 ================= */
 VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return AUTH&&AUTH.admin ? loadCodes(v,true) : Promise.resolve(); };
   var fixedName=!!(AUTH&&!AUTH.admin&&AUTH.name);
@@ -999,7 +1065,8 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
     '<li><span><b>수거 기기</b> → 입고 → 수리대기 → <b>수리가능</b> → 재고 또는 출고 대기중 (수리가능을 지나야 넘어감)</span></li>'+
     '<li><span><b>출고 기기</b> → 등록하면 바로 출고 준비완료</span></li>'+
     '<li><span><b>⚠️전산미완료</b> → 재고·출고준비완료 기기인데 어드민 고객요청이 완료가 아닐 때 표시. 어드민에서 완료 처리하면 사라짐(15분마다 자동 확인, 상세 화면 열면 즉시 확인)</span></li>'+
-    '<li><span><b>용지 재사용</b> → 기기가 나간 뒤 태그 비우기</span></li>'+
+    '<li><span><b>용지 재사용</b> → 기기가 나간 뒤 태그 비우기 · 라벨이 찢어지면 <b>QR 교체</b></span></li>'+
+    '<li><span><b>재고 시트 반영</b> → 추가기능 → 앱의 재고 기기(신품 체크 포함)를 Swap_재고 테이블 경기남부점 탭에 기입</span></li>'+
     '<li><span><b>뒤로가기</b> → 폰 뒤로가기 버튼, 왼쪽 위 ‹, 또는 화면 왼쪽 끝에서 오른쪽으로 밀기</span></li>'+
     '<li><span><b>새로고침</b> → 화면 맨 위에서 아래로 당기기</span></li>'+
     '<li><span><b>작업 보고</b> → 현황 화면 오른쪽 위 <b>내 작업 현황</b> → 날짜 선택 → 슬랙으로 보내기</span></li></ul></div>'+
