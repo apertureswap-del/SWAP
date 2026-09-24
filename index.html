@@ -108,7 +108,11 @@
   .ptitle .sub{font-size:14.5px;color:var(--muted);margin-top:3px;font-weight:500}
   .hello{margin:6px 4px 18px}
   .hello .date{font-size:14px;color:var(--muted);font-weight:600}
-  .hello h1{margin:2px 0 0;font-size:28px;font-weight:800;letter-spacing:-.8px;line-height:1.2}
+  .hello h1{margin:2px 0 0;font-size:28px;font-weight:800;letter-spacing:-.8px;line-height:1.2;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .hello .hlogo{display:inline-flex;align-items:center} .hello .hlogo .logo{width:96px;height:27px;display:block}
+  .view.anim .hello .logo .l{animation:letterin .6s var(--spring) both}
+  .hello .logo .l:nth-child(2){animation-delay:.08s} .hello .logo .l:nth-child(3){animation-delay:.16s} .hello .logo .l:nth-child(4){animation-delay:.24s}
+  @keyframes letterin{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
 
   .tabbar{height:var(--tab-h);flex:0 0 auto;display:flex;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
           border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:5}
@@ -316,7 +320,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '4.1';
+var APP_VER = '4.4';
 var STATUS_IN  = ['입고','수리대기','수리완료','재고'];
 var STATUS_OUT = ['출고준비중','출고준비완료'];
 var STATUSES   = STATUS_IN.concat(STATUS_OUT);
@@ -457,7 +461,7 @@ VIEWS.home={ render:function(v){
 function drawHome(v,tags){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true; reanim(v); }
   var sum={}; STATUSES.forEach(function(s){sum[s]=0;}); tags.forEach(function(t){ if(sum[t['상태']]!==undefined) sum[t['상태']]++; });
   var n=function(x,k){ return num(x,k); };
-  var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1>경기남부점 입출고</h1></div>';
+  var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span class="hlogo">'+LOGO+'</span>경기남부점 입출고</h1></div>';
   h+='<div class="card sum"><div class="lb">관리 중인 기기</div><div class="big">'+n(tags.length,'all')+'<span>대</span></div>'+
     '<div class="stats">'+[['입고','입고'],['수리대기','수리대기'],['수리완료','수리완료'],['재고','재고'],['출고준비중','출고 준비중'],['출고준비완료','출고 준비완료']].map(function(x){
       return '<button class="'+(x[0]==='출고준비완료'&&sum[x[0]]?'hot':'')+'" onclick="push(\'status\',{filter:\''+x[0]+'\'})"><span><i class="dot s-'+x[0]+'"></i>'+x[1]+'</span>'+n(sum[x[0]],x[0])+'</button>'; }).join('')+
@@ -577,9 +581,10 @@ function doSearch(v,q,silent){ q=String(q||'').trim(); v.state.q=q; if(!q) retur
   return run('search',q).then(function(res){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.res=res; drawSearchRes(v);
     return admP.then(function(a){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.adm=a; drawSearchRes(v); }); })
     .catch(function(e){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; $('sres').innerHTML=errBox(e); }); }
+function dispName(it){ return it.name || (it.stock?'재고 기기':'') || [it.model,it.serial].filter(Boolean).join(' ') || '기기'; }
 function itemWork(it,idxKey){ var kinds=it.registeredKinds||[]; var isAdm=it.source==='admin';
-  return '<button class="item" onclick="pickSearch(\''+idxKey+'\')"><div class="av '+(isAdm?'gray':'')+'">'+esc(initials(it.name))+'</div><div class="bd">'+
-    '<div class="nm">'+esc(it.name||'(이름 없음)')+(kinds.indexOf('출고')>=0?'<span class="chip" style="background:#e6f7ec;color:#1f6b3a">출고 등록됨</span>':'')+(kinds.indexOf('입고')>=0?'<span class="chip p">수거 등록됨</span>':'')+'</div>'+
+  return '<button class="item" onclick="pickSearch(\''+idxKey+'\')"><div class="av '+(isAdm?'gray':'')+'">'+(it.name?esc(initials(it.name)):'🏷️')+'</div><div class="bd">'+
+    '<div class="nm">'+esc(dispName(it))+(it.stock?'<span class="chip gray">미배정</span>':'')+(kinds.indexOf('출고')>=0?'<span class="chip" style="background:#e6f7ec;color:#1f6b3a">출고 등록됨</span>':'')+(kinds.indexOf('입고')>=0?'<span class="chip p">수거 등록됨</span>':'')+'</div>'+
     '<div class="sub">'+esc(it.type||'')+(it.date?' · '+esc(it.date):'')+(it.status?' · '+esc(it.status):'')+'</div>'+
     '<div class="sub">'+esc([it.model,it.color].filter(Boolean).join(' '))+(it.changeModel?' → '+esc(it.changeModel)+' '+esc(it.changeColor||''):'')+(it.serial?' · <span class="sn">'+esc(it.serial)+'</span>':'')+'</div></div>'+
     '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>'; }
@@ -591,12 +596,12 @@ function drawSearchRes(v){ var r=v.state.res||{tags:[],worklist:[]}; var a=v.sta
   h+='<div class="sec"><span>어드민</span><span>'+(a.loading?'찾는 중…':(a.ok?a.items.length+'건':''))+'</span></div>';
   if(a.loading) h+='<div class="card" style="padding:14px 20px"><div class="loadlogo" style="padding:6px 0">'+LOGO+'</div></div>';
   else if(a.ok&&a.items.length) h+='<div class="list">'+a.items.map(function(it,i){ return itemWork(it,'a'+i); }).join('')+'</div>';
-  else h+='<div class="card" style="padding:16px 20px"><p class="muted" style="margin:0">'+(a.ok?'어드민에도 없어요.':'어드민 검색 불가 — '+esc(a.error||''))+'</p></div>';
+  else h+='<div class="card" style="padding:16px 20px"><p class="muted" style="margin:0">'+(a.ok?('어드민에도 없어요.'+(a.note?' ('+esc(a.note)+')':'')):'어드민 검색 불가 — '+esc(a.error||''))+'</p></div>';
   h+='<button class="btn line" style="margin-top:16px" onclick="manualStock(\''+esc(q)+'\')">🏷️ 재고 기기 직접 입력해서 등록</button>';
   var box=$('sres'); if(box){ box.innerHTML=h; } }
 function pickSearch(key){ var v=stack[stack.length-1]; var it=key[0]==='w' ? v.state.res.worklist[+key.slice(1)] : v.state.adm.items[+key.slice(1)]; if(!it) return;
   var kinds=it.registeredKinds||[];
-  openSheet('<h3>'+esc(it.name||'기기')+' <span class="muted" style="font-size:14px;font-weight:600">'+esc(it.type||'')+'</span></h3>'+
+  openSheet('<h3>'+esc(dispName(it))+' <span class="muted" style="font-size:14px;font-weight:600">'+esc(it.type||'')+'</span></h3>'+
     '<p>'+esc([it.model,it.color].filter(Boolean).join(' '))+(it.serial?' · '+esc(it.serial):'')+(it.date?'<br>작업 예정 '+esc(it.date):'')+(it.reqId?'<br>고객요청 '+esc(it.reqId):'')+'</p>'+
     (kinds.length?'<div class="note" style="margin:0 0 14px">이미 '+kinds.map(function(k){return k==='출고'?'출고':'수거';}).join('·')+' 기기가 QR에 등록된 건이에요.</div>':'')+
     '<button class="btn" onclick="closeSheet();matchQR(stack[stack.length-1].state.picked)"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.2"/></svg>QR 찍어서 매칭하기</button>'+
@@ -765,7 +770,7 @@ function toStep2(){ var v=stack[stack.length-1]; var it=v.state.list[v.state.sel
   if(!v.state.kind) v.state.kind = it.stock ? '재고' : (/주문|재배송/.test(it.type) ? '출고' : (/해지|철회|대차 진행 X/.test(it.type) ? '입고' : null));
   drawStep2(v); }
 function drawStep2(v){ reanim(v); v.state.step=2; var it=v.state.list[v.state.selected]; var k=v.state.kind;
-  var h=title(esc(it.name),'2/5 · 이 QR을 붙인 기기는?')+stepsBar(2);
+  var h=title(esc(dispName(it)),'2/5 · 이 QR을 붙인 기기는?')+stepsBar(2);
   var three=!!v.params.item;   // 검색에서 온 경우 재고 선택도 가능
   h+='<div class="card"><div class="kindpick'+(three?' three':'')+'">'+
     '<button class="out '+(k==='출고'?'on':'')+'" onclick="setKind(\'출고\')"><div class="ic">📦</div><b>출고 기기</b><span>고객에게 나가는 기기'+(it.changeModel?'<br>'+esc(it.changeModel)+' '+esc(it.changeColor):(isOrderType(it.type)?'<br>'+esc(it.model)+' '+esc(it.color):''))+'</span></button>'+
