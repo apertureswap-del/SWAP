@@ -342,7 +342,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '4.6';
+var APP_VER = '4.7';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -426,10 +426,11 @@ window.addEventListener('popstate',function(e){
   var cur=stack[0]; if(cur&&cur.name!=='home'){ tabTo('home'); if(hDepth>0) hBack(hDepth); }
 });
 function push(name,params){ if(animating) return; hPush(); pushView(name,params); }
-function pushView(name,params){ haptic(6); var v=makeView(name,params); var prev=stack[stack.length-1]; stack.push(v); v.el.classList.add('enter'); mount(v);
+function clearInline(v){ if(v&&v.el){ v.el.style.transform=''; v.el.style.transition=''; } }
+function pushView(name,params){ haptic(6); var v=makeView(name,params); var prev=stack[stack.length-1]; clearInline(prev); stack.push(v); v.el.classList.add('enter'); mount(v);
   animating=true; requestAnimationFrame(function(){ requestAnimationFrame(function(){ v.el.classList.remove('enter'); if(prev) prev.el.classList.add('under'); setTimeout(function(){animating=false;},380); }); }); syncChrome(); }
 function pop(){ if(animating||stack.length<2) return; popView(); hBack(1); }
-function popView(){ if(stack.length<2) return; haptic(6); var v=stack.pop(); var prev=stack[stack.length-1]; if(v.onLeave) v.onLeave(v);
+function popView(){ if(stack.length<2) return; haptic(6); var v=stack.pop(); var prev=stack[stack.length-1]; clearInline(v); clearInline(prev); if(v.onLeave) v.onLeave(v);
   animating=true; v.el.classList.add('enter'); prev.el.classList.remove('under'); setTimeout(function(){ v.el.remove(); animating=false; if(prev.onResume) prev.onResume(prev); },380); syncChrome(); }
 function replace(name,params){ var cur=stack.pop(); if(cur){ if(cur.onLeave) cur.onLeave(cur); cur.el.remove(); } var v=makeView(name,params); stack.push(v); v.el.classList.add('fade-in'); mount(v); syncChrome(); }
 function haptic(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||8); }catch(e){} }
@@ -448,6 +449,7 @@ function tabTo(name){ haptic(6);
   st.addEventListener('touchmove',function(e){ if(sy===null) return; var d=e.touches[0].clientY-sy; if(d<=0||el.scrollTop>0){ if(dy===0){ sy=null; } return; }
     dy=Math.min(d,140); if(e.cancelable) e.preventDefault(); var p=Math.min(1,dy/80); el.style.transition='none'; el.style.transform='translateY('+(dy*.45)+'px)';
     ind.style.opacity=p; ind.style.transform='translate(-50%,'+(dy*.45-14)+'px)'; ind.classList.toggle('ready',p>=1); },{passive:false});
+  st.addEventListener('touchcancel',function(){ if(sy===null) return; sy=null; if(el){ el.style.transition='transform .3s var(--spring)'; el.style.transform=''; } setTimeout(reset,320); },{passive:true});
   st.addEventListener('touchend',function(){ if(sy===null) return; var v=stack[stack.length-1]; var ready=dy>=80; sy=null;
     if(!ready||!v||!v.refresh){ el.style.transition='transform .35s var(--spring)'; el.style.transform=''; setTimeout(reset,350); return; }
     busy=true; haptic(10); el.style.transition='transform .3s var(--spring)'; el.style.transform='translateY(44px)'; ind.classList.add('spin'); ind.style.transform='translate(-50%,30px)';
@@ -459,6 +461,7 @@ function tabTo(name){ haptic(6);
     top=stack[stack.length-1].el; under=stack[stack.length-2].el; top.style.transition='none'; under.style.transition='none'; },{passive:true});
   st.addEventListener('touchmove',function(e){ if(!dragging) return; var dx=Math.max(0,e.touches[0].clientX-sx); top.style.transform='translateX('+dx+'px)'; under.style.transform='translateX('+(-28+dx/st.clientWidth*28)+'%)'; },{passive:true});
   st.addEventListener('touchend',function(e){ if(!dragging) return; dragging=false; var dx=e.changedTouches[0].clientX-sx; top.style.transition=''; under.style.transition=''; top.style.transform=''; under.style.transform=''; if(dx>90) pop(); });
+  st.addEventListener('touchcancel',function(){ if(!dragging) return; dragging=false; top.style.transition=''; under.style.transition=''; top.style.transform=''; under.style.transform=''; },{passive:true});
 })();
 
 /* ================= 바텀시트 / 이름 ================= */
