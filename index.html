@@ -552,7 +552,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '9.9';
+var APP_VER = '10.0';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -778,12 +778,15 @@ function itemTag(t){
 /* ================= 카메라 스캔 ================= */
 function startScan(){ push('scan',{}); }
 VIEWS.scan={ render:function(v){ var m=v.params.match; var rm=v.params.rematch; if(rm) m={name:v.params.name};
-  v.el.innerHTML=title(rm?'QR 교체':(m?'QR 매칭':'QR 스캔'), rm?('<b>'+esc(v.params.name||'기기')+'</b> ('+esc(rm)+') 에 새로 붙일 QR을 찍으세요'):(m?('<b>'+esc(m.name||m.serial||'기기')+'</b>'+(m.serial?' · '+esc(m.serial):'')+' 에 붙일 QR을 찍으세요'):'라벨의 QR을 화면 가운데에 맞추세요'))+
+  v.el.innerHTML=title(rm?'QR 교체':(m?'QR 매칭':'QR 스캔'), rm?('<b>'+esc(v.params.name||'기기')+'</b> ('+esc(rm)+') 에 새로 붙일 QR을 찍으세요'):(m?('<b>'+esc(m.name||m.serial||'기기')+'</b>'+(m.serial?' · '+esc(m.serial):'')+' 에 붙일 QR을 찍으세요'):'라벨의 QR을 화면 가운데에 맞추세요'),
+    '<button class="hbtn" id="scantorch" style="display:none" onclick="swTorch(this,\'🔦 플래시\',\'🔦 플래시 끄기\')">🔦 플래시</button>')+
     '<div class="scan" id="scanbox"><video id="vid" playsinline muted></video><div class="frame"></div></div>'+
     '<div id="scanmsg" class="muted" style="text-align:center;margin-bottom:12px">카메라 준비 중…</div>'+
     '<button class="btn line" onclick="camTarget=null;$(\'camfile\').click()"><svg viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg>사진으로 찍어서 읽기</button>'+
     ((m||rm)?'<div class="row" style="margin-top:10px"><input class="input code" id="mcode" maxlength="8" placeholder="코드 직접 입력" autocapitalize="characters" autocomplete="off" style="flex:1"><button class="btn line sm" style="flex:0 0 auto;padding:0 18px" onclick="handleScanned($(\'mcode\').value)">확인</button></div>':'');
   v.onLeave=stopScan; liveScan(v);
+  // 어두운 곳용 플래시: 카메라가 뜬 뒤 토치 지원 기기에서만 버튼 표시
+  setTimeout(function(){ if(stack.indexOf(v)<0) return; var tb=$('scantorch'); if(tb&&scanStream){ var tr=scanStream.getVideoTracks()[0]; try{ if(tr.getCapabilities&&tr.getCapabilities().torch){ swTrack=tr; tb.style.display=''; } }catch(e){} } },1200);
 }};
 var scanStream=null, scanRAF=null, camTarget=null;
 var bd = ('BarcodeDetector' in window) ? new BarcodeDetector({formats:['qr_code']}) : null;
