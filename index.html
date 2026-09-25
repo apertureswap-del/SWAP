@@ -388,12 +388,17 @@
          animation:lcardin .7s var(--spring) both;animation-delay:.15s}
   @keyframes lcardin{from{opacity:0;transform:translateY(22px) scale(.96)}to{opacity:1;transform:none}}
   .lcard .lt{font-size:22px;font-weight:800;letter-spacing:-.6px;line-height:1.25} .lcard .lt em{font-style:normal;color:#a56bff}
+  /* 서버 선택: 배경 없는 글자만. 선택되면 굵게 + 밑줄 */
+  .srvpick{display:flex;justify-content:center;gap:34px}
+  .srvpick button{background:transparent;color:rgba(255,255,255,.5);font-size:22px;font-weight:600;letter-spacing:1px;padding:4px 2px;position:relative;transition:color .2s,transform .25s var(--spring)}
+  .srvpick button::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2.5px;border-radius:2px;background:#fff;transform:scaleX(0);transition:transform .3s var(--spring)}
+  .srvpick button.on{color:#fff;font-weight:900;transform:scale(1.06)} .srvpick button.on::after{transform:scaleX(1)}
   .lcard .ll{margin:16px 0 8px;font-size:13px;font-weight:600;color:rgba(255,255,255,.62);letter-spacing:.3px}
   .lcard .linput{width:100%;box-sizing:border-box;margin-top:22px;padding:12px 4px 10px;border:0;border-bottom:2px solid rgba(255,255,255,.55);border-radius:0;background:transparent;color:#fff;outline:none;
          font-family:ui-monospace,Menlo,monospace;font-size:28px;font-weight:700;letter-spacing:8px;text-align:center;text-transform:uppercase;transition:border-color .15s}
   .lcard .linput::placeholder{letter-spacing:0;font-size:15px;font-family:inherit;font-weight:500;color:rgba(255,255,255,.35);text-transform:none}
-  .lcard .linput:focus{border-bottom-color:#c9a6ff}
-  .lcard .btn{margin:22px auto 0;width:auto;min-width:112px;padding:10px 26px;font-size:14px;border-radius:12px;box-shadow:0 8px 22px rgba(120,32,232,.4)} .lcard .btn:disabled{opacity:.6}
+  .lcard .linput:focus{border-bottom-color:#fff;border-bottom-width:3px;padding-bottom:9px}
+  .lcard .btn{margin:18px auto 0;width:auto;min-width:112px;padding:10px 26px;font-size:22px;font-weight:900;letter-spacing:-.3px;border-radius:12px;background:transparent;color:#fff;box-shadow:none} .lcard .btn:active{transform:scale(.94)} .lcard .btn:disabled{opacity:.6}
   .lcard .lauto{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;user-select:none}
   .lcard .lauto input{position:absolute;opacity:0;width:0;height:0}
   .lcard .lauto i{width:20px;height:20px;border-radius:7px;border:1.5px solid rgba(255,255,255,.45);background:rgba(0,0,0,.25);display:inline-flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s}
@@ -439,7 +444,7 @@
 <div class="login" id="login" style="display:none">
   <div class="glitch" id="glitch" aria-hidden="true"></div>
   <form class="lcard" id="lcard" onsubmit="doLogin();return false" autocomplete="off">
-    <div class="lt"><em>SWAP</em> 경기남부점 입출고</div>
+    <div class="srvpick" id="srvpick"><button type="button" data-srv="swap" onclick="pickServer('swap')">SWAP</button><button type="button" data-srv="swing" onclick="pickServer('swing')">SWING</button></div>
     <input class="linput" id="lcode" maxlength="8" placeholder="접속 코드 입력" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="latin">
     <button class="btn" id="lbtn" type="submit">접속</button>
     <label class="lauto"><input type="checkbox" id="lauto"><i></i>자동 로그인</label>
@@ -472,7 +477,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '8.0';
+var APP_VER = '8.1';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -482,6 +487,12 @@ var STATUSES   = STATUS_IN.concat(STATUS_OUT);
 var ACC_PRESET = ['배터리','충전기','SWAP백','시동키','카드키','배터리키','헬멧','체인락','폰거치대','바구니','짐받이','레인커버'];
 var worker = localStorage.getItem('swapWorker') || '';
 var AUTH=null; try{ AUTH=JSON.parse(localStorage.getItem('swapAuth')||'null'); }catch(e){}   // {code,name,admin}
+/* 서버(업무 영역): swap = 경기남부점 입출고, swing = SWING 관리자. 로그인 화면에서 고르고, 환경설정에서 바꿀 수 있다. */
+var SERVER='swap'; try{ SERVER=(localStorage.getItem('swapServer')==='swing')?'swing':'swap'; }catch(e){}
+function setServer(sv){ SERVER=(sv==='swing')?'swing':'swap'; try{ localStorage.setItem('swapServer',SERVER); }catch(e){} }
+function pickServer(sv){ haptic(8); setServer(sv); [].forEach.call(document.querySelectorAll('#srvpick button'),function(b){ b.classList.toggle('on',b.dataset.srv===SERVER); }); }
+/* 같은 화면 이름이라도 서버별로 다른 화면을 쓸 수 있다: VIEWS.sw_home 이 있으면 swing 에서는 그걸 쓴다 */
+function viewOf(name){ if(SERVER==='swing'&&VIEWS['sw_'+name]) return VIEWS['sw_'+name]; return VIEWS[name]; }
 
 /* ================= 유틸 ================= */
 function $(id){ return document.getElementById(id); }
@@ -570,7 +581,7 @@ var stack=[]; var animating=false; var VIEWS={};
 var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',me:'me',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
 function makeView(name,params){ var el=document.createElement('div'); el.className='view'; el.innerHTML=spin(); return {name:name,params:params||{},el:el,state:{}}; }
 function reanim(v){ if(!v||!v.el) return; v.el.classList.remove('anim'); void v.el.offsetWidth; v.el.classList.add('anim'); clearTimeout(v._at); v._at=setTimeout(function(){ v.el.classList.remove('anim'); },900); }
-function mount(v){ $('stage').insertBefore(v.el,$('back')); reanim(v); try{ VIEWS[v.name].render(v); }catch(e){ v.el.innerHTML=errBox(e); } }
+function mount(v){ $('stage').insertBefore(v.el,$('back')); reanim(v); try{ viewOf(v.name).render(v); }catch(e){ v.el.innerHTML=errBox(e); } }
 function syncChrome(){ var v=stack[stack.length-1]; if(!v) return; $('back').classList.toggle('on',stack.length>1);
   var tab=TAB_OF[v.name]||'home'; [].forEach.call($('tabs').children,function(b){ b.classList.toggle('on',b.dataset.tab===tab); }); }
 /* 브라우저/폰 뒤로가기와 동기화: 화면을 열 때마다 history 항목을 하나 쌓고, 뒤로가기(popstate)가 오면 그 항목만큼 닫는다.
@@ -1097,9 +1108,29 @@ function downloadLabels(){ var css=document.querySelector('style').textContent.s
 VIEWS.extras={ render:function(v){ reanim(v);
   v.el.innerHTML=title('추가기능','')+
     '<button class="mitem" onclick="push(\'labels\',{})"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v7h-7"/></svg></span><span class="mt"><b>QR 라벨 생성</b><span>A4에 인쇄할 무작위 코드 라벨</span></span><span class="ar">›</span></button>'+
-    '<button class="mitem" onclick="push(\'report\',{})"><span class="mi" style="background:#e8f1ff;color:#2b6fe0"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 3v4M16 3v4M4 10h16M8 14h5"/></svg></span><span class="mt"><b>업무보고</b><span>시간대별 업무 내용을 슬랙으로</span></span><span class="ar">›</span></button>'+
     '<button class="mitem" onclick="push(\'stocksync\',{})"><span class="mi" style="background:var(--green-soft,#e6f7ee);color:var(--green,#1f9d55)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg></span><span class="mt"><b>재고 시트 반영</b><span>새로 들어온·빠진 재고 기기를 Swap_재고 테이블에 ±1</span></span><span class="ar">›</span></button>'; }};
 
+
+
+/* ================= SWING 서버 화면 (홈 / 검색 / 추가기능) ================= */
+VIEWS.sw_home={ render:function(v){ reanim(v); v.onResume=function(){ VIEWS.sw_home.render(v); };
+  var d=todayISO(0); var draft=lsGet('report:'+d); var rs=(draft&&draft.ranges||[]).filter(function(r){ return r.text&&r.text.trim(); });
+  var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span style="font-weight:900;letter-spacing:-1px">SWING</span>관리자</h1></div>';
+  h+='<div class="card sum"><div class="lb">오늘 업무보고</div>';
+  if(!draft||!draft.cfg) h+='<div class="big"><b>아직 시작 전</b></div><div class="muted" style="margin-top:6px">업무시간을 정하고 시간대별로 적어요.</div>';
+  else h+='<div class="big">'+num(rs.length,'rp')+'<span>구간</span></div><div class="muted" style="margin-top:6px">'+esc(draft.cfg.start)+' ~ '+('0'+draft.cfg.end).slice(-2)+':00'+(draft.sentAt?' · '+esc(String(draft.sentAt).slice(11,16))+' 슬랙 전송됨':' · 아직 안 보냄')+(draft.note&&draft.note.trim()?' · 특이사항 있음':'')+'</div>';
+  h+='<button class="btn" style="margin-top:16px" onclick="push(\'report\',{})"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 3v4M16 3v4M4 10h16M8 14h5"/></svg>'+(draft&&draft.cfg?'업무보고 이어서 쓰기':'업무보고 시작')+'</button></div>';
+  h+='<div class="card"><h3>바로가기</h3><div class="stats" style="margin-top:12px;grid-template-columns:repeat(2,1fr)">'+
+     '<button onclick="push(\'report\',{})"><span>업무보고</span><b style="font-size:15px">시간대별 작성</b></button>'+
+     '<button onclick="goTab(\'extras\')"><span>추가기능</span><b style="font-size:15px">전체 보기</b></button></div></div>';
+  h+='<div class="card"><h3>준비 중인 기능</h3><ul class="hist">'+['기기 현황·이동 기록','수거·배송 일정','정비 요청 관리'].map(function(x){ return '<li><span>'+x+'</span><span class="muted" style="font-size:12px">곧</span></li>'; }).join('')+'</ul></div>';
+  v.el.innerHTML=h; countUp(v.el); }};
+VIEWS.sw_search={ render:function(v){ reanim(v);
+  v.el.innerHTML=title('검색','SWING')+'<div class="card"><div class="empty">SWING 검색은 준비 중이에요.<br>기능 정리가 끝나면 여기서 찾을 수 있어요.</div></div>'; }};
+VIEWS.sw_extras={ render:function(v){ reanim(v);
+  v.el.innerHTML=title('추가기능','SWING')+
+    '<button class="mitem" onclick="push(\'report\',{})"><span class="mi" style="background:#e8f1ff;color:#2b6fe0"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 3v4M16 3v4M4 10h16M8 14h5"/></svg></span><span class="mt"><b>업무보고</b><span>시간대별 업무 내용을 슬랙으로</span></span><span class="ar">›</span></button>'+
+    '<div class="card"><div class="empty">다른 SWING 기능은 정리되는 대로 여기에 추가돼요.</div></div>'; }};
 
 /* ================= 업무보고 (SWING 관리자 작업현황 → 슬랙) ================= */
 VIEWS.report={ render:function(v){ reanim(v); var d=todayISO(0); v.state.date=d;
@@ -1132,7 +1163,10 @@ function reportSetupDone(){ haptic([10,30,14]); var v=stack[stack.length-1]; var
 function reportHours(v){ var c=v.state.cfg; var out=[]; for(var h=parseInt(c.start.slice(0,2),10)||9; h<c.end; h++) out.push(h); return out; }
 function rangeAt(v,h){ var rs=v.state.ranges||[]; for(var i=0;i<rs.length;i++){ if(h>=rs[i].s&&h<rs[i].e) return rs[i]; } return null; }
 function drawReport(v){ var st=v.state; var hours=reportHours(v); var sel=st.sel; var first=hours[0];
-  var h=title('업무보고',fmtToday()+' · '+st.cfg.start+' ~ '+('0'+st.cfg.end).slice(-2)+':00','<button class="hbtn" onclick="drawReportSetup(stack[stack.length-1])"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>업무시간</button>');
+  var dirty=(st.ranges||[]).length>0||!!(st.note&&st.note.trim());   // 뭔가 적혀 있으면 업무시간 버튼 대신 빨간 초기화 버튼
+  var h=title('업무보고',fmtToday()+' · '+st.cfg.start+' ~ '+('0'+st.cfg.end).slice(-2)+':00',
+    dirty ? '<button class="hbtn" style="background:#e5484d;box-shadow:0 8px 18px rgba(229,72,77,.3)" onclick="reportResetAsk()"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>초기화</button>'
+          : '<button class="hbtn" onclick="drawReportSetup(stack[stack.length-1])"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>업무시간</button>');
   h+='<div class="rgrid" id="rgrid">';
   hours.forEach(function(hh,i){ var r=rangeAt(v,hh); var inSel=sel&&hh>=sel.a&&hh<=sel.b; var cls='hr'+(r?' used':'')+(inSel?' on big wig':'')+(st.flash===hh?' bnc':'');
     h+='<div class="'+cls+'" data-h="'+hh+'" style="grid-row:'+(i+1)+'"><i>'+('0'+hh).slice(-2)+'</i></div>'; });
@@ -1150,9 +1184,13 @@ function drawReport(v){ var st=v.state; var hours=reportHours(v); var sel=st.sel
   if(st.focus!==undefined){ var ta=$('rt'+st.focus); if(ta){ clearTimeout(st._focusT); st._focusT=setTimeout(function(){ ta.focus(); },380); } st.focus=undefined; } }
 function selbarHtml(sel){ return '<div class="selbar" id="selbar"><div><b>'+('0'+sel.a).slice(-2)+':00 ~ '+('0'+(sel.b+1)).slice(-2)+':00</b><span>끌어서 늘리고, 마지막 시간을 두 번 눌러 확정</span></div><div style="display:flex;gap:6px"><button onclick="reportSelCancel()">취소</button><button class="ok" onclick="reportSelConfirm()">확정</button></div></div>'; }
 function taGrow(ta){ ta.style.height='auto'; ta.style.height=Math.max(44,ta.scrollHeight)+'px'; }
+function reportResetAsk(){ haptic(10); openSheet('<h3>업무보고를 초기화할까요?</h3><p>오늘 적은 시간대별 내용과 특이사항이 모두 지워지고 업무시간 설정부터 다시 시작해요.</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#e5484d" onclick="closeSheet(function(){ reportReset(); })">초기화</button></div>'); }
+function reportReset(){ var v=stack[stack.length-1]; var st=v.state; st.ranges=[]; st.note=''; st.sentAt=''; st.sel=null; st.cfg=null; try{ localStorage.removeItem('swapc:report:'+st.date); }catch(e){} haptic([12,40,18]); toast('초기화했어요'); drawReportSetup(v); }
 function reportSendBtn(v){ var st=v.state; var n=st.ranges.filter(function(r){ return r.text&&r.text.trim(); }).length; var can=n||(st.note&&st.note.trim()); var btn=$('r_send'); if(btn){ btn.disabled=!can; btn.style.opacity=can?'':'.5'; } }
 function reportText(i,val){ var v=stack[stack.length-1]; v.state.ranges[i].text=val; reportSave(v); var c=$('rt'+i).parentNode; c.classList.toggle('done',!!val.trim()); reportSendBtn(v); }
-function reportNote(val){ var v=stack[stack.length-1]; v.state.note=val; reportSave(v); reportSendBtn(v); }
+function reportNote(val){ var v=stack[stack.length-1]; v.state.note=val; reportSave(v); reportSendBtn(v); reportHeadBtn(v); }
+function reportHeadBtn(v){ var st=v.state; var dirty=(st.ranges||[]).length>0||!!(st.note&&st.note.trim()); var rt=v.el.querySelector('.ptitle .rt'); if(!rt) return; var isReset=!!rt.querySelector('button[onclick^="reportResetAsk"]'); if(dirty===isReset) return;
+  rt.innerHTML=dirty ? '<button class="hbtn" style="background:#e5484d;box-shadow:0 8px 18px rgba(229,72,77,.3)" onclick="reportResetAsk()"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>초기화</button>' : '<button class="hbtn" onclick="drawReportSetup(stack[stack.length-1])"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>업무시간</button>'; }
 function reportDel(i){ haptic(10); var v=stack[stack.length-1]; v.state.ranges.splice(i,1); reportSave(v); drawReport(v); }
 /* 업무내용 카드: 평소엔 회색(잠김). 두 번 누르면 열려서 수정, 다른 곳을 누르면 다시 잠김 */
 function reportUnlock(i){ var ta=$('rt'+i); if(!ta) return; haptic(8); ta.removeAttribute('readonly'); ta.parentNode.classList.remove('lock'); ta.focus(); try{ ta.setSelectionRange(ta.value.length,ta.value.length); }catch(e){} }
@@ -1228,6 +1266,7 @@ function stockApplyGo(mode){ var v=stack[stack.length-1]; var changed=v.state.pv
 VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return AUTH&&AUTH.admin ? loadCodes(v,true) : Promise.resolve(); };
   var fixedName=!!(AUTH&&!AUTH.admin&&AUTH.name);
   v.el.innerHTML=title('환경설정','')+
+    '<div class="card"><h3>서버</h3><div class="seg" style="margin:10px 0 0"><button class="'+(SERVER==='swap'?'on':'')+'" onclick="switchServer(\'swap\')">SWAP</button><button class="'+(SERVER==='swing'?'on':'')+'" onclick="switchServer(\'swing\')">SWING</button></div><p class="muted" style="margin:8px 0 0;font-size:13px">'+(SERVER==='swing'?'SWING 관리자 화면을 쓰는 중이에요.':'SWAP 경기남부점 입출고 화면을 쓰는 중이에요.')+'</p></div>'+
     '<div class="card"><div style="display:flex;align-items:center;gap:14px"><div style="flex:0 0 56px;height:56px;border-radius:18px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px">'+esc(initials(worker))+'</div>'+
     '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:21px;letter-spacing:-.5px">'+esc(worker||'이름 없음')+(AUTH&&AUTH.admin?' <span class="pill sys sm" style="background:var(--p-soft);color:var(--p-ink);vertical-align:middle">관리자</span>':'')+'</div>'+
     '<div class="muted">접속 코드 <b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:1px;color:var(--ink2)">'+esc(AUTH&&AUTH.code||'-')+'</b>'+(fixedName?' · 이름은 관리자가 설정':'')+'</div></div></div>'+
@@ -1280,7 +1319,7 @@ function swingStart(){ var g=$('glitch'); var img=$('gvid'); if(!img) return; sw
 function swingStop(){ clearInterval(swingT); swingT=null; var g=$('glitch'); if(g) g.classList.remove('swing'); }
 function showLogin(msg,prefill){ var l=$('login'); if(!$('glitch').innerHTML) $('glitch').innerHTML='<span class="g g1">'+LOGO+'</span><span class="g g2">'+LOGO+'</span><span class="g g3">'+LOGO+'</span>'+
     '<img class="gv" id="gvid" src="swing-tease.webp" alt="">';
-  swingStart();
+  swingStart(); pickServer(SERVER);
   $('lver').textContent='SWAP 입출고 v'+APP_VER; l.style.display=''; l.classList.remove('out'); setLoginErr(msg||''); $('lcode').value=prefill||''; $('lbtn').disabled=false; $('lbtn').textContent='접속';
   $('lauto').checked=!!prefill;
   if(!prefill) setTimeout(function(){ try{ $('lcode').focus(); }catch(e){} },500); }
@@ -1298,6 +1337,7 @@ function autoLogin(){ showLogin('',AUTH.code); $('lbtn').disabled=true; $('lbtn'
   Promise.all([wait,check]).then(function(r){ if(!r[1]) return; $('glitch').classList.remove('wild'); hideLogin(); startApp(); }); }
 function applyAuth(a,auto){ AUTH={code:a.code,name:a.name||'',admin:!!a.admin,auto:!!auto}; try{ localStorage.setItem('swapAuth',JSON.stringify(AUTH)); }catch(e){}
   if(a.name&&!a.admin&&worker!==a.name){ worker=a.name; localStorage.setItem('swapWorker',a.name); } }
+function switchServer(sv){ if(sv===SERVER) return; haptic([10,30,10]); setServer(sv); toast((sv==='swing'?'SWING':'SWAP')+' 서버로 전환'); goTab('home'); }
 var loggingOut=false;
 function logout(msg){ if(loggingOut) return; loggingOut=true; AUTH=null; try{ localStorage.removeItem('swapAuth'); }catch(e){}
   try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('swapc:')===0) localStorage.removeItem(k); }); }catch(e){}
