@@ -401,6 +401,7 @@
   .mitem{display:flex;align-items:center;gap:14px;width:100%;padding:16px 14px;border-radius:18px;background:#fff;text-align:left;margin-bottom:10px;box-shadow:0 1px 2px rgba(25,31,40,.04),0 6px 20px rgba(25,31,40,.05);transition:transform .15s}
   .mitem:active{transform:scale(.98)} .mitem .mi{flex:0 0 46px;height:46px;border-radius:14px;background:var(--p-soft);color:var(--p);display:flex;align-items:center;justify-content:center}
   .mitem .mi svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .mitem .mi.em{background:transparent} .mitem .mi.em svg{width:34px;height:34px;stroke:none;fill:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.12))}
   .mitem .mt{flex:1;min-width:0} .mitem .mt b{display:block;font-size:16.5px;font-weight:800;letter-spacing:-.3px} .mitem .mt span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
   .mitem .ar{color:var(--muted2);font-size:20px}
   /* 신품 체크 */
@@ -537,7 +538,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '9.1';
+var APP_VER = '9.2';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -1180,10 +1181,10 @@ function downloadLabels(){ var css=document.querySelector('style').textContent.s
 /* ================= 추가기능 ================= */
 VIEWS.extras={ render:function(v){ reanim(v);
   v.el.innerHTML=title('추가기능','')+
-    '<button class="mitem" onclick="push(\'labels\',{})"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v7h-7"/></svg></span><span class="mt"><b>QR 라벨 생성</b><span>A4에 인쇄할 무작위 코드 라벨</span></span><span class="ar">›</span></button>'+
-    '<button class="mitem" onclick="push(\'sw_cam\',{kind:\'vehicle\'})"><span class="mi" style="background:#e0f4f6;color:#00838f"><svg viewBox="0 0 24 24"><path d="M5 17h14l-1-6H6zM6 11l2-4h8l2 4"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg></span><span class="mt"><b>차량 사진</b><span>차량번호·작업자·시각을 사진에 찍어 저장</span></span><span class="ar">›</span></button>'+
-    '<button class="mitem" onclick="push(\'sw_gallery\',{})"><span class="mi" style="background:#efe7e3;color:#5d4037"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/></svg></span><span class="mt"><b>사진모음</b><span>찍은 사진 보기 · Slack 공유 · 삭제</span></span><span class="ar">›</span></button>'+
-    '<button class="mitem" onclick="push(\'stocksync\',{})"><span class="mi" style="background:var(--green-soft,#e6f7ee);color:var(--green,#1f9d55)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg></span><span class="mt"><b>재고 시트 반영</b><span>새로 들어온·빠진 재고 기기를 Swap_재고 테이블에 ±1</span></span><span class="ar">›</span></button>'; }};
+    '<button class="mitem" onclick="push(\'labels\',{})"><span class="mi em"><svg viewBox="0 0 24 24" class="em"><g fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v7h-7"/></g></svg></span><span class="mt"><b>QR 라벨 생성</b><span>A4에 인쇄할 무작위 코드 라벨</span></span><span class="ar">›</span></button>'+
+    '<button class="mitem" onclick="push(\'sw_cam\',{kind:\'vehicle\'})"><span class="mi em"><svg viewBox="0 0 24 24" class="em"><path d="M3.5 13.5 5.8 8.2A2 2 0 0 1 7.6 7h8.8a2 2 0 0 1 1.8 1.2l2.3 5.3v4.3a1.2 1.2 0 0 1-1.2 1.2H4.7a1.2 1.2 0 0 1-1.2-1.2z" fill="#e53935" stroke="#9f1d1a" stroke-width="1"/><path d="M6.4 12.5 7.9 9h8.2l1.5 3.5z" fill="#cfe8ff"/><circle cx="7.3" cy="18.6" r="2.4" fill="#111"/><circle cx="16.7" cy="18.6" r="2.4" fill="#111"/><circle cx="7.3" cy="18.6" r=".9" fill="#ddd"/><circle cx="16.7" cy="18.6" r=".9" fill="#ddd"/><rect x="4.2" y="14" width="2.4" height="1.4" rx=".6" fill="#ffd54f"/><rect x="17.4" y="14" width="2.4" height="1.4" rx=".6" fill="#ffd54f"/></svg></span><span class="mt"><b>차량 사진</b><span>차량번호·작업자·시각을 사진에 찍어 저장</span></span><span class="ar">›</span></button>'+
+    '<button class="mitem" onclick="push(\'sw_gallery\',{})"><span class="mi em"><svg viewBox="0 0 24 24" class="em"><rect x="2.5" y="4" width="19" height="16" rx="2.5" fill="#7ec8ff" stroke="#111" stroke-width="1.5"/><circle cx="16.5" cy="9" r="2" fill="#ffd54f"/><path d="M4 18.5l5-6 3.5 4 2.5-2.5 5 4.5z" fill="#2e9e4f"/><path d="M4 18.5l5-6 3.5 4 1.5-1.6" fill="#1e7d3a"/></svg></span><span class="mt"><b>사진모음</b><span>찍은 사진 보기 · Slack 공유 · 삭제</span></span><span class="ar">›</span></button>'+
+    '<button class="mitem" onclick="push(\'stocksync\',{})"><span class="mi em"><svg viewBox="0 0 24 24" class="em"><rect x="3" y="3.5" width="18" height="17" rx="2" fill="#fff" stroke="#1f9d55" stroke-width="1.7"/><path d="M3 8.5h18M3 13.5h18M9 3.5v17M15 3.5v17" stroke="#1f9d55" stroke-width="1.4"/></svg></span><span class="mt"><b>재고 시트 반영</b><span>새로 들어온·빠진 재고 기기를 Swap_재고 테이블에 ±1</span></span><span class="ar">›</span></button>'; }};
 
 
 
@@ -1283,13 +1284,13 @@ function swSearchDraw(v){ var q=String(v.state.q||'').trim().toLowerCase(); var 
 
 /* ================= 추가기능 ================= */
 VIEWS.sw_extras={ render:function(v){ reanim(v);
-  var mi=function(view,params,bg,fg,svg,b,s){ return '<button class="mitem" onclick="push(\''+view+'\','+params+')"><span class="mi" style="background:'+bg+';color:'+fg+'">'+svg+'</span><span class="mt"><b>'+b+'</b><span>'+s+'</span></span><span class="ar">›</span></button>'; };
+  var mi=function(view,params,bg,fg,svg,b,s){ return '<button class="mitem" onclick="push(\''+view+'\','+params+')"><span class="mi em">'+svg+'</span><span class="mt"><b>'+b+'</b><span>'+s+'</span></span><span class="ar">›</span></button>'; };
   v.el.innerHTML=title('추가기능','SWING')+
-    mi('report','{}','#e8f1ff','#2b6fe0','<svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 3v4M16 3v4M4 10h16M8 14h5"/></svg>','업무보고','시간대별 업무 내용을 슬랙으로')+
-    mi('sw_cam','{kind:\'battery\'}','#e3edfb','#1565c0','<svg viewBox="0 0 24 24"><rect x="3" y="7" width="16" height="10" rx="2"/><path d="M19 10h2v4h-2M7 10v4M11 10v4"/></svg>','배터리 사진','S9·W9·I9 수량을 사진에 찍어 저장')+
-    mi('sw_cam','{kind:\'vehicle\'}','#e0f4f6','#00838f','<svg viewBox="0 0 24 24"><path d="M5 17h14l-1-6H6zM6 11l2-4h8l2 4"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>','차량 사진','차량번호를 사진에 찍어 저장')+
-    mi('sw_qr','{}','#e6f4ea','#2e7d32','<svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 12h8"/></svg>','QR 스캔','기기 QR에서 시리얼번호 수집·복사')+
-    mi('sw_gallery','{}','#efe7e3','#5d4037','<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/></svg>','사진모음','찍은 사진 보기 · Slack 공유 · 삭제'); }};
+    mi('report','{}','#e8f1ff','#2b6fe0','<svg viewBox="0 0 24 24" class="em"><rect x="3" y="4" width="18" height="17" rx="3" fill="#fff" stroke="#111" stroke-width="1.6"/><path d="M3 9.5h18V7a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3z" fill="#111"/><path d="M8 2.5v3.5M16 2.5v3.5" stroke="#111" stroke-width="1.8" stroke-linecap="round"/><rect x="6.5" y="12.5" width="3" height="3" rx=".6" fill="#111"/><rect x="10.5" y="12.5" width="3" height="3" rx=".6" fill="#111"/><rect x="14.5" y="12.5" width="3" height="3" rx=".6" fill="#111"/><rect x="6.5" y="16.5" width="3" height="2" rx=".6" fill="#111"/><rect x="10.5" y="16.5" width="3" height="2" rx=".6" fill="#111"/></svg>','업무보고','시간대별 업무 내용을 슬랙으로')+
+    mi('sw_cam','{kind:\'battery\'}','#e3edfb','#1565c0','<svg viewBox="0 0 24 24" class="em"><rect x="9.5" y="1.5" width="5" height="2.2" rx=".8" fill="#111"/><rect x="5" y="3.5" width="14" height="19" rx="3" fill="#fff" stroke="#111" stroke-width="1.7"/><rect x="7.5" y="6.2" width="9" height="3.6" rx="1" fill="#2ecc40"/><rect x="7.5" y="10.6" width="9" height="3.6" rx="1" fill="#ff9f1a"/><rect x="7.5" y="15" width="9" height="3.6" rx="1" fill="#ff3b30"/></svg>','배터리 사진','S9·W9·I9 수량을 사진에 찍어 저장')+
+    mi('sw_cam','{kind:\'vehicle\'}','#e0f4f6','#00838f','<svg viewBox="0 0 24 24" class="em"><path d="M3.5 13.5 5.8 8.2A2 2 0 0 1 7.6 7h8.8a2 2 0 0 1 1.8 1.2l2.3 5.3v4.3a1.2 1.2 0 0 1-1.2 1.2H4.7a1.2 1.2 0 0 1-1.2-1.2z" fill="#e53935" stroke="#9f1d1a" stroke-width="1"/><path d="M6.4 12.5 7.9 9h8.2l1.5 3.5z" fill="#cfe8ff"/><circle cx="7.3" cy="18.6" r="2.4" fill="#111"/><circle cx="16.7" cy="18.6" r="2.4" fill="#111"/><circle cx="7.3" cy="18.6" r=".9" fill="#ddd"/><circle cx="16.7" cy="18.6" r=".9" fill="#ddd"/><rect x="4.2" y="14" width="2.4" height="1.4" rx=".6" fill="#ffd54f"/><rect x="17.4" y="14" width="2.4" height="1.4" rx=".6" fill="#ffd54f"/></svg>','차량 사진','차량번호를 사진에 찍어 저장')+
+    mi('sw_qr','{}','#e6f4ea','#2e7d32','<svg viewBox="0 0 24 24" class="em"><g fill="#111"><path d="M3 3h8v8H3zm2 2v4h4V5zm1 1h2v2H6z"/><path d="M13 3h8v8h-8zm2 2v4h4V5zm1 1h2v2h-2z"/><path d="M3 13h8v8H3zm2 2v4h4v-4zm1 1h2v2H6z"/><path d="M13 13h2v2h-2zm4 0h4v2h-4zm-4 4h2v4h-2zm4 0h2v2h-2zm2 2h2v2h-2zm-6-2h2v2h-2z"/></g></svg>','QR 스캔','기기 QR에서 시리얼번호 수집·복사')+
+    mi('sw_gallery','{}','#efe7e3','#5d4037','<svg viewBox="0 0 24 24" class="em"><rect x="2.5" y="4" width="19" height="16" rx="2.5" fill="#7ec8ff" stroke="#111" stroke-width="1.5"/><circle cx="16.5" cy="9" r="2" fill="#ffd54f"/><path d="M4 18.5l5-6 3.5 4 2.5-2.5 5 4.5z" fill="#2e9e4f"/><path d="M4 18.5l5-6 3.5 4 1.5-1.6" fill="#1e7d3a"/></svg>','사진모음','찍은 사진 보기 · Slack 공유 · 삭제'); }};
 
 /* ================= QR 스캔 ================= */
 VIEWS.sw_qr={ render:function(v){ reanim(v); var p=swPrefs();
