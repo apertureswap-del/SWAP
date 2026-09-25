@@ -379,9 +379,9 @@
   @keyframes glz2{0%,100%{transform:translate(6px,-3px)} 15%{transform:translate(3px,-2px)} 30%{transform:translate(10px,-5px)}
     52%{transform:translate(-11px,2px);clip-path:inset(10% 0 55% 0)} 53.5%{transform:translate(6px,-3px);clip-path:inset(0)}
     70%{transform:translate(8px,-4px)} 88%{transform:translate(-8px,6px);clip-path:inset(65% 0 0 0)} 89.5%{transform:translate(6px,-3px);clip-path:inset(0)}}
-  /* 로그인 로고: SWAP 글리치 ↔ SWING 영상 0.4초씩 교대 (.glitch.swing 일 때 영상) */
-  .glitch .gv{position:absolute;left:0;top:50%;width:100%;height:auto;transform:translateY(-50%);display:block;opacity:0;pointer-events:none;mix-blend-mode:screen}   /* 검은 배경은 투명처럼 */
-  .glitch.swing{mix-blend-mode:screen} .glitch.swing .g{visibility:hidden} .glitch.swing .gv{opacity:1}   /* screen: 영상의 검은 배경이 배경색에 녹아듦 */
+  /* 로그인 로고: SWAP 글리치 ↔ SWING 애니메이션(투명 배경 webp) 0.4초씩 교대 (.glitch.swing 일 때 SWING) */
+  .glitch .gv{position:absolute;left:0;top:50%;width:100%;height:auto;transform:translateY(-50%);display:block;opacity:0;pointer-events:none}
+  .glitch.swing .g{visibility:hidden} .glitch.swing .gv{opacity:1}
   .glitch.wild .g1{animation-duration:.9s} .glitch.wild .g2{animation-duration:.7s} .glitch.wild .g3{animation-duration:1.1s}
   .lcard{position:relative;flex:0 0 auto;width:100%;max-width:340px;padding:26px 22px 22px;border-radius:28px;background:rgba(22,17,34,.62);border:1px solid rgba(255,255,255,.13);
          box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);text-align:center;
@@ -472,7 +472,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '7.9';
+var APP_VER = '8.0';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -1275,12 +1275,11 @@ function addCodeGo(){ var name=($('ncn').value||'').trim(); var v=codeView(); cl
 /* ================= 로그인 ================= */
 function setLoginErr(m){ var e=$('lerr'); if(e) e.textContent=m||''; }
 var swingT=null;
-function swingStart(){ var g=$('glitch'); var vid=$('gvid'); if(!vid) return; swingStop(); g.classList.remove('swing');
-  var ready=false; vid.play().then(function(){ ready=true; }).catch(function(){});   // 재생이 안 되면(파일 없음·자동재생 막힘) SWAP 로고만 보여준다
-  swingT=setInterval(function(){ if(!ready||vid.error||vid.readyState<2){ g.classList.remove('swing'); return; } g.classList.toggle('swing'); },400); }
-function swingStop(){ clearInterval(swingT); swingT=null; var g=$('glitch'); if(g) g.classList.remove('swing'); var vid=$('gvid'); if(vid){ try{ vid.pause(); }catch(e){} } }
+function swingStart(){ var g=$('glitch'); var img=$('gvid'); if(!img) return; swingStop(); g.classList.remove('swing');
+  swingT=setInterval(function(){ if(!img.complete||!img.naturalWidth){ g.classList.remove('swing'); return; } g.classList.toggle('swing'); },400); }   // 파일이 없으면 SWAP 로고만
+function swingStop(){ clearInterval(swingT); swingT=null; var g=$('glitch'); if(g) g.classList.remove('swing'); }
 function showLogin(msg,prefill){ var l=$('login'); if(!$('glitch').innerHTML) $('glitch').innerHTML='<span class="g g1">'+LOGO+'</span><span class="g g2">'+LOGO+'</span><span class="g g3">'+LOGO+'</span>'+
-    '<video class="gv" id="gvid" src="swing-tease.mp4" muted playsinline loop preload="auto"></video>';
+    '<img class="gv" id="gvid" src="swing-tease.webp" alt="">';
   swingStart();
   $('lver').textContent='SWAP 입출고 v'+APP_VER; l.style.display=''; l.classList.remove('out'); setLoginErr(msg||''); $('lcode').value=prefill||''; $('lbtn').disabled=false; $('lbtn').textContent='접속';
   $('lauto').checked=!!prefill;
