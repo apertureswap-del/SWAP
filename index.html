@@ -551,7 +551,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '9.6';
+var APP_VER = '9.7';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -1329,7 +1329,7 @@ function swStatusAsk(type){ haptic(8); var v=stack[stack.length-1]; var c=v.stat
 function swStatusGo(type){ var v=stack[stack.length-1]; var c=v.state.res&&v.state.res.card; if(!c) return; var reason=($('sw_reason')?$('sw_reason').value:'').trim();
   if(type==='Broken'&&!reason){ toast('고장 사유를 적어 주세요'); return; }
   needWorker(function(){ closeSheet(function(){ var box=$('swres'); if(box) box.innerHTML='<div class="card"><div class="loadlogo" style="padding:18px 0 10px">'+curLogo()+'<span>어드민에 반영하는 중</span></div></div>';
-    run('swingSetStatus',c.imei,type,reason,worker).then(function(r){ if(stack.indexOf(v)<0) return; if(!r.ok){ toast(r.error); swSearchDrawCard(v); return; } haptic([12,40,18]); if(r.card){ v.state.res.card=r.card; } v.state.open=true; swSearchDrawCard(v); toast(r.label+' 처리 완료'+(r.logged===false?' · 이력 기록은 잠시 뒤 자동 저장':'')); })
+    run('swingSetStatus',c.imei,type,reason,worker,{account:c.account||c.band||'',qr:c.qr||'',model:c.model||''}).then(function(r){ if(stack.indexOf(v)<0) return; if(!r.ok){ toast(r.error); swSearchDrawCard(v); return; } haptic([12,40,18]); if(r.card){ v.state.res.card=r.card; } else { c.status=type; c.statusLabel=r.label||type; if(type==='Broken') c.broken=true; if(type==='Fixed') c.broken=false; } v.state.open=true; swSearchDrawCard(v); toast(r.label+' 처리 완료'+(r.logged===false?' · 이력 기록은 잠시 뒤 자동 저장':'')); })
       .catch(function(e){ if(stack.indexOf(v)<0) return; toast('실패: '+(e&&e.message||e)); swSearchDrawCard(v); }); }); }); }
 function swCardToggle(){ haptic(8); var v=stack[stack.length-1]; v.state.open=!v.state.open; var c=$('devcard'); if(c) c.classList.toggle('open',v.state.open); var p=$('swstat'); if(p){ p.style.display=v.state.open?'':'none'; if(v.state.open){ p.classList.remove('anim'); p.querySelector('.card').style.animation='rise .42s var(--spring) both'; } } }
 function swSearchDrawLocal(v){ var q=String(v.state.q||'').trim().toLowerCase(); var box=$('swres'); if(!box) return;
