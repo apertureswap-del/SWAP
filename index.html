@@ -198,6 +198,19 @@
   .swbtns button small{display:block;font-size:12px;font-weight:600;opacity:.8;margin-top:-4px}
   .view.anim .swbtns button{animation:pop .5s var(--spring) both}
   .lb{font-size:13px;font-weight:800;color:var(--muted);margin:0 0 6px}
+  .swsrch .input{padding-right:54px} .swsrch .qrbtn{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:transparent;border-radius:12px} .swsrch .qrbtn svg{position:static;left:auto;top:auto;transform:none;width:26px;height:26px;stroke:none;fill:none} .swsrch .qrbtn:active{transform:translateY(-50%) scale(.9)}
+  /* 기기 카드: 누르면 오른쪽에서 어드민 접속 버튼이 나옴 */
+  .devcard{display:flex;align-items:stretch;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(25,31,40,.04),0 6px 20px rgba(25,31,40,.05)}
+  .devcard .main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:14px;text-align:left;transition:transform .35s var(--spring)}
+  .devcard .main .bd{flex:1;min-width:0} .devcard .nm{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:800;letter-spacing:-.3px} .devcard .chev{color:var(--muted2);transition:transform .3s var(--spring)}
+  .devcard.open .chev{transform:rotate(180deg)}
+  .chips2{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px} .chips2 .ch{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;padding:4px 9px;border-radius:999px;background:var(--fill);color:var(--ink2)}
+  .chips2 .ch i{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+  .chips2 .band{background:var(--p);color:#fff} .chips2 .on{background:#e6f7ec;color:#1f6b3a} .chips2 .off{background:var(--fill);color:var(--muted)}
+  .chips2 .batt.ok{background:#e6f7ec;color:#1f6b3a} .chips2 .batt.mid{background:#fff3d6;color:#8a5a00} .chips2 .batt.low{background:var(--danger-soft);color:var(--danger)}
+  .devcard .go{flex:0 0 0;width:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:var(--p);color:#fff;font-weight:800;font-size:13px;line-height:1.2;text-align:center;text-decoration:none;white-space:nowrap;transition:flex-basis .35s var(--spring),width .35s var(--spring)}
+  .devcard .go svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .devcard.open .go{flex-basis:88px;width:88px}
   .swrow{display:flex;align-items:center;gap:10px;width:100%;padding:10px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:14px;color:var(--ink)}
   .swrow:last-child{border-bottom:0} .swrow .idx{flex:0 0 28px;font-size:12.5px;color:var(--muted2);font-weight:700} .swrow b{flex:1;min-width:0;font-weight:800;font-size:16px;letter-spacing:-.2px;word-break:break-all}
   .swrow>span:not(.idx){font-size:12px;color:var(--muted);white-space:nowrap} .swrow.hit{background:var(--amber);border-radius:10px}
@@ -538,7 +551,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '9.2';
+var APP_VER = '9.4';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -807,6 +820,7 @@ $('camfile').addEventListener('change',function(){
 function handleScanned(text){
   if(camTarget){ var el=$(camTarget); camTarget=null; if(el){ el.value=String(text).trim(); toast('읽었어요'); } return; }
   var top=stack[stack.length-1]; if(top&&top.name==='sw_qr'){ swQrDetected(text); return; }   // SWING QR 스캔: 시리얼 기록
+  if(top&&top.name==='scan'&&top.params.swingq){ var sq=swExtract(text)||String(text).trim().toUpperCase(); stopScan(); var prev=stack[stack.length-2]; if(prev&&(prev.name==='search'||prev.name==='sw_search')){ prev.state.pendingQ=sq; } haptic([10,30,10]); pop(); return; }   // SWING 검색: 찍은 QR 로 어드민 검색
   var code=null; var m=String(text).match(/[?&]q=([A-Za-z0-9]+)/); if(m) code=m[1].toUpperCase(); else if(/^[A-Za-z0-9]{4,10}$/.test(text.trim())) code=text.trim().toUpperCase();
   if(!code){ toast('입출고 QR이 아닙니다'); return; }
   var cur=stack[stack.length-1];
@@ -1269,18 +1283,45 @@ VIEWS.sw_home={ render:function(v){ reanim(v); v.onResume=function(){ VIEWS.sw_h
 function swSameDay(ts){ var d=new Date(ts), n=new Date(); return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&d.getDate()===n.getDate(); }
 
 /* ================= 검색 (QR 기록 · 사진) ================= */
-VIEWS.sw_search={ render:function(v){ reanim(v); v.state.q=v.state.q||'';
-  v.el.innerHTML=title('검색','시리얼번호 · 차량 · 사진 메모','<button class="hbtn" onclick="swSearchReset()"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>새로고침</button>')+'<div class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input class="input" id="swq" placeholder="예: BE4814, 89도3102" value="'+esc(v.state.q)+'" autocomplete="off" oninput="swSearchTyped(this.value)"></div><div id="swres"></div>';
-  swSearchDraw(v); if(!v.state.q) setTimeout(function(){ var i=$('swq'); if(i&&stack.indexOf(v)>=0) i.focus(); },450); }};
-function swSearchReset(){ haptic(8); var v=stack[stack.length-1]; v.state.q=''; VIEWS.sw_search.render(v); toast('검색을 초기화했어요'); }
-function swSearchTyped(val){ var v=stack[stack.length-1]; v.state.q=val; swSearchDraw(v); }
-function swSearchDraw(v){ var q=String(v.state.q||'').trim().toLowerCase(); var box=$('swres'); if(!box) return; if(!q){ box.innerHTML='<div class="card"><div class="empty">QR로 기록한 시리얼번호나<br>사진에 적힌 차량·수량으로 찾아요.</div></div>'; return; }
+VIEWS.sw_search={ render:function(v){ reanim(v); v.state.q=v.state.q||''; v.state.open=false;
+  v.onResume=function(){ if(v.state.pendingQ){ var q=v.state.pendingQ; v.state.pendingQ=null; v.state.q=q; var i=$('swq'); if(i) i.value=q; swSearchRun(v); } };
+  v.el.innerHTML=title('검색','QR · IMEI 로 기기 찾기','<button class="hbtn" onclick="swSearchReset()"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>새로고침</button>')+
+    '<div class="srch swsrch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input class="input" id="swq" placeholder="QR (예: DCGAABQ) 또는 IMEI" value="'+esc(v.state.q)+'" autocomplete="off" autocapitalize="characters" oninput="swSearchTyped(this.value)">'+
+    '<button class="qrbtn" onclick="swSearchScan()" aria-label="QR 찍기">'+'<svg viewBox="0 0 24 24"><g fill="#111"><path d="M3 3h8v8H3zm2 2v4h4V5zm1 1h2v2H6z"/><path d="M13 3h8v8h-8zm2 2v4h4V5zm1 1h2v2h-2z"/><path d="M3 13h8v8H3zm2 2v4h4v-4zm1 1h2v2H6z"/><path d="M13 13h2v2h-2zm4 0h4v2h-4zm-4 4h2v4h-2zm4 0h2v2h-2zm2 2h2v2h-2zm-6-2h2v2h-2z"/></g></svg></button></div>'+
+    '<div id="swres"></div>';
+  $('swq').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.target.blur(); swSearchRun(v); } });
+  if(v.state.res) swSearchDrawCard(v); else swSearchDrawLocal(v);
+  if(!v.state.q) setTimeout(function(){ var i=$('swq'); if(i&&stack.indexOf(v)>=0) i.focus(); },450); }};
+function swSearchReset(){ haptic(8); var v=stack[stack.length-1]; v.state.q=''; v.state.res=null; VIEWS.sw_search.render(v); toast('검색을 초기화했어요'); }
+function swSearchTyped(val){ var v=stack[stack.length-1]; v.state.q=val; v.state.res=null; swSearchDrawLocal(v); }
+function swSearchScan(){ haptic(8); push('scan',{swingq:true}); }   // 찍으면 handleScanned 가 QR 값을 검색창에 넣고 검색
+function swSearchRun(v){ v=v||stack[stack.length-1]; var q=String(v.state.q||'').trim().toUpperCase(); if(!q){ toast('QR 또는 IMEI 를 입력해 주세요'); return; }
+  var box=$('swres'); if(!box) return; v.state.res={loading:true}; v.state.open=false;
+  box.innerHTML='<div class="card"><div class="loadlogo" style="padding:18px 0 10px">'+curLogo()+'<span>향남 → 수원 순서로 찾는 중</span><span class="muted" style="font-size:12px;margin-top:4px">처음이거나 목록이 오래됐으면 기기 목록을 새로 받느라 20~30초 걸릴 수 있어요</span></div></div>';
+  var seq=v.state.seq=(v.state.seq||0)+1;
+  run('swingSearch',q).then(function(r){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.res=r; swSearchDrawCard(v); if(r.found) haptic([10,30,10]); })
+    .catch(function(e){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.res={ok:false,error:e.message}; swSearchDrawCard(v); }); }
+function swBattClass(b){ return b===null?'':(b>=60?'ok':(b>=30?'mid':'low')); }
+function swSearchDrawCard(v){ var r=v.state.res; var box=$('swres'); if(!box||!r) return;
+  if(r.loading) return;
+  if(!r.ok){ box.innerHTML='<div class="card"><div class="empty" style="color:var(--danger)">'+esc(r.error||'조회 실패')+'</div></div>'; return; }
+  if(!r.found){ box.innerHTML='<div class="card"><div class="empty">"'+esc(v.state.q)+'" 기기를 향남·수원 어드민에서 못 찾았어요.'+(r.missing&&r.missing.length?'<br><span class="muted" style="font-size:12px">'+esc(r.missing.join(', '))+' 계정은 아직 설정 전</span>':'')+(r.notes&&r.notes.length?'<br><span class="muted" style="font-size:12px">'+esc(r.notes.join(' · '))+'</span>':'')+'</div></div>'; return; }
+  var c=r.card; var b=c.battery; var open=v.state.open;
+  box.innerHTML='<div class="devcard'+(open?' open':'')+'" id="devcard"><button class="main" onclick="swCardToggle()">'+devAv(c.model||'?','')+
+      '<div class="bd"><div class="nm"><b class="mono">'+esc(c.qr||c.imei)+'</b>'+(c.model?'<span class="pill" style="background:var(--fill);color:var(--ink2);font-size:11px;padding:3px 8px">'+esc(c.model)+'</span>':'')+'</div>'+
+      '<div class="chips2"><span class="ch band">'+esc(c.band||'-')+'</span><span class="ch batt '+swBattClass(b)+'"><i></i>'+(b===null?'--':b+'%')+'</span><span class="ch '+(c.online?'on':'off')+'"><i></i>'+(c.online?'온라인':'오프라인')+'</span></div></div>'+
+      '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>'+
+      '<a class="go" href="'+esc(c.adminUrl)+'" target="_blank" rel="noopener" onclick="haptic(10)"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>어드민<br>접속</a></div>'+
+    '<p class="muted" style="margin:8px 6px 0;font-size:12px">'+esc(c.account)+' 계정으로 조회 · IMEI '+esc(c.imei)+(c.status?' · '+esc(c.status):'')+(c.isRiding?' · 라이딩 중':'')+(c.broken?' · <span style="color:var(--danger)">고장</span>':'')+(c.gpsUpdatedAt?' · GPS '+esc(String(c.gpsUpdatedAt).replace('T',' ').slice(5,16)):'')+'</p>'; }
+function swCardToggle(){ haptic(8); var v=stack[stack.length-1]; v.state.open=!v.state.open; var c=$('devcard'); if(c) c.classList.toggle('open',v.state.open); }
+function swSearchDrawLocal(v){ var q=String(v.state.q||'').trim().toLowerCase(); var box=$('swres'); if(!box) return;
+  if(!q){ box.innerHTML='<div class="card"><div class="empty">QR을 찍거나 QR 코드·IMEI 를 입력하고<br>엔터를 누르면 향남·수원 어드민에서 찾아요.</div></div>'; return; }
   var qr=swQrList().filter(function(r){ return r.serial.toLowerCase().indexOf(q)>=0; }); var ph=swPhotos().filter(function(p){ return (p.summary||'').toLowerCase().indexOf(q)>=0; });
-  var h='';
-  if(qr.length){ h+='<div class="sec">QR 기록 '+qr.length+'</div><div class="card" style="padding:6px 8px">'+qr.map(function(r){ return '<div class="swrow"><b class="mono">'+esc(r.serial)+'</b><span>'+swFmtSec(r.ts)+'</span></div>'; }).join('')+'</div>'; }
+  var h='<button class="btn" style="margin-bottom:14px" onclick="swSearchRun()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>"'+esc(v.state.q.toUpperCase())+'" 어드민에서 찾기</button>';
+  if(qr.length){ h+='<div class="sec">내 QR 기록 '+qr.length+'</div><div class="card" style="padding:6px 8px">'+qr.map(function(r){ return '<button class="swrow" onclick="swSearchPick(\''+esc(r.serial)+'\')"><b class="mono">'+esc(r.serial)+'</b><span>'+swFmtSec(r.ts)+'</span></button>'; }).join('')+'</div>'; }
   if(ph.length){ h+='<div class="sec">사진 '+ph.length+'</div><div class="card" style="padding:6px 8px">'+ph.map(function(p){ return '<button class="swrow" onclick="swOpenPhoto(\''+esc(p.id)+'\')"><b>'+(p.kind==='vehicle'?'차량':'배터리')+' · '+esc(p.summary)+'</b><span>'+swFmtShort(p.ts)+'</span></button>'; }).join('')+'</div>'; }
-  if(!h) h='<div class="card"><div class="empty">"'+esc(v.state.q)+'" 에 맞는 기록이 없어요.</div></div>';
   box.innerHTML=h; }
+function swSearchPick(serial){ var v=stack[stack.length-1]; v.state.q=serial; var i=$('swq'); if(i) i.value=serial; swSearchRun(v); }
 
 /* ================= 추가기능 ================= */
 VIEWS.sw_extras={ render:function(v){ reanim(v);
