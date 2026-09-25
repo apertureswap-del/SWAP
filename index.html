@@ -179,6 +179,37 @@
   .s-재고{background:var(--lime);color:var(--lime-ink)}
   .s-출고대기중{background:#dcf7f2;color:#0b6e63}
 
+
+  /* ---- SWING (S&P 워크) ---- */
+  .swbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .swbtns button{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:6px;min-height:104px;padding:14px;border-radius:20px;color:#fff;font-weight:800;font-size:17px;letter-spacing:-.3px;text-align:left;box-shadow:0 8px 22px rgba(25,31,40,.12);transition:transform .25s var(--spring)}
+  .swbtns button:active{transform:scale(.96)} .swbtns button svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+  .swbtns button small{display:block;font-size:12px;font-weight:600;opacity:.8;margin-top:-4px}
+  .view.anim .swbtns button{animation:pop .5s var(--spring) both}
+  .lb{font-size:13px;font-weight:800;color:var(--muted);margin:0 0 6px}
+  .swrow{display:flex;align-items:center;gap:10px;width:100%;padding:10px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:14px;color:var(--ink)}
+  .swrow:last-child{border-bottom:0} .swrow .idx{flex:0 0 28px;font-size:12.5px;color:var(--muted2);font-weight:700} .swrow b{flex:1;min-width:0;font-weight:800;font-size:16px;letter-spacing:-.2px;word-break:break-all}
+  .swrow>span:not(.idx){font-size:12px;color:var(--muted);white-space:nowrap} .swrow.hit{background:var(--amber);border-radius:10px}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+  .swscan .stat{position:absolute;left:0;right:0;bottom:0;padding:10px;background:rgba(0,0,0,.55);color:#fff;font-weight:700;font-size:14px;text-align:center}
+  .hbtn.on{background:#f9a825;color:#111;box-shadow:0 8px 18px rgba(249,168,37,.35)}
+  .swcam{display:flex;flex-direction:column;gap:12px}
+  @media (orientation:landscape) and (min-width:640px){ .swcam{flex-direction:row;align-items:stretch} .swcam .cam{flex:1;aspect-ratio:auto;min-height:60vh} .swcam .panel{flex:0 0 300px} }
+  .swcam .cam{position:relative;background:#000;border-radius:24px;overflow:hidden;aspect-ratio:4/3}
+  .swcam .cam video{width:100%;height:100%;object-fit:cover;display:block}
+  .swcam .cam.flash::after{content:"";position:absolute;inset:0;background:#fff;animation:camflash .3s ease-out both} @keyframes camflash{from{opacity:.9}to{opacity:0}}
+  .swcam .stamp{position:absolute;left:14px;bottom:14px;max-width:80%;color:#fff;font-weight:800;font-size:15px;line-height:1.28;white-space:pre-line;text-shadow:0 0 4px #000,0 0 8px #000,1px 1px 0 #000,-1px -1px 0 #000;pointer-events:none}
+  .swcam .camerr{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;color:#fff;font-weight:700;text-align:center;background:rgba(0,0,0,.6)}
+  .swcam .panel{background:#fff;border-radius:var(--r);padding:16px}
+  .swnum{font-size:24px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums} .swnum::placeholder{color:var(--muted2);font-weight:700}
+  .swgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:14px}
+  @media (orientation:landscape) and (min-width:640px){ .swgrid{grid-template-columns:repeat(5,1fr)} }
+  .swgrid .ph{position:relative;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:var(--fill2);padding:0;text-align:left;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+  .swgrid .ph img{width:100%;height:100%;object-fit:cover;display:block}
+  .swgrid .ph .kind{position:absolute;left:6px;top:6px;padding:2px 6px;border-radius:6px;background:rgba(0,0,0,.65);color:#fff;font-size:10.5px;font-weight:800}
+  .swgrid .ph .info{position:absolute;left:0;right:0;bottom:0;padding:5px 6px;background:rgba(0,0,0,.6);color:#fff;font-size:10.5px;font-weight:600;line-height:1.3}
+  .swgrid .ph .ov{position:absolute;inset:0;background:rgba(74,21,75,.5);opacity:0;transition:opacity .15s;box-shadow:inset 0 0 0 3px #4a154b} .swgrid .ph.on .ov{opacity:1}
+  .swgrid .ph.on .ov::after{content:"✓";position:absolute;right:6px;top:6px;width:22px;height:22px;border-radius:50%;background:#4a154b;color:#fff;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center}
   /* ---- 업무보고 ---- */
   .modalbg{position:absolute;inset:0;background:rgba(25,31,40,.55);display:flex;align-items:center;justify-content:center;padding:24px;z-index:5;animation:fadein .25s both}
   @keyframes fadein{from{opacity:0}to{opacity:1}}
@@ -477,7 +508,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '8.1';
+var APP_VER = '8.4';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -489,7 +520,10 @@ var worker = localStorage.getItem('swapWorker') || '';
 var AUTH=null; try{ AUTH=JSON.parse(localStorage.getItem('swapAuth')||'null'); }catch(e){}   // {code,name,admin}
 /* 서버(업무 영역): swap = 경기남부점 입출고, swing = SWING 관리자. 로그인 화면에서 고르고, 환경설정에서 바꿀 수 있다. */
 var SERVER='swap'; try{ SERVER=(localStorage.getItem('swapServer')==='swing')?'swing':'swap'; }catch(e){}
-function setServer(sv){ SERVER=(sv==='swing')?'swing':'swap'; try{ localStorage.setItem('swapServer',SERVER); }catch(e){} }
+function setServer(sv){ SERVER=(sv==='swing')?'swing':'swap'; try{ localStorage.setItem('swapServer',SERVER); }catch(e){} applyThemeColor(); }
+/* 폰 상단(상태바) 색: SWAP = 테마 보라, SWING = 검정 */
+function applyThemeColor(){ var c=(SERVER==='swing')?'#000000':'#7820e8'; var m=document.querySelector('meta[name="theme-color"]'); if(!m){ m=document.createElement('meta'); m.name='theme-color'; document.head.appendChild(m); } m.content=c; }
+applyThemeColor();
 function pickServer(sv){ haptic(8); setServer(sv); [].forEach.call(document.querySelectorAll('#srvpick button'),function(b){ b.classList.toggle('on',b.dataset.srv===SERVER); }); }
 /* 같은 화면 이름이라도 서버별로 다른 화면을 쓸 수 있다: VIEWS.sw_home 이 있으면 swing 에서는 그걸 쓴다 */
 function viewOf(name){ if(SERVER==='swing'&&VIEWS['sw_'+name]) return VIEWS['sw_'+name]; return VIEWS[name]; }
@@ -578,7 +612,7 @@ function isOut(t){ return t['구분']==='출고'; }
 
 /* ================= 네비게이션 ================= */
 var stack=[]; var animating=false; var VIEWS={};
-var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',me:'me',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
+var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_qr:'home',sw_cam:'home',sw_gallery:'home',me:'me',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
 function makeView(name,params){ var el=document.createElement('div'); el.className='view'; el.innerHTML=spin(); return {name:name,params:params||{},el:el,state:{}}; }
 function reanim(v){ if(!v||!v.el) return; v.el.classList.remove('anim'); void v.el.offsetWidth; v.el.classList.add('anim'); clearTimeout(v._at); v._at=setTimeout(function(){ v.el.classList.remove('anim'); },900); }
 function mount(v){ $('stage').insertBefore(v.el,$('back')); reanim(v); try{ viewOf(v.name).render(v); }catch(e){ v.el.innerHTML=errBox(e); } }
@@ -733,6 +767,7 @@ $('camfile').addEventListener('change',function(){
 });
 function handleScanned(text){
   if(camTarget){ var el=$(camTarget); camTarget=null; if(el){ el.value=String(text).trim(); toast('읽었어요'); } return; }
+  var top=stack[stack.length-1]; if(top&&top.name==='sw_qr'){ swQrDetected(text); return; }   // SWING QR 스캔: 시리얼 기록
   var code=null; var m=String(text).match(/[?&]q=([A-Za-z0-9]+)/); if(m) code=m[1].toUpperCase(); else if(/^[A-Za-z0-9]{4,10}$/.test(text.trim())) code=text.trim().toUpperCase();
   if(!code){ toast('입출고 QR이 아닙니다'); return; }
   var cur=stack[stack.length-1];
@@ -1112,25 +1147,227 @@ VIEWS.extras={ render:function(v){ reanim(v);
 
 
 
-/* ================= SWING 서버 화면 (홈 / 검색 / 추가기능) ================= */
+/* ================= SWING 서버 (S&P 워크 앱 이식) ================= */
+/* 원본 안드로이드 앱 "S&P 워크"(com.mineo.qrserial v3.4)의 기능을 그대로 옮김:
+   배터리 사진(수량 스탬프) · 차량 사진(차량번호 스탬프) · QR 스캔(시리얼 기록) · 사진모음(Slack 공유) · 설정.
+   저장: 설정/QR 기록/사진 목록은 localStorage(swapc:sw_*), 사진 원본·썸네일은 IndexedDB(swing-photos). */
+var SW_MAX_PHOTOS=30;   // 앱 안에 두는 사진 최대 장수 (넘으면 오래된 것부터 자동 삭제)
+var SW_DEFAULT_VEHICLES=['89도3102','84가1708','87모1064','89노4399','94수6382','85서3703','95부4520','92부0447'];
+function swPrefs(){ var p=lsGet('sw_settings')||{}; return { resetCounts:(p.resetCounts!==false), vehicles:(p.vehicles&&p.vehicles.length)?p.vehicles:SW_DEFAULT_VEHICLES.slice(),
+  chBattery:(p.chBattery!==undefined)?p.chBattery:'#배터리입출고', chVehicle:(p.chVehicle!==undefined)?p.chVehicle:'#차량관리', keepScreen:!!p.keepScreen }; }
+function swPrefsSave(p){ lsSet('sw_settings',p); }
+function swNormCh(raw){ var t=String(raw||'').trim(); if(!t) return ''; return t.charAt(0)==='#'?t:'#'+t; }
+function swQrList(){ return lsGet('sw_qr')||[]; } function swQrSave(l){ lsSet('sw_qr',l); }
+function swPhotos(){ return lsGet('sw_photos')||[]; } function swPhotosSave(l){ lsSet('sw_photos',l); }
+function pad2(n){ return ('0'+n).slice(-2); }
+function swFmtStamp(ts){ var d=new Date(ts); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())+' ('+'일월화수목금토'[d.getDay()]+') '+pad2(d.getHours())+':'+pad2(d.getMinutes()); }
+function swFmtShort(ts){ var d=new Date(ts); return pad2(d.getMonth()+1)+'/'+pad2(d.getDate())+' '+pad2(d.getHours())+':'+pad2(d.getMinutes()); }
+function swFmtSec(ts){ var d=new Date(ts); return swFmtShort(ts)+':'+pad2(d.getSeconds()); }
+function swFileName(ts){ var d=new Date(ts); return 'SNP_'+d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate())+'_'+pad2(d.getHours())+pad2(d.getMinutes())+pad2(d.getSeconds())+'.jpg'; }
+/* 진동·소리 (원본 Haptics / ToneGenerator) */
+function swTick(){ haptic(20); } function swSuccess(){ haptic(30); } function swWarn(){ haptic([150,120,150]); }
+var swAC=null; function swBeep(freq,ms){ try{ swAC=swAC||new (window.AudioContext||window.webkitAudioContext)(); var o=swAC.createOscillator(), g=swAC.createGain(); o.frequency.value=freq; o.type='square'; g.gain.value=.08; o.connect(g); g.connect(swAC.destination); o.start(); o.stop(swAC.currentTime+ms/1000); }catch(e){} }
+/* 화면 켜둠 */
+var swWakeLock=null; function swWake(on){ try{ if(on){ if(!swWakeLock&&navigator.wakeLock) navigator.wakeLock.request('screen').then(function(l){ swWakeLock=l; }).catch(function(){}); } else if(swWakeLock){ swWakeLock.release().catch(function(){}); swWakeLock=null; } }catch(e){} }
+/* IndexedDB: 사진 원본(jpg)·썸네일 */
+var swDB=null;
+function swIDB(){ return new Promise(function(res,rej){ if(swDB) return res(swDB); var r=indexedDB.open('swing-photos',1); r.onupgradeneeded=function(){ r.result.createObjectStore('photos'); }; r.onsuccess=function(){ swDB=r.result; res(swDB); }; r.onerror=function(){ rej(r.error); }; }); }
+function swPut(k,v){ return swIDB().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction('photos','readwrite'); t.objectStore('photos').put(v,k); t.oncomplete=function(){ res(); }; t.onerror=function(){ rej(t.error); }; }); }); }
+function swGet(k){ return swIDB().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction('photos','readonly'); var q=t.objectStore('photos').get(k); q.onsuccess=function(){ res(q.result||null); }; q.onerror=function(){ rej(q.error); }; }); }); }
+function swDel(k){ return swIDB().then(function(db){ return new Promise(function(res){ var t=db.transaction('photos','readwrite'); t.objectStore('photos').delete(k); t.objectStore('photos').delete('thumb_'+k); t.oncomplete=function(){ res(); }; t.onerror=function(){ res(); }; }); }); }
+
+/* ---- SerialExtractor (원본 규칙 그대로) ---- */
+var SW_SERIAL_KEYS=['code','serial','sn','qrcode','qr','deviceid','imei'], SW_WRAP_KEYS=['link','url','target','redirect'];
+var SW_STOP={RIDE:1,SCAN:1,S:1,R:1,QR:1,APP:1,HOME:1,INDEX:1,START:1,OPEN:1,DOWNLOAD:1}; var SW_SHAPE=/^[A-Z0-9][A-Z0-9_-]{3,23}$/;
+function swUrlDecode(v){ try{ return decodeURIComponent(String(v).replace(/\+/g,'%20')); }catch(e){ return v; } }
+function swParseQuery(text){ var i=text.indexOf('?'); if(i<0) return {}; var q=text.slice(i+1); var h=q.indexOf('#'); if(h>=0) q=q.slice(0,h); var out={}; if(!q) return out;
+  q.split('&').forEach(function(p){ var e=p.indexOf('='); var k=(e<0?'':p.slice(0,e)).toLowerCase().trim(), v=(e<0?'':p.slice(e+1)).trim(); if(k&&v) out[k]=v; }); return out; }
+function swLastSeg(text){ var t=text.split('?')[0].split('#')[0].replace(/\/+$/,''); var s=t.slice(t.lastIndexOf('/')+1); return s||null; }
+function swSanitize(v){ var d=swUrlDecode(v).trim(); var s=''; for(var i=0;i<d.length;i++){ var c=d[i]; if(/[\p{L}\p{N}]/u.test(c)||c==='-'||c==='_') s+=c; } return s?s.toUpperCase():null; }
+function swLooksSerial(v){ return SW_SHAPE.test(v)&&!SW_STOP[v]; }
+function swExtract(raw,depth){ depth=depth||0; var text=String(raw||'').trim(); if(!text) return null; var params=swParseQuery(text);
+  if(depth<3){ for(var i=0;i<SW_WRAP_KEYS.length;i++){ var w=params[SW_WRAP_KEYS[i]]; if(w){ var r=swExtract(swUrlDecode(w),depth+1); if(r) return r; } } }
+  for(var j=0;j<SW_SERIAL_KEYS.length;j++){ var sv=params[SW_SERIAL_KEYS[j]]; if(sv){ var s=swSanitize(sv); if(s) return s; } }
+  var seg=swLastSeg(text); var cand=seg?swSanitize(seg):null; if(cand&&swLooksSerial(cand)) return cand;
+  var ks=Object.keys(params); for(var k=0;k<ks.length;k++){ var c2=swSanitize(params[ks[k]]); if(c2&&swLooksSerial(c2)) return c2; }
+  return cand; }
+
+/* ---- 사진 스탬프 (PhotoStamper 그대로: 좌하단, 흰 글자 + 검정 외곽선) ---- */
+function swBatteryLines(name,ts,s9,w9,i9on,i9){ var L=[String(name||'').trim()||'이름 없음', swFmtStamp(ts), 'S9  '+s9+'개', 'W9  '+w9+'개']; if(i9on) L.push('I9  '+i9+'개'); return L; }
+function swVehicleLines(name,ts,veh){ return [String(name||'').trim()||'이름 없음', swFmtStamp(ts), String(veh||'').trim()||'차량 미선택']; }
+function swStamp(cv,lines){ var ctx=cv.getContext('2d'); var W=cv.width,H=cv.height; var short=Math.min(W,H); var margin=.035*short; var size=.065*short;
+  ctx.font='bold '+size+'px sans-serif'; var widest=0; lines.forEach(function(l){ widest=Math.max(widest,ctx.measureText(l).width); });
+  var maxW=W*.8-margin; if(widest>maxW){ size*=maxW/widest; ctx.font='bold '+size+'px sans-serif'; }
+  var lh=1.28*size; var m=ctx.measureText('Ag'); var desc=(m.actualBoundingBoxDescent||size*.22);
+  var y=H-margin-desc-(lines.length-1)*lh; ctx.lineJoin='round'; ctx.lineWidth=.13*size; ctx.strokeStyle='#000'; ctx.fillStyle='#fff'; ctx.textBaseline='alphabetic';
+  lines.forEach(function(l){ ctx.strokeText(l,margin,y); ctx.fillText(l,margin,y); y+=lh; }); }
+
+/* ---- 카메라 공통 ---- */
+var swStream=null, swTrack=null;
+function swCamStart(vid,ideal){ return navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:ideal||1920},height:{ideal:1080}},audio:false}).then(function(st){ swStream=st; swTrack=st.getVideoTracks()[0]; vid.srcObject=st; vid.setAttribute('playsinline',''); vid.muted=true; return vid.play().catch(function(){}); }); }
+function swCamStop(){ if(swStream){ swStream.getTracks().forEach(function(t){ t.stop(); }); } swStream=null; swTrack=null; swWake(false); }
+function swTorchOK(){ try{ return !!(swTrack&&swTrack.getCapabilities&&swTrack.getCapabilities().torch); }catch(e){ return false; } }
+function swTorch(btn,offLabel,onLabel){ if(!swTrack) return; var on=btn.classList.toggle('on'); swTrack.applyConstraints({advanced:[{torch:on}]}).catch(function(){ btn.classList.remove('on'); toast('이 기기는 플래시를 지원하지 않습니다'); }); btn.textContent=on?onLabel:offLabel; }
+function swCamErr(err){ var n=err&&err.name||''; return n==='NotAllowedError'?'카메라 권한이 필요합니다':(n==='NotFoundError'?'이 기기에 카메라가 없어요.':'카메라를 열 수 없습니다: '+n); }
+
+/* ================= 홈 ================= */
 VIEWS.sw_home={ render:function(v){ reanim(v); v.onResume=function(){ VIEWS.sw_home.render(v); };
   var d=todayISO(0); var draft=lsGet('report:'+d); var rs=(draft&&draft.ranges||[]).filter(function(r){ return r.text&&r.text.trim(); });
-  var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span style="font-weight:900;letter-spacing:-1px">SWING</span>관리자</h1></div>';
-  h+='<div class="card sum"><div class="lb">오늘 업무보고</div>';
-  if(!draft||!draft.cfg) h+='<div class="big"><b>아직 시작 전</b></div><div class="muted" style="margin-top:6px">업무시간을 정하고 시간대별로 적어요.</div>';
-  else h+='<div class="big">'+num(rs.length,'rp')+'<span>구간</span></div><div class="muted" style="margin-top:6px">'+esc(draft.cfg.start)+' ~ '+('0'+draft.cfg.end).slice(-2)+':00'+(draft.sentAt?' · '+esc(String(draft.sentAt).slice(11,16))+' 슬랙 전송됨':' · 아직 안 보냄')+(draft.note&&draft.note.trim()?' · 특이사항 있음':'')+'</div>';
-  h+='<button class="btn" style="margin-top:16px" onclick="push(\'report\',{})"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 3v4M16 3v4M4 10h16M8 14h5"/></svg>'+(draft&&draft.cfg?'업무보고 이어서 쓰기':'업무보고 시작')+'</button></div>';
-  h+='<div class="card"><h3>바로가기</h3><div class="stats" style="margin-top:12px;grid-template-columns:repeat(2,1fr)">'+
-     '<button onclick="push(\'report\',{})"><span>업무보고</span><b style="font-size:15px">시간대별 작성</b></button>'+
-     '<button onclick="goTab(\'extras\')"><span>추가기능</span><b style="font-size:15px">전체 보기</b></button></div></div>';
-  h+='<div class="card"><h3>준비 중인 기능</h3><ul class="hist">'+['기기 현황·이동 기록','수거·배송 일정','정비 요청 관리'].map(function(x){ return '<li><span>'+x+'</span><span class="muted" style="font-size:12px">곧</span></li>'; }).join('')+'</ul></div>';
-  v.el.innerHTML=h; countUp(v.el); }};
-VIEWS.sw_search={ render:function(v){ reanim(v);
-  v.el.innerHTML=title('검색','SWING')+'<div class="card"><div class="empty">SWING 검색은 준비 중이에요.<br>기능 정리가 끝나면 여기서 찾을 수 있어요.</div></div>'; }};
+  var photos=swPhotos(); var today=photos.filter(function(p){ return swSameDay(p.ts); }).length; var qrN=swQrList().length;
+  var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span style="font-weight:900;letter-spacing:-1px">SWING</span>작업 어플</h1><div class="muted" style="margin-top:4px;font-weight:600">작업자: '+esc(worker||'이름 없음')+'</div></div>';
+  h+='<div class="swbtns">'+
+     '<button style="background:#1565c0" onclick="push(\'sw_cam\',{kind:\'battery\'})"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="16" height="10" rx="2"/><path d="M19 10h2v4h-2M7 10v4M11 10v4"/></svg>배터리 사진</button>'+
+     '<button style="background:#00838f" onclick="push(\'sw_cam\',{kind:\'vehicle\'})"><svg viewBox="0 0 24 24"><path d="M5 17h14l-1-6H6zM6 11l2-4h8l2 4"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>차량 사진</button>'+
+     '<button style="background:#2e7d32" onclick="push(\'sw_qr\',{})"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 12h8"/></svg>QR 스캔<small>'+qrN+'개 기록</small></button>'+
+     '<button style="background:#5d4037" onclick="push(\'sw_gallery\',{})"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg>사진모음<small>Slack 공유하기 · '+photos.length+'/'+SW_MAX_PHOTOS+'장</small></button></div>';
+  h+='<div class="card" style="margin-top:14px"><div class="field-row"><h3>오늘 업무보고</h3><button class="edit" onclick="push(\'report\',{})">'+(draft&&draft.cfg?'이어서 쓰기':'시작')+'</button></div>';
+  if(!draft||!draft.cfg) h+='<p class="muted" style="margin:4px 0 0">업무시간을 정하고 시간대별로 적어요.</p>';
+  else h+='<p class="muted" style="margin:4px 0 0">'+esc(draft.cfg.start)+' ~ '+pad2(draft.cfg.end)+':00 · '+rs.length+'구간'+(draft.sentAt?' · '+esc(String(draft.sentAt).slice(11,16))+' 슬랙 전송됨':' · 아직 안 보냄')+'</p>';
+  h+='</div>';
+  v.el.innerHTML=h; }};
+function swSameDay(ts){ var d=new Date(ts), n=new Date(); return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&d.getDate()===n.getDate(); }
+
+/* ================= 검색 (QR 기록 · 사진) ================= */
+VIEWS.sw_search={ render:function(v){ reanim(v); v.state.q=v.state.q||'';
+  v.el.innerHTML=title('검색','시리얼번호 · 차량 · 사진 메모')+'<div class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input class="input" id="swq" placeholder="예: BE4814, 89도3102" value="'+esc(v.state.q)+'" autocomplete="off" oninput="swSearchTyped(this.value)"></div><div id="swres"></div>';
+  swSearchDraw(v); if(!v.state.q) setTimeout(function(){ var i=$('swq'); if(i&&stack.indexOf(v)>=0) i.focus(); },450); }};
+function swSearchTyped(val){ var v=stack[stack.length-1]; v.state.q=val; swSearchDraw(v); }
+function swSearchDraw(v){ var q=String(v.state.q||'').trim().toLowerCase(); var box=$('swres'); if(!box) return; if(!q){ box.innerHTML='<div class="card"><div class="empty">QR로 기록한 시리얼번호나<br>사진에 적힌 차량·수량으로 찾아요.</div></div>'; return; }
+  var qr=swQrList().filter(function(r){ return r.serial.toLowerCase().indexOf(q)>=0; }); var ph=swPhotos().filter(function(p){ return (p.summary||'').toLowerCase().indexOf(q)>=0; });
+  var h='';
+  if(qr.length){ h+='<div class="sec">QR 기록 '+qr.length+'</div><div class="card" style="padding:6px 8px">'+qr.map(function(r){ return '<div class="swrow"><b class="mono">'+esc(r.serial)+'</b><span>'+swFmtSec(r.ts)+'</span></div>'; }).join('')+'</div>'; }
+  if(ph.length){ h+='<div class="sec">사진 '+ph.length+'</div><div class="card" style="padding:6px 8px">'+ph.map(function(p){ return '<button class="swrow" onclick="swOpenPhoto(\''+esc(p.id)+'\')"><b>'+(p.kind==='vehicle'?'차량':'배터리')+' · '+esc(p.summary)+'</b><span>'+swFmtShort(p.ts)+'</span></button>'; }).join('')+'</div>'; }
+  if(!h) h='<div class="card"><div class="empty">"'+esc(v.state.q)+'" 에 맞는 기록이 없어요.</div></div>';
+  box.innerHTML=h; }
+
+/* ================= 추가기능 ================= */
 VIEWS.sw_extras={ render:function(v){ reanim(v);
+  var mi=function(view,params,bg,fg,svg,b,s){ return '<button class="mitem" onclick="push(\''+view+'\','+params+')"><span class="mi" style="background:'+bg+';color:'+fg+'">'+svg+'</span><span class="mt"><b>'+b+'</b><span>'+s+'</span></span><span class="ar">›</span></button>'; };
   v.el.innerHTML=title('추가기능','SWING')+
-    '<button class="mitem" onclick="push(\'report\',{})"><span class="mi" style="background:#e8f1ff;color:#2b6fe0"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 3v4M16 3v4M4 10h16M8 14h5"/></svg></span><span class="mt"><b>업무보고</b><span>시간대별 업무 내용을 슬랙으로</span></span><span class="ar">›</span></button>'+
-    '<div class="card"><div class="empty">다른 SWING 기능은 정리되는 대로 여기에 추가돼요.</div></div>'; }};
+    mi('report','{}','#e8f1ff','#2b6fe0','<svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 3v4M16 3v4M4 10h16M8 14h5"/></svg>','업무보고','시간대별 업무 내용을 슬랙으로')+
+    mi('sw_cam','{kind:\'battery\'}','#e3edfb','#1565c0','<svg viewBox="0 0 24 24"><rect x="3" y="7" width="16" height="10" rx="2"/><path d="M19 10h2v4h-2M7 10v4M11 10v4"/></svg>','배터리 사진','S9·W9·I9 수량을 사진에 찍어 저장')+
+    mi('sw_cam','{kind:\'vehicle\'}','#e0f4f6','#00838f','<svg viewBox="0 0 24 24"><path d="M5 17h14l-1-6H6zM6 11l2-4h8l2 4"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>','차량 사진','차량번호를 사진에 찍어 저장')+
+    mi('sw_qr','{}','#e6f4ea','#2e7d32','<svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 12h8"/></svg>','QR 스캔','기기 QR에서 시리얼번호 수집·복사')+
+    mi('sw_gallery','{}','#efe7e3','#5d4037','<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/></svg>','사진모음','찍은 사진 보기 · Slack 공유 · 삭제'); }};
+
+/* ================= QR 스캔 ================= */
+VIEWS.sw_qr={ render:function(v){ reanim(v); var p=swPrefs();
+  v.el.innerHTML=title('QR 스캔','기기 QR을 화면 가운데에 맞추세요','<button class="hbtn" id="swtorch" style="display:none" onclick="swTorch(this,\'🔦 플래시\',\'🔦 플래시 끄기\')">🔦 플래시</button>')+
+    '<div class="scan swscan" id="scanbox"><video id="vid" playsinline muted></video><div class="frame"></div><div class="stat" id="scanmsg">카메라 준비 중…</div></div>'+
+    '<div class="card" style="padding:12px 12px 8px"><div class="field-row" style="margin-bottom:6px"><h3 id="swqrcount">기록 '+swQrList().length+'개</h3><div style="display:flex;align-items:center;gap:6px"><label class="chk'+(p.keepScreen?' on':'')+'" style="padding:6px 10px;font-size:12.5px"><input type="checkbox" '+(p.keepScreen?'checked':'')+' onchange="swKeepScreen(this)"><i></i>화면 켜둠</label><button class="edit" onclick="swQrClearAll()">전체삭제</button></div></div><div id="swqrlist"></div></div>'+
+    '<button class="btn" style="background:#2e7d32" onclick="swQrCopy()">시리얼넘버 전체 복사</button>';
+  swQrDraw(); v.onLeave=function(){ stopScan(); swWake(false); };
+  if(p.keepScreen) swWake(true);
+  liveScan(v); setTimeout(function(){ if(stack.indexOf(v)<0) return; var tb=$('swtorch'); if(tb&&scanStream){ var tr=scanStream.getVideoTracks()[0]; try{ if(tr.getCapabilities&&tr.getCapabilities().torch){ swTrack=tr; tb.style.display=''; } }catch(e){} } },1200); }};
+function swKeepScreen(cb){ var p=swPrefs(); p.keepScreen=cb.checked; swPrefsSave(p); cb.parentNode.classList.toggle('on',cb.checked); swWake(cb.checked); toast(cb.checked?'작업 중 화면이 꺼지지 않습니다':'화면 꺼짐 설정을 원래대로 되돌립니다'); }
+function swQrDraw(){ var box=$('swqrlist'); if(!box) return; var L=swQrList(); var c=$('swqrcount'); if(c) c.textContent='기록 '+L.length+'개';
+  if(!L.length){ box.innerHTML='<div class="empty" style="padding:18px 0">아직 기록이 없어요.</div>'; return; }
+  box.innerHTML=L.map(function(r,i){ return '<div class="swrow" id="swqr_'+i+'"><span class="idx">'+(L.length-i)+'</span><b class="mono">'+esc(r.serial)+'</b><span>'+swFmtSec(r.ts)+'</span><button class="edit" style="color:var(--danger)" onclick="swQrDel('+i+')">삭제</button></div>'; }).join(''); }
+var swLastSerial=null, swLastScanT=0;
+function swQrDetected(raw){ var serial=swExtract(raw); if(!serial) return; var now=Date.now(); if(serial===swLastSerial&&now-swLastScanT<3000) return; swLastSerial=serial; swLastScanT=now;
+  var L=swQrList(); var msg=$('scanmsg'); var idx=-1; for(var i=0;i<L.length;i++){ if(L[i].serial===serial){ idx=i; break; } }
+  if(idx>=0){ if(msg) msg.textContent='이미 기록됨: '+serial; toast('이미 기록된 기기입니다: '+serial); swBeep(440,400); swWarn(); var el=$('swqr_'+idx); if(el){ el.scrollIntoView({block:'center',behavior:'smooth'}); el.classList.add('hit'); setTimeout(function(){ el.classList.remove('hit'); },1200); } return; }
+  L.unshift({serial:serial,raw:String(raw),ts:now}); swQrSave(L); swQrDraw(); if(msg) msg.textContent='기록됨: '+serial; swBeep(1200,120); swSuccess(); }
+function swQrDel(i){ var L=swQrList(); var r=L[i]; if(!r) return; openSheet('<h3>삭제</h3><p>'+esc(r.serial)+' 기록을 지울까요?</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#b71c1c" onclick="closeSheet(function(){ var L=swQrList(); L.splice('+i+',1); swQrSave(L); swQrDraw(); toast(\'삭제했습니다\'); })">삭제</button></div>'); }
+function swQrClearAll(){ var n=swQrList().length; if(!n) return; openSheet('<h3>전체 삭제</h3><p>기록 '+n+'개를 모두 지울까요? 되돌릴 수 없습니다.</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#b71c1c" onclick="closeSheet(function(){ swQrSave([]); swQrDraw(); var m=$(\'scanmsg\'); if(m) m.textContent=\'QR을 비춰주세요\'; toast(\'삭제했습니다\'); })">전체 삭제</button></div>'); }
+function swQrCopy(){ var L=swQrList(); if(!L.length){ toast('복사할 기록이 없습니다'); return; } var text=L.slice().reverse().map(function(r){ return r.serial; }).join('\n');
+  var done=function(){ haptic([12,40,18]); toast(L.length+'개 복사했습니다'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(function(){ swCopyFallback(text); done(); }); else { swCopyFallback(text); done(); } }
+function swCopyFallback(text){ var ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); }
+
+/* ================= 배터리 / 차량 사진 ================= */
+VIEWS.sw_cam={ render:function(v){ reanim(v); var kind=v.params.kind==='vehicle'?'vehicle':'battery'; var p=swPrefs(); v.state.kind=kind; v.state.i9on=false;
+  var panel = kind==='battery' ?
+    '<div class="lb">S9 배터리</div><input class="input swnum" id="sw_s9" type="number" inputmode="numeric" maxlength="3" placeholder="0" oninput="swCamPreview()">'+
+    '<div class="lb">W9 배터리</div><input class="input swnum" id="sw_w9" type="number" inputmode="numeric" maxlength="3" placeholder="0" oninput="swCamPreview()">'+
+    '<label class="chk" id="sw_i9lbl" style="margin-top:10px;background:#fff6dc;color:#8a5a00"><input type="checkbox" id="sw_i9on" onchange="swI9Toggle(this)"><i></i>I9 작업을 했습니다</label>'+
+    '<div class="row" id="sw_i9row" style="margin-top:8px;align-items:center;opacity:.35"><div class="lb" style="flex:1;margin:0">I9 배터리</div><input class="input swnum" id="sw_i9" type="number" inputmode="numeric" maxlength="3" placeholder="0" disabled style="flex:1" oninput="swCamPreview()"></div>'
+    : '<div class="lb">차량 선택</div><select class="input" id="sw_veh" onchange="swCamPreview()">'+p.vehicles.map(function(x){ return '<option>'+esc(x)+'</option>'; }).join('')+'</select>';
+  v.el.innerHTML=title(kind==='battery'?'배터리 사진':'차량 사진','촬영하면 작업자·시각·'+(kind==='battery'?'수량':'차량')+'이 사진에 찍혀요','<button class="hbtn" id="swtorch" style="display:none" onclick="swTorch(this,\'🔦 플래시\',\'🔦 끄기\')">🔦 플래시</button>')+
+    '<div class="swcam"><div class="cam" id="swcambox"><video id="swvid" playsinline muted></video><div class="stamp" id="swstamp"></div><div class="camerr" id="swcamerr" style="display:none"></div></div>'+
+    '<div class="panel">'+panel+'<button class="btn" id="swshut" style="background:#c62828;margin-top:14px" onclick="swShoot()">촬영</button></div></div>';
+  swCamPreview(); v.onLeave=function(){ swCamStop(); };
+  if(p.keepScreen) swWake(true);
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ swCamFail('카메라 API 없음 (https 주소인지 확인)'); return; }
+  swCamStart($('swvid'),1920).then(function(){ if(stack.indexOf(v)<0){ swCamStop(); return; } var tb=$('swtorch'); if(tb&&swTorchOK()) tb.style.display=''; }).catch(function(err){ swCamFail(swCamErr(err)); }); }};
+function swCamFail(msg){ var e=$('swcamerr'); if(e){ e.style.display=''; e.textContent=msg; } var b=$('swshut'); if(b) b.disabled=true; }
+function swI9Toggle(cb){ var v=stack[stack.length-1]; v.state.i9on=cb.checked; $('sw_i9lbl').classList.toggle('on',cb.checked); var inp=$('sw_i9'); inp.disabled=!cb.checked; if(!cb.checked) inp.value=''; $('sw_i9row').style.opacity=cb.checked?'1':'.35'; swCamPreview(); }
+function swCamLines(v,ts){ var st=v.state; if(st.kind==='vehicle'){ var sel=$('sw_veh'); return swVehicleLines(worker, ts, sel?sel.value:''); }
+  var n=function(id){ var x=parseInt(($(id)||{}).value,10); return isNaN(x)?0:x; }; return swBatteryLines(worker, ts, n('sw_s9'), n('sw_w9'), st.i9on, n('sw_i9')); }
+function swCamSummary(v){ var st=v.state; if(st.kind==='vehicle'){ var sel=$('sw_veh'); return sel?sel.value:''; } var n=function(id){ var x=parseInt(($(id)||{}).value,10); return isNaN(x)?0:x; }; return 'S9 '+n('sw_s9')+' · W9 '+n('sw_w9')+(st.i9on?' · I9 '+n('sw_i9'):''); }
+function swCamPreview(){ var v=stack[stack.length-1]; if(!v||v.name!=='sw_cam') return; var el=$('swstamp'); if(el) el.textContent=swCamLines(v,Date.now()).join('\n'); }
+function swShoot(){ var v=stack[stack.length-1]; if(!v||v.state.saving) return; var vid=$('swvid'); if(!vid||vid.readyState<2||!vid.videoWidth){ toast('카메라가 아직 준비되지 않았습니다'); swWarn(); return; }
+  v.state.saving=true; var btn=$('swshut'); btn.disabled=true; btn.textContent='저장 중...'; swTick();
+  var ts=Date.now(); var lines=swCamLines(v,ts); var summary=swCamSummary(v); var kind=v.state.kind;
+  try{
+    var cv=document.createElement('canvas'); cv.width=vid.videoWidth; cv.height=vid.videoHeight; cv.getContext('2d').drawImage(vid,0,0); swStamp(cv,lines);
+    var th=document.createElement('canvas'); var sc=300/Math.min(cv.width,cv.height); th.width=Math.round(cv.width*sc); th.height=Math.round(cv.height*sc); th.getContext('2d').drawImage(cv,0,0,th.width,th.height);
+    var id='p'+ts+'_'+Math.random().toString(36).slice(2,6);
+    swToBlob(cv,.95).then(function(blob){ return swToBlob(th,.8).then(function(tb){ return swPut(id,blob).then(function(){ return swPut('thumb_'+id,tb); }); }); }).then(function(){
+      var L=swPhotos(); L.unshift({id:id,kind:kind,summary:summary,ts:ts,name:swFileName(ts)});
+      var over=L.splice(SW_MAX_PHOTOS); over.forEach(function(o){ swDel(o.id); });   // 10장 넘으면 오래된 사진부터 자동 삭제
+      swPhotosSave(L);
+      swSuccess(); toast(over.length?'저장 완료 · 오래된 사진 '+over.length+'장 자동 삭제됨 (최대 '+SW_MAX_PHOTOS+'장)':'저장 완료 · 사진모음에서 공유'); var flash=$('swcambox'); if(flash){ flash.classList.add('flash'); setTimeout(function(){ flash.classList.remove('flash'); },300); }
+      if(kind==='battery'&&swPrefs().resetCounts){ ['sw_s9','sw_w9','sw_i9'].forEach(function(i){ var e=$(i); if(e) e.value=''; }); var cb=$('sw_i9on'); if(cb&&cb.checked){ cb.checked=false; swI9Toggle(cb); } swCamPreview(); }
+    }).catch(function(e){ swWarn(); toast('갤러리에 저장하지 못했습니다'); }).then(function(){ v.state.saving=false; if(stack.indexOf(v)>=0){ btn.disabled=false; btn.textContent='촬영'; } });
+  }catch(e){ v.state.saving=false; btn.disabled=false; btn.textContent='촬영'; swWarn(); toast('사진을 처리하지 못했습니다'); } }
+function swToBlob(cv,q){ return new Promise(function(res,rej){ try{ cv.toBlob(function(b){ b?res(b):rej(new Error('blob')); },'image/jpeg',q); }catch(e){ rej(e); } }); }
+
+/* ================= 사진모음 ================= */
+VIEWS.sw_gallery={ render:function(v){ reanim(v); v.state.filter=v.state.filter||null; v.state.sel=v.state.sel||{}; v.state.selMode=!!v.state.selMode; v.state.urls=v.state.urls||{};
+  v.onLeave=function(){ Object.keys(v.state.urls).forEach(function(k){ try{ URL.revokeObjectURL(v.state.urls[k]); }catch(e){} }); v.state.urls={}; }; v.onResume=function(){ swGalDraw(v); };
+  swGalDraw(v); }};
+function swGalDraw(v){ var st=v.state; var all=swPhotos(); var shown=all.filter(function(p){ return !st.filter||p.kind===st.filter; }); Object.keys(st.sel).forEach(function(k){ if(!shown.some(function(p){ return p.id===k; })) delete st.sel[k]; });
+  var nSel=Object.keys(st.sel).length; var head=st.selMode?(nSel?nSel+'장 선택됨':'공유할 사진을 고르세요'):('사진 '+shown.length+'장');
+  var h=title('사진모음',head,'<button class="hbtn" style="background:var(--fill);color:var(--ink2);box-shadow:none" onclick="swGalFilter()">'+(st.filter==='battery'?'배터리':(st.filter==='vehicle'?'차량':'전체'))+'</button><button class="hbtn" style="background:#4a154b;margin-left:6px" onclick="swGalSelMode()">'+(st.selMode?'선택 해제':'선택')+'</button>');
+  h+='<div class="note" style="margin:0 0 12px;background:var(--danger-soft);color:var(--danger);font-size:13px;font-weight:700">앱 안에는 사진을 최대 '+SW_MAX_PHOTOS+'장만 둬요. 넘으면 오래된 사진부터 자동 삭제됩니다. 남길 사진은 <u>내려받기로 백업 필수!</u> <span style="font-weight:600;opacity:.85">(지금 '+all.length+'/'+SW_MAX_PHOTOS+'장)</span></div>';
+  if(!shown.length) h+='<div class="card"><div class="empty">아직 찍은 사진이 없습니다.</div></div>';
+  else h+='<div class="swgrid" id="swgrid">'+shown.map(function(p){ return '<button class="ph'+(st.sel[p.id]?' on':'')+'" data-id="'+esc(p.id)+'"><img alt="" id="swimg_'+esc(p.id)+'"'+(st.urls[p.id]?' src="'+st.urls[p.id]+'"':'')+'><span class="kind">'+(p.kind==='vehicle'?'차량':'배터리')+'</span><span class="info">'+swFmtShort(p.ts)+(p.summary?'<br>'+esc(p.summary):'')+'</span><span class="ov"></span></button>'; }).join('')+'</div>';
+  if(st.selMode) h+='<div class="selbar" style="bottom:calc(var(--tab-h) + 10px)"><div style="display:flex;gap:6px;width:100%"><button onclick="swGalSelCancel()">취소</button><button style="background:#b71c1c" '+(nSel?'':'disabled style="opacity:.4;background:#b71c1c"')+' onclick="swGalDelete()">삭제</button><button class="ok" style="flex:1;background:#4a154b" '+(nSel?'':'disabled')+' onclick="swGalShare()">Slack 공유하기</button></div></div>';
+  v.el.innerHTML=h;
+  shown.forEach(function(p){ if(st.urls[p.id]) return; swGet('thumb_'+p.id).then(function(b){ if(!b||stack.indexOf(v)<0) return; var u=URL.createObjectURL(b); st.urls[p.id]=u; var img=$('swimg_'+p.id); if(img) img.src=u; }); });
+  var g=$('swgrid'); if(g) swGalBind(v,g); }
+function swGalBind(v,g){ var st=v.state; var pressT=null, downId=null, moved=false, sx=0, sy=0;
+  g.addEventListener('pointerdown',function(e){ var b=e.target.closest('.ph'); if(!b) return; downId=b.dataset.id; moved=false; sx=e.clientX; sy=e.clientY; clearTimeout(pressT);
+    pressT=setTimeout(function(){ if(downId&&!moved){ haptic([10,30,10]); st.selMode=true; st.sel[downId]=1; downId=null; swGalDraw(v); } },500); });
+  g.addEventListener('pointermove',function(e){ if(Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8){ moved=true; clearTimeout(pressT); } });
+  g.addEventListener('pointerup',function(e){ clearTimeout(pressT); if(!downId||moved){ downId=null; return; } var id=downId; downId=null;
+    if(st.selMode){ haptic(6); if(st.sel[id]) delete st.sel[id]; else st.sel[id]=1; swGalDraw(v); } else swOpenPhoto(id); });
+  g.addEventListener('pointercancel',function(){ clearTimeout(pressT); downId=null; }); }
+function swGalFilter(){ var v=stack[stack.length-1]; var f=v.state.filter; v.state.filter=(f===null?'battery':(f==='battery'?'vehicle':null)); haptic(6); swGalDraw(v); }
+function swGalSelMode(){ var v=stack[stack.length-1]; if(v.state.selMode){ v.state.selMode=false; v.state.sel={}; } else { if(!swPhotos().length){ toast('사진이 없습니다'); return; } v.state.selMode=true; } haptic(6); swGalDraw(v); }
+function swGalSelCancel(){ var v=stack[stack.length-1]; v.state.selMode=false; v.state.sel={}; swGalDraw(v); }
+function swGalDelete(){ var v=stack[stack.length-1]; var ids=Object.keys(v.state.sel); if(!ids.length){ toast('사진을 먼저 고르세요'); return; }
+  openSheet('<h3>사진 삭제</h3><p>'+ids.length+'장을 삭제합니다. 되돌릴 수 없습니다.</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#b71c1c" onclick="closeSheet(function(){ swGalDeleteGo(); })">삭제</button></div>'); }
+function swGalDeleteGo(){ var v=stack[stack.length-1]; var ids=Object.keys(v.state.sel); Promise.all(ids.map(function(id){ return swDel(id); })).then(function(){ var L=swPhotos().filter(function(p){ return ids.indexOf(p.id)<0; }); swPhotosSave(L); ids.forEach(function(id){ if(v.state.urls[id]){ try{ URL.revokeObjectURL(v.state.urls[id]); }catch(e){} delete v.state.urls[id]; } }); v.state.sel={}; v.state.selMode=false; haptic([12,40,18]); toast(ids.length+'장 삭제'); swGalDraw(v); }); }
+function swGalShare(){ var v=stack[stack.length-1]; var st=v.state; var all=swPhotos().filter(function(p){ return (!st.filter||p.kind===st.filter)&&st.sel[p.id]; }); if(!all.length){ toast('사진을 먼저 고르세요'); return; }
+  var kinds={}; all.forEach(function(p){ kinds[p.kind]=1; }); var p=swPrefs(); var text=(kinds.battery&&!kinds.vehicle)?p.chBattery:((kinds.vehicle&&!kinds.battery)?p.chVehicle:'');
+  swSharePhotos(all,text); }
+function swSharePhotos(entries,text){ toast('사진 준비 중…');
+  Promise.all(entries.map(function(p){ return swGet(p.id).then(function(b){ return b?new File([b],p.name||swFileName(p.ts),{type:'image/jpeg'}):null; }); })).then(function(files){ files=files.filter(Boolean); if(!files.length){ toast('공유할 사진이 없습니다'); return; }
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:files})){ navigator.share({files:files,text:text||undefined,title:'사진 공유'}).then(function(){ haptic([12,40,18]); }).catch(function(e){ if(e&&e.name!=='AbortError') swShareFallback(files,text); }); }
+    else swShareFallback(files,text); }); }
+function swShareFallback(files,text){ files.forEach(function(f,i){ setTimeout(function(){ var a=document.createElement('a'); a.href=URL.createObjectURL(f); a.download=f.name; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },2000); }, i*400); });
+  if(text) swCopyFallback(text); toast('이 브라우저는 바로 공유가 안 돼서 사진을 내려받았어요'+(text?' · 채널명 '+text+' 복사됨':'')); }
+function swOpenPhoto(id){ var p=swPhotos().filter(function(x){ return x.id===id; })[0]; if(!p){ toast('사진을 열 수 없습니다'); return; }
+  swGet(id).then(function(b){ if(!b){ toast('사진을 열 수 없습니다'); return; } var u=URL.createObjectURL(b);
+    openSheet('<h3>'+(p.kind==='vehicle'?'차량':'배터리')+' · '+esc(p.summary||'')+'</h3><p>'+swFmtSec(p.ts)+' · '+esc(p.name||'')+'</p><img src="'+u+'" style="width:100%;border-radius:14px;display:block;margin-bottom:12px" onclick="window.open(this.src)">'+
+      '<div class="row"><a class="btn line sm" href="'+u+'" download="'+esc(p.name||swFileName(p.ts))+'">내려받기</a><button class="btn sm" style="background:#4a154b" onclick="swSharePhotos([swPhotos().filter(function(x){ return x.id===\''+esc(id)+'\'; })[0]], swPrefs()[\''+(p.kind==='vehicle'?'chVehicle':'chBattery')+'\'])">Slack 공유</button></div>'); }); }
+
+/* ================= 설정 (환경설정 안 SWING 카드) ================= */
+function swSettingsCard(){ var p=swPrefs(); var n=swQrList().length;
+  return '<div class="card" id="swset"><h3>SWING 설정</h3>'+
+    '<div class="lb" style="margin-top:12px">사진</div><label class="chk'+(p.resetCounts?' on':'')+'"><input type="checkbox" id="sws_reset" '+(p.resetCounts?'checked':'')+' onchange="this.parentNode.classList.toggle(\'on\',this.checked)"><i></i>촬영 후 배터리 수량 자동으로 0으로</label>'+
+    '<div class="lb" style="margin-top:14px">차량 목록</div><textarea class="input" id="sws_veh" placeholder="한 줄에 차량 하나씩" style="min-height:120px;font-size:15px">'+esc(p.vehicles.join('\n'))+'</textarea><p class="muted" style="margin:6px 0 0;font-size:12.5px">차량 사진 화면에서 고를 수 있는 목록입니다. 한 줄에 하나씩 적으세요.</p>'+
+    '<div class="lb" style="margin-top:14px">슬랙 공유</div><div class="row" style="margin-top:0"><input class="input" id="sws_chb" placeholder="#배터리입출고" value="'+esc(p.chBattery)+'"><input class="input" id="sws_chv" placeholder="#차량관리" value="'+esc(p.chVehicle)+'"></div><p class="muted" style="margin:6px 0 0;font-size:12.5px">왼쪽은 배터리 사진, 오른쪽은 차량 사진 채널. 공유할 때 이 채널 이름이 글에 함께 나가요. 어느 채널에 올릴지는 슬랙에서 직접 골라야 합니다.</p>'+
+    '<div class="lb" style="margin-top:14px">QR 스캔</div><label class="chk'+(p.keepScreen?' on':'')+'"><input type="checkbox" id="sws_keep" '+(p.keepScreen?'checked':'')+' onchange="this.parentNode.classList.toggle(\'on\',this.checked)"><i></i>작업 중 화면 켜두기</label>'+
+    '<div class="field-row" style="margin-top:14px"><span class="muted" id="sws_qrn">저장된 QR 기록 '+n+'개</span><button class="edit" style="color:var(--danger)" onclick="swSettingsClearQr()">QR 기록 전체 삭제</button></div>'+
+    '<button class="btn" style="margin-top:14px;background:#2e7d32" onclick="swSettingsSave()">저장</button>'+
+    '<p class="muted" style="margin:10px 0 0;font-size:12px;text-align:center">사진은 이 폰 안(앱 저장소)에 최대 '+SW_MAX_PHOTOS+'장만 보관돼요. 넘으면 오래된 사진부터 자동 삭제 · <b>내려받기로 백업 필수!</b></p></div>'; }
+function swSettingsSave(){ var p=swPrefs(); var veh=($('sws_veh').value||'').split('\n').map(function(x){ return x.trim(); }).filter(Boolean); if(!veh.length){ toast('차량을 최소 하나는 남겨두세요'); return; }
+  p.resetCounts=$('sws_reset').checked; p.vehicles=veh; p.chBattery=swNormCh($('sws_chb').value); p.chVehicle=swNormCh($('sws_chv').value); p.keepScreen=$('sws_keep').checked; swPrefsSave(p); haptic([12,40,18]); toast('저장했습니다'); }
+function swSettingsClearQr(){ var n=swQrList().length; if(!n){ toast('삭제할 기록이 없습니다'); return; }
+  openSheet('<h3>QR 기록 전체 삭제</h3><p>저장된 '+n+'개를 모두 지웁니다. 되돌릴 수 없습니다.</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#b71c1c" onclick="closeSheet(function(){ swQrSave([]); var e=$(\'sws_qrn\'); if(e) e.textContent=\'저장된 QR 기록 0개\'; toast(\'삭제했습니다\'); })">삭제</button></div>'); }
 
 /* ================= 업무보고 (SWING 관리자 작업현황 → 슬랙) ================= */
 VIEWS.report={ render:function(v){ reanim(v); var d=todayISO(0); v.state.date=d;
@@ -1267,6 +1504,7 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
   var fixedName=!!(AUTH&&!AUTH.admin&&AUTH.name);
   v.el.innerHTML=title('환경설정','')+
     '<div class="card"><h3>서버</h3><div class="seg" style="margin:10px 0 0"><button class="'+(SERVER==='swap'?'on':'')+'" onclick="switchServer(\'swap\')">SWAP</button><button class="'+(SERVER==='swing'?'on':'')+'" onclick="switchServer(\'swing\')">SWING</button></div><p class="muted" style="margin:8px 0 0;font-size:13px">'+(SERVER==='swing'?'SWING 관리자 화면을 쓰는 중이에요.':'SWAP 경기남부점 입출고 화면을 쓰는 중이에요.')+'</p></div>'+
+    (SERVER==='swing'?swSettingsCard():'')+
     '<div class="card"><div style="display:flex;align-items:center;gap:14px"><div style="flex:0 0 56px;height:56px;border-radius:18px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px">'+esc(initials(worker))+'</div>'+
     '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:21px;letter-spacing:-.5px">'+esc(worker||'이름 없음')+(AUTH&&AUTH.admin?' <span class="pill sys sm" style="background:var(--p-soft);color:var(--p-ink);vertical-align:middle">관리자</span>':'')+'</div>'+
     '<div class="muted">접속 코드 <b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:1px;color:var(--ink2)">'+esc(AUTH&&AUTH.code||'-')+'</b>'+(fixedName?' · 이름은 관리자가 설정':'')+'</div></div></div>'+
