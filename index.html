@@ -502,6 +502,31 @@
   .wkq b{display:block;font-family:ui-monospace,Menlo,monospace;font-size:14px;font-weight:800;letter-spacing:.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .wkq i{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:1px}
   .wkq small{display:block;font-size:11.5px;color:var(--ink2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .wkq b.im{white-space:normal;word-break:break-all;font-size:12px;line-height:1.3}   /* QR 없이 IMEI로 나오는 기기 */
+  .wkq>div.low{background:#fdecec;box-shadow:inset 0 0 0 1.5px var(--danger)} .wkq .bt{display:block;font-style:normal;font-size:11.5px;font-weight:800;color:var(--ink2);margin-top:2px} .wkq .low .bt{color:var(--danger)}
+  /* SWING 홈 (작업내역 요약) */
+  .hello h1.swt{font-size:24px;margin-top:6px}
+  .swwarn{display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:7px 13px;border-radius:999px;background:#fff1e0;color:#b45309;font-weight:800;font-size:14.5px;box-shadow:inset 0 0 0 1.5px #f5c68a}
+  .swok{display:inline-flex;margin-top:9px;padding:6px 12px;border-radius:999px;background:var(--green-soft);color:var(--green-ink);font-weight:700;font-size:13.5px}
+  .brk span.ck{background:var(--danger-soft);color:var(--danger)} .brk span.ck b{color:var(--danger)}
+  .tipb{position:relative;background:#111318;color:#fff;border-radius:14px;padding:10px 34px 10px 13px;font-size:13px;line-height:1.5;margin:0 0 16px}
+  .tipb::after{content:'';position:absolute;left:24px;bottom:-7px;border:7px solid transparent;border-top-color:#111318;border-bottom:0}
+  .tipb button{position:absolute;right:6px;top:4px;width:26px;height:26px;color:rgba(255,255,255,.65);font-size:18px;background:none}
+  .tipb.warn{background:#fff4d6;color:#8a5a00;padding-right:13px;margin-bottom:18px} .tipb.warn::after{border-top-color:#fff4d6}
+  .wkbtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .wkb{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:13px 13px 12px;border-radius:16px;background:var(--p);color:#fff;text-align:left;box-shadow:0 6px 16px rgba(0,0,0,.14);transition:transform .2s var(--spring)}
+  .wkb:active{transform:scale(.96)} .wkb b{font-size:16.5px;font-weight:800;letter-spacing:-.3px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .wkb span{font-size:13px;opacity:.85;font-weight:600}
+  .wkb i{font-style:normal} .wkb .ck{position:absolute;right:10px;top:9px;font-size:11.5px;font-weight:800}
+  .wkb .lw{position:absolute;right:9px;bottom:9px;font-size:11px;font-weight:800;background:#fdecec;color:var(--danger);border-radius:999px;padding:1px 7px}
+  .wkb.done{background:var(--fill);color:var(--muted);box-shadow:none} .wkb.done b{color:var(--muted)}
+  /* 작업자 세부 */
+  .wdst{margin:-6px 4px 12px;font-size:13.5px;font-weight:700} .wdst.ok{color:var(--green-ink)} .wdst.un{color:#b45309}
+  .seg button.z,.catbar button.z{opacity:.45}
+  .seg.mseg button{white-space:nowrap;padding:10px 4px;font-size:14px} .seg.mseg button b{font-weight:800;margin-left:3px}
+  .catbar{display:flex;gap:6px;overflow-x:auto;margin:0 -2px 12px;padding:2px;scrollbar-width:none} .catbar::-webkit-scrollbar{display:none}
+  .catbar button{flex:0 0 auto;padding:9px 12px;border-radius:12px;background:#fff;font-weight:700;font-size:13.5px;color:var(--ink2);box-shadow:0 1px 3px rgba(25,31,40,.05)}
+  .catbar button b{margin-left:5px;color:var(--muted)} .catbar button.on{background:var(--ink);color:#fff} .catbar button.on b{color:rgba(255,255,255,.75)}
+  .catbar button.ck{color:var(--danger)} .catbar button.ck b{color:var(--danger)} .catbar button.ck.on{background:var(--danger);color:#fff} .catbar button.ck.on b{color:#fff}
   @media print{
     @page{size:A4 portrait;margin:0} html,body{overflow:visible;height:auto;background:#fff}
     .app,.toast,.dim,.sheet,.login{display:none !important} #printarea{display:block}
@@ -563,7 +588,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.2';
+var APP_VER = '10.3';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -636,6 +661,7 @@ function sysBadge(t,small){ return sysPending(t) ? '<span class="pill sys'+(smal
 var sysRefreshT=0;
 function refreshSysBg(){ if(Date.now()-sysRefreshT<60000) return; sysRefreshT=Date.now();
   run('refreshSysStatus',4).then(function(r){ if(r&&r.n>0){ run('listTags',500).then(function(tags){ lsSet('tags',tags); var v=stack[stack.length-1]; if(!v) return;
+    if(SERVER!=='swap') return;   // 그 사이 SWING 으로 바꿨으면 (SWING 홈도 이름이 home) 그리지 않음
     if(v.name==='home') drawHome(v,tags); else if(v.name==='status'){ v.state.tags=tags; drawStatus(v); } }).catch(function(){}); } }).catch(function(){}); }
 function run(fn){ var args=[].slice.call(arguments,1);
   return runOnce(fn,args).catch(function(e){ if(READ_FNS[fn]) return runOnce(fn,args); throw e; }); }
@@ -670,7 +696,7 @@ function isOut(t){ return t['구분']==='출고'; }
 
 /* ================= 네비게이션 ================= */
 var stack=[]; var animating=false; var VIEWS={};
-var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_workers:'extras',sw_qr:'home',sw_cam:'home',sw_gallery:'home',me:'me',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
+var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_wd:'home',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',me:'me',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
 function makeView(name,params){ var el=document.createElement('div'); el.className='view'; el.innerHTML=spin(); return {name:name,params:params||{},el:el,state:{}}; }
 function reanim(v){ if(!v||!v.el) return; v.el.classList.remove('anim'); void v.el.offsetWidth; v.el.classList.add('anim'); clearTimeout(v._at); v._at=setTimeout(function(){ v.el.classList.remove('anim'); },900); }
 function mount(v){ $('stage').insertBefore(v.el,$('back')); reanim(v); try{ viewOf(v.name).render(v); }catch(e){ v.el.innerHTML=errBox(e); } }
@@ -1281,20 +1307,7 @@ function swTorch(btn,offLabel,onLabel){ if(!swTrack) return; var on=btn.classLis
 function swCamErr(err){ var n=err&&err.name||''; return n==='NotAllowedError'?'카메라 권한이 필요합니다':(n==='NotFoundError'?'이 기기에 카메라가 없어요.':'카메라를 열 수 없습니다: '+n); }
 
 /* ================= 홈 ================= */
-VIEWS.sw_home={ render:function(v){ reanim(v); v.onResume=function(){ VIEWS.sw_home.render(v); };
-  var d=todayISO(0); var draft=lsGet('report:'+d); var rs=(draft&&draft.ranges||[]).filter(function(r){ return r.text&&r.text.trim(); });
-  var photos=swPhotos(); var today=photos.filter(function(p){ return swSameDay(p.ts); }).length; var qrN=swQrList().length;
-  var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span class="hlogo">'+LOGO_SWING+'</span>스윙과사람들 작업</h1><div class="muted" style="margin-top:4px;font-weight:600">작업자: '+esc(worker||'이름 없음')+'</div></div>';
-  h+='<div class="swbtns">'+
-     '<button style="background:#1565c0" onclick="push(\'sw_cam\',{kind:\'battery\'})"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="16" height="10" rx="2"/><path d="M19 10h2v4h-2M7 10v4M11 10v4"/></svg>배터리 사진</button>'+
-     '<button style="background:#00838f" onclick="push(\'sw_cam\',{kind:\'vehicle\'})"><svg viewBox="0 0 24 24"><path d="M5 17h14l-1-6H6zM6 11l2-4h8l2 4"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>차량 사진</button>'+
-     '<button style="background:#2e7d32" onclick="push(\'sw_qr\',{})"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 12h8"/></svg>QR 스캔<small>'+qrN+'개 기록</small></button>'+
-     '<button style="background:#5d4037" onclick="push(\'sw_gallery\',{})"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg>사진모음<small>Slack 공유하기 · '+photos.length+'/'+SW_MAX_PHOTOS+'장</small></button></div>';
-  h+='<div class="card" style="margin-top:14px"><div class="field-row"><h3>오늘 업무보고</h3><button class="edit" onclick="push(\'report\',{})">'+(draft&&draft.cfg?'이어서 쓰기':'시작')+'</button></div>';
-  if(!draft||!draft.cfg) h+='<p class="muted" style="margin:4px 0 0">업무시간을 정하고 시간대별로 적어요.</p>';
-  else h+='<p class="muted" style="margin:4px 0 0">'+esc(draft.cfg.start)+' ~ '+pad2(draft.cfg.end)+':00 · '+rs.length+'구간'+(draft.sentAt?' · '+esc(String(draft.sentAt).slice(11,16))+' 슬랙 전송됨':' · 아직 안 보냄')+'</p>';
-  h+='</div>';
-  v.el.innerHTML=h; }};
+/* (SWING 홈 = 작업내역 요약. 아래 "작업내역 (SWING 홈…)" 부분) */
 function swSameDay(ts){ var d=new Date(ts), n=new Date(); return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&d.getDate()===n.getDate(); }
 
 /* ================= 검색 (QR 기록 · 사진) ================= */
@@ -1365,105 +1378,184 @@ VIEWS.sw_extras={ render:function(v){ reanim(v);
   var mi=function(view,params,bg,fg,svg,b,s){ return '<button class="mitem" onclick="push(\''+view+'\','+params+')"><span class="mi em">'+svg+'</span><span class="mt"><b>'+b+'</b><span>'+s+'</span></span><span class="ar">›</span></button>'; };
   v.el.innerHTML=title('추가기능','SWING')+
     mi('report','{}','#e8f1ff','#2b6fe0','<svg viewBox="0 0 24 24" class="em"><rect x="3" y="4" width="18" height="17" rx="3" fill="#fff" stroke="#111" stroke-width="1.6"/><path d="M3 9.5h18V7a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3z" fill="#111"/><path d="M8 2.5v3.5M16 2.5v3.5" stroke="#111" stroke-width="1.8" stroke-linecap="round"/><rect x="6.5" y="12.5" width="3" height="3" rx=".6" fill="#111"/><rect x="10.5" y="12.5" width="3" height="3" rx=".6" fill="#111"/><rect x="14.5" y="12.5" width="3" height="3" rx=".6" fill="#111"/><rect x="6.5" y="16.5" width="3" height="2" rx=".6" fill="#111"/><rect x="10.5" y="16.5" width="3" height="2" rx=".6" fill="#111"/></svg>','업무보고','시간대별 업무 내용을 슬랙으로')+
-    mi('sw_work','{}','','','<svg viewBox="0 0 24 24" class="em"><rect x="4" y="3.5" width="16" height="18" rx="2.5" fill="#fff" stroke="#111" stroke-width="1.6"/><rect x="8.5" y="2" width="7" height="3.6" rx="1.2" fill="#111"/><path d="M7.4 10.6l1.5 1.5 2.7-2.8M7.4 16l1.5 1.5 2.7-2.8" fill="none" stroke="#2e9e4f" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.3 11h3.6M13.3 16.4h3.6" stroke="#111" stroke-width="1.7" stroke-linecap="round"/></svg>','작업자 작업내역','날짜별로 누가 어떤 작업을 했는지 · 슬랙')+
+    mi('sw_sum','{}','','','<svg viewBox="0 0 24 24" class="em"><rect x="3" y="3.5" width="18" height="17" rx="2" fill="#fff" stroke="#1f9d55" stroke-width="1.7"/><path d="M3 8.5h18M3 13.5h18M9 3.5v17M15 3.5v17" stroke="#1f9d55" stroke-width="1.4"/><path d="M3 3.5h18v5H3z" fill="#1f9d55"/></svg>','작업 현황정리','확인한 작업 → 사무실용 시트 · 엑셀로 받기')+
     mi('sw_cam','{kind:\'battery\'}','#e3edfb','#1565c0','<svg viewBox="0 0 24 24" class="em"><rect x="9.5" y="1.5" width="5" height="2.2" rx=".8" fill="#111"/><rect x="5" y="3.5" width="14" height="19" rx="3" fill="#fff" stroke="#111" stroke-width="1.7"/><rect x="7.5" y="6.2" width="9" height="3.6" rx="1" fill="#2ecc40"/><rect x="7.5" y="10.6" width="9" height="3.6" rx="1" fill="#ff9f1a"/><rect x="7.5" y="15" width="9" height="3.6" rx="1" fill="#ff3b30"/></svg>','배터리 사진','S9·W9·I9 수량을 사진에 찍어 저장')+
     mi('sw_cam','{kind:\'vehicle\'}','#e0f4f6','#00838f','<svg viewBox="0 0 24 24" class="em"><path d="M3.5 13.5 5.8 8.2A2 2 0 0 1 7.6 7h8.8a2 2 0 0 1 1.8 1.2l2.3 5.3v4.3a1.2 1.2 0 0 1-1.2 1.2H4.7a1.2 1.2 0 0 1-1.2-1.2z" fill="#e53935" stroke="#9f1d1a" stroke-width="1"/><path d="M6.4 12.5 7.9 9h8.2l1.5 3.5z" fill="#cfe8ff"/><circle cx="7.3" cy="18.6" r="2.4" fill="#111"/><circle cx="16.7" cy="18.6" r="2.4" fill="#111"/><circle cx="7.3" cy="18.6" r=".9" fill="#ddd"/><circle cx="16.7" cy="18.6" r=".9" fill="#ddd"/><rect x="4.2" y="14" width="2.4" height="1.4" rx=".6" fill="#ffd54f"/><rect x="17.4" y="14" width="2.4" height="1.4" rx=".6" fill="#ffd54f"/></svg>','차량 사진','차량번호를 사진에 찍어 저장')+
     mi('sw_qr','{}','#e6f4ea','#2e7d32','<svg viewBox="0 0 24 24" class="em"><g fill="#111"><path d="M3 3h8v8H3zm2 2v4h4V5zm1 1h2v2H6z"/><path d="M13 3h8v8h-8zm2 2v4h4V5zm1 1h2v2h-2z"/><path d="M3 13h8v8H3zm2 2v4h4v-4zm1 1h2v2H6z"/><path d="M13 13h2v2h-2zm4 0h4v2h-4zm-4 4h2v4h-2zm4 0h2v2h-2zm2 2h2v2h-2zm-6-2h2v2h-2z"/></g></svg>','QR 스캔','기기 QR에서 시리얼번호 수집·복사')+
     mi('sw_gallery','{}','#efe7e3','#5d4037','<svg viewBox="0 0 24 24" class="em"><rect x="2.5" y="4" width="19" height="16" rx="2.5" fill="#7ec8ff" stroke="#111" stroke-width="1.5"/><circle cx="16.5" cy="9" r="2" fill="#ffd54f"/><path d="M4 18.5l5-6 3.5 4 2.5-2.5 5 4.5z" fill="#2e9e4f"/><path d="M4 18.5l5-6 3.5 4 1.5-1.6" fill="#1e7d3a"/></svg>','사진모음','찍은 사진 보기 · Slack 공유 · 삭제')+
     (AUTH&&AUTH.admin?mi('sw_workers','{}','','','<svg viewBox="0 0 24 24" class="em"><circle cx="9" cy="8" r="3.6" fill="#ffcc80" stroke="#111" stroke-width="1.5"/><path d="M2.8 20c.4-3.6 3-5.8 6.2-5.8s5.8 2.2 6.2 5.8z" fill="#5c6bc0" stroke="#111" stroke-width="1.5" stroke-linejoin="round"/><circle cx="17" cy="8.8" r="2.8" fill="#ffe0b2" stroke="#111" stroke-width="1.4"/><path d="M15.6 13.5c.4-.1.9-.1 1.4-.1 2.6 0 4.6 1.8 4.9 4.6h-4.4" fill="#9fa8da" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>','작업자 관리','관리자 전용 · 작업내역에 모을 컬렉터 아이디'):''); }};
 
-/* ================= 작업자 작업내역 (어드민 기기 기록 → 날짜별·작업자별, 슬랙) ================= */
-/* 서버(Swing.gs)가 어드민 "킥보드 전체 기록"에서 관리자가 등록한 작업자 아이디의 기록만 모아 둔 걸 날짜별로 보여준다.
+/* ================= 작업내역 (SWING 홈 · 작업자 세부 · 작업 현황정리) ================= */
+/* 서버(Swing.gs)가 어드민 "킥보드 전체 기록"에서 관리자가 등록한 작업자의 기록만 모아, 작업자·QR마다 분류해서 준다:
+   재배치수거됨+배터리 교체+배치됨 = 교체 후 재배치 / 배터리 교체만 = 배터리 교체 / 재배치수거됨+배치됨 = 재배치 / 재배치수거됨만 = 고장수거 OR 작업실수 / 배치됨만 = 배치.
+   같은 QR은 한 번만. 교체했는데 교체 직후 배터리가 40% 미만이면 확인필요_작업실수.
+   홈(어제 기본) → 작업자 버튼 → 세부. 세부에서 슬랙 전송·내용 복사를 하면 "확인함"(버튼 회색) + 작업 현황정리 시트에 반영.
    아직 안 받은 날짜는 서버가 10초씩 받아 {pending, progress}를 주고, 여기서 이어서 호출한다. 최근 1년까지. */
-var swWorkMem={};   // {date:{t,res}} 다시 열 때 바로 보여주기용 (2분)
+var SW_CATS=[['swap','배터리 교체'],['swapRe','교체 후 재배치'],['re','재배치'],['fault','고장수거 OR 작업실수'],['place','배치']], SW_CHECK='확인필요_작업실수', SW_MODELS=['S9','W9','I9'];
+var swDayMem={};   // {date:{t,res}} 홈·세부가 같이 쓰는 캐시 (2분)
 function swWorkMin(){ return todayISO(-365); }
-VIEWS.sw_work={ render:function(v){ reanim(v); v.state.date=v.state.date||todayISO(0); v.state.sel=v.state.sel||'all'; v.state.note=v.state.note||'';
-  v.refresh=function(){ return swWorkLoad(v,v.state.date,true); };
-  v.onResume=function(){ if(v.state.stale||!swWorkMem[v.state.date]){ v.state.stale=false; swWorkLoad(v,v.state.date,false); } };   // 작업자 관리에서 바꾸고 돌아오면 다시 불러오기
-  swWorkLoad(v,v.state.date,false); }};
-function swWorkHead(v,sub){ return title('작업자 작업내역',sub||fmtDateK(v.state.date))+swWorkDays(v); }
-function swWorkDays(v){ var d=v.state.date, days=[]; for(var i=0;i<7;i++) days.push(todayISO(-i)); if(days.indexOf(d)<0) days.push(d);
-  return '<div class="days">'+days.map(function(x){ return '<button class="'+(x===d?'on':'')+'" onclick="swWorkGo(\''+x+'\')">'+dayLabel(x)+'</button>'; }).join('')+'</div>'+
-    '<input type="date" class="input" style="margin-bottom:12px" value="'+esc(d)+'" min="'+swWorkMin()+'" max="'+todayISO(0)+'" onchange="swWorkGo(this.value)">'; }
-function swWorkGo(date){ var v=stack[stack.length-1]; if(!v||v.name!=='sw_work'||!date) return;
+function swIsDayView(v){ return v&&((v.name==='home'&&SERVER==='swing')||v.name==='sw_wd'); }
+/* 작업자가 바뀌면 캐시를 비우고, 열려 있는 홈·세부는 맨 위면 바로, 아래 깔려 있으면 돌아올 때 다시 불러오게 */
+function swWorkInvalidate(){ swDayMem={}; var top=stack[stack.length-1];
+  stack.forEach(function(v){ if(!swIsDayView(v)) return; if(v===top) swDayLoad(v,v.state.date,true); else v.state.stale=true; }); }
+function swDays(v){ var d=v.state.date, days=[]; for(var i=1;i<=7;i++) days.push(todayISO(-i)); days.unshift(todayISO(0)); if(days.indexOf(d)<0) days.push(d);
+  return '<div class="days">'+days.map(function(x){ return '<button class="'+(x===d?'on':'')+'" onclick="swDayGo(\''+x+'\')">'+dayLabel(x)+'</button>'; }).join('')+'</div>'+
+    '<input type="date" class="input" style="margin-bottom:12px" value="'+esc(d)+'" min="'+swWorkMin()+'" max="'+todayISO(0)+'" onchange="swDayGo(this.value)">'; }
+function swDayGo(date){ var v=stack[stack.length-1]; if(!v||!swIsDayView(v)||v.name!=='home'||!date) return;
   if(date<swWorkMin()||date>todayISO(0)){ toast('최근 1년 안의 날짜만 볼 수 있어요'); var inp=v.el.querySelector('input[type=date]'); if(inp) inp.value=v.state.date; return; }
   if(date===v.state.date&&v.state.res&&v.state.res.date===date) return;   // 보고 있는 날짜를 또 누른 경우 (다시 받으려면 당겨서 새로고침)
-  haptic(6); v.state.sel='all'; resetCount(v); swWorkLoad(v,date,false); }
+  v.state.auto=(date===todayISO(-1));   // 어제를 고르면 자정 지나도 계속 "어제"
+  haptic(6); resetCount(v); swDayLoad(v,date,false); }
+function swDayHead(v){ return v.name==='sw_wd' ? title('작업자',fmtDateK(v.state.date)) : swHomeHello(v,null)+swDays(v); }
+function swDayDraw(v,quiet){ if(v.name==='sw_wd') swWdDraw(v,quiet); else swHomeDraw(v,quiet); }
 function swWorkProg(v,p){ var s=v.el.querySelector('.loadlogo > span:not(.slogo)'); if(s) s.textContent='어드민 기록 받는 중 · '+Math.max(1,Math.min(99,Math.round((p||0)*100)))+'%'; }
-function swWorkLoad(v,date,force){ v.state.date=date; var tok=v.state.tok=(v.state.tok||0)+1; var c=swWorkMem[date];
-  if(!force&&c&&Date.now()-c.t<120000){ v.state.res=c.res; swWorkDraw(v); return Promise.resolve(); }
-  var keep=force&&v.state.res&&v.state.res.date===date;   // 당겨서 새로고침: 지금 화면은 그대로 두고 뒤에서 받기
-  if(!keep) v.el.innerHTML=swWorkHead(v)+spin('어드민 기록을 불러오는 중');
+function swDayLoad(v,date,force){ v.state.date=date; var tok=v.state.tok=(v.state.tok||0)+1; var c=swDayMem[date];
+  if(!force&&c&&Date.now()-c.t<120000){ v.state.res=c.res; swDayDraw(v); return Promise.resolve(); }
+  var keep=force&&v.state.drawn&&v.state.res&&v.state.res.date===date;   // 당겨서 새로고침: 지금 보이는 화면은 그대로 두고 뒤에서 받기 (로딩·오류 화면이면 keep 안 함)
+  if(!keep){ v.state.drawn=false; v.el.innerHTML=swDayHead(v)+spin('어드민 기록을 불러오는 중'); }
   var fails=0, steps=0;
   function alive(){ return stack.indexOf(v)>=0&&v.state.tok===tok; }
   function fail(e){ if(!alive()) return; if(keep){ toast(e&&e.message||'불러오기 실패'); return; }
-    v.el.innerHTML=swWorkHead(v)+errBox(e)+'<button class="btn line" onclick="swWorkLoad(stack[stack.length-1],\''+date+'\',false)">다시 시도</button>'; }
+    v.state.drawn=false; v.el.innerHTML=swDayHead(v)+errBox(e)+'<button class="btn line" onclick="swDayLoad(stack[stack.length-1],\''+date+'\',false)">다시 시도</button>'; }
   function step(){ if(++steps>40) return fail(new Error('기록을 받는 데 너무 오래 걸려요. 잠시 뒤 다시 열어 주세요.'));
     return run('swingWorkDay',date).then(function(res){ if(!alive()) return;
       if(!res||res.ok===false) return fail(new Error(res&&res.error||'서버 오류'));
-      if(res.pending){ fails=0; if(keep){ keep=false; v.el.innerHTML=swWorkHead(v)+spin('어드민 기록 받는 중'); } swWorkProg(v,res.progress); return step(); }   // 오래 걸리면 진행률이 보이게
-      swWorkMem[date]={t:Date.now(),res:res}; v.state.res=res; swWorkDraw(v); })
+      if(res.pending){ fails=0; if(keep){ keep=false; v.state.drawn=false; v.el.innerHTML=swDayHead(v)+spin('어드민 기록 받는 중'); } swWorkProg(v,res.progress); return step(); }   // 오래 걸리면 진행률이 보이게
+      swDayMem[date]={t:Date.now(),res:res}; v.state.res=res; swDayDraw(v); })
     .catch(function(e){ if(!alive()) return; if(e&&e.auth===false) return; if(++fails<=2) return step(); return fail(e); }); }
   return step(); }
-function swWorkShown(v){ var ws=(v.state.res&&v.state.res.workers)||[]; var sel=v.state.sel;
-  if(sel!=='all'&&!ws.some(function(w){ return w.key===sel; })) sel=v.state.sel='all';
-  return sel==='all'?ws:ws.filter(function(w){ return w.key===sel; }); }
-function swWorkDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res||{}, d=v.state.date, ws=res.workers||[], admin=!!(AUTH&&AUTH.admin);
-  var keepNote=$('swk_note')?$('swk_note').value:v.state.note; v.state.note=keepNote;
-  var h=swWorkHead(v,fmtDateK(d)+(res.updated?' · '+esc(res.updated)+' 기준':''));
-  if(res.noWorkers){ v.el.innerHTML=h+'<div class="card"><div class="empty">아직 등록된 작업자가 없어요.<br>'+(admin?'작업자 관리에서 컬렉터 아이디를 넣어 주세요.':'관리자에게 작업자 등록을 요청해 주세요.')+'</div>'+
-    (admin?'<button class="btn" onclick="push(\'sw_workers\',{})">작업자 관리</button>':'')+'</div>'; return; }
-  var shown=swWorkShown(v), one=v.state.sel!=='all'?shown[0]:null;
-  var total=shown.reduce(function(s,w){ return s+w.count; },0);
-  var types=one?one.types:(res.types||[]);
-  var busy=ws.filter(function(w){ return w.count; });
-  h+='<div class="card sum"><div class="lb">'+(d===todayISO(0)?'오늘':fmtDateK(d))+' · '+(one?esc(one.name):'작업자 '+busy.length+'명')+'</div><div class="big">'+(quiet?'<b class="num">'+total+'</b>':num(total,'swk'))+'<span>건</span></div>'+
-    (types.length?'<div class="brk">'+types.map(function(t){ return '<span>'+esc(t.label)+'<b>'+t.count+'</b></span>'; }).join('')+'</div>':'')+'</div>';
-  if(ws.length>1) h+='<div class="chips" style="margin:0 0 14px"><button class="'+(one?'':'on')+'" onclick="swWorkSel(\'all\')">전체</button>'+
-    ws.map(function(w){ return '<button class="'+(one&&one.key===w.key?'on':'')+'" onclick="swWorkSel(\''+w.key+'\')">'+esc(w.name)+(w.count?' '+w.count:'')+'</button>'; }).join('')+'</div>';
-  var cards=shown.filter(function(w){ return w.count; });
-  if(!cards.length) h+='<div class="card"><div class="empty">'+(one?'이 날 '+esc(one.name)+'님의 기록이 없어요.':'이 날 등록된 작업자의 기록이 없어요.')+'</div></div>';
-  cards.forEach(function(w){ h+=swWorkCard(w); });
-  var idle=one?[]:ws.filter(function(w){ return !w.count; });
-  if(idle.length&&cards.length) h+='<p class="muted" style="margin:-4px 4px 14px;font-size:13px">기록 없음 · '+idle.map(function(w){ return esc(w.name); }).join(', ')+'</p>';
-  h+='<div class="card"><h3>슬랙으로 보내기</h3><textarea class="input" id="swk_note" placeholder="특이사항 (없으면 비워두세요)" oninput="swWorkNote(this.value)">'+esc(keepNote)+'</textarea>'+
-    '<button class="btn" style="margin-top:12px" onclick="swWorkSendAsk()"'+(total?'':' disabled')+'><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>슬랙으로 보내기</button>'+
-    '<button class="btn line" style="margin-top:8px" onclick="swWorkCopy()"'+(total?'':' disabled')+'>내용 복사</button>'+
-    '<p class="muted" style="margin:12px 0 0;font-size:13px;text-align:center">'+fmtDateK(d)+' · '+(one?esc(one.name):'전체 작업자')+' '+total+'건이 전송돼요.</p></div>';
-  v.el.innerHTML=h; if(!quiet) countUp(v.el); }
-function swWorkCard(w){ var h='<div class="card"><h3 class="wkt"><span>'+esc(w.name)+(w.branch?'<span class="chip gray">'+esc(w.branch)+'</span>':'')+'</span><b>'+w.count+'건</b></h3>';
-  (w.types||[]).forEach(function(t){ var its=w.items.filter(function(it){ return it.type===t.type; });
-    h+='<div class="wkg"><div class="wkh"><b>'+esc(t.label)+'</b><span>'+its.length+'</span></div><div class="wkq">'+its.map(function(it){
-      return '<div'+(it.title?' title="'+esc(it.title)+'"':'')+'><b>'+esc(it.qr||it.imei||'-')+'</b><i>'+esc(it.time)+'</i>'+(it.title?'<small>'+esc(it.title)+'</small>':'')+'</div>'; }).join('')+'</div></div>'; });
-  return h+'</div>'; }
-function swWorkSel(key){ var v=stack[stack.length-1]; if(!v||v.name!=='sw_work'||v.state.sel===key) return; haptic(6); v.state.sel=key; swWorkDraw(v,true); }
-function swWorkNote(val){ var v=stack[stack.length-1]; if(v&&v.name==='sw_work') v.state.note=val; }
-function swWorkText(v){ var shown=swWorkShown(v).filter(function(w){ return w.count; }); var one=v.state.sel!=='all';
-  var total=shown.reduce(function(s,w){ return s+w.count; },0); var note=String($('swk_note')?$('swk_note').value:(v.state.note||'')).trim();
-  var lines=['['+fmtDateK(v.state.date)+' SWING 작업내역] '+(one?'':'작업자 '+shown.length+'명 · ')+'총 '+total+'건'];
-  shown.forEach(function(w){ lines.push(''); lines.push('■ '+w.name+(w.branch?' ('+w.branch+')':'')+' '+w.count+'건');
-    (w.types||[]).forEach(function(t){ var its=w.items.filter(function(it){ return it.type===t.type; });
-      lines.push('- '+t.label+' '+its.length+': '+its.map(function(it){ return (it.qr||it.imei||'-')+' '+it.time+(it.title?'('+it.title+')':''); }).join(', ')); }); });
-  if(note){ lines.push(''); lines.push('■ 특이사항'); lines.push(note); }
-  return lines.join('\n'); }
-function swWorkCopy(){ var v=stack[stack.length-1]; if(!v||v.name!=='sw_work') return; var t=swWorkText(v);
-  var done=function(){ toast('복사했어요. 슬랙에 붙여넣기 하세요'); };
+
+/* ---- 홈: 날짜 요약 + 작업자 버튼 ---- */
+VIEWS.sw_home={ render:function(v){ reanim(v); if(!v.state.date){ v.state.date=todayISO(-1); v.state.auto=true; }   // 전날 기준 (auto = 사용자가 날짜를 고르지 않음)
+  v.refresh=function(){ if(swHomeRoll(v)) return Promise.resolve(); return swDayLoad(v,v.state.date,true); };
+  v.onResume=function(){ if(swHomeRoll(v)) return; if(v.state.stale||!swDayMem[v.state.date]){ v.state.stale=false; swDayLoad(v,v.state.date,false); } else { v.state.res=swDayMem[v.state.date].res; swHomeDraw(v); } };   // 세부에서 확인하고 돌아오면 회색으로
+  swDayLoad(v,v.state.date,false); }};
+/* 앱을 켜 둔 채 자정이 지나면 "어제"를 새 어제로 (사용자가 직접 고른 날짜면 그대로) */
+function swHomeRoll(v){ if(!v.state.auto||v.state.date===todayISO(-1)) return false; resetCount(v); swDayLoad(v,todayISO(-1),false); return true; }
+document.addEventListener('visibilitychange',function(){ if(document.hidden) return; var v=stack[stack.length-1]; if(v&&v.name==='home'&&SERVER==='swing'&&stack.length===1) swHomeRoll(v); });
+function swHomeHello(v,res){ var d=v.state.date, busy=0, un=0;
+  if(res&&res.workers){ res.workers.forEach(function(w){ if(w.count){ busy++; if(!w.confirmed) un++; } }); }
+  return '<div class="hello"><div class="date"><span class="hlogo">'+LOGO_SWING+'</span> 스윙과사람들 작업</div>'+
+    '<h1 class="swt">'+fmtDateK(d)+(res&&!res.noWorkers?' · 작업자 '+busy+'명':'')+'</h1>'+
+    (res&&!res.noWorkers ? (un?'<div class="swwarn">⚠️ 작업내역 미확인 '+un+'명</div>':(busy?'<div class="swok">✓ 모두 확인했어요</div>':'')) : '')+'</div>'; }
+function swCatBrk(c,cls){ var h=SW_CATS.filter(function(x){ return c[x[0]]; }).map(function(x){ return '<span>'+x[1]+'<b>'+c[x[0]]+'</b></span>'; }).join('');
+  if(c.check) h+='<span class="ck">⚠️'+SW_CHECK+'<b>'+c.check+'</b></span>'; return h?'<div class="brk'+(cls||'')+'">'+h+'</div>':''; }
+function swHomeDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res||{}, d=v.state.date, ws=res.workers||[], admin=!!(AUTH&&AUTH.admin);
+  var h=swHomeHello(v,res)+swDays(v);
+  if(res.noWorkers){ v.el.innerHTML=h+'<div class="card"><div class="empty">아직 등록된 작업자가 없어요.<br>'+(admin?'추가기능 → 작업자 관리에서 컬렉터 아이디를 넣어 주세요.':'관리자에게 작업자 등록을 요청해 주세요.')+'</div>'+
+    (admin?'<button class="btn" onclick="push(\'sw_workers\',{})">작업자 관리</button>':'')+'</div>'; v.state.drawn=true; return; }
+  var busy=ws.filter(function(w){ return w.count; }), idle=ws.filter(function(w){ return !w.count; });
+  h+='<div class="card sum"><div class="lb">'+(d===todayISO(0)?'오늘':d===todayISO(-1)?'어제':fmtDateK(d))+' 작업'+(res.updated?' · '+esc(res.updated)+' 기준':'')+'</div><div class="big">'+num(res.total||0,'swh')+'<span>건</span></div>'+swCatBrk(res.cats||{})+'</div>';
+  h+='<div class="card"><h3>작업자별</h3>';
+  if(!busy.length) h+='<div class="empty" style="padding:18px 0">이 날 등록된 작업자의 기록이 없어요.</div>';
+  else {
+    if(busy.some(function(w){ return w.confirmed; })&&!lsGet('sw_tip_off')) h+='<div class="tipb" id="swtip">회색 버튼은 슬랙 전송이나 내용 복사로 <b>확인한 작업자</b>예요. 다시 눌러서 볼 수 있어요.<button onclick="swTipOff()" aria-label="닫기">×</button></div>';
+    h+='<div class="wkbtns">'+busy.map(function(w){ return '<button class="wkb'+(w.confirmed?' done':'')+'" onclick="swOpenWorker(\''+esc(w.key)+'\')"><b>'+esc(w.name)+'</b><span>'+w.count+'건'+(w.branch?' · '+esc(w.branch):'')+'</span>'+
+      (w.confirmed?'<i class="ck">✓ 확인</i>':'')+(w.cats&&w.cats.check?'<i class="lw">⚠️ '+w.cats.check+'</i>':'')+'</button>'; }).join('')+'</div>';
+  }
+  if(idle.length) h+='<p class="muted" style="margin:12px 2px 0;font-size:13px">기록 없음 · '+idle.map(function(w){ return esc(w.name); }).join(', ')+'</p>';
+  h+='</div>';
+  v.el.innerHTML=h; v.state.drawn=true; if(!quiet) countUp(v.el); }
+function swTipOff(){ lsSet('sw_tip_off',1); var t=$('swtip'); if(t) t.remove(); }
+function swOpenWorker(key){ var v=stack[stack.length-1]; if(!v) return; push('sw_wd',{date:v.state.date,key:key}); }
+
+/* ---- 작업자 세부: 기종 탭(전체/S9/W9/I9) + 분류 탭 + 슬랙·복사(= 확인) ---- */
+VIEWS.sw_wd={ render:function(v){ reanim(v); v.state.date=v.params.date; v.state.key=v.params.key; v.state.model=v.state.model||'all'; v.state.note=v.state.note||'';
+  v.refresh=function(){ return swDayLoad(v,v.state.date,true); };
+  v.onResume=function(){ if(v.state.stale||!swDayMem[v.state.date]){ v.state.stale=false; swDayLoad(v,v.state.date,false); } };
+  var c=swDayMem[v.state.date]; if(c){ v.state.res=c.res; swWdDraw(v); if(v.state.date===todayISO(0)&&Date.now()-c.t>120000) swDayLoad(v,v.state.date,true); }   // 오늘인데 받은 지 2분 넘었으면 뒤에서 새로
+  else swDayLoad(v,v.state.date,false); }};
+function swWdWorker(v){ var ws=(v.state.res&&v.state.res.workers)||[]; return ws.filter(function(w){ return w.key===v.state.key; })[0]||null; }
+function swWdTasks(v,w){ var m=v.state.model; return (w.tasks||[]).filter(function(t){ return m==='all'||(t.m||'기타')===m; }); }
+function swWdDraw(v,quiet){ if(!quiet) reanim(v); var d=v.state.date, w=swWdWorker(v);
+  if(!w){ v.el.innerHTML=title('작업자',fmtDateK(d))+'<div class="card"><div class="empty">이 작업자를 찾을 수 없어요.<br>작업자 관리에서 빠졌을 수 있어요.</div></div>'; v.state.drawn=true; return; }
+  var keepNote=$('wd_note')?$('wd_note').value:v.state.note; v.state.note=keepNote;
+  var models=SW_MODELS.slice(); Object.keys(w.models||{}).forEach(function(m){ if(models.indexOf(m)<0) models.push(m); });
+  if(v.state.model!=='all'&&models.indexOf(v.state.model)<0) v.state.model='all';
+  var ts=swWdTasks(v,w), cnt={}; SW_CATS.forEach(function(c){ cnt[c[0]]=0; }); ts.forEach(function(t){ cnt[t.c]++; }); var low=ts.filter(function(t){ return t.low; });
+  var cat=v.state.cat; if(!cat||(cat==='check'?!low.length:!cnt[cat])){ cat=(SW_CATS.filter(function(c){ return cnt[c[0]]; })[0]||[low.length?'check':'swap'])[0]; v.state.cat=cat; }
+  var h=title(esc(w.name),fmtDateK(d)+(w.branch?' · '+esc(w.branch):''));
+  h+=w.confirmed?'<div class="wdst ok">✓ '+esc(w.confirmed.by||'')+' · '+esc(String(w.confirmed.at||'').slice(5))+' '+({'슬랙':'슬랙 전송으로','복사':'내용 복사로'}[w.confirmed.method]||esc(w.confirmed.method||''))+' 확인함</div>'
+                :'<div class="wdst un">⚠️ 미확인 · 슬랙 전송이나 내용 복사를 하면 확인돼요</div>';
+  h+='<div class="seg mseg">'+['all'].concat(models).map(function(m){ var n=m==='all'?(w.tasks||[]).length:((w.models||{})[m]||0);
+    return '<button class="'+(v.state.model===m?'on':'')+(n?'':' z')+'" onclick="swWdModel(\''+esc(m)+'\')">'+(m==='all'?'전체':esc(m))+'<b>'+n+'</b></button>'; }).join('')+'</div>';
+  h+='<div class="catbar">'+SW_CATS.map(function(c){ return '<button class="'+(cat===c[0]?'on':'')+(cnt[c[0]]?'':' z')+'" onclick="swWdCat(\''+c[0]+'\')">'+c[1]+'<b>'+cnt[c[0]]+'</b></button>'; }).join('')+
+    '<button class="ck'+(cat==='check'?' on':'')+(low.length?'':' z')+'" onclick="swWdCat(\'check\')">⚠️'+SW_CHECK+'<b>'+low.length+'</b></button></div>';
+  var list=cat==='check'?low:ts.filter(function(t){ return t.c===cat; });
+  var label=cat==='check'?SW_CHECK:SW_CATS.filter(function(c){ return c[0]===cat; })[0][1];
+  h+='<div class="card"><h3 class="wkt"><span>'+label+'</span><b>'+list.length+'건</b></h3>';
+  if(cat==='check') h+='<p class="muted" style="margin:-4px 0 12px;font-size:13px">배터리 교체·교체 후 재배치를 했는데 교체 직후 배터리가 '+40+'% 미만이에요. 작업 실수인지 확인해 주세요.</p>';
+  if(!list.length) h+='<div class="empty" style="padding:18px 0">없어요.</div>';
+  else h+='<div class="wkq">'+list.map(function(t){ var tm=t.t1+(t.t2&&t.t2!==t.t1?'~'+t.t2:'');
+    return '<div'+(t.low?' class="low"':'')+(t.n?' title="'+esc(t.n)+'"':'')+'><b'+(/^\d{12,}$/.test(t.q)?' class="im"':'')+'>'+esc(t.q)+'</b><i>'+esc(tm)+(v.state.model==='all'&&t.m?' · '+esc(t.m):'')+'</i>'+
+      (t.b!==null&&t.b!==undefined?'<em class="bt">🔋 '+esc(t.b)+'%'+(t.low?' ⚠️':'')+'</em>':'')+(cat==='check'?'<small>'+esc((SW_CATS.filter(function(c){ return c[0]===t.c; })[0]||['',''])[1])+'</small>':(t.n?'<small>'+esc(t.n)+'</small>':''))+'</div>'; }).join('')+'</div>';
+  h+='</div>';
+  var off=(!ts.length||v.state.sending)?' disabled':'';
+  h+='<div class="card wdsend"><h3>슬랙으로 보내기</h3><textarea class="input" id="wd_note" placeholder="특이사항 (없으면 비워두세요)" oninput="swWdNote(this.value)">'+esc(keepNote)+'</textarea>'+
+    '<button class="btn" style="margin-top:12px" onclick="swWdSendAsk()"'+off+'><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>슬랙으로 보내기</button>'+
+    '<button class="btn line" style="margin-top:8px" onclick="swWdCopy()"'+off+'>내용 복사</button>'+
+    '<p class="muted" style="margin:12px 0 0;font-size:13px;text-align:center">'+(v.state.model==='all'?'전체':esc(v.state.model))+' '+ts.length+'건 · 보내거나 복사하면 확인 표시돼요.</p></div>';
+  v.el.innerHTML=h; v.state.drawn=true; }
+function swWdView(){ var v=stack[stack.length-1]; return (v&&v.name==='sw_wd')?v:null; }
+function swWdModel(m){ var v=swWdView(); if(!v||v.state.model===m) return; haptic(6); v.state.model=m; v.state.cat=null; swWdDraw(v,true); }
+function swWdCat(c){ var v=swWdView(); if(!v||v.state.cat===c) return; haptic(6); v.state.cat=c; swWdDraw(v,true); }
+function swWdNote(val){ var v=swWdView(); if(v) v.state.note=val; }
+/* 복사·슬랙 공통 내용: "[날짜 · 이름]" 다음 분류별로 "배터리 교체_3" + QR 한 줄씩 (서버 swwReportLines_ 와 같은 모양) */
+function swWdText(v){ var w=swWdWorker(v); if(!w) return ''; var ts=swWdTasks(v,w), m=v.state.model, lines=[];
+  SW_CATS.forEach(function(c){ var qs=ts.filter(function(t){ return t.c===c[0]; }); if(!qs.length) return; if(lines.length) lines.push(''); lines.push(c[1]+'_'+qs.length); qs.forEach(function(t){ lines.push(t.q); }); });
+  var low=ts.filter(function(t){ return t.low; }); if(low.length){ lines.push(''); lines.push(SW_CHECK+'_'+low.length); low.forEach(function(t){ lines.push(t.q); }); }
+  var note=String($('wd_note')?$('wd_note').value:(v.state.note||'')).trim(); if(note){ lines.push(''); lines.push('특이사항'); lines.push(note); }
+  return '['+fmtDateK(v.state.date)+' · '+w.name+(w.branch?' ('+w.branch+')':'')+(m!=='all'?' · '+m:'')+']\n\n'+lines.join('\n'); }
+/* 확인 표시를 캐시(홈·세부가 같이 씀)에 반영: 이 화면이 들고 있는 결과와 지금 캐시의 결과 둘 다(당겨서 새로고침으로 바뀌었을 수 있음).
+   홈이 맨 위면 바로 다시 그리고, 아래 깔려 있으면 돌아올 때(onResume) 캐시로 다시 그림 */
+function swWdMark(v,conf){ if(!conf) return; var set=function(res){ ((res&&res.workers)||[]).forEach(function(w){ if(w.key===v.state.key) w.confirmed=conf; }); };
+  set(v.state.res); var c=swDayMem[v.state.date]; if(c) set(c.res);
+  var top=stack[stack.length-1];
+  if(top===v) swWdDraw(v,true);
+  else if(top&&top.name==='home'&&SERVER==='swing'&&top.state.date===v.state.date&&top.state.res&&top.state.drawn){ set(top.state.res); swHomeDraw(top,true); } }
+/* 보내는 중에는 슬랙·복사 버튼을 잠근다 (두 번 눌러 두 번 가는 것 방지) */
+function swWdBusy(v,on){ v.state.sending=on; [].forEach.call(v.el.querySelectorAll('.wdsend .btn'),function(b){ b.disabled=on; }); }
+function swWdCopy(){ var v=swWdView(); if(!v||v.state.sending) return; var t=swWdText(v); if(!t) return; var w=swWdWorker(v), all=(w&&w.tasks||[]).length;
+  var done=function(){ swWdBusy(v,true); toast('복사했어요 · 확인 표시하는 중…');
+    run('swingWorkConfirm',v.state.date,v.state.key,'복사',worker).then(function(res){ swWdBusy(v,false);
+      if(!res||!res.ok){ toast((res&&res.error)||'확인 표시 실패'); return; }
+      swWdMark(v,res.confirmed);
+      if(typeof res.count==='number'&&res.count!==all){ toast('그 사이 새 기록이 있어요. 다시 불러왔으니 한 번 더 복사해 주세요'); if(stack.indexOf(v)>=0) swDayLoad(v,v.state.date,true); return; }   // 복사한 내용과 시트에 적힌 숫자가 다르면
+      toast(res.sheetError?'복사·확인했어요 (현황정리 시트 오류: '+res.sheetError+')':'복사했어요 · '+(w?w.name:'')+' 확인 표시'); })
+      .catch(function(e){ swWdBusy(v,false); toast('복사는 됐는데 확인 표시 실패: '+e.message); }); };
   if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done,function(){ fallbackCopy(t); done(); }); else { fallbackCopy(t); done(); } }
-function swWorkSendAsk(){ var v=stack[stack.length-1]; if(!v||v.name!=='sw_work') return;
-  var shown=swWorkShown(v).filter(function(w){ return w.count; }); var total=shown.reduce(function(s,w){ return s+w.count; },0);
-  if(!total){ toast('보낼 작업이 없어요'); return; }
-  v.state.note=$('swk_note')?$('swk_note').value:v.state.note; var one=v.state.sel!=='all';
-  openSheet('<h3>슬랙으로 보낼까요?</h3><p>'+esc(fmtDateK(v.state.date))+' · '+(one?esc(shown[0].name):'작업자 '+shown.length+'명')+' · '+total+'건'+(String(v.state.note||'').trim()?' + 특이사항':'')+'</p>'+
-    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="flex:2" onclick="closeSheet(function(){ swWorkSendGo(); })">보내기</button></div>'); }
-function swWorkSendGo(){ var v=stack[stack.length-1]; if(!v||v.name!=='sw_work') return; var keys=v.state.sel==='all'?[]:[v.state.sel]; var note=String(v.state.note||'').trim(); haptic(12); toast('보내는 중…');
-  run('swingWorkSlack',v.state.date,keys,note).then(function(res){ $('toast').classList.remove('on');
-    if(res&&res.ok){ haptic([12,40,18]); toast('슬랙으로 보냈어요 ('+res.count+'건)'); v.state.note=''; if($('swk_note')) $('swk_note').value=''; return; }
-    if(res&&res.stale){ toast(res.error); if(stack.indexOf(v)>=0) swWorkLoad(v,v.state.date,true); return; }   // 밀린 기록이 많으면 화면을 새로 받아 보여주고 다시 보내게
-    if(res&&res.noHook){ openSheet('<h3>슬랙 연결이 아직 안 됐어요</h3><p>관리자가 Apps Script → 프로젝트 설정 → 스크립트 속성에 <b>SLACK_WORK_WEBHOOK</b>(작업내역 채널 Incoming Webhook 주소, 없으면 SLACK_WEBHOOK)을 넣으면 바로 전송돼요. 지금은 내용을 복사해서 붙여넣을 수 있어요.</p>'+
-      '<button class="btn" onclick="closeSheet();swWorkCopy()">내용 복사</button>'); return; }
-    toast((res&&res.error)||'전송 실패'); }).catch(function(e){ var msg=(e&&e.message)||String(e);
+function swWdSendAsk(){ var v=swWdView(); if(!v||v.state.sending) return; var w=swWdWorker(v); if(!w) return; var ts=swWdTasks(v,w); if(!ts.length){ toast('보낼 작업이 없어요'); return; }
+  var ta=v.el.querySelector('#wd_note'); v.state.note=ta?ta.value:v.state.note;
+  openSheet('<h3>슬랙으로 보낼까요?</h3><p>'+esc(fmtDateK(v.state.date))+' · '+esc(w.name)+(v.state.model!=='all'?' · '+esc(v.state.model):'')+' · '+ts.length+'건'+(String(v.state.note||'').trim()?' + 특이사항':'')+'<br>보내면 확인 표시돼요.</p>'+
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="flex:2" onclick="closeSheet(function(){ swWdSendGo(); })">보내기</button></div>'); }
+function swWdSendGo(){ var v=swWdView(); if(!v||v.state.sending) return; var note=String(v.state.note||'').trim(); haptic(12); swWdBusy(v,true); toast('보내는 중…');
+  run('swingWorkSlack',v.state.date,v.state.key,note,v.state.model,worker).then(function(res){ swWdBusy(v,false); $('toast').classList.remove('on');
+    if(res&&res.ok){ haptic([12,40,18]); v.state.note=''; var ta=v.el.querySelector('#wd_note'); if(ta) ta.value='';   // 이 화면의 칸만 비움 (다른 작업자 화면 칸은 건드리지 않게)
+      swWdMark(v,res.confirmed);
+      toast(res.confirmError?'슬랙으로 보냈어요 · 확인 표시는 실패 ('+res.confirmError+')':(res.sheetError?'보냈어요 (현황정리 시트 오류: '+res.sheetError+')':'슬랙으로 보냈어요 ('+res.count+'건) · 확인 표시')); return; }
+    if(res&&res.stale){ toast(res.error); if(stack.indexOf(v)>=0) swDayLoad(v,v.state.date,true); return; }   // 밀린 기록이 많으면 화면을 새로 받아 보여주고 다시 보내게
+    if(res&&res.noHook){ openSheet('<h3>슬랙 연결이 아직 안 됐어요</h3><p>관리자가 Apps Script → 프로젝트 설정 → 스크립트 속성에 <b>SLACK_WORK_WEBHOOK</b>(작업내역 채널 Incoming Webhook 주소, 없으면 SLACK_WEBHOOK)을 넣으면 바로 전송돼요. 지금은 내용 복사로 붙여넣을 수 있어요 (복사해도 확인 표시돼요).</p>'+
+      '<button class="btn" onclick="closeSheet();swWdCopy()">내용 복사</button>'); return; }
+    toast((res&&res.error)||'전송 실패'); }).catch(function(e){ swWdBusy(v,false); var msg=(e&&e.message)||String(e);
       if(/응답 없음|네트워크/.test(msg)) openSheet('<h3>응답이 늦어요</h3><p>서버에서는 보내졌을 수도 있어요. <b>슬랙 채널에 이미 올라왔는지 먼저 확인</b>한 뒤, 없으면 다시 보내 주세요.</p><button class="btn" onclick="closeSheet()">확인</button>');   // 다시 눌러 두 번 가는 것 방지
       else toast('전송 실패: '+msg); }); }
+
+/* ---- 작업 현황정리 (추가기능): 사무실용 시트 · 엑셀로 받기 ---- */
+VIEWS.sw_sum={ render:function(v){ reanim(v); v.refresh=function(){ return swSumLoad(v); };
+  v.el.innerHTML=title('작업 현황정리','확인한 작업자 기준 · 사무실용')+spin(); swSumLoad(v); }};
+function swSumLoad(v){ return run('swingWorkSummaryInfo').then(function(r){ if(stack.indexOf(v)<0) return;
+    if(!r||r.ok===false){ v.el.innerHTML=title('작업 현황정리','')+errBox(new Error((r&&r.error)||'오류')); return; } v.state.info=r; swSumDraw(v); })
+  .catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('작업 현황정리','')+errBox(e); }); }
+function swSumDraw(v){ var r=v.state.info||{}; reanim(v);
+  var h=title('작업 현황정리','확인한 작업자 기준 · 사무실용');
+  h+='<div class="tipb warn">이 시트는 <b>최대 1년</b> 동안 저장돼요 (1년 지난 줄은 매일 자동 삭제). <b>백업 필수</b> — 엑셀로 주기적으로 받아 두세요.</div>';
+  h+='<div class="card"><h3>시트</h3><p class="muted" style="margin:0 0 14px;line-height:1.6">작업자 세부에서 슬랙 전송이나 내용 복사로 <b>확인</b>하면 날짜·작업자·기종마다 한 줄이 생겨요. 다시 확인하면 숫자만 새로 고쳐지고, 사무실이 넣은 <b>조정(+/-)·비고</b>(노란 칸)는 그대로예요.</p>'+
+    '<a class="btn" style="text-decoration:none" href="'+esc(r.xlsx||'#')+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>엑셀로 받기 (.xlsx)</a>'+
+    '<a class="btn line" style="margin-top:8px;text-decoration:none" href="'+esc(r.url||'#')+'" target="_blank" rel="noopener">구글 시트 열기</a>'+
+    '<p class="muted" style="margin:12px 0 0;font-size:12.5px;line-height:1.5">받거나 열려면 그 구글 계정에 시트 파일이 공유돼 있어야 해요 (관리자가 파일 → 공유).</p></div>';
+  var rec=r.recent||[];
+  h+='<div class="card"><h3>최근 확인</h3>'+(rec.length?'<ul class="hist">'+rec.map(function(x){ return '<li><span><b>'+esc(x.date.slice(5))+' '+esc(x.name)+'</b> · '+esc(x.method)+'</span><span>'+esc(x.by)+' '+esc(String(x.at).slice(5))+'</span></li>'; }).join('')+'</ul>':'<div class="empty" style="padding:18px 0">아직 확인한 작업자가 없어요.</div>')+'</div>';
+  v.el.innerHTML=h; }
 
 /* ================= 작업자 관리 (관리자 전용) ================= */
 /* 작업내역에 모을 컬렉터 로그인 아이디(어드민 기기 기록의 "등록인")를 관리. 서버 시트 "SWING작업자" 탭에 저장된다. */
@@ -1480,9 +1572,6 @@ VIEWS.sw_workers={ render:function(v){ reanim(v);
 function swWkView(){ var v=stack[stack.length-1]; return (v&&v.name==='sw_workers')?v:null; }
 var swWkSeq=0, swWkDelId='', swWkBusy=0, swWkDropped=false, swWkDirty=false;   // 요청 순번(늦게 온 옛 목록은 버림), 삭제 확인 중인 아이디, 보내는 중인 변경 수, 버린 응답 있었나, 입력 중이라 못 그린 게 있나
 function swWkById(id){ return swWk.filter(function(w){ return w.id===id; })[0]||null; }
-/* 작업자가 바뀌면 작업내역 캐시를 비우고, 열려 있는 작업내역 화면은 맨 위면 바로, 아래 깔려 있으면 돌아올 때 다시 불러오게 */
-function swWorkInvalidate(){ swWorkMem={}; var top=stack[stack.length-1];
-  stack.forEach(function(v){ if(v.name!=='sw_work') return; if(v===top) swWorkLoad(v,v.state.date,true); else v.state.stale=true; }); }
 function swWkLoad(v){ var my=++swWkSeq; return run('swingWorkersList').then(function(r){ if(my!==swWkSeq) return; swWk=(r&&r.workers)||[]; swWkUrl=(r&&r.logUrl)||''; if(stack.indexOf(v)>=0) swWkDraw(); })
   .catch(function(e){ if(my!==swWkSeq||stack.indexOf(v)<0) return; if(swWk.length){ toast('불러오기 실패: '+e.message); return; } var el=$('swwk'); if(el) el.innerHTML='<p class="muted">'+esc(e.message)+'</p>'; }); }
 function swWkDraw(){ var el=$('swwk'); if(!el) return;
