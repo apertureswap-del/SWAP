@@ -1379,7 +1379,7 @@ var swWorkMem={};   // {date:{t,res}} 다시 열 때 바로 보여주기용 (2�
 function swWorkMin(){ return todayISO(-365); }
 VIEWS.sw_work={ render:function(v){ reanim(v); v.state.date=v.state.date||todayISO(0); v.state.sel=v.state.sel||'all'; v.state.note=v.state.note||'';
   v.refresh=function(){ return swWorkLoad(v,v.state.date,true); };
-  v.onResume=function(){ if(!swWorkMem[v.state.date]) swWorkLoad(v,v.state.date,false); };   // 작업자 관리에서 바꾸고 돌아오면(캐시 비워짐) 다시 불러오기
+  v.onResume=function(){ if(v.state.stale||!swWorkMem[v.state.date]){ v.state.stale=false; swWorkLoad(v,v.state.date,false); } };   // 작업자 관리에서 바꾸고 돌아오면 다시 불러오기
   swWorkLoad(v,v.state.date,false); }};
 function swWorkHead(v,sub){ return title('작업자 작업내역',sub||fmtDateK(v.state.date))+swWorkDays(v); }
 function swWorkDays(v){ var d=v.state.date, days=[]; for(var i=0;i<7;i++) days.push(todayISO(-i)); if(days.indexOf(d)<0) days.push(d);
@@ -1461,7 +1461,9 @@ function swWorkSendGo(){ var v=stack[stack.length-1]; if(!v||v.name!=='sw_work')
     if(res&&res.stale){ toast(res.error); if(stack.indexOf(v)>=0) swWorkLoad(v,v.state.date,true); return; }   // 밀린 기록이 많으면 화면을 새로 받아 보여주고 다시 보내게
     if(res&&res.noHook){ openSheet('<h3>슬랙 연결이 아직 안 됐어요</h3><p>관리자가 Apps Script → 프로젝트 설정 → 스크립트 속성에 <b>SLACK_WORK_WEBHOOK</b>(작업내역 채널 Incoming Webhook 주소, 없으면 SLACK_WEBHOOK)을 넣으면 바로 전송돼요. 지금은 내용을 복사해서 붙여넣을 수 있어요.</p>'+
       '<button class="btn" onclick="closeSheet();swWorkCopy()">내용 복사</button>'); return; }
-    toast((res&&res.error)||'전송 실패'); }).catch(function(e){ toast('전송 실패: '+(e&&e.message||e)); }); }
+    toast((res&&res.error)||'전송 실패'); }).catch(function(e){ var msg=(e&&e.message)||String(e);
+      if(/응답 없음|네트워크/.test(msg)) openSheet('<h3>응답이 늦어요</h3><p>서버에서는 보내졌을 수도 있어요. <b>슬랙 채널에 이미 올라왔는지 먼저 확인</b>한 뒤, 없으면 다시 보내 주세요.</p><button class="btn" onclick="closeSheet()">확인</button>');   // 다시 눌러 두 번 가는 것 방지
+      else toast('전송 실패: '+msg); }); }
 
 /* ================= 작업자 관리 (관리자 전용) ================= */
 /* 작업내역에 모을 컬렉터 로그인 아이디(어드민 기기 기록의 "등록인")를 관리. 서버 시트 "SWING작업자" 탭에 저장된다. */
@@ -1473,33 +1475,42 @@ VIEWS.sw_workers={ render:function(v){ reanim(v);
   v.el.innerHTML=title('작업자 관리','작업내역에 모을 컬렉터 아이디','<button class="hbtn" onclick="swWkAddAsk()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>추가</button>')+
     '<div class="card"><p class="muted" style="margin:0;font-size:13.5px;line-height:1.6">컬렉터 앱 로그인 아이디(어드민 기기 기록의 <b>등록인</b>과 같은 값)를 넣으면 그 사람이 한 작업이 날짜별로 모여요. 스위치를 끄면 작업내역에서 빠지고, 다시 켜면 꺼져 있던 동안의 기록도 다시 받아와요.</p></div>'+
     '<div class="card" id="swwk">'+spin()+'</div>';
+  $('swwk').addEventListener('focusout',function(){ setTimeout(function(){ if(swWkDirty) swWkDraw(); },0); });   // 입력 중이라 미뤄 둔 목록 다시 그리기
   swWkLoad(v); }};
 function swWkView(){ var v=stack[stack.length-1]; return (v&&v.name==='sw_workers')?v:null; }
-var swWkSeq=0, swWkDelId='';   // 요청 순번 (늦게 도착한 옛 응답의 목록은 버림), 삭제 확인 중인 작업자 아이디
+var swWkSeq=0, swWkDelId='', swWkBusy=0, swWkDropped=false, swWkDirty=false;   // 요청 순번(늦게 온 옛 목록은 버림), 삭제 확인 중인 아이디, 보내는 중인 변경 수, 버린 응답 있었나, 입력 중이라 못 그린 게 있나
 function swWkById(id){ return swWk.filter(function(w){ return w.id===id; })[0]||null; }
-function swWkLoad(v){ var my=++swWkSeq; return run('swingWorkersList').then(function(r){ if(my!==swWkSeq) return; swWk=(r&&r.workers)||[]; swWkUrl=(r&&r.logUrl)||''; if(stack.indexOf(v)>=0) swWkDraw(); }).catch(function(e){ var el=$('swwk'); if(el) el.innerHTML='<p class="muted">'+esc(e.message)+'</p>'; }); }
+/* 작업자가 바뀌면 작업내역 캐시를 비우고, 열려 있는 작업내역 화면은 맨 위면 바로, 아래 깔려 있으면 돌아올 때 다시 불러오게 */
+function swWorkInvalidate(){ swWorkMem={}; var top=stack[stack.length-1];
+  stack.forEach(function(v){ if(v.name!=='sw_work') return; if(v===top) swWorkLoad(v,v.state.date,true); else v.state.stale=true; }); }
+function swWkLoad(v){ var my=++swWkSeq; return run('swingWorkersList').then(function(r){ if(my!==swWkSeq) return; swWk=(r&&r.workers)||[]; swWkUrl=(r&&r.logUrl)||''; if(stack.indexOf(v)>=0) swWkDraw(); })
+  .catch(function(e){ if(my!==swWkSeq||stack.indexOf(v)<0) return; if(swWk.length){ toast('불러오기 실패: '+e.message); return; } var el=$('swwk'); if(el) el.innerHTML='<p class="muted">'+esc(e.message)+'</p>'; }); }
 function swWkDraw(){ var el=$('swwk'); if(!el) return;
-  var a=document.activeElement, keepId=null, keepVal='', keepSel=null;   // 다른 줄 이름을 입력하는 중에 목록이 다시 그려져도 입력한 글자·커서를 그대로 둔다
-  if(a&&a.tagName==='INPUT'&&el.contains(a)){ keepId=a.getAttribute('data-id'); keepVal=a.value; try{ keepSel=[a.selectionStart,a.selectionEnd]; }catch(e){} }
+  var a=document.activeElement; if(a&&a.tagName==='INPUT'&&el.contains(a)){ swWkDirty=true; return; }   // 이름을 입력하는 중이면 다시 그리지 않고, 칸을 벗어날 때 그린다 (입력 중 저장·날림 방지)
+  swWkDirty=false;
   if(!swWk.length){ el.innerHTML='<div class="empty">등록된 작업자가 없어요.<br>오른쪽 위 + 추가</div>'; return; }
   el.innerHTML='<h3 style="display:flex;justify-content:space-between;align-items:center">작업자 '+swWk.length+'명'+(swWkUrl?'<a class="more" style="text-decoration:none" href="'+esc(swWkUrl)+'" target="_blank" rel="noopener">기록 시트 ›</a>':'')+'</h3>'+swWk.map(function(w){ var id=esc(w.id);
     return '<div class="crow'+(w.active?'':' off')+'"><div class="cn"><div class="wid">'+id+'</div>'+
     '<input class="input" value="'+esc(w.name)+'" placeholder="이름 (예: 홍길동)" data-id="'+id+'" onchange="swWkName(this)" onkeydown="if(event.key===\'Enter\') this.blur()">'+
     '<div class="srvchips">'+SW_BRANCHES.map(function(b){ return '<button class="'+(w.branch===b?'on':'')+'" data-id="'+id+'" data-b="'+b+'" onclick="swWkBranch(this)">'+b+'</button>'; }).join('')+
     '<button class="wdel" data-id="'+id+'" onclick="swWkDelAsk(this)">삭제</button></div>'+(w.created?'<div class="cm">등록 '+esc(w.created)+'</div>':'')+'</div>'+
-    '<button class="sw'+(w.active?' on':'')+'" aria-label="사용" data-id="'+id+'" onclick="swWkToggle(this)"></button></div>'; }).join('');
-  if(keepId!==null){ var inp=[].filter.call(el.querySelectorAll('input[data-id]'),function(x){ return x.getAttribute('data-id')===keepId; })[0];
-    if(inp){ inp.value=keepVal; inp.focus(); try{ if(keepSel) inp.setSelectionRange(keepSel[0],keepSel[1]); }catch(e){} } } }
-function swWkAfter(res,msg,my){ swWorkMem={}; if(res&&res.workers&&my===swWkSeq){ swWk=res.workers; swWkDraw(); }
-  if(!res||!res.ok){ toast((res&&res.error)||'실패'); return; }
-  if(res.trigger===false){ toast('저장했어요. 15분 자동 수집은 편집기에서 installSwingWorkTrigger 를 한 번 실행해야 켜져요'); return; }
-  if(msg) toast(msg); }
-function swWkName(inp){ var w=swWkById(inp.getAttribute('data-id')); if(!w) return; var name=inp.value.trim(); if(name===w.name) return; w.name=name; var my=++swWkSeq;
-  run('swingWorkerUpdate',w.id,{name:name}).then(function(res){ swWkAfter(res,(name||w.id)+' 이름 저장',my); }).catch(function(e){ toast('저장 실패: '+e.message); }); }
-function swWkBranch(btn){ var w=swWkById(btn.getAttribute('data-id')), b=btn.getAttribute('data-b'); if(!w||w.branch===b) return; haptic(8); var old=w.branch; w.branch=b; swWkDraw(); var my=++swWkSeq;
-  run('swingWorkerUpdate',w.id,{branch:b}).then(function(res){ swWkAfter(res,(w.name||w.id)+' → '+b,my); }).catch(function(e){ w.branch=old; swWkDraw(); toast('변경 실패: '+e.message); }); }
-function swWkToggle(btn){ var w=swWkById(btn.getAttribute('data-id')); if(!w) return; var on=!w.active; w.active=on; btn.classList.toggle('on',on); btn.parentNode.classList.toggle('off',!on); haptic(8); var my=++swWkSeq;   // 바로 반영 (빠르게 두 번 눌러도 번갈아 보냄)
-  run('swingWorkerUpdate',w.id,{active:on}).then(function(res){ swWkAfter(res,(w.name||w.id)+(on?' 사용':' 사용 중지'),my); }).catch(function(e){ w.active=!on; swWkDraw(); toast('변경 실패: '+e.message); }); }
+    '<button class="sw'+(w.active?' on':'')+'" aria-label="사용" data-id="'+id+'" onclick="swWkToggle(this)"></button></div>'; }).join(''); }
+/* 변경 요청 공통: 보낼 때·받을 때 작업내역을 새로 고치고, 겹쳐 보낸 요청의 옛 응답을 버렸으면 다 끝난 뒤 서버 목록으로 다시 맞춘다 */
+function swWkSend(fn,args,msg,undo){ var my=++swWkSeq; swWkBusy++; swWorkInvalidate();
+  function end(){ if(--swWkBusy===0&&swWkDropped){ swWkDropped=false; var v=swWkView(); if(v) swWkLoad(v); } }
+  run.apply(null,[fn].concat(args)).then(function(res){ swWorkInvalidate();
+      if(res&&res.workers){ if(my===swWkSeq){ swWk=res.workers; swWkDraw(); } else swWkDropped=true; }
+      if(!res||!res.ok){ if(undo&&!(res&&res.workers)) undo(); toast((res&&res.error)||'실패'); }
+      else if(res.trigger===false) toast('저장했어요. 15분 자동 수집은 편집기에서 installSwingWorkTrigger 를 한 번 실행해야 켜져요');
+      else if(msg) toast(typeof msg==='function'?msg(res):msg);
+      end(); })
+    .catch(function(e){ if(undo) undo(); toast('실패: '+e.message); swWkDropped=true; end(); }); }
+function swWkName(inp){ var w=swWkById(inp.getAttribute('data-id')); if(!w) return; var name=inp.value.trim(); if(name===w.name) return; var old=w.name; w.name=name;
+  swWkSend('swingWorkerUpdate',[w.id,{name:name}],(name||w.id)+' 이름 저장',function(){ w.name=old; swWkDraw(); }); }
+function swWkBranch(btn){ var w=swWkById(btn.getAttribute('data-id')), b=btn.getAttribute('data-b'); if(!w||w.branch===b) return; haptic(8); var old=w.branch; w.branch=b; swWkDraw();
+  swWkSend('swingWorkerUpdate',[w.id,{branch:b}],(w.name||w.id)+' → '+b,function(){ w.branch=old; swWkDraw(); }); }
+function swWkToggle(btn){ var w=swWkById(btn.getAttribute('data-id')); if(!w) return; var on=!w.active; w.active=on; btn.classList.toggle('on',on); btn.parentNode.classList.toggle('off',!on); haptic(8);   // 바로 반영 (빠르게 두 번 눌러도 번갈아 보냄)
+  swWkSend('swingWorkerUpdate',[w.id,{active:on}],(w.name||w.id)+(on?' 사용':' 사용 중지'),function(){ w.active=!on; swWkDraw(); }); }
 function swWkAddAsk(){ openSheet('<h3>작업자 추가</h3><p>컬렉터 앱 로그인 아이디를 그대로 넣어 주세요. 어드민 기기 기록의 등록인과 같아야 모여요.</p>'+
     '<input class="input" id="wk_id" placeholder="아이디 (예: 이메일)" autocapitalize="off" autocomplete="off" spellcheck="false" style="margin-bottom:10px">'+
     '<input class="input" id="wk_nm" placeholder="이름 (선택, 예: 홍길동)" style="margin-bottom:12px">'+
@@ -1511,12 +1522,11 @@ function swWkPickBr(b){ haptic(6); [].forEach.call($('wk_br').children,function(
 function swWkAddGo(){ var id=($('wk_id').value||'').trim(), name=($('wk_nm').value||'').trim(); var on=$('wk_br').querySelector('.on'); var br=on?on.getAttribute('data-b'):SW_BRANCHES[0];
   if(!id){ toast('아이디를 입력해 주세요'); return; }
   if(swWk.some(function(w){ return w.id.toLowerCase()===id.toLowerCase(); })){ toast('이미 등록된 아이디예요'); return; }
-  closeSheet(function(){ toast('추가하는 중…'); var my=++swWkSeq; run('swingWorkerAdd',id,name,br).then(function(res){ swWkAfter(res,'추가했어요 · '+(name||id),my); }).catch(function(e){ toast('추가 실패: '+e.message); }); }); }
+  closeSheet(function(){ toast('추가하는 중…'); swWkSend('swingWorkerAdd',[id,name,br],'추가했어요 · '+(name||id)); }); }
 function swWkDelAsk(btn){ var w=swWkById(btn.getAttribute('data-id')); if(!w) return; haptic(10); swWkDelId=w.id;   // 확인 시트가 열린 동안 목록이 바뀌어도 이 사람을 지우게 아이디로 기억
   openSheet('<h3>작업자를 지울까요?</h3><p><b>'+esc(w.name||w.id)+'</b> · '+esc(w.id)+'<br>이미 모은 기록은 시트에 남지만 작업내역에는 더 이상 안 보여요. 잠깐 빼려면 스위치만 끄세요.</p>'+
     '<div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#e5484d" onclick="closeSheet(function(){ swWkDelGo(); })">삭제</button></div>'); }
-function swWkDelGo(){ var w=swWkById(swWkDelId); swWkDelId=''; if(!w) return; toast('삭제하는 중…'); var my=++swWkSeq;
-  run('swingWorkerDelete',w.id).then(function(res){ swWkAfter(res,(w.name||w.id)+' 삭제',my); }).catch(function(e){ toast('삭제 실패: '+e.message); }); }
+function swWkDelGo(){ var w=swWkById(swWkDelId); swWkDelId=''; if(!w) return; toast('삭제하는 중…'); swWkSend('swingWorkerDelete',[w.id],(w.name||w.id)+' 삭제'); }
 
 /* ================= QR 스캔 ================= */
 VIEWS.sw_qr={ render:function(v){ reanim(v); var p=swPrefs();
