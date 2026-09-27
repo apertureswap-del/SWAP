@@ -335,6 +335,18 @@
   .chips{display:flex;flex-wrap:wrap;gap:8px}
   .chips button{padding:10px 15px;border-radius:999px;background:var(--fill);font-weight:600;font-size:14px;color:var(--ink2);transition:all .2s var(--spring)}
   .chips button:active{transform:scale(.92)} .chips button.on{background:var(--ink);color:#fff;transform:scale(1.04)}
+  /* 액세서리: 옵션을 고르는 물품(바구니·짐받이 = 프론트/리어, 레인커버 = S/M/L)은 작은 화살표 → 누르면 말풍선 */
+  .chips button[data-opt]::after{content:'';display:inline-block;width:5px;height:5px;margin:0 1px 3px 7px;border:solid currentColor;border-width:0 1.8px 1.8px 0;transform:rotate(45deg);opacity:.5;vertical-align:middle}
+  .accbub{position:fixed;z-index:40;width:max-content;min-width:156px;max-width:calc(100vw - 24px);padding:12px;border-radius:18px;background:#191f28;color:#fff;box-shadow:0 12px 36px rgba(0,0,0,.28);
+    opacity:0;transform:translateY(6px) scale(.94);transform-origin:var(--ax,50%) 100%;transition:opacity .18s,transform .25s var(--spring);pointer-events:none}
+  .accbub.below{transform:translateY(-6px) scale(.94);transform-origin:var(--ax,50%) 0} .accbub.on{opacity:1;transform:none;pointer-events:auto}
+  .accbub::after{content:'';position:absolute;left:var(--ax,50%);bottom:-5px;width:12px;height:12px;margin-left:-6px;background:#191f28;transform:rotate(45deg);border-radius:2px}
+  .accbub.below::after{bottom:auto;top:-5px}
+  .accbub .abh{position:relative;z-index:1;font-size:12.5px;font-weight:700;color:rgba(255,255,255,.62);margin:0 2px 8px}
+  .accbub .abo{position:relative;z-index:1;display:flex;gap:6px}
+  .accbub .abo button{flex:1;min-width:54px;white-space:nowrap;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.13);color:#fff;font-weight:800;font-size:15px;transition:transform .15s}
+  .accbub .abo button.on{background:var(--p)} .accbub .abo button:active{transform:scale(.94)}
+  .accbub .abx{position:relative;z-index:1;display:block;width:100%;margin-top:8px;padding:6px;font-size:13px;font-weight:700;color:#ff8fa3}
   #accchips button.on{background:var(--p)}
   textarea.input{min-height:110px;resize:vertical;line-height:1.5}
   .kindpick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -437,6 +449,25 @@
     box-shadow:0 12px 36px rgba(0,0,0,.28);transform:translate(-50%,-40%) scale(.85);opacity:0;transition:opacity .22s,transform .3s var(--spring);pointer-events:none}
   .mbubble::after{content:'';position:absolute;left:50%;bottom:-7px;width:14px;height:14px;background:#191f28;transform:translateX(-50%) rotate(45deg);border-radius:3px}
   .mbubble.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  /* 이스터에그: 환경설정 맨 아래 버전을 빠르게 10번 → 영상 + 폭죽. 영상 밖을 두 번 탭하거나 뒤로가기 → 종료 확인 */
+  .mver{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;cursor:default}
+  .egg{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#fff;overflow:hidden;
+    padding:calc(20px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom));background:radial-gradient(120% 80% at 50% 38%,#2a0f52 0%,#0b0714 62%,#050309 100%);
+    opacity:0;transition:opacity .3s;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+  .egg.on{opacity:1}
+  .egg canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+  .egg .etitle{position:relative;z-index:1;font-size:26px;font-weight:900;letter-spacing:-.6px;text-align:center;background:linear-gradient(90deg,#c9a6ff,#fff 50%,#ffd43b);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .egg .efirst{position:relative;z-index:1;margin-top:-6px;padding:6px 14px;border-radius:999px;background:#ffd43b;color:#3d2a00;font-size:13.5px;font-weight:800;letter-spacing:-.2px}
+  .egg .efirst[hidden]{display:none}
+  .egg .evid{position:relative;z-index:1;width:100%;max-width:720px;aspect-ratio:16/9;border-radius:18px;overflow:hidden;background:#000;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 20px 60px rgba(120,32,232,.45)}
+  .egg .evid iframe{display:block;width:100%;height:100%;border:0}
+  .egg .ehint{position:relative;z-index:1;font-size:13px;color:rgba(255,255,255,.55);text-align:center}
+  .egg .eask{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:rgba(5,3,9,.55);opacity:0;pointer-events:none;transition:opacity .2s}
+  .egg .eask.on{opacity:1;pointer-events:auto}
+  .egg .eask>div{width:min(320px,86vw);background:#fff;color:var(--ink);border-radius:22px;padding:24px 20px 16px;text-align:center;transform:scale(.92);transition:transform .25s var(--spring)}
+  .egg .eask.on>div{transform:none}
+  .egg .eask b{display:block;font-size:18px;font-weight:800;letter-spacing:-.4px}
+  .egg .eask .row{margin-top:18px} .egg .eask .row .btn{flex:1}
   /* 권한 없는 기능: 흐리게 + 자물쇠 */
   .lki{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px}
   .mitem.lock{opacity:.5} .mitem.lock .mi.em svg{filter:grayscale(1)} .mitem.lock .ar{display:flex}
@@ -666,14 +697,16 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.10';
+var APP_VER = '10.11';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
 var STATUS_OUT = ['출고준비완료','출고완료'];   // 출고완료 = 실제로 나간 기기(배송내역)
 var STATUS_SHIPPED='출고완료'; function shipped(t){ return t['상태']===STATUS_SHIPPED; }
 var STATUSES   = STATUS_IN.concat(STATUS_OUT);
-var ACC_PRESET = ['배터리','충전기','SWAP백','시동키','카드키','배터리키','헬멧','체인락','폰거치대','바구니','짐받이','레인커버'];
+var ACC_PRESET = ['배터리','충전기','SWAP백','시동키','카드키','배터리키','헬멧','체인락','프레임락','프레임 락키','폰거치대','바구니','짐받이','레인커버'];
+/* 누르면 말풍선에서 하나 고르는 물품 → "바구니(프론트)", "레인커버(M)" 로 저장 */
+var ACC_OPT = {'바구니':{q:'위치',opts:['프론트','리어']}, '짐받이':{q:'위치',opts:['프론트','리어']}, '레인커버':{q:'사이즈',opts:['S','M','L']}};
 var worker = localStorage.getItem('swapWorker') || '';
 var AUTH=null; try{ AUTH=JSON.parse(localStorage.getItem('swapAuth')||'null'); }catch(e){}   // {code,name,admin,master,role,servers,perms}
 if(AUTH&&AUTH.admin&&AUTH.master===undefined&&AUTH.role===undefined){ AUTH.master=true; AUTH.role='master'; }   // v10.5 때 저장된 정보: 관리자 = 마스터 하나뿐
@@ -779,7 +812,7 @@ function isOut(t){ return t['구분']==='출고'; }
 
 /* ================= 네비게이션 ================= */
 var stack=[]; var animating=false; var VIEWS={};
-var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
+var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',eggs:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
 /* ---- 권한: 마스터(모든 기능 · 접속 코드 관리) / 관리자(접속 코드 관리 빼고 전부) / 일반(추가기능은 관리자가 켜고 끔 → 꺼진 건 자물쇠) ---- */
 function isMaster(){ return !!(AUTH&&AUTH.master); }
 function isAdminUp(){ return !!(AUTH&&AUTH.admin); }
@@ -808,6 +841,9 @@ var afterPop=null; function runAfterPop(){ if(afterPop){ var f=afterPop; afterPo
 window.addEventListener('popstate',function(e){
   if(ignorePop>0){ ignorePop--; hDepth=(e.state&&e.state.d)||0; runAfterPop(); return; }
   hDepth=(e.state&&e.state.d)||0;
+  if(accBub){ accBubClose(true); return; }   // 액세서리 옵션 말풍선: 뒤로가기는 말풍선만 닫음 (시트·등록 화면은 그대로)
+  if(accKeep){ accKeep=0; clearTimeout(accKeepT); return; }   // 다른 칩으로 넘어가려고 남겨 둔 말풍선 칸을 뒤로가기가 씀
+  if(egg&&eggPop()) return;   // 이스터에그 영상: 뒤로가기 = "영상을 종료하시겠습니까?" (떠 있을 때 한 번 더 = 종료)
   if(ss){ serialScanClose(true); return; }   // 일련번호 스캔 화면이 떠 있으면 그것부터 닫음
   if(sheetOpen){ sheetOpen=false; hideSheet(); return; }
   if(stack.length>1){ popView(); return; }
@@ -1294,12 +1330,53 @@ function editSerial(){ var t=stack[stack.length-1].state.tag;
   openSheet('<h3>일련번호</h3><p>기기 라벨의 일련번호 (예: S9-1-1504)</p><input class="input code" id="f_serial" value="'+esc(t['일련번호'])+'" style="letter-spacing:1px;font-size:18px;text-transform:none;margin-bottom:8px">'+
     '<button class="btn line" style="margin-bottom:8px" onclick="serialScan(\'f_serial\')">QR·바코드 스캔</button>'+
     '<button class="btn" onclick="saveFields({serial:$(\'f_serial\').value},\'일련번호 저장\')">저장</button>'); }
-function accSheetHtml(current){ var cur=accList(current); var extra=cur.filter(function(a){return ACC_PRESET.indexOf(a)<0;});
-  return '<div class="chips" id="accchips">'+ACC_PRESET.map(function(a){ return '<button class="'+(cur.indexOf(a)>=0?'on':'')+'" onclick="this.classList.toggle(\'on\')">'+a+'</button>'; }).join('')+'</div>'+
+/* "바구니(프론트)" → {base:'바구니', sel:'프론트'} · 옛 "바구니" → sel '' · 모르는 옵션이면 null (기타 칸에 그대로) */
+function accParse(s){ s=String(s).trim(); var m=s.match(/^(.+?)\s*[\(（]\s*([^)）]*?)\s*[\)）]$/), base=m?m[1].trim():s, o=ACC_OPT[base];
+  if(ACC_PRESET.indexOf(base)<0) return null; if(!m) return {base:base,sel:''};
+  if(!o||o.opts.indexOf(m[2])<0) return null; return {base:base,sel:m[2]}; }
+function accSheetHtml(current){ var on={}, extra=[];
+  accList(current).forEach(function(a){ var p=accParse(a), h=p&&on[p.base];
+    if(!p||(h&&h.sel&&p.sel&&h.sel!==p.sel)){ extra.push(a); return; }   // 같은 물품이 옵션 다르게 또 있으면(예: 바구니 앞·뒤) 기타 칸에 남겨 안 잃게
+    on[p.base]={sel:p.sel||(h?h.sel:'')}; });
+  return '<div class="chips" id="accchips">'+ACC_PRESET.map(function(a){ var o=ACC_OPT[a], h=on[a], sel=h?h.sel:'';
+      return '<button type="button" class="'+(h?'on':'')+'" data-acc="'+esc(a)+'" data-sel="'+esc(sel)+'"'+(o?' data-opt="1" onclick="accOpt(this)"':' onclick="this.classList.toggle(\'on\')"')+'>'+esc(sel?a+' '+sel:a)+'</button>'; }).join('')+'</div>'+
     '<input class="input" id="f_accx" placeholder="기타 (쉼표로 구분)" value="'+esc(extra.join(', '))+'" style="margin-top:10px">'; }
-function collectAcc(){ var on=[].map.call(document.querySelectorAll('#accchips button.on'),function(b){return b.textContent;}); return on.concat(accList($('f_accx').value)).join(', '); }
+function collectAcc(){ accBubClose();
+  var on=[].map.call(document.querySelectorAll('#accchips button.on'),function(b){ var a=b.getAttribute('data-acc')||b.textContent, s=b.getAttribute('data-sel')||''; return s?a+'('+s+')':a; });
+  return on.concat(accList($('f_accx').value)).join(', '); }
+/* 옵션 말풍선: 칩 위(자리가 없으면 아래)에 뜸. 고르면 닫힘 · 바깥을 누르거나 스크롤·뒤로가기면 그냥 닫힘 · 켜져 있으면 "빼기".
+   시트처럼 history 한 칸을 가짐(칩을 누를 때 쌓음) → 폰 뒤로가기는 말풍선만 닫고 시트·등록 화면은 그대로.
+   다른 방법으로 닫으면 hBack(1) 로 그 칸을 돌려놓음. 말풍선이 뜬 채 다른 옵션 칩을 누르면 칸을 그대로 이어 씀(뒤로 갔다 다시 쌓는 경합 방지) */
+var accBub=null, accBubShut={b:null,t:0}, accKeep=0, accKeepT=0;
+function accOpt(btn){ var a=btn.getAttribute('data-acc'), o=ACC_OPT[a]; if(!o) return;
+  if(accBubShut.b===btn&&Date.now()-accBubShut.t<500) return;   // 열린 말풍선을 이 칩을 눌러 닫은 탭 → 다시 열지 않음
+  if(accBub) accBubClose(false,true);
+  var reuse=accKeep&&Date.now()-accKeep<700; accKeep=0; clearTimeout(accKeepT); if(!reuse) hPush();
+  var cur=btn.getAttribute('data-sel')||'';
+  var b=document.createElement('div'); b.className='accbub'; b.setAttribute('role','dialog'); b.setAttribute('aria-label',a+' '+o.q);
+  b.innerHTML='<div class="abh">'+esc(a)+' '+o.q+'</div><div class="abo">'+o.opts.map(function(x){ return '<button type="button" class="'+(cur===x?'on':'')+'" aria-pressed="'+(cur===x)+'" onclick="accPick(\''+x+'\')">'+x+'</button>'; }).join('')+'</div>'+
+    (btn.classList.contains('on')?'<button type="button" class="abx" onclick="accPick(\'\')">빼기</button>':'');
+  document.body.appendChild(b); var me=accBub={el:b,btn:btn};
+  var place=function(){ if(accBub!==me) return; var r=btn.getBoundingClientRect(), bw=b.offsetWidth, bh=b.offsetHeight, vw=window.innerWidth, cx=r.left+r.width/2, left=Math.max(12,Math.min(vw-12-bw,cx-bw/2)), top=r.top-bh-12;
+    b.classList.toggle('below',top<44); if(top<44) top=r.bottom+12;
+    b.style.left=left+'px'; b.style.top=top+'px'; b.style.setProperty('--ax',Math.max(18,Math.min(bw-18,cx-left))+'px'); };
+  place(); setTimeout(place,400);   // 시트가 아직 올라오는 중에 눌렀으면 다 올라온 뒤 자리 다시 맞춤
+  requestAnimationFrame(function(){ if(accBub===me) b.classList.add('on'); }); haptic(6);
+  document.addEventListener('pointerdown',accBubOut,true); window.addEventListener('scroll',accBubClose,true); window.addEventListener('resize',accBubClose); }
+function accBubOut(e){ var s=accBub; if(!s||s.el.contains(e.target)) return;
+  if(s.btn.contains(e.target)){ accBubShut={b:s.btn,t:Date.now()}; accBubClose(); return; }
+  var t=e.target.closest&&e.target.closest('#accchips button[data-opt]'); accBubClose(false,!!t); }   // 다른 옵션 칩 → 곧 뜰 말풍선이 이 칸을 이어 씀
+/* fromPop = 뒤로가기로 닫힘(칸은 이미 빠짐) · keep = 칸을 남겨 다음 말풍선이 씀 (0.7초 안에 안 쓰면 돌려놓음). 스크롤·크기 바뀜은 Event 가 들어옴 */
+function accBubClose(fromPop,keep){ var s=accBub; if(!s) return; accBub=null;
+  document.removeEventListener('pointerdown',accBubOut,true); window.removeEventListener('scroll',accBubClose,true); window.removeEventListener('resize',accBubClose);
+  if(keep===true){ accKeep=Date.now(); clearTimeout(accKeepT); accKeepT=setTimeout(function(){ if(accKeep&&!accBub){ accKeep=0; hBack(1); } },700); }
+  else if(fromPop!==true) hBack(1);
+  s.el.classList.remove('on'); setTimeout(function(){ s.el.remove(); },200); }
+/* x = 고른 옵션 · '' = 빼기 */
+function accPick(x){ var s=accBub; if(!s) return; var btn=s.btn, a=btn.getAttribute('data-acc');
+  btn.setAttribute('data-sel',x); btn.classList.toggle('on',!!x); btn.textContent=x?a+' '+x:a; haptic(8); accBubClose(); }
 function editAcc(){ var t=stack[stack.length-1].state.tag;
-  openSheet('<h3>액세서리</h3><p>함께 들어온/나가는 물품을 전부 체크하세요.</p>'+accSheetHtml(t['액세서리'])+'<button class="btn" style="margin-top:12px" onclick="saveFields({accessories:collectAcc()},\'액세서리 저장\')">저장</button>'); }
+  openSheet('<h3>액세서리</h3><p>함께 들어온/나가는 물품을 전부 체크하세요. 바구니·짐받이·레인커버는 누르면 위치·사이즈를 골라요.</p>'+accSheetHtml(t['액세서리'])+'<button class="btn" style="margin-top:12px" onclick="saveFields({accessories:collectAcc()},\'액세서리 저장\')">저장</button>'); }
 function editNote(){ var t=stack[stack.length-1].state.tag;
   openSheet('<h3>특이사항</h3><p>파손·분실·고객 요청 등</p><textarea class="input" id="f_note">'+esc(t['특이사항'])+'</textarea><button class="btn" style="margin-top:10px" onclick="saveFields({note:$(\'f_note\').value},\'특이사항 저장\')">저장</button>'); }
 function syncAdmin(){ var v=stack[stack.length-1]; v.el.innerHTML=spin('어드민에서 불러오는 중');
@@ -1545,7 +1622,7 @@ function toStep4(){ var v=stack[stack.length-1]; v.state.serial=($('f_serial').v
   drawStep4(v); }
 function drawStep4(v){ reanim(v); v.state.step=4; var it=v.state.list[v.state.selected];
   var h=title(esc(it.name)+' '+kindBadge(v.state.kind),'4/5 · 함께 '+(v.state.kind==='출고'?'나가는':'들어온')+' 액세서리')+stepsBar(4);
-  h+='<div class="card">'+accSheetHtml(v.state.acc)+'<p class="muted" style="margin:10px 0 0">배터리·충전기도 꼭 체크하세요. 없으면 그냥 다음.</p></div>';
+  h+='<div class="card">'+accSheetHtml(v.state.acc)+'<p class="muted" style="margin:10px 0 0">배터리·충전기도 꼭 체크하세요. 바구니·짐받이·레인커버는 누르면 위치·사이즈를 골라요. 없으면 그냥 다음.</p></div>';
   h+='<div class="row"><button class="btn line sm" onclick="stack[stack.length-1].state.acc=collectAcc();drawStep3(stack[stack.length-1])">이전</button><button class="btn sm" style="flex:2" onclick="toStep5()">다음 · 특이사항</button></div>';
   v.el.innerHTML=h; }
 function toStep5(){ var v=stack[stack.length-1]; v.state.acc=collectAcc(); drawStep5(v); }
@@ -2384,13 +2461,15 @@ function stockApplyGo(mode){ var v=stack[stack.length-1]; var changed=v.state.pv
 var ICON_KEY='<svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4.2"/><path d="M11 12l8.5-8.5M16 7l3 3M13.5 9.5l2.5 2.5"/></svg>';
 var ICON_SHIELD='<svg viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.2c0 4.6-3.1 8.4-7.5 9.8-4.4-1.4-7.5-5.2-7.5-9.8V6z"/><path d="M8.8 12.2l2.2 2.2 4.3-4.4"/></svg>';
 var ICON_CAR='<svg viewBox="0 0 24 24"><path d="M3.5 17v-3.6L5.6 8.3A2 2 0 0 1 7.4 7h9.2a2 2 0 0 1 1.8 1.3l2.1 5.1V17z"/><path d="M3.5 13.4h17"/><circle cx="7.5" cy="17.5" r="1.8"/><circle cx="16.5" cy="17.5" r="1.8"/></svg>';
+var ICON_EGG='<svg viewBox="0 0 24 24"><path d="M12 3c3.6 0 6.5 5.2 6.5 9.8a6.5 6.5 0 0 1-13 0C5.5 8.2 8.4 3 12 3z"/><path d="M6.4 13.4l2.4-1.8 2.4 1.8 2.4-1.8 2.4 1.8 1.6-1.2"/></svg>';
 function roleName(){ return isMaster()?'마스터':(isAdminUp()?'관리자':''); }
 VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return Promise.resolve(); };
   var fixedName=!!(AUTH&&!AUTH.master&&AUTH.name), rn=roleName();
   var row=function(view,svg,b,s){ return '<button class="mitem" onclick="push(\''+view+'\',{})"><span class="mi">'+svg+'</span><span class="mt"><b>'+b+'</b><span>'+s+'</span></span><span class="ar">›</span></button>'; };
   var mg=(isMaster()?row('codes',ICON_KEY,'접속 코드 관리','코드 만들기 · 이름 · 서버 · 관리자 지정'):'')+
     (isAdminUp()?row('perms',ICON_SHIELD,'권한 설정','일반 작업자 추가기능 켜고 끄기 · 사람별 예외'):'')+
-    row('vehicles',ICON_CAR,'차량 목록',isAdminUp()?'차량 사진에서 고르는 목록 · 모든 작업자에게 적용':'차량 사진에서 고르는 목록 · 보기만 (관리자가 고침)');
+    row('vehicles',ICON_CAR,'차량 목록',isAdminUp()?'차량 사진에서 고르는 목록 · 모든 작업자에게 적용':'차량 사진에서 고르는 목록 · 보기만 (관리자가 고침)')+
+    (isMaster()?row('eggs',ICON_EGG,'이스터에그 발견한 사람','처음 발견한 사람 · 찾은 순서'):'');
   v.el.innerHTML=title('환경설정','')+
     '<div class="card"><div style="display:flex;align-items:center;gap:14px"><div style="flex:0 0 56px;height:56px;border-radius:18px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px">'+esc(initials(worker))+'</div>'+
     '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:21px;letter-spacing:-.5px">'+esc(worker||'이름 없음')+(rn?' <span class="pill sys sm" style="background:var(--p-soft);color:var(--p-ink);vertical-align:middle">'+rn+'</span>':'')+'</div>'+
@@ -2416,7 +2495,7 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
     '<li><span><b>뒤로가기</b> → 폰 뒤로가기 버튼, 왼쪽 위 ‹, 또는 화면 왼쪽 끝에서 오른쪽으로 밀기</span></li>'+
     '<li><span><b>새로고침</b> → 화면 맨 위에서 아래로 당기기</span></li>'+
     '<li><span><b>작업 보고</b> → 현황 화면 오른쪽 위 <b>내 작업 현황</b> → 날짜 선택 → 슬랙으로 보내기</span></li></ul></div>':'')+
-    '<p class="muted" style="text-align:center;font-size:12px">SWAP 입출고 v'+APP_VER+' · '+(('BarcodeDetector' in window)?'내장 스캐너':'jsQR')+' · '+(window.isSecureContext?'https':'http')+'</p>';
+    '<p class="muted mver" style="text-align:center;font-size:12px" onclick="verTap()">SWAP 입출고 v'+APP_VER+' · '+(('BarcodeDetector' in window)?'내장 스캐너':'jsQR')+' · '+(window.isSecureContext?'https':'http')+'</p>';
   }};
 /* ---- 접속 코드 관리 (마스터 전용 페이지): 이름 · 사용 · 서버 · 관리자 지정 ---- */
 VIEWS.codes={ render:function(v){ v.refresh=function(){ return loadCodes(v); };
@@ -2516,6 +2595,94 @@ function vehSave(){ var v=permView('vehicles'); if(!v) return; var list=($('veh_
   if(!list.length){ toast('차량을 최소 하나는 남겨두세요'); return; } var b=$('veh_save'); if(b) b.disabled=true; haptic(10);
   run('setVehicles',list).then(function(r){ if(b) b.disabled=false; if(!r||!r.ok){ toast((r&&r.error)||'저장 실패'); return; } vehSet(r.list); v.state.dirty=false; haptic([12,40,18]); toast('저장했어요 · '+r.list.length+'대 · 모든 작업자에게 적용'); if(permView('vehicles')===v) vehDraw(v,r.list); })
     .catch(function(e){ if(b) b.disabled=false; toast('저장 실패: '+e.message); }); }
+
+/* ================= 이스터에그 =================
+   환경설정 맨 아래 버전 줄을 빠르게(0.8초 안에 이어서) 10번 누르면 → 영상 + 폭죽.
+   영상은 공식 유튜브 영상을 띄움 (영상 파일을 앱에 올리지 않음). 영상 밖을 두 번 탭하거나 폰 뒤로가기 → "영상을 종료하시겠습니까?"
+   열 때마다 서버에 기록(eggFound): 먼저 찾은 순서대로 남고 맨 앞 = 처음 발견한 사람 (마스터는 안 셈) → 마스터 환경설정 "이스터에그 발견한 사람" */
+var EGG_VIDEO='https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&playsinline=1&rel=0&loop=1&playlist=dQw4w9WgXcQ';
+var EGG_COL=['#7820e8','#b07cff','#ffd43b','#ff6b9d','#4dabf7','#63e6be','#ffffff','#ff922b'];
+var egg=null, eggTap={n:0,t:0};   // egg = 떠 있는 동안 {el, raf, size, ask(종료 확인 떠 있음), lt·lx·ly(마지막 탭), base(열기 전 hDepth)}
+function verTap(){ var now=Date.now(); eggTap.n=(now-eggTap.t<800)?eggTap.n+1:1; eggTap.t=now; if(eggTap.n>=10){ eggTap.n=0; eggOpen(); } }
+function eggOpen(){ if(egg||sheetOpen||ss) return;
+  var o=document.createElement('div'); o.className='egg'; o.id='egg';
+  o.innerHTML='<canvas aria-hidden="true"></canvas><div class="etitle">이스터에그 발견!</div><div class="efirst" id="eggfirst" hidden>처음 발견한 사람이에요</div>'+
+    '<div class="evid"><iframe src="'+EGG_VIDEO+'" title="이스터에그 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'+
+    '<div class="ehint">영상 밖을 두 번 탭하거나 뒤로가기를 누르면 끝나요</div>'+
+    '<div class="eask" id="eggask" role="dialog" aria-modal="true" aria-labelledby="eggaskt" onclick="if(event.target===this) eggAskClose()"><div><b id="eggaskt">영상을 종료하시겠습니까?</b>'+
+    '<div class="row"><button class="btn line sm" onclick="eggAskClose()">취소</button><button class="btn sm" onclick="eggClose()">종료</button></div></div></div>';
+  document.body.appendChild(o);
+  var me=egg={el:o,raf:0,size:null,ask:false,lt:0,lx:0,ly:0,base:hDepth,q:Date.now()}; hPush();   // 뒤로가기 한 칸 (누른 손가락이 있을 때 쌓음 — 크롬은 손가락 한 번에 한 칸만 인정)
+  o.addEventListener('click',eggPtr);
+  requestAnimationFrame(function(){ if(egg===me) o.classList.add('on'); });
+  haptic([30,50,30,50,90]); eggFx(me,o.querySelector('canvas'));
+  run('eggFound',worker).then(function(r){ if(egg===me&&r&&r.first){ var f=$('eggfirst'); if(f) f.hidden=false; haptic([20,40,20]); } }).catch(function(){}); }
+/* 영상 밖 두 번 탭 (영상 위를 누르면 유튜브가 받음).
+   click 으로 셈: pointerdown 에서 확인 창을 띄우면 폰에서는 같은 탭의 click 이 막 뜬 확인 창 바깥(=닫기)에 떨어져 바로 닫힘.
+   확인 창 안에서 올라온 click 은 무시 · 버전 연타가 이어지는 동안(0.8초 안에 계속)은 무시 → 멈춘 뒤부터 두 번 탭을 셈 */
+function eggPtr(e){ var me=egg; if(!me||me.ask||(e.target&&e.target.closest&&e.target.closest('.eask'))) return; var now=Date.now();
+  if(me.q){ if(now-me.q<800){ me.q=now; return; } me.q=0; }
+  if(now-me.lt<400&&Math.abs(e.clientX-me.lx)<50&&Math.abs(e.clientY-me.ly)<50){ me.lt=0; eggAsk(); return; }
+  me.lt=now; me.lx=e.clientX; me.ly=e.clientY; }
+function eggLeft(){ return egg?Math.max(0,hDepth-egg.base):0; }   // 이 화면이 쌓아 둔 history 칸 중 남은 수
+function eggAsk(){ if(!egg) return; egg.ask=true; egg.lt=0; var a=$('eggask'); if(a) a.classList.add('on'); haptic(8); }
+/* 취소 (버튼·바깥 누름): 뒤로가기로 칸을 쓴 상태면 다시 쌓음 — 누른 손가락이 있을 때라 크롬이 이 칸을 건너뛰지 않음 */
+function eggAskClose(){ if(!egg) return; egg.ask=false; var a=$('eggask'); if(a) a.classList.remove('on'); if(eggLeft()<1) hPush(); }
+/* 폰 뒤로가기 (popstate, hDepth 는 이미 새 값). true = 여기서 끝, false = 이어서 앱의 보통 뒤로가기도 함.
+   확인 창이 없으면 띄움 · 떠 있으면(한 번 더 누름) 종료. 확인 창이 뒤로가기로 뜬 거였다면 이번 뒤로가기는 이 화면 칸보다 한 칸 더 간 것
+   → 영상을 닫고 보통 뒤로가기(환경설정 → 홈)도 해서 history 와 화면을 맞춤 (안 그러면 다음 뒤로가기에 앱이 꺼질 수 있음).
+   popstate 안에서는 history 를 새로 쌓지 않음 (손가락 없이 쌓은 칸은 크롬 뒤로가기가 건너뜀) */
+function eggPop(){ var me=egg; if(!me) return true;
+  if(hDepth<me.base){ eggClose(); return false; }
+  if(!me.ask){ eggAsk(); return true; }
+  eggClose(); return true; }
+function eggClose(){ var me=egg; if(!me) return; var k=eggLeft(); egg=null;
+  if(me.raf) cancelAnimationFrame(me.raf); if(me.size) window.removeEventListener('resize',me.size);
+  var f=me.el.querySelector('iframe'); if(f&&f.parentNode) f.parentNode.removeChild(f);   // 소리부터 끔 (iframe 을 떼어냄 — src 를 바꾸면 history 칸이 하나 더 생김)
+  me.el.classList.remove('on'); setTimeout(function(){ me.el.remove(); },320);
+  if(k) hBack(k); }
+/* 폭죽: 아래에서 쏘아 올려 꼭대기에서 터짐. 처음 3.5초는 연달아, 그다음엔 가끔. 움직임 줄이기 설정이면 8초만 조금 */
+function eggFx(me,cv){ var ctx=cv.getContext('2d'); if(!ctx) return; var dpr=Math.min(2,window.devicePixelRatio||1), W=0, H=0, rk=[], pt=[], last=0, next=0, t0=0, G=.2;
+  var calm=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var col=function(){ return EGG_COL[Math.floor(Math.random()*EGG_COL.length)]; };
+  me.size=function(){ W=cv.clientWidth||window.innerWidth; H=cv.clientHeight||window.innerHeight; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); };
+  me.size(); window.addEventListener('resize',me.size);
+  function launch(){ var ty=H*(.1+Math.random()*.35), y0=H+8; rk.push({x:W*(.1+Math.random()*.8),y:y0,vx:(Math.random()-.5)*1.4,vy:-Math.sqrt(2*G*(y0-ty)),c:col()}); }
+  function burst(r){ var n=calm?30:46+Math.floor(Math.random()*26), c2=col(), sp=2+Math.random()*1.8;
+    for(var i=0;i<n;i++){ var a=Math.PI*2*i/n+Math.random()*.25, s=sp*(.45+Math.random()*.6); pt.push({x:r.x,y:r.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,a:1,d:.010+Math.random()*.012,c:Math.random()<.7?r.c:c2}); }
+    if(pt.length>520) pt.splice(0,pt.length-520); }
+  me.raf=requestAnimationFrame(function tick(now){ if(egg!==me) return; me.raf=requestAnimationFrame(tick);
+    if(!t0){ t0=now; next=now; } var k=last?Math.min(3,(now-last)/16.7):1; last=now; var el=now-t0;
+    if(now>=next&&(!calm||el<8000)){ var intro=el<3500; launch(); if(intro&&!calm) launch();
+      next=now+(intro?(calm?900:330+Math.random()*300):(calm?2600:1300+Math.random()*1700)); }
+    if(!rk.length&&!pt.length) return;
+    ctx.clearRect(0,0,W,H); ctx.globalCompositeOperation='lighter'; ctx.lineCap='round';
+    rk=rk.filter(function(r){ r.x+=r.vx*k; r.y+=r.vy*k; r.vy+=G*k; ctx.globalAlpha=1; ctx.strokeStyle=r.c; ctx.lineWidth=2.4;
+      ctx.beginPath(); ctx.moveTo(r.x-r.vx*3,r.y-r.vy*3); ctx.lineTo(r.x,r.y); ctx.stroke(); if(r.vy>=-.4){ burst(r); return false; } return true; });
+    var dr=Math.pow(.985,k);
+    pt=pt.filter(function(p){ p.vx*=dr; p.vy=p.vy*dr+.045*k; p.x+=p.vx*k; p.y+=p.vy*k; p.a-=p.d*k; if(p.a<=0) return false;
+      ctx.globalAlpha=p.a; ctx.strokeStyle=p.c; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p.x-p.vx*2.5,p.y-p.vy*2.5); ctx.lineTo(p.x,p.y); ctx.stroke(); return true; });
+    ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over'; }); }
+/* ---- 이스터에그 발견한 사람 (마스터 전용 페이지) ---- */
+VIEWS.eggs={ render:function(v){ v.refresh=function(){ return eggLoad(v); };
+  if(!isMaster()){ v.el.innerHTML=title('이스터에그 발견한 사람','')+'<div class="card"><div class="empty">마스터 계정만 쓸 수 있어요.</div></div>'; return; }
+  v.el.innerHTML=title('이스터에그 발견한 사람','마스터 전용')+spin(); eggLoad(v); }};
+function eggLoad(v){ return run('eggList').then(function(list){ if(stack.indexOf(v)<0) return; v.state.list=list||[]; eggDraw(v); })
+  .catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('이스터에그 발견한 사람','')+errBox(e); }); }
+function eggDraw(v){ var l=v.state.list||[], f=l[0];
+  var h=title('이스터에그 발견한 사람','마스터 전용'+(l.length?' · '+l.length+'명':''))+
+    '<div class="tipb">환경설정 맨 아래 <b>버전</b>을 빠르게 10번 누르면 영상과 폭죽이 나와요. 먼저 찾은 순서대로 기록해요. 마스터가 연 건 기록하지 않아요.</div>';
+  if(!f){ v.el.innerHTML=h+'<div class="card"><div class="empty">아직 아무도 못 찾았어요.</div></div>'; return; }
+  h+='<div class="card sum"><div class="lb">처음 발견한 사람</div><div class="big"><b style="word-break:break-all">'+esc(f.name||'이름 없음')+'</b></div>'+
+     '<div class="muted" style="margin-top:6px">'+esc(f.at)+' 발견 · '+(Number(f.n)||1)+'번 봄'+(f.admin?' · 관리자':'')+(f.gone?' · 지운 코드':'')+'</div></div>';
+  h+='<div class="card"><h3>찾은 순서</h3><ul class="hist">'+l.map(function(x,i){ return '<li><span><b>'+(i+1)+'. '+esc(x.name||'이름 없음')+'</b>'+(x.admin?' · 관리자':'')+(x.gone?' · 지운 코드':'')+'</span>'+
+    '<span style="flex:0 0 auto">'+esc(String(x.at||'').slice(5))+' · '+(Number(x.n)||1)+'번</span></li>'; }).join('')+'</ul></div>';
+  h+='<button class="btn line" style="color:#d6336c" onclick="eggResetAsk()">기록 지우기</button>';
+  v.el.innerHTML=h; }
+function eggResetAsk(){ openSheet('<h3>기록을 지울까요?</h3><p>발견한 사람 기록이 모두 지워지고, 다음에 찾는 사람이 새로 처음 발견한 사람이 돼요.</p>'+
+  '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#d6336c" onclick="closeSheet(eggResetGo)">지우기</button></div>'); }
+function eggResetGo(){ var v=permView('eggs'); run('eggReset').then(function(){ toast('기록을 지웠어요'); if(v&&permView('eggs')===v){ v.state.list=[]; eggDraw(v); } })
+  .catch(function(e){ toast('지우기 실패: '+e.message); }); }
 
 /* ================= 로그인 ================= */
 function setLoginErr(m){ var e=$('lerr'); if(e) e.textContent=m||''; }
