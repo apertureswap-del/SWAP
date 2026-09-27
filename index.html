@@ -403,6 +403,14 @@
   .scan{position:relative;background:#000;border-radius:24px;overflow:hidden;aspect-ratio:1/1;margin-bottom:12px}
   .scan video{width:100%;height:100%;object-fit:cover;display:block}
   .scan .frame{position:absolute;inset:18%;border:3px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+  /* 일련번호 QR·바코드 실시간 스캔 (전체 화면) */
+  .sscan{position:fixed;inset:0;z-index:70;background:#000;display:flex;flex-direction:column;padding:calc(12px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));opacity:0;transition:opacity .2s}
+  .sscan.on{opacity:1} .sstop{display:flex;align-items:center;justify-content:space-between;color:#fff;font-size:17px;margin-bottom:12px}
+  .ssx{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:26px;line-height:1}
+  .ssbox{position:relative;flex:1;min-height:0;border-radius:22px;overflow:hidden;background:#111} .ssbox video{width:100%;height:100%;object-fit:cover;display:block}
+  .ssframe{position:absolute;left:7%;right:7%;top:28%;bottom:28%;border:3px solid rgba(255,255,255,.9);border-radius:16px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+  .ssframe:after{content:'';position:absolute;left:6%;right:6%;top:50%;height:2px;background:var(--p);box-shadow:0 0 10px var(--p);animation:sweep 1.8s ease-in-out infinite}
+  .ssmsg{color:#fff;text-align:center;margin:12px 0;font-size:14px;opacity:.9} .ssrow{display:flex;gap:8px} .ssrow .btn{flex:1;background:rgba(255,255,255,.14);color:#fff;box-shadow:none}
   .scan .frame:after{content:'';position:absolute;left:8%;right:8%;top:50%;height:2px;background:var(--p);box-shadow:0 0 10px var(--p);animation:sweep 1.8s ease-in-out infinite}
   @keyframes sweep{0%,100%{top:15%}50%{top:85%}}
 
@@ -504,6 +512,26 @@
   .lcard .lauto input:checked+i{background:var(--p);border-color:var(--p)} .lcard .lauto input:checked+i::after{opacity:1}
   .lcard .lerr{min-height:20px;margin-top:12px;font-size:13.5px;font-weight:600;color:#ff8fa3}
   .lcard.shake{animation:shake .5s}
+  /* 접속 애니메이션: 입력칸 + 접속 버튼이 합쳐져 선 → - - - - (왼쪽→오른쪽으로 흐름), 아래 로딩바 1~100% + 단계 글 */
+  .lfield{position:relative;transition:height .3s var(--ease)}
+  .lmorph{position:absolute;left:50%;top:0;width:0;height:0;opacity:0;pointer-events:none;transform:translate(-50%,-50%);border-radius:2px;background:#fff}
+  .lcard.lgo .linput{color:transparent;border-bottom-color:transparent;transition:color .12s,border-color .05s .22s;pointer-events:none}
+  .lcard.lgo .linput::placeholder{color:transparent}
+  .lcard.lgo #lbtn{transform:translateY(-44px) scale(2.4,.05);opacity:0;transition:transform .28s var(--ease),opacity .2s .08s;pointer-events:none}
+  .lcard.lgo .lmorph{opacity:1;width:100%;height:3px;transition:width .3s var(--ease),height .3s var(--ease),opacity .1s}
+  .lcard.lgo.ldash .lmorph{width:70%;height:4px;border-radius:0;background:repeating-linear-gradient(90deg,#fff 0 14px,transparent 14px 26px);background-size:26px 4px;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);animation:ldash .45s linear infinite}
+  @keyframes ldash{from{background-position:0 0}to{background-position:26px 0}}
+  .lcard.lgo .lauto{opacity:.3;pointer-events:none;transition:opacity .2s}
+  .lcard.lgo .srvpick{pointer-events:none}   /* 접속 중엔 서버 못 바꿈 */
+  .lcard.lgo .srvpick button:not(.on){opacity:.3}
+  .lprog{max-height:0;opacity:0;overflow:hidden;transition:max-height .3s var(--ease),opacity .25s,margin .3s var(--ease)}
+  .lprog.on{max-height:90px;opacity:1;margin-top:10px;transition:max-height .3s var(--ease),margin .3s var(--ease),opacity .25s .3s}   /* 자리는 선이 접힐 때 같이 벌리고(카드 출렁임 방지) 글은 0.3초 뒤에 */
+  .lbar{height:6px;border-radius:999px;background:rgba(255,255,255,.14);overflow:hidden}
+  .lbar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#7820e8,#c9a6ff)}
+  .lpct{display:flex;align-items:baseline;justify-content:center;gap:10px;margin-top:10px}
+  .lpct b{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;min-width:64px;text-align:right;letter-spacing:-.5px}
+  .lpct span{font-size:14px;font-weight:700;color:rgba(255,255,255,.78);min-width:138px;text-align:left}
   @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
   .lver{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,.35)}
   /* 토글 스위치 */
@@ -602,8 +630,12 @@
   <div class="glitch" id="glitch" aria-hidden="true"></div>
   <form class="lcard" id="lcard" onsubmit="doLogin();return false" autocomplete="off">
     <div class="srvpick" id="srvpick"><button type="button" data-srv="swap" onclick="pickServer('swap')">SWAP</button><button type="button" data-srv="swing" onclick="pickServer('swing')">SWING</button></div>
-    <input class="linput" id="lcode" maxlength="8" placeholder="접속 코드 입력" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="latin">
-    <button class="btn" id="lbtn" type="submit">접속</button>
+    <div class="lfield" id="lfield">
+      <input class="linput" id="lcode" maxlength="8" placeholder="접속 코드 입력" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="latin">
+      <button class="btn" id="lbtn" type="submit">접속</button>
+      <div class="lmorph" id="lmorph" aria-hidden="true"></div>
+    </div>
+    <div class="lprog" id="lprog" aria-hidden="true"><div class="lbar"><i id="lbarfill"></i></div><div class="lpct"><b id="lpct" aria-hidden="true">1%</b><span id="lstage" aria-live="polite">접속코드 확인중</span></div></div>
     <label class="lauto"><input type="checkbox" id="lauto"><i></i>자동 로그인</label>
     <div class="lerr" id="lerr"></div>
   </form>
@@ -634,7 +666,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.8';
+var APP_VER = '10.10';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -652,7 +684,8 @@ function setServer(sv){ SERVER=(sv==='swing')?'swing':'swap'; try{ localStorage.
 function applyPtrLogo(){ var p=$('ptr'); if(p) p.innerHTML=curLogo(); }
 function applyThemeColor(){ document.body.classList.toggle('swing',SERVER==='swing'); var c=(SERVER==='swing')?'#000000':'#7820e8'; var m=document.querySelector('meta[name="theme-color"]'); if(!m){ m=document.createElement('meta'); m.name='theme-color'; document.head.appendChild(m); } m.content=c; }
 document.addEventListener('DOMContentLoaded',function(){ applyThemeColor(); applyPtrLogo(); });
-function pickServer(sv){ haptic(8); setServer(sv); [].forEach.call(document.querySelectorAll('#srvpick button'),function(b){ b.classList.toggle('on',b.dataset.srv===SERVER); }); }
+function pickServer(sv){ if(sv!==SERVER&&(la||$('lbtn').disabled)) return;   /* 접속 확인 중엔 서버 고정 */
+  haptic(8); setServer(sv); [].forEach.call(document.querySelectorAll('#srvpick button'),function(b){ b.classList.toggle('on',b.dataset.srv===SERVER); }); }
 /* 같은 화면 이름이라도 서버별로 다른 화면을 쓸 수 있다: VIEWS.sw_home 이 있으면 swing 에서는 그걸 쓴다 */
 function viewOf(name){ if(SERVER==='swing'&&VIEWS['sw_'+name]) return VIEWS['sw_'+name]; return VIEWS[name]; }
 
@@ -775,6 +808,7 @@ var afterPop=null; function runAfterPop(){ if(afterPop){ var f=afterPop; afterPo
 window.addEventListener('popstate',function(e){
   if(ignorePop>0){ ignorePop--; hDepth=(e.state&&e.state.d)||0; runAfterPop(); return; }
   hDepth=(e.state&&e.state.d)||0;
+  if(ss){ serialScanClose(true); return; }   // 일련번호 스캔 화면이 떠 있으면 그것부터 닫음
   if(sheetOpen){ sheetOpen=false; hideSheet(); return; }
   if(stack.length>1){ popView(); return; }
   var cur=stack[0]; if(cur&&cur.name!=='home'){ tabTo('home'); if(hDepth>0) hBack(hDepth); }
@@ -897,7 +931,7 @@ function decodeAsync(src){ // 비동기: BarcodeDetector → jsQR
   if(bd){ return bd.detect(src).then(function(codes){ return codes&&codes.length?codes[0].rawValue:null; }).catch(function(){ return null; }); }
   return Promise.resolve(null); }
 function stopScan(){ if(scanRAF) cancelAnimationFrame(scanRAF); scanRAF=null; if(scanStream){ scanStream.getTracks().forEach(function(t){t.stop();}); scanStream=null; } }
-function liveScan(v){
+function liveScan(v){ camTarget=null;   // 일련번호 사진 읽기를 취소하고 남은 대상 칸이 있으면 비움
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ scanFail('카메라 API 없음 (secure='+String(window.isSecureContext)+', v'+APP_VER+'). 주소가 https://apertureswap-del.github.io/SWAP/ 인지 확인해 주세요. 아래 버튼으로 사진을 찍어 읽을 수 있어요.'); return; }
   if(!bd && typeof jsQR==='undefined'){ scanFail('QR 인식 모듈을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'); return; }
   navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:1280}},audio:false}).then(function(stream){
@@ -915,12 +949,95 @@ function liveScan(v){
 }
 function scanFail(msg){ var b=$('scanbox'); if(b) b.style.display='none'; var m=$('scanmsg'); if(m){ m.textContent=msg; m.style.margin='0 0 14px'; } }
 $('camfile').addEventListener('change',function(){
-  var f=this.files&&this.files[0]; this.value=''; if(!f) return; toast('읽는 중…');
+  camPick=1; var f=this.files&&this.files[0]; this.value=''; if(!f){ camTarget=null; return; } toast('읽는 중…');
   var img=new Image(); img.onload=function(){ var max=1200, sc=Math.min(1,max/Math.max(img.width,img.height)); var cv=document.createElement('canvas'); cv.width=img.width*sc; cv.height=img.height*sc;
     var ctx=cv.getContext('2d'); ctx.drawImage(img,0,0,cv.width,cv.height);
+    if(camTarget){   // 일련번호 칸: 바코드까지, 크기를 바꿔 가며 몇 번 (사진은 한 장뿐이라)
+      var sizes=[1200,900,640], k=0;
+      var next=function(){ if(k>=sizes.length){ URL.revokeObjectURL(img.src); camTarget=null; toast('QR·바코드를 못 읽었어요. 더 가까이서 다시 찍어주세요'); return; }
+        var s2=Math.min(1,sizes[k++]/Math.max(img.width,img.height)), c2=document.createElement('canvas'); c2.width=Math.round(img.width*s2); c2.height=Math.round(img.height*s2); c2.getContext('2d').drawImage(img,0,0,c2.width,c2.height);
+        ssDecode(c2,c2,{wait:true}).then(function(r){ if(r&&r.text){ URL.revokeObjectURL(img.src); handleScanned(r.text); } else next(); }); };
+      next(); return; }
     decodeAsync(cv).then(function(t){ if(!t) t=decodeCanvas(cv); URL.revokeObjectURL(img.src); if(t) handleScanned(t); else toast('QR을 못 읽었어요. 더 가까이서 다시 찍어주세요'); }); };
   img.src=URL.createObjectURL(f);
 });
+
+/* ================= 일련번호 QR·바코드 실시간 스캔 ================= */
+/* 기기·박스에 붙은 QR이나 바코드를 카메라에 비추면 바로 읽어 일련번호 칸에 넣는다 (예전: 사진 찍어서 읽기 → 사진은 안 될 때만).
+   BarcodeDetector(안드로이드 크롬 등)가 있으면 QR + 1차원 바코드 전부. 없으면 QR은 jsQR, 바코드는 ZXing(필요할 때만 불러옴).
+   읽은 글자는 사진으로 읽을 때와 똑같이 그대로 넣음. 바코드는 잘못 읽는 걸 막으려고 같은 값이 두 번 연속 나와야 넣음 */
+var SS_FORMATS=['qr_code','code_128','code_39','code_93','codabar','ean_13','ean_8','upc_a','upc_e','itf','data_matrix','pdf417','aztec'];
+var ssDetP=null, zxP=null, zxFailAt=0, zxReader=null, ss=null, camPick=0;   // ss = 스캔 중 {target, stream, raf, last, track} · camPick = 사진을 실제로 골랐나
+function ssDetector(){ if(ssDetP) return ssDetP; if(!('BarcodeDetector' in window)) return (ssDetP=Promise.resolve(null));
+  ssDetP=Promise.resolve(BarcodeDetector.getSupportedFormats?BarcodeDetector.getSupportedFormats():SS_FORMATS).then(function(f){
+    var use=SS_FORMATS.filter(function(x){ return f.indexOf(x)>=0; }); return use.length?new BarcodeDetector({formats:use}):null; }).catch(function(){ return null; });
+  return ssDetP; }
+/* ZXing 은 필요할 때 한 번만 불러옴. 실패하면 10초 동안은 다시 안 부름 (끊긴 곳에서 스크립트를 계속 붙이지 않게) */
+function loadZX(){ if(zxP) return zxP; if(Date.now()-zxFailAt<10000) return Promise.resolve(null);
+  zxP=new Promise(function(res){ var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
+    s.onload=function(){ res(window.ZXing||null); }; s.onerror=function(){ s.remove(); zxP=null; zxFailAt=Date.now(); res(null); }; document.head.appendChild(s); });
+  return zxP; }
+function zxDecode(cv){ var Z=window.ZXing; if(!Z) return null;
+  try{ if(!zxReader){ zxReader=new Z.MultiFormatReader(); var h=new Map(), F=Z.BarcodeFormat; h.set(Z.DecodeHintType.TRY_HARDER,true);
+      h.set(Z.DecodeHintType.POSSIBLE_FORMATS,[F.QR_CODE,F.CODE_128,F.CODE_39,F.CODE_93,F.CODABAR,F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.ITF,F.DATA_MATRIX,F.PDF_417]); zxReader.setHints(h); }
+    var r=zxReader.decodeWithState(new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(cv))));   // decode(bitmap) 는 힌트를 지움 → decodeWithState
+    return r?{text:r.getText(),qr:r.getBarcodeFormat()===Z.BarcodeFormat.QR_CODE}:null; }
+  catch(e){ return null; } finally{ try{ if(zxReader) zxReader.reset(); }catch(e){} } }
+/* 한 장에서 QR·바코드 읽기 → Promise({text, qr}) 또는 null.
+   src = 비디오(또는 캔버스) 전체, cv = 읽을 부분의 캔버스, opt.box = 안내 네모(src 픽셀) — 있으면 네모 안에 있는 것만 인정, opt.wait = ZXing 을 불러올 때까지 기다림(사진) */
+function ssDecode(src,cv,opt){ opt=opt||{}; return ssDetector().then(function(det){
+    if(!det) return {det:null,r:null};
+    return det.detect(src).then(function(c){ var b=opt.box, pick=null;
+      (c||[]).forEach(function(d){ if(pick||!d||!d.rawValue) return; var bb=d.boundingBox; if(b&&bb){ var cx=bb.x+bb.width/2, cy=bb.y+bb.height/2; if(cx<b.x||cx>b.x+b.w||cy<b.y||cy>b.y+b.h) return; } pick=d; });
+      return {det:det,r:pick?{text:pick.rawValue,qr:pick.format==='qr_code'}:null}; }).catch(function(){ return {det:det,r:null}; }); })
+  .then(function(x){ if(x.r) return x.r;
+    if(x.det&&opt.box) return null;   // 브라우저 기능이 있으면 그걸로 충분 (네모 안에 없음)
+    var q=decodeCanvas(cv); if(q) return {text:q,qr:true};
+    if(!x.det){ if(window.ZXing) return zxDecode(cv); var p=loadZX(); return opt.wait?p.then(function(){ return zxDecode(cv); }):null; }   // 불러오는 동안에도 QR은 계속 읽음
+    return null; }); }
+/* 화면의 안내 네모(.ssframe)를 비디오 픽셀 좌표로 (object-fit:cover 로 잘린 부분 고려, 가장자리 여유 6%) */
+function ssBox(vid){ var bx=vid.parentNode.getBoundingClientRect(), fr=vid.parentNode.querySelector('.ssframe').getBoundingClientRect(), vw=vid.videoWidth, vh=vid.videoHeight;
+  var s=Math.max(bx.width/vw,bx.height/vh), ox=(bx.width-vw*s)/2, oy=(bx.height-vh*s)/2;
+  var w=fr.width/s, h=fr.height/s, x=(fr.left-bx.left-ox)/s-w*0.06, y=(fr.top-bx.top-oy)/s-h*0.06; w*=1.12; h*=1.12;
+  x=Math.max(0,x); y=Math.max(0,y); return {x:x,y:y,w:Math.max(1,Math.min(vw-x,w)),h:Math.max(1,Math.min(vh-y,h))}; }
+function serialScan(target){ if(ss) return; haptic(8); camTarget=null;
+  var o=document.createElement('div'); o.className='sscan'; o.id='sscan';
+  o.innerHTML='<div class="sstop"><b>기기 QR · 바코드</b><button class="ssx" onclick="serialScanClose()" aria-label="닫기">×</button></div>'+
+    '<div class="ssbox"><video id="ssvid" playsinline muted></video><div class="ssframe"></div></div>'+
+    '<div class="ssmsg" id="ssmsg">카메라 준비 중…</div>'+
+    '<div class="ssrow"><button class="btn sm" id="sstorch" style="display:none" onclick="swTorch(this,\'🔦 플래시\',\'🔦 플래시 끄기\')">🔦 플래시</button><button class="btn sm" onclick="serialScanPhoto()">사진으로 찍어서 읽기</button></div>';
+  document.body.appendChild(o); requestAnimationFrame(function(){ o.classList.add('on'); });
+  ss={target:target,stream:null,raf:0,last:null,track:null}; var me=ss; hPush();   // 폰 뒤로가기 = 스캔 닫기
+  var msg=function(t){ var m=$('ssmsg'); if(m) m.textContent=t; };
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ msg('카메라를 쓸 수 없어요. 아래 "사진으로 찍어서 읽기"를 써 주세요.'); return; }
+  ssDetector(); if(!('BarcodeDetector' in window)) loadZX();   // 미리 준비
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false}).then(function(stream){
+    if(ss!==me){ stream.getTracks().forEach(function(t){ t.stop(); }); return; }
+    me.stream=stream; var vid=$('ssvid'); vid.srcObject=stream; vid.setAttribute('playsinline',''); vid.muted=true; vid.play().catch(function(){});
+    var tr=stream.getVideoTracks()[0]; me.track=tr; try{ if(tr.getCapabilities&&tr.getCapabilities().torch){ swTrack=tr; var tb=$('sstorch'); if(tb) tb.style.display=''; } }catch(e){}
+    msg('QR이나 바코드를 네모 안에 비추세요');
+    var cv=document.createElement('canvas'), ctx=cv.getContext('2d',{willReadFrequently:true}), busy=false, last=0, gap=('BarcodeDetector' in window)?120:280;
+    (function tick(ts){ if(ss!==me||!me.stream) return; me.raf=requestAnimationFrame(tick);
+      if(busy||ts-last<gap||vid.readyState<2) return; last=ts; if(!vid.videoWidth||!vid.videoHeight) return;
+      var b=ssBox(vid), sc=Math.min(1,1280/Math.max(b.w,b.h));   // 네모 부분만, 원래 해상도로 (가는 바코드 줄도 읽히게)
+      cv.width=Math.max(1,Math.round(b.w*sc)); cv.height=Math.max(1,Math.round(b.h*sc)); ctx.drawImage(vid,b.x,b.y,b.w,b.h,0,0,cv.width,cv.height);
+      busy=true;
+      ssDecode(vid,cv,{box:b}).then(function(r){ busy=false; if(!r||!r.text||ss!==me) return; var t=String(r.text).trim(); if(!t) return;
+        if(!r.qr){ var p=me.last; me.last={t:t,at:Date.now()}; if(!p||p.t!==t||Date.now()-p.at>1500){ msg('바코드 확인 중… 그대로 비춰 주세요'); return; } }   // 바코드는 같은 값 두 번
+        serialScanDone(t); }); })(0);
+  }).catch(function(err){ var n=err&&err.name||''; msg(n==='NotAllowedError'?'카메라 권한이 거부됐어요. 주소창 자물쇠 → 권한 → 카메라 허용 후 다시 열어 주세요.':(n==='NotFoundError'?'이 기기에 카메라가 없어요.':'카메라를 열 수 없어요 ('+n+'). 아래 "사진으로 찍어서 읽기"를 써 주세요.')); }); }
+function serialScanDone(text){ if(!ss) return; var el=$(ss.target);
+  if(el){ el.value=text; try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){} }
+  haptic([12,40,18]); toast('읽었어요 · '+text); serialScanClose(); }
+/* 닫기. fromPop = 폰 뒤로가기로 닫힌 경우 (history 는 이미 한 칸 돌아감) */
+function serialScanClose(fromPop){ var me=ss; if(!me) return; ss=null;
+  if(me.raf) cancelAnimationFrame(me.raf); if(me.stream) me.stream.getTracks().forEach(function(t){ t.stop(); }); if(swTrack===me.track) swTrack=null;
+  var o=$('sscan'); if(o){ o.classList.remove('on'); setTimeout(function(){ o.remove(); },220); }
+  if(!fromPop) hBack(1); }
+/* 사진으로 (카메라가 안 될 때). 사진 고르기를 취소하면 대상 칸을 비워, 다음 QR 스캔이 이 칸으로 새지 않게 */
+function serialScanPhoto(){ if(!ss) return; var tg=ss.target; camTarget=tg; camPick=0; serialScanClose();
+  var onF=function(){ window.removeEventListener('focus',onF); setTimeout(function(){ if(!camPick&&camTarget===tg) camTarget=null; },1500); };
+  window.addEventListener('focus',onF); $('camfile').click(); }
 function handleScanned(text){
   if(camTarget){ var el=$(camTarget); camTarget=null; if(el){ el.value=String(text).trim(); toast('읽었어요'); } return; }
   var top=stack[stack.length-1]; if(top&&top.name==='sw_qr'){ swQrDetected(text); return; }   // SWING QR 스캔: 시리얼 기록
@@ -1023,7 +1140,7 @@ function pickSearch(key){ var v=stack[stack.length-1]; var it=key[0]==='w' ? v.s
   v.state.picked=it; }
 function manualStock(q){ q=q||''; var isSerial=/[0-9]/.test(q);
   openSheet('<h3>재고 기기 등록</h3><p>고객·작업 없이 창고 재고로 등록해요. 일련번호만 있으면 됩니다.</p>'+
-    '<div class="field"><label>일련번호</label><input class="input code" id="ms_serial" value="'+esc(isSerial?q:'')+'" placeholder="예: S9-1-1504" style="letter-spacing:1px;font-size:18px;text-transform:none"></div>'+
+    '<div class="field"><label>일련번호</label><input class="input code" id="ms_serial" value="'+esc(isSerial?q:'')+'" placeholder="예: S9-1-1504" style="letter-spacing:1px;font-size:18px;text-transform:none"><button class="btn line sm" style="margin-top:8px" onclick="serialScan(\'ms_serial\')">QR·바코드 스캔</button></div>'+
     '<div class="field"><label>모델 (선택)</label><input class="input" id="ms_model" placeholder="예: S9 Black"></div>'+
     '<div class="field"><label>표시 이름 (선택)</label><input class="input" id="ms_name" value="'+esc(isSerial?'':q)+'" placeholder="비우면 \'재고\'로 표시"></div>'+
     '<button class="btn dark" style="margin-top:6px" onclick="manualStockGo()">QR 찍어서 매칭하기</button>'); setTimeout(function(){ var i=$('ms_serial'); if(i) i.focus(); },400); }
@@ -1175,7 +1292,7 @@ function saveFields(fields,msg){ needWorker(function(){ var v=stack[stack.length
       toast(fields.serial!==undefined&&res.tag.stockOut&&res.tag.matchState==='no'?'⚠️ 바꾼 일련번호는 어드민 고객요청 출고 기기와 달라요':(msg||'저장 완료')); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
 function editSerial(){ var t=stack[stack.length-1].state.tag;
   openSheet('<h3>일련번호</h3><p>기기 라벨의 일련번호 (예: S9-1-1504)</p><input class="input code" id="f_serial" value="'+esc(t['일련번호'])+'" style="letter-spacing:1px;font-size:18px;text-transform:none;margin-bottom:8px">'+
-    '<button class="btn line" style="margin-bottom:8px" onclick="camTarget=\'f_serial\';$(\'camfile\').click()">사진으로 읽기</button>'+
+    '<button class="btn line" style="margin-bottom:8px" onclick="serialScan(\'f_serial\')">QR·바코드 스캔</button>'+
     '<button class="btn" onclick="saveFields({serial:$(\'f_serial\').value},\'일련번호 저장\')">저장</button>'); }
 function accSheetHtml(current){ var cur=accList(current); var extra=cur.filter(function(a){return ACC_PRESET.indexOf(a)<0;});
   return '<div class="chips" id="accchips">'+ACC_PRESET.map(function(a){ return '<button class="'+(cur.indexOf(a)>=0?'on':'')+'" onclick="this.classList.toggle(\'on\')">'+a+'</button>'; }).join('')+'</div>'+
@@ -1419,7 +1536,7 @@ function drawStep3(v){ reanim(v); v.state.step=3; var it=v.state.list[v.state.se
   var h=title(esc(it.name)+' '+kindBadge(v.state.kind),'3/5 · 기기 일련번호')+stepsBar(3);
   h+='<div class="card"><label class="muted" style="font-size:12.5px;font-weight:600">일련번호</label><input class="input code" id="f_serial" value="'+esc(v.state.serial)+'" placeholder="예: S9-1-1504" style="letter-spacing:1px;font-size:20px;text-transform:none;margin-top:6px">'+
     (auto?'<p class="muted" style="margin:8px 0 0;color:var(--green-ink);font-weight:600">어드민에서 자동으로 가져왔어요. 기기 라벨과 같은지 확인하세요.</p>':(d.ok===false?'<p class="muted" style="margin:8px 0 0">어드민에서 못 가져와서 직접 입력해 주세요.</p>':'<p class="muted" style="margin:8px 0 0">기기 라벨의 일련번호를 입력하세요.</p>'))+
-    '<button class="btn line" style="margin-top:12px" onclick="camTarget=\'f_serial\';$(\'camfile\').click()"><svg viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg>기기 QR/바코드 사진으로 읽기</button></div>';
+    '<button class="btn line" style="margin-top:12px" onclick="serialScan(\'f_serial\')"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M7 9v6M10 9v6M13 9v6M16 9v6"/></svg>기기 QR·바코드 스캔</button></div>';
   if(v.state.kind==='재고') h=h.replace('<p class="muted" style="margin:8px 0 0">어드민에서 못 가져와서 직접 입력해 주세요.</p>','<p class="muted" style="margin:8px 0 0">재고 기기의 일련번호를 확인하세요.</p>');
   h+='<div class="row"><button class="btn line sm" onclick="step3Back()">이전</button><button class="btn sm" style="flex:2" onclick="toStep4()">다음 · 액세서리</button></div>';
   v.el.innerHTML=h; }
@@ -2409,21 +2526,56 @@ function swingStop(){ clearInterval(swingT); swingT=null; var g=$('glitch'); if(
 function showLogin(msg,prefill){ var l=$('login'); if(!$('glitch').innerHTML) $('glitch').innerHTML='<span class="g g1">'+LOGO+'</span><span class="g g2">'+LOGO+'</span><span class="g g3">'+LOGO+'</span>'+
     '<img class="gv" id="gvid" src="swing-tease.webp" alt="">';
   swingStart(); pickServer(SERVER);
-  $('lver').textContent='SWAP 입출고 v'+APP_VER; l.style.display=''; l.classList.remove('out'); setLoginErr(msg||''); $('lcode').value=prefill||''; $('lbtn').disabled=false; $('lbtn').textContent='접속';
+  lanimReset(); $('lver').textContent='SWAP 입출고 v'+APP_VER; l.style.display=''; l.classList.remove('out'); setLoginErr(msg||''); $('lcode').value=prefill||''; $('lbtn').disabled=false; $('lbtn').textContent='접속';
   $('lauto').checked=!!prefill;
   if(!prefill) setTimeout(function(){ try{ $('lcode').focus(); }catch(e){} },500); }
 function hideLogin(){ var l=$('login'); l.classList.add('out'); setTimeout(function(){ l.style.display='none'; swingStop(); },480); }
-function loginFail(msg){ var card=$('lcard'); $('glitch').classList.remove('wild'); $('lbtn').disabled=false; $('lbtn').textContent='접속'; setLoginErr(msg||'접속 실패'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); }
-function doLogin(){ var code=($('lcode').value||'').trim().toUpperCase();
+function loginFail(msg){ lanimReset(true); var card=$('lcard'); $('glitch').classList.remove('wild'); $('lbtn').disabled=false; $('lbtn').textContent='접속'; setLoginErr(msg||'접속 실패'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); }
+/* ---- 접속 애니메이션 (1.3초) ----
+   0초: 접속 코드 칸과 접속 버튼이 밑줄로 합쳐져 선 하나 → 0.3초: 선이 "- - - -"로 바뀌어 왼쪽→오른쪽으로 흐르고, 바로 밑에 로딩바.
+   0.3~1.3초: 1→100% + 옆에 단계 글 (접속코드 확인중 → 코드 권한 확인중 → 작업내역·재고 확인중 → 접속 승인).
+   서버 승인이 늦으면 80%(작업내역·재고 확인중)에서 기다렸다가 승인되면 마저 채우고 들어감. 실패하면 원래 칸·버튼으로 돌아오고 흔들림 */
+var LSTAGE=[[25,'접속코드 확인중'],[50,'코드 권한 확인중'],[80,'작업내역·재고 확인중'],[100,'접속 승인']];
+var la=null;   // 애니메이션 중 {t0, p, ok, fin, raf, tm}
+var lShown=['',''], lBackT=0;   // 화면에 찍힌 % · 단계 글 (바뀔 때만 다시 씀 → 화면낭독기가 매 프레임 읽지 않게)
+function lanimSet(p){ var fl=$('lbarfill'), pc=$('lpct'), st=$('lstage'); if(!fl) return; fl.style.width=p+'%';
+  var pt=Math.max(1,Math.round(p))+'%', sg=(LSTAGE.filter(function(x){ return p<=x[0]; })[0]||LSTAGE[3])[1];
+  if(pt!==lShown[0]){ pc.textContent=pt; lShown[0]=pt; } if(sg!==lShown[1]){ st.textContent=sg; lShown[1]=sg; } }
+/* smooth=true(실패): 칸·버튼 자리를 0.3초에 걸쳐 되돌리고, 로딩바가 다 접힌 다음에 0%로 */
+function lanimReset(smooth){ if(la){ if(la.raf) cancelAnimationFrame(la.raf); if(la.tm) clearTimeout(la.tm); } la=null; clearTimeout(lBackT);
+  var c=$('lcard'), f=$('lfield'), pr=$('lprog'), inp=$('lcode'); if(!c||!f) return;
+  var h0=(smooth&&f.style.height)?f.offsetHeight:0;
+  c.classList.remove('lgo','ldash'); pr.classList.remove('on'); pr.setAttribute('aria-hidden','true'); inp.readOnly=false; f.style.height='';
+  if(!h0){ lanimSet(0); return; }
+  var h1=f.offsetHeight; f.style.height=h0+'px'; void f.offsetHeight; f.style.height=h1+'px';
+  lBackT=setTimeout(function(){ if(la) return; f.style.height=''; lanimSet(0); },320); }
+function lanimStart(){ lanimReset(); var c=$('lcard'), f=$('lfield'), inp=$('lcode'), m=$('lmorph'), pr=$('lprog'); if(!c||!f) return;
+  inp.readOnly=true;   // 접속 중엔 코드 못 고침
+  var ly=inp.offsetTop+inp.offsetHeight-1; m.style.top=ly+'px'; f.style.height=f.offsetHeight+'px'; void f.offsetHeight;
+  c.classList.add('lgo'); f.style.height=(ly+16)+'px';   // 접속 버튼 자리를 접어 선만 남김
+  pr.classList.add('on'); pr.removeAttribute('aria-hidden');   // 로딩바 자리도 같은 0.3초에 벌림 (글은 CSS 로 0.3초 뒤에 보임)
+  var me=la={t0:performance.now(),p:0,ok:null,fin:null,raf:0,tm:0,last:0};
+  me.tm=setTimeout(function(){ if(la!==me) return; c.classList.add('ldash'); },300);
+  me.raf=requestAnimationFrame(function tick(now){ if(la!==me) return; var dt=me.last?now-me.last:16; me.last=now;
+    var tl=Math.min(100,Math.max(0,(now-me.t0-300)/10));   // 0.3초~1.3초: 0→100
+    var p=me.ok ? Math.min(tl,me.p+dt*0.12) : Math.min(tl,80);   // 승인 전엔 80%에서 대기 · 늦게 승인되면 거기서부터 0.2초 안에 마저 (뛰지 않게)
+    me.p=Math.min(100,Math.max(me.p,p)); lanimSet(me.p);
+    if(me.ok&&me.p>=100){ var fn=me.fin; me.tm=setTimeout(function(){ if(la!==me) return; la=null; if(fn) fn(); },160); return; }
+    me.raf=requestAnimationFrame(tick); }); }
+function lanimDone(fn){ if(!la){ fn(); return; } la.ok=true; la.fin=fn; }
+function doLogin(){ if(la||$('lbtn').disabled) return; var code=($('lcode').value||'').trim().toUpperCase(), sv=SERVER;
   if(code.length<5){ loginFail('코드는 5자리예요'); return; }
-  $('lbtn').disabled=true; $('lbtn').textContent='확인 중…'; setLoginErr(''); $('glitch').classList.add('wild');
-  run('login',code,SERVER).then(function(a){ applyAuth(a,$('lauto').checked); $('glitch').classList.remove('wild'); if(navigator.vibrate) navigator.vibrate([10,30,10]); hideLogin(); startApp(); })
+  $('lbtn').disabled=true; setLoginErr(''); $('glitch').classList.add('wild'); try{ $('lcode').blur(); }catch(e){} lanimStart();
+  run('login',code,sv).then(function(a){ applyAuth(a,$('lauto').checked); lanimDone(function(){ if(SERVER!==sv) setServer(sv); $('glitch').classList.remove('wild'); if(navigator.vibrate) navigator.vibrate([10,30,10]); hideLogin(); startApp(); }); })
     .catch(function(e){ loginFail(e.message); }); }
-/* 자동 로그인: 로그인 화면을 1.3초 보여준 뒤(그동안 코드가 아직 유효한지 확인) 들어감 */
-function autoLogin(){ showLogin('',AUTH.code); $('lbtn').disabled=true; $('lbtn').textContent='자동 접속 중…'; $('glitch').classList.add('wild');
-  var wait=new Promise(function(r){ setTimeout(r,1300); });
-  var check=run('login',AUTH.code,SERVER).then(function(a){ applyAuth(a,true); return true; }).catch(function(e){ if(e.auth===false){ loginFail(e.message); return false; } return true; /* 네트워크 오류면 저장된 코드로 진행 */ });
-  Promise.all([wait,check]).then(function(r){ if(!r[1]) return; $('glitch').classList.remove('wild'); hideLogin(); startApp(); }); }
+/* 자동 로그인: 로그인 화면이 뜨고 곧바로 같은 접속 애니메이션(그동안 코드가 아직 유효한지 확인) → 들어감 */
+function autoLogin(){ showLogin('',AUTH.code); $('lbtn').disabled=true; $('glitch').classList.add('wild'); var sv=SERVER;
+  var started=new Promise(function(r){ setTimeout(function(){ lanimStart(); r(); },250); });   // 카드가 나타난 다음
+  var check=run('login',AUTH.code,sv).then(function(a){ applyAuth(a,true); return true; }).catch(function(e){ if(e.auth===false) return e; return true; /* 네트워크 오류면 저장된 코드로 진행 */ });
+  Promise.all([started,check]).then(function(r){
+    if(r[1]!==true){ if(AUTH){ AUTH.auto=false; try{ localStorage.setItem('swapAuth',JSON.stringify(AUTH)); }catch(e){} }   // 코드가 막힘 → 다음부턴 자동 로그인 안 함
+      $('lauto').checked=false; loginFail(r[1].message); return; }
+    lanimDone(function(){ if(SERVER!==sv) setServer(sv); $('glitch').classList.remove('wild'); hideLogin(); startApp(); }); }); }
 function applyAuth(a,auto){ var legacy=(a.role===undefined&&a.master===undefined);   // 서버(Code.gs)가 아직 v10.5 → 관리자 = 마스터 하나뿐
   AUTH={code:a.code,name:a.name||'',admin:!!a.admin,master:legacy?!!a.admin:!!a.master,role:a.role||(a.admin?(legacy?'master':'admin'):'worker'),auto:!!auto,
     servers:(a.servers&&a.servers.length)?a.servers:['swap','swing'],perms:a.perms||{}}; try{ localStorage.setItem('swapAuth',JSON.stringify(AUTH)); }catch(e){}
