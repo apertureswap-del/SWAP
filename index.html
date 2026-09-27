@@ -421,6 +421,14 @@
   .mitem .mi.em{background:transparent} .mitem .mi.em svg{width:34px;height:34px;stroke:none;fill:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.12))}
   .mitem .mt{flex:1;min-width:0} .mitem .mt b{display:block;font-size:16.5px;font-weight:800;letter-spacing:-.3px} .mitem .mt span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
   .mitem .ar{color:var(--muted2);font-size:20px}
+  .item.cdoff{opacity:.62}   /* 고객 기기: 반납이 아닌 기기(이용 중·다른 고객)는 흐리게 */
+  /* 재고 출고: 이름 옆 고객 매칭 버튼 · 말풍선 */
+  .smbtn{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;background:var(--p-soft);color:var(--p-ink);font-size:12.5px;font-weight:800}
+  .smbtn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round} .smbtn:active{transform:scale(.94)}
+  .mbubble{position:fixed;left:50%;top:42%;z-index:60;width:max-content;max-width:min(80vw,360px);padding:14px 20px;border-radius:18px;background:#191f28;color:#fff;font-weight:800;font-size:16px;letter-spacing:-.3px;text-align:center;
+    box-shadow:0 12px 36px rgba(0,0,0,.28);transform:translate(-50%,-40%) scale(.85);opacity:0;transition:opacity .22s,transform .3s var(--spring);pointer-events:none}
+  .mbubble::after{content:'';position:absolute;left:50%;bottom:-7px;width:14px;height:14px;background:#191f28;transform:translateX(-50%) rotate(45deg);border-radius:3px}
+  .mbubble.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
   /* 권한 없는 기능: 흐리게 + 자물쇠 */
   .lki{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px}
   .mitem.lock{opacity:.5} .mitem.lock .mi.em svg{filter:grayscale(1)} .mitem.lock .ar{display:flex}
@@ -626,7 +634,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.6';
+var APP_VER = '10.8';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -696,6 +704,7 @@ var _rid=0; var READ_FNS={getTag:1,listTags:1,getWorkList:1,getTaskDevices:1,get
 /* 전산미완료: 재고/출고준비완료인데 어드민 고객요청이 완료가 아닌 기기 */
 function sysPending(t){ if(!t) return false; if(typeof t.sysPending==='boolean') return t.sysPending;
   var st=String(t['어드민상태']||'').trim(); return ['재고','출고준비완료','출고완료'].indexOf(t['상태'])>=0 && !!t['고객요청ID'] && (!st || /^(PENDING|IN_PROGRESS|WAITING|READY)$/i.test(st)); }
+function sysIssue(t){ return sysPending(t)||(!!t&&t.stockOut&&t.matchState==='no'); }   // 전산미완료 + 재고 출고 전산 매칭 안됨
 function sysBadge(t,small){ return sysPending(t) ? '<span class="pill sys'+(small?' sm':'')+'">⚠️전산미완료</span>' : ''; }
 var sysRefreshT=0;
 function refreshSysBg(){ if(Date.now()-sysRefreshT<60000) return; sysRefreshT=Date.now();
@@ -737,7 +746,7 @@ function isOut(t){ return t['구분']==='출고'; }
 
 /* ================= 네비게이션 ================= */
 var stack=[]; var animating=false; var VIEWS={};
-var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
+var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
 /* ---- 권한: 마스터(모든 기능 · 접속 코드 관리) / 관리자(접속 코드 관리 빼고 전부) / 일반(추가기능은 관리자가 켜고 끔 → 꺼진 건 자물쇠) ---- */
 function isMaster(){ return !!(AUTH&&AUTH.master); }
 function isAdminUp(){ return !!(AUTH&&AUTH.admin); }
@@ -842,7 +851,7 @@ function drawHome(v,tags){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true
   var sum={}; STATUSES.forEach(function(s){sum[s]=0;}); tags.forEach(function(t){ if(sum[t['상태']]!==undefined) sum[t['상태']]++; });
   var n=function(x,k){ return num(x,k); };
   var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span class="hlogo">'+LOGO+'</span>경기남부점 입출고</h1></div>';
-  var sysN=tags.filter(sysPending).length;
+  var sysN=tags.filter(sysIssue).length;   // 전산미완료 + 재고 출고 전산 매칭 안됨
   h+='<div class="card sum"><div class="lb">관리 중인 기기'+(sysN?' <span class="pill sys sm" style="margin-left:6px;vertical-align:middle" onclick="push(\'status\',{filter:\'전산미완료\'})">⚠️전산미완료 '+sysN+'</span>':'')+'</div><div class="big">'+n(inside.length,'all')+'<span>대</span></div>'+
     '<div class="stats">'+[['입고','입고'],['수리대기','수리대기'],['수리가능','수리가능'],['재고','재고'],['출고대기중','출고 대기중'],['출고준비완료','출고 준비완료']].map(function(x){
       return '<button class="'+(x[0]==='출고준비완료'&&sum[x[0]]?'hot':'')+'" onclick="push(\'status\',{filter:\''+x[0]+'\'})"><span><i class="dot s-'+x[0]+'"></i>'+x[1]+'</span>'+n(sum[x[0]],x[0])+'</button>'; }).join('')+
@@ -861,7 +870,7 @@ function openManual(){ var c=($('manual').value||'').trim().toUpperCase(); if(!c
 function openCode(code){ push('tag',{code:code}); }
 function itemTag(t){
   return '<button class="item" onclick="openCode(\''+jsa(t['코드'])+'\')">'+devAv(t['모델'],t['색상'])+
-    '<div class="bd"><div class="nm">'+esc(t['고객명'])+' <span class="pill s-'+esc(t['상태'])+'" style="font-size:11px;padding:3px 8px">'+esc(t['상태'])+'</span>'+sysBadge(t,true)+'</div>'+
+    '<div class="bd"><div class="nm">'+esc(t['고객명'])+' <span class="pill s-'+esc(t['상태'])+'" style="font-size:11px;padding:3px 8px">'+esc(t['상태'])+'</span>'+sysBadge(t,true)+matchBadge(t,true)+'</div>'+
     '<div class="sub">'+kindName(t['구분'])+' · '+esc(t['모델'])+' '+esc(t['색상'])+' · <span class="sn">'+esc(t['일련번호']||t['코드'])+'</span></div></div>'+
     '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>';
 }
@@ -945,11 +954,11 @@ VIEWS.status={ render:function(v){ v.state.filter=v.state.filter||v.params.filte
   run('listTags',500).then(function(tags){ lsSet('tags',tags); if(stack.indexOf(v)<0) return; v.state.tags=tags; drawStatus(v); refreshSysBg(); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)); }); }};
 function drawStatus(v){ var f=v.state.filter; var tags=v.state.tags||[]; tags.forEach(normStatus);
   var inside=tags.filter(function(t){ return !shipped(t); });   // 출고완료(배송내역)는 공장 안에 없는 기기 → 전체에서 뺌
-  var list=tags.filter(function(t){ if(f==='배송내역') return shipped(t); if(shipped(t)) return false; if(f==='전체') return true; if(f==='전산미완료') return sysPending(t); return t['상태']===f; });
+  var list=tags.filter(function(t){ if(f==='배송내역') return shipped(t); if(shipped(t)) return false; if(f==='전체') return true; if(f==='전산미완료') return sysIssue(t); return t['상태']===f; });
   var mk=function(x){ return String(x||'').toLowerCase().replace(/\s+/g,''); };   // 같은 기종끼리, 그 안에서 같은 색끼리, 그 안에서는 최근 순 (배송내역은 최근 순만)
   if(f==='배송내역') list.sort(function(a,b){ return String(b['최종변경시각']||'').localeCompare(String(a['최종변경시각']||'')); });
   else list.sort(function(a,b){ var A=mk(a['모델']),B=mk(b['모델']); if(A!==B) return (A||'\uffff')<(B||'\uffff')?-1:1; var ac=mk(a['색상']),bc=mk(b['색상']); if(ac!==bc) return (ac||'\uffff')<(bc||'\uffff')?-1:1; return String(b['최종변경시각']||'').localeCompare(String(a['최종변경시각']||'')); });
-  var cnt={}; tags.forEach(function(t){ cnt[t['상태']]=(cnt[t['상태']]||0)+1; }); var sysN=inside.filter(sysPending).length, shipN=tags.length-inside.length;
+  var cnt={}; tags.forEach(function(t){ cnt[t['상태']]=(cnt[t['상태']]||0)+1; }); var sysN=inside.filter(sysIssue).length, shipN=tags.length-inside.length;
   var h=title('입출고 현황', num(inside.length,'all')+'대 관리 중',
     '<button class="hbtn" onclick="openMyWork()"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>내 작업 현황</button>');
   var btn=function(key,label,cls,c){ return '<button class="'+(cls||'')+(f===key?' on':'')+'" onclick="setFilter(\''+key+'\')">'+(cls?'':'<i class="dot s-'+key+'"></i>')+label+'<small>'+(c||0)+'</small></button>'; };
@@ -998,7 +1007,9 @@ function drawSearchRes(v){ var r=v.state.res||{tags:[],worklist:[]}; var a=v.sta
   h+=r.worklist.length?'<div class="list">'+r.worklist.map(function(it,i){ return itemWork(it,'w'+i); }).join('')+'</div>':'<div class="card" style="padding:16px 20px"><p class="muted" style="margin:0">작업리스트에는 없어요.</p></div>';
   h+='<div class="sec"><span>어드민</span><span>'+(a.loading?'찾는 중…':(a.ok?a.items.length+'건':''))+'</span></div>';
   if(a.loading) h+='<div class="card" style="padding:14px 20px"><div class="loadlogo" style="padding:6px 0">'+LOGO+'</div></div>';
-  else if(a.ok&&a.items.length) h+='<div class="list">'+a.items.map(function(it,i){ return itemWork(it,'a'+i); }).join('')+'</div>';
+  else if(a.ok&&a.items.length){
+    if(!looksSerialQ(q)) h+='<button class="btn line" style="margin-bottom:10px" onclick="push(\'custdev\',{q:\''+jsa(q)+'\'})"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6"/></svg>'+esc(q)+' 고객의 이용 · 반납 기기 보기</button>';   // 반납된(창고에 들어온) 기기를 재고로
+    h+='<div class="list">'+a.items.map(function(it,i){ return itemWork(it,'a'+i); }).join('')+'</div>'; }
   else h+='<div class="card" style="padding:16px 20px"><p class="muted" style="margin:0">'+(a.ok?('어드민에도 없어요.'+(a.note?' ('+esc(a.note)+')':'')):'어드민 검색 불가 — '+esc(a.error||''))+'</p></div>';
   h+='<button class="btn line" style="margin-top:16px" onclick="manualStock(\''+jsa(q)+'\')">🏷️ 재고 기기 직접 입력해서 등록</button>';
   var box=$('sres'); if(box){ box.innerHTML=h; } }
@@ -1070,19 +1081,21 @@ function sendReportNow(){ var v=stack[stack.length-1]; var note=v.state.note||''
 
 /* ================= 태그 메인 ================= */
 VIEWS.tag={ render:function(v){ var code=v.params.code;
-  v.refresh=function(){ return run('getTag',code).then(function(tag){ if(stack.indexOf(v)<0) return; if(tag){ v.state.tag=tag; drawTag(v); } else replace('register',{code:code}); }); };
+  v.refresh=function(){ return run('getTag',code).then(function(tag){ if(stack.indexOf(v)<0) return; if(tag){ v.state.tag=tag; drawTag(v); } else if(stack[stack.length-1]===v) replace('register',{code:code}); }); };
   if(v.params.tag){ v.state.tag=v.params.tag; drawTag(v); return; }
-  run('getTag',code).then(function(tag){ if(tag){ v.state.tag=tag; drawTag(v); } else replace('register',{code:code}); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }};
+  run('getTag',code).then(function(tag){ if(tag){ v.state.tag=tag; drawTag(v); } else if(stack[stack.length-1]===v) replace('register',{code:code}); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }};
 function accList(str){ return String(str||'').split(/[,、\n]/).map(function(x){return x.trim();}).filter(Boolean); }
 function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=normStatus(v.state.tag); var out=isOut(t);
-  var pair = out ? (t['수거일련번호']||'') : (t['출고일련번호']||'');
+  var pair = out ? (t['수거일련번호']||'') : (t['출고일련번호']||''); if(pair&&pair===t['일련번호']) pair='';   // 자기 자신은 짝 기기가 아님
   var h=title('<span class="code-badge">'+esc(t['코드'])+'</span>','');
   h+='<div class="card">'+
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'+
-      '<div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:26px;font-weight:800;letter-spacing:-.8px;line-height:1.2">'+esc(t['고객명'])+'</span>'+kindBadge(t['구분'])+'</div>'+
+      '<div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:26px;font-weight:800;letter-spacing:-.8px;line-height:1.2">'+esc(t['고객명'])+'</span>'+kindBadge(t['구분'])+
+        (canStockMatch(t)?'<button class="smbtn" onclick="openStockMatch()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg>고객 매칭</button>':'')+'</div>'+
       '<div class="muted" style="margin-top:3px">'+esc(t['작업타입'])+' · '+esc(t['작업예정일'])+'</div></div>'+
-      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="pill s-'+esc(t['상태'])+'">'+esc(t['상태'])+'</span>'+sysBadge(t)+'</div></div>'+
+      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="pill s-'+esc(t['상태'])+'">'+esc(t['상태'])+'</span>'+sysBadge(t)+matchBadge(t)+'</div></div>'+
     (sysPending(t)?'<div class="note" style="margin-top:12px;background:var(--danger-soft);color:var(--danger)"><b>⚠️전산미완료</b> — 어드민 고객요청이 아직 완료 처리되지 않았어요'+(t['어드민상태']?' (현재: '+esc(t['어드민상태'])+')':' (상태 미확인)')+'. 어드민에서 완료 처리 후 "어드민 새로고침"을 누르면 사라집니다.</div>':'')+
+    stockOutCard(t)+
     '<div class="block">'+
       '<div class="field-row"><div class="muted" style="font-size:13px;font-weight:600">'+(out?'출고 기기':(t['구분']==='재고'?'재고 기기':'수거 기기'))+' · '+esc(t['모델'])+' '+esc(t['색상'])+'</div><button class="edit" onclick="editSerial()">수정</button></div>'+
       '<div class="sn-big">'+(t['일련번호']?esc(t['일련번호']):'<span class="muted" style="font-weight:600;font-size:15px;font-family:inherit">일련번호 없음</span>')+'</div>'+
@@ -1148,10 +1161,18 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
 function checkRedeliveryNow(){ haptic(12); needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('어드민에서 재배송 요청 확인 중');
   run('checkRedelivery',code,worker).then(function(res){ if(stack.indexOf(v)<0) return; if(res.tag) v.state.tag=res.tag; drawTag(v);
     if(!res.ok) toast(res.error); else if(res.moved) { haptic([12,40,18]); toast('출고 예정 '+res.task.date+' · 출고준비완료로 넘김'); } else if(res.found) toast('최근 요청이 재배송인데 작업예정일자가 아직 없어요'); else toast(res.latest?'최근 고객요청이 재배송이 아니에요':'고객요청이 없어요'); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
-function setStatus(s){ haptic(12); needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('저장 중');
+function setStatus(s,sure){ var v0=stack[stack.length-1], t0=v0&&v0.state.tag;
+  if(s==='출고완료'&&!sure&&t0&&t0.stockOut&&t0.matchState!=='ok'&&!v0.state.rechecked){   // 재고 출고인데 전산 매칭이 안 됨 → 어드민을 지금 다시 보고(1번), 그래도 안 되면 아래 창으로 묻는다
+    v0.state.rechecked=true; verifyMatchNow(true,v0.params.code).then(function(r){ if(stack[stack.length-1]!==v0){ v0.state.rechecked=false; return; }
+      if(r&&r.ok&&r.match){ v0.state.rechecked=false; closeSheet(); setStatus('출고완료',true); } else closeSheet(function(){ setStatus('출고완료'); }); }); return; }
+  if(s==='출고완료'&&!sure&&t0&&t0.stockOut&&t0.matchState!=='ok'){ v0.state.rechecked=false;
+    openSheet('<h3>전산 매칭이 안 된 기기예요</h3><p>어드민 고객요청 '+esc(t0['고객요청ID'])+'의 출고 기기가 이 기기('+esc(t0['일련번호'])+')로 '+(t0.matchState==='no'?'잡혀 있지 않아요'+(t0.adminOut&&t0.adminOut!=='없음'?' (어드민: '+esc(t0.adminOut)+')':''):'아직 확인되지 않았어요')+'. 어드민에서 기기를 배정한 뒤 출고완료하는 게 안전해요.</p>'+
+      '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--green)" onclick="closeSheet(function(){ setStatus(\'출고완료\',true); })">그래도 출고완료</button></div>'); return; }
+  haptic(12); needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('저장 중');
   run('updateStatus',code,s,worker,'').then(function(res){ if(res.ok){ v.state.tag=res.tag; drawTag(v); toast(s+' 처리 완료'); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
 function saveFields(fields,msg){ needWorker(function(){ var v=stack[stack.length-1]; closeSheet(); v.el.innerHTML=spin('저장 중');
-  run('updateFields',v.params.code,fields,worker).then(function(res){ if(res.ok){ v.state.tag=res.tag; drawTag(v); toast(msg||'저장 완료'); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
+  run('updateFields',v.params.code,fields,worker).then(function(res){ if(res.ok){ v.state.tag=res.tag; drawTag(v);
+      toast(fields.serial!==undefined&&res.tag.stockOut&&res.tag.matchState==='no'?'⚠️ 바꾼 일련번호는 어드민 고객요청 출고 기기와 달라요':(msg||'저장 완료')); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
 function editSerial(){ var t=stack[stack.length-1].state.tag;
   openSheet('<h3>일련번호</h3><p>기기 라벨의 일련번호 (예: S9-1-1504)</p><input class="input code" id="f_serial" value="'+esc(t['일련번호'])+'" style="letter-spacing:1px;font-size:18px;text-transform:none;margin-bottom:8px">'+
     '<button class="btn line" style="margin-bottom:8px" onclick="camTarget=\'f_serial\';$(\'camfile\').click()">사진으로 읽기</button>'+
@@ -1173,17 +1194,181 @@ function rematchAsk(){ needWorker(function(){ var v=stack[stack.length-1]; var t
 function releaseNow(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('처리 중');
   run('releaseTag',code,worker).then(function(res){ if(res.ok){ toast('태그를 비웠습니다'); replace('register',{code:code}); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }
 
+/* ================= 재고 기기 → 다른 고객에게 출고 (고객요청 매칭 + 전산 매칭 확인) ================= */
+/* 재고·출고대기중 기기(예전 이용자 이름이 붙어 있거나 그냥 재고) → 이름 옆 "고객 매칭" → 고객 이름·고객요청ID로 어드민 고객요청 찾기 → 고르면 출고준비완료.
+   매칭 뒤 "어드민 작업을 먼저 진행해주세요!" 말풍선(1.2초) → 어드민 고객요청 상세의 출고 기기가 이 기기인지 확인 → 아니면 "전산 매칭 안됨" 경고 */
+function canStockMatch(t){ return !!t && (((t['구분']!=='출고')&&(t['상태']==='재고'||t['상태']==='출고대기중')) || (t.stockOut&&t['상태']==='출고준비완료')); }
+function matchBadge(t,small){ return (t&&t.stockOut&&t.matchState==='no')?'<span class="pill sys'+(small?' sm':'')+'">⚠️전산매칭 안됨</span>':''; }
+function stockOutCard(t){ if(!t||!t.stockOut) return '';
+  var st=t.matchState, head='<div class="muted" style="font-size:12.5px">재고에서 출고 · 원래 <b style="color:var(--ink2)">'+esc(t.originText||'재고')+'</b></div>';
+  var body = st==='ok' ? '<div class="swok" style="margin-top:8px">✓ 전산 매칭 확인 — 어드민 고객요청 출고 기기가 이 기기예요</div>'
+    : st==='no' ? '<div class="note" style="margin-top:8px;background:var(--danger-soft);color:var(--danger)"><b>⚠️ 전산 매칭 안됨</b> — 어드민 고객요청 '+esc(t['고객요청ID'])+'의 출고 기기가 '+(t.adminOut&&t.adminOut!=='없음'?'<b class="mono">'+esc(t.adminOut)+'</b> 로 잡혀 있어요 (이 기기 아님)':'아직 없어요')+'. 어드민에서 이 기기('+esc(t['일련번호'])+')를 배정한 뒤 다시 확인하세요.</div>'
+    : '<div class="note" style="margin-top:8px">전산 매칭 확인 전 — 어드민에서 기기를 배정했는지 곧 확인해요.</div>';
+  return '<div class="block" style="margin-top:12px">'+head+body+
+    '<div class="row" style="margin-top:10px"><button class="btn line sm" onclick="verifyMatchNow()">전산 매칭 다시 확인</button>'+(t['상태']==='출고준비완료'?'<button class="btn line sm" onclick="unmatchAsk()">재고로 되돌리기</button>':'')+'</div></div>'; }
+function tagView(){ var v=stack[stack.length-1]; return (v&&v.name==='tag')?v:null; }
+function openStockMatch(){ var v=tagView(); if(!v) return; needWorker(function(){ push('stockmatch',{code:v.params.code}); }); }
+/* 말풍선: 화면 가운데 잠깐 떴다 사라짐 → 끝나면 resolve */
+function bubble(msg,ms){ return new Promise(function(res){ var b=document.createElement('div'); b.className='mbubble'; b.textContent=msg; document.body.appendChild(b);
+  requestAnimationFrame(function(){ b.classList.add('on'); }); haptic([10,40,10]);
+  setTimeout(function(){ b.classList.remove('on'); setTimeout(function(){ b.remove(); res(); },260); },ms||1200); }); }
+VIEWS.stockmatch={ render:function(v){ var tv=stack[stack.length-2], t=(tv&&tv.name==='tag'&&tv.state.tag)||{};
+  v.state.t=t; smDraw(v); setTimeout(function(){ var i=$('sm_q'); if(i&&stack[stack.length-1]===v) i.focus(); },380); }};
+function smView(){ var v=stack[stack.length-1]; return (v&&v.name==='stockmatch')?v:null; }
+function smDraw(v){ var t=v.state.t||{};
+  var h=title('고객 매칭','<span class="code-badge" style="font-size:13px">'+esc(v.params.code)+'</span> 재고 기기를 다른 고객에게 출고');
+  h+='<div class="card"><div class="lb">이 기기</div><div style="display:flex;align-items:center;gap:12px;margin-top:6px">'+devAv(t['모델'],t['색상'])+'<div><b class="mono" style="font-size:17px">'+esc(t['일련번호']||'일련번호 없음')+'</b><div class="muted" style="font-size:13px">'+esc([t['모델'],t['색상']].filter(Boolean).join(' '))+' · 지금 '+esc(t['고객명']||'재고')+(t['작업타입']?' · '+esc(t['작업타입']):'')+'</div></div></div></div>';
+  h+='<div class="card"><div class="lb">매칭할 고객 이름 또는 고객요청ID</div><div class="row" style="margin:6px 0 0"><input class="input" id="sm_q" value="'+esc(v.state.q||'')+'" placeholder="예: 최성은, 0230269-T1" autocomplete="off" style="flex:1">'+
+    '<button class="btn sm" style="flex:0 0 auto;padding:0 18px" onclick="smSearch()">찾기</button></div>'+
+    '<p class="muted" style="margin:10px 0 0;font-size:13px">고르면 이 기기가 그 고객요청의 <b>출고 기기</b>로 바뀌고 <b>출고준비완료</b>로 넘어가요. 예전 이용자 정보는 기록으로 남아요.</p></div><div id="sm_res"></div>';
+  v.el.innerHTML=h; $('sm_q').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.target.blur(); smSearch(); } });
+  if(v.state.res) smDrawRes(v); }
+function smSearch(){ var v=smView(); if(!v) return; var q=(($('sm_q')||{}).value||'').trim(); if(q.length<2){ toast('2글자 이상 입력해 주세요'); return; }
+  v.state.q=q; var seq=v.state.seq=(v.state.seq||0)+1; $('sm_res').innerHTML=spin('어드민 고객요청 찾는 중'); haptic(6);
+  run('findMatchTasks',q).then(function(r){ if(smView()!==v||v.state.seq!==seq) return; v.state.res=r; smDrawRes(v); })
+    .catch(function(e){ if(smView()===v&&v.state.seq===seq) $('sm_res').innerHTML=errBox(e); }); }
+function smDrawRes(v){ var r=v.state.res||{}, box=$('sm_res'); if(!box) return;
+  if(!r.ok){ box.innerHTML='<div class="card"><p class="muted" style="margin:0">어드민 검색 불가 — '+esc(r.error||'')+'</p></div>'; return; }
+  if(!r.items.length){ box.innerHTML='<div class="card"><p class="muted" style="margin:0">그 이름·고객요청을 찾지 못했어요.</p></div>'; return; }
+  box.innerHTML='<div class="sec"><span>어드민 고객요청</span><span>'+r.items.length+'건</span></div><div class="list">'+r.items.map(function(it,i){
+    return '<button class="item" onclick="smPick('+i+')">'+devAv(it.changeModel||it.model,it.changeColor||it.color)+'<div class="bd">'+
+      '<div class="nm">'+esc(it.name||'이름 없음')+(it.outTag?'<span class="chip gray">출고 QR '+esc(it.outTag)+'</span>':'')+'</div>'+
+      '<div class="sub">'+esc(it.type||'')+(it.status?' · '+esc(it.status):'')+(it.date?' · '+esc(it.date):'')+'</div>'+
+      '<div class="sub"><span class="mono">'+esc(it.reqId)+'</span>'+((it.changeModel||it.model)?' · '+esc([it.changeModel||it.model,it.changeColor||it.color].filter(Boolean).join(' ')):'')+'</div></div>'+
+      '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>'; }).join('')+'</div>'; }
+function smPick(i){ var v=smView(); if(!v) return; var it=(v.state.res&&v.state.res.items||[])[i]; if(!it) return; var t=v.state.t||{};
+  openSheet('<h3>'+esc(it.name||'고객')+' 님께 출고할까요?</h3><p><b class="mono">'+esc(t['일련번호']||'')+'</b> '+esc([t['모델'],t['색상']].filter(Boolean).join(' '))+'<br>→ '+esc(it.type||'')+' · <span class="mono">'+esc(it.reqId)+'</span>'+(it.date?' · '+esc(it.date):'')+'</p>'+
+    (it.outTag?'<div class="note" style="margin:0 0 12px">이 고객요청은 이미 출고 QR <b>'+esc(it.outTag)+'</b>이 있어요.</div>':'')+
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm dark" onclick="closeSheet(function(){ smGo('+i+',false); })">출고준비완료로 매칭</button></div>'); }
+function smGo(i,force){ var v=smView(); if(!v) return; var it=(v.state.res&&v.state.res.items||[])[i]; if(!it) return; var code=v.params.code;
+  var task={reqId:it.reqId,subId:it.subId||'',name:it.name||'',type:it.type||'',date:it.date||'',model:it.model||'',color:it.color||'',changeModel:it.changeModel||'',changeColor:it.changeColor||''};
+  v.el.innerHTML=title('고객 매칭','')+spin('매칭 중');
+  run('matchStockToTask',code,task,worker,!!force).then(function(res){ var here=smView()===v;
+    if(!res.ok){ if(!here){ toast(res.error); return; } smDraw(v); if(res.needConfirm){ openSheet('<h3>이미 출고 기기가 있는 고객요청</h3><p>'+esc(res.error).replace(/\n/g,'<br>')+'</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ smGo('+i+',true); })">그래도 매칭</button></div>'); } else toast(res.error); return; }
+    haptic([12,40,18]);
+    stack.forEach(function(x){ if(x.name==='tag'&&x.params.code===code){ x.state.tag=res.tag; x._tagDrawn=false; drawTag(x); } });   // 이 기기 상세가 열려 있으면 새 정보로 (화면을 떠났어도)
+    if(here) pop(); else toast(code+' 매칭 완료 · 전산 매칭 확인 중');   // 기기 상세로 돌아가서
+    setTimeout(function(){ bubble('어드민 작업을 먼저 진행해주세요!',1200).then(function(){ verifyMatchNow(true,code,res.warn); }); },here?420:0); })   // 확인은 이 기기(code)로 — 그 사이 다른 화면으로 가도
+    .catch(function(e){ if(smView()===v){ smDraw(v); toast('매칭 실패: '+(e&&e.message||e)); } }); }
+/* 어드민 고객요청 상세의 출고 기기가 이 기기(code)인지 확인. auto = 매칭 직후, warn = 모델이 다를 때 알림 (결과 창에 같이) → Promise(결과) */
+function verifyMatchNow(auto,code,warn){ if(!code){ var v0=tagView(); if(!v0) return Promise.resolve(null); code=v0.params.code; } if(!auto) haptic(8);
+  toast('어드민 고객요청 확인 중…');
+  return run('verifyStockMatch',code).then(function(r){ $('toast').classList.remove('on');
+    if(r.tag) stack.forEach(function(x){ if(x.name==='tag'&&x.params.code===code){ x.state.tag=r.tag; drawTag(x); } });   // 이 기기 상세(열려 있으면)를 새 결과로
+    var t=r.tag||{}, wl=warn?'<div class="note" style="margin:0 0 12px">'+esc(warn)+'</div>':'';
+    if(!r.ok){ if(wl) openSheet('<h3>확인해 주세요</h3>'+wl+'<button class="btn" onclick="closeSheet()">확인</button>'); toast(r.error||'확인 실패'); return r; }
+    if(r.match){ haptic([12,40,18]);
+      if(wl) openSheet('<h3>✓ 전산 매칭 확인</h3><p>어드민 고객요청 출고 기기가 이 기기예요.</p>'+wl+'<button class="btn" onclick="closeSheet()">확인</button>');
+      else toast('✓ 전산 매칭 확인 — 어드민 출고 기기가 이 기기예요'); return r; }
+    haptic([150,120,150]);
+    openSheet('<h3>⚠️ 전산 매칭 안됨</h3><p>QR <b>'+esc(code)+'</b> · '+esc(t['고객명']||'')+'<br>어드민 고객요청 <b class="mono">'+esc(t['고객요청ID']||'')+'</b>의 출고 기기가 '+(r.adminSerial?'<b class="mono">'+esc(r.adminSerial)+'</b> 예요 (이 기기 아님).':'아직 없어요.')+'<br>어드민에서 이 기기(<b class="mono">'+esc(t['일련번호']||'')+'</b>)를 배정한 뒤 <b>전산 매칭 다시 확인</b>을 눌러 주세요. 15분마다 자동으로도 확인해요.</p>'+wl+
+      (t.taskUrl?'<a class="btn" style="text-decoration:none" href="'+esc(t.taskUrl)+'" target="_blank" rel="noopener" onclick="closeSheet()">어드민 작업 상세 열기</a>':'<button class="btn" onclick="closeSheet()">확인</button>'));
+    return r; })
+    .catch(function(e){ toast('확인 실패: '+(e&&e.message||e)); return null; }); }
+function unmatchAsk(){ var v=tagView(); if(!v) return; var t=v.state.tag||{};
+  openSheet('<h3>재고로 되돌릴까요?</h3><p>'+esc(t['고객명'])+' '+esc(t['고객요청ID'])+' 매칭을 취소하고 원래대로('+esc(t.originText||'재고')+') 돌려요.</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm dark" onclick="closeSheet(function(){ unmatchGo(false); })">재고로 되돌리기</button></div>'); }
+function unmatchGo(force){ needWorker(function(){ var v=tagView(); if(!v) return; var code=v.params.code; v.el.innerHTML=spin('되돌리는 중');
+  run('unmatchStock',code,worker,!!force).then(function(res){ if(tagView()!==v) return; if(res.ok){ v.state.tag=res.tag; drawTag(v); toast('재고로 되돌렸어요'); return; } drawTag(v);
+    if(res.needConfirm) openSheet('<h3>어드민에도 배정돼 있어요</h3><p>'+esc(res.error).replace(/\n/g,'<br>')+'</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm dark" onclick="closeSheet(function(){ unmatchGo(true); })">그래도 되돌리기</button></div>');
+    else toast(res.error); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
+
 /* ================= 등록 위저드 ================= */
-/* 단계: 1 작업 선택 → 2 출고/수거 → 3 일련번호 → 4 액세서리 → 5 특이사항 → 등록 */
+/* 단계 (등록 안 된 QR을 찍었을 때): 1 출고/수거/재고 → 2 작업 선택(출고·수거) 또는 재고 기기 찾기(재고) → 3 일련번호 → 4 액세서리 → 5 특이사항 → 등록
+   검색에서 기기를 골라 온 경우(params.item): 2 출고/수거/재고 → 3 … (예전 그대로) */
 VIEWS.register={ render:function(v){ v.refresh=function(){ if(v.state.step===1&&!v.params.item) return loadList(v,v.state.date,true); };
-  v.state.step=1; v.state.date=todayISO(0); v.state.selected=null; v.state.kind=v.params.kind||null; v.state.serial=''; v.state.frame=''; v.state.acc=''; v.state.note=''; v.state.dev=null;
+  v.state.step=0; v.state.date=todayISO(0); v.state.selected=null; v.state.kind=v.params.kind||null; v.state.serial=''; v.state.frame=''; v.state.acc=''; v.state.note=''; v.state.dev=null;
   if(v.params.item){ v.state.list=[v.params.item]; v.state.selected=0; if(!v.params.item.reqId) v.state.dev={ok:false}; toStep2(); return; }
-  loadList(v,v.state.date); }};
+  drawKindFirst(v); getWorkListCached(v.state.date).catch(function(){}); }};   // 고르는 동안 작업리스트를 미리 받아 둔다
+function regView(){ var v=stack[stack.length-1]; return (v&&v.name==='register')?v:null; }
+function drawKindFirst(v){ reanim(v); v.state.step=0; var k=v.state.kind;
+  var h=title('<span class="code-badge">'+esc(v.params.code)+'</span>','1/5 · 이 QR을 붙일 기기는?')+stepsBar(1);
+  h+='<div class="card"><div class="kindpick three">'+
+    '<button class="out '+(k==='출고'?'on':'')+'" onclick="kindFirst(\'출고\')"><div class="ic">📦</div><b>출고 기기</b><span>고객에게 나가는 기기</span></button>'+
+    '<button class="'+(k==='입고'?'on':'')+'" onclick="kindFirst(\'입고\')"><div class="ic">🔧</div><b>수거 기기</b><span>고객에게서 회수한 기기</span></button>'+
+    '<button class="stock '+(k==='재고'?'on':'')+'" onclick="kindFirst(\'재고\')"><div class="ic">🏷️</div><b>재고 기기</b><span>창고 보관 기기<br>반납 기기 포함</span></button></div>'+
+    '<p class="muted" style="margin:12px 0 0">출고·수거는 다음에 작업을 고르고, 재고는 고객 이름이나 일련번호로 기기를 찾아요.</p></div>';
+  v.el.innerHTML=h; }
+function kindFirst(k){ var v=regView(); if(!v) return; haptic(8); v.state.kind=k; v.state.serial=''; v.state.frame=''; v.state.dev=null; v.state.selected=null;
+  if(k==='재고') drawStockFind(v); else loadList(v,v.state.date); }
+/* 목록에서 작업을 고른 뒤: 출고/수거를 이미 골랐으면 바로 일련번호, 아니면(예전 흐름) 출고/수거 고르기 */
+function goFromList(){ var v=regView(); if(!v) return; if(v.state.kind&&!v.params.item) toStep3(); else toStep2(); }
+function step3Back(){ var v=regView(); if(!v) return; var f=$('f_serial'); if(f) v.state.serial=f.value;
+  if(v.params.item) drawStep2(v); else if(v.state.kind==='재고') drawStockFind(v); else drawStep1(v); }
+/* 작업이 고른 구분과 안 맞아 보이면 알려줌 (예: 해지 건인데 출고) */
+function kindHint(it,k){ var g=it.stock?'재고':(/주문|재배송/.test(it.type||'')?'출고':(/해지|철회|대차 진행 X/.test(it.type||'')?'입고':null));
+  return (g&&k&&g!==k)?'<div class="note" style="margin:10px 0 0">이 작업은 보통 <b>'+kindName(g)+'</b> 기기만 있어요. 맞는지 확인하세요.</div>':''; }
+
+/* ---- 재고 기기 찾기 (QR 먼저 찍고 재고를 고른 경우): 고객 이름 → 이용·반납 기기 / 일련번호 → 어드민 기기 / 직접 입력 ---- */
+function drawStockFind(v){ reanim(v); v.state.step='s';
+  var h=title('<span class="code-badge">'+esc(v.params.code)+'</span>','2/5 · 어떤 재고 기기인가요?')+stepsBar(2);
+  h+='<div class="card"><div class="lb">고객 이름 또는 일련번호</div><div class="row" style="margin:6px 0 0"><input class="input" id="sf_q" value="'+esc(v.state.sq||'')+'" placeholder="예: 홍길동, S9-1-1504" autocomplete="off" style="flex:1">'+
+    '<button class="btn sm" style="flex:0 0 auto;padding:0 18px" onclick="stockFindGo()">찾기</button></div>'+
+    '<p class="muted" style="margin:10px 0 0;font-size:13px">이름으로 찾으면 그 고객이 쓰던 기기를 <b>이용 중 · 반납</b>으로 나눠 보여줘요. 창고에 들어온 <b>반납</b> 기기를 고르세요.</p></div>'+
+    '<div id="sf_res"></div>'+
+    '<button class="btn line" style="margin-bottom:10px" onclick="stockManual()">일련번호 직접 입력</button>'+
+    '<div class="row"><button class="btn line sm" onclick="drawKindFirst(regView())">이전</button></div>';
+  v.el.innerHTML=h; $('sf_q').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.target.blur(); stockFindGo(); } });
+  if(v.state.sres) stockFindDraw(v); else setTimeout(function(){ var i=$('sf_q'); if(i&&regView()===v) i.focus(); },350); }
+function looksSerialQ(q){ return /[0-9]/.test(q)&&/^[A-Za-z0-9\-]+$/.test(q); }
+function stockFindGo(){ var v=regView(); if(!v) return; var q=(($('sf_q')||{}).value||'').trim(); if(q.length<2){ toast('2글자 이상 입력해 주세요'); return; }
+  v.state.sq=q; var seq=v.state.sseq=(v.state.sseq||0)+1; $('sf_res').innerHTML=spin('어드민에서 찾는 중'); haptic(6);
+  (looksSerialQ(q) ? run('searchAdmin',q).then(function(a){ return {kind:'serial',a:a}; }) : run('adminCustomerDevices',q,'').then(function(r){ return {kind:'name',r:r}; }))
+    .then(function(res){ if(regView()!==v||v.state.sseq!==seq||v.state.step!=='s') return; v.state.sres=res; stockFindDraw(v); })
+    .catch(function(e){ if(regView()===v&&v.state.sseq===seq&&$('sf_res')) $('sf_res').innerHTML=errBox(e); }); }
+function stockFindDraw(v){ var res=v.state.sres, box=$('sf_res'); if(!box||!res) return;
+  if(res.kind==='name'){ box.innerHTML=cdHtml(res.r); return; }
+  var a=res.a||{}; var items=(a.items||[]).filter(function(it){ return it.serial; });
+  box.innerHTML=!a.ok?'<div class="card"><p class="muted" style="margin:0">어드민 검색 불가 — '+esc(a.error||'')+'</p></div>':
+    (!items.length?'<div class="card"><p class="muted" style="margin:0">어드민에 그 일련번호가 없어요. 직접 입력으로 등록할 수 있어요.</p></div>':
+    '<div class="list">'+items.map(function(it,i){ return '<button class="item" onclick="stockPickSerial('+(a.items.indexOf(it))+')">'+devAv(it.model,it.color)+'<div class="bd"><div class="nm"><span class="sn" style="margin:0">'+esc(it.serial)+'</span>'+(it.stock?'<span class="chip gray">미배정</span>':'')+'</div>'+
+      '<div class="sub">'+esc([it.model,it.color].filter(Boolean).join(' '))+(it.name?' · '+esc(it.name):'')+'</div><div class="sub">'+esc(it.type||'')+'</div></div></button>'; }).join('')+'</div>'); }
+function stockPickSerial(i){ var v=regView(); if(!v||!v.state.sres||!v.state.sres.a) return; var it=v.state.sres.a.items[i]; if(!it) return;
+  stockChoose(v,{reqId:'',subId:it.subId||'',name:it.name||'재고',type:'재고 등록',model:it.model||'',color:it.color||'',serial:it.serial,frame:it.frame||'',stock:true,kind:'재고',source:'admin'}); }
+function stockManual(){ var v=regView(); if(!v) return; stockChoose(v,{reqId:'',name:'재고',type:'재고 등록',model:'',color:'',serial:'',stock:true,kind:'재고'}); }
+function stockChoose(v,item){ haptic(8); v.state.list=[item]; v.state.selected=0; v.state.kind='재고'; v.state.dev={ok:false}; v.state.serial=item.serial||''; v.state.frame=item.frame||''; drawStep3(v); }
+
+/* ---- 고객 기기 (이용 중 · 반납): 어드민 고객요청에서 기기마다 마지막 출고/수거를 보고, 기기 목록 상태로 한 번 더 확인 ---- */
+/* 누른 줄은 지금 맨 위 화면이 가진 결과에서 찾는다 (등록 2단계: state.sres.r / 고객 기기 화면: state.r) — 다른 화면의 결과와 섞이지 않게 */
+function cdResTop(){ var v=stack[stack.length-1]; if(!v) return null; if(v.name==='register') return v.state.step==='s'&&v.state.sres&&v.state.sres.r; if(v.name==='custdev') return v.state.r; return null; }
+function cdChip(d){ return d.role==='return'?'<span class="chip" style="background:#e6f7ec;color:#1f6b3a">반납</span>':(d.role==='use'?'<span class="chip p">이용 중</span>':'<span class="chip gray">다른 고객</span>'); }
+function cdHtml(r){ if(!r||!r.ok) return '<div class="card"><p class="muted" style="margin:0">어드민 검색 불가 — '+esc((r&&r.error)||'')+'</p></div>';
+  if(!r.customers.length) return '<div class="card"><p class="muted" style="margin:0">그 이름으로 찾은 기기가 없어요. 일련번호로 찾거나 직접 입력해 주세요.</p></div>';
+  return r.customers.map(function(c,gi){ var nr=c.devices.filter(function(d){ return d.role==='return'; }).length;
+    return '<div class="sec"><span>'+esc(c.name||'이름 없음')+'</span><span>반납 '+nr+' · 전체 '+c.devices.length+'대</span></div><div class="list">'+c.devices.map(function(d,di){ var tg=d.tag&&!d.tag.out;
+      return '<button class="item'+(d.role==='return'?'':' cdoff')+'" onclick="cdPick('+gi+','+di+')">'+devAv(d.model,d.color)+'<div class="bd">'+
+        '<div class="nm"><span class="sn" style="margin:0">'+esc(d.serial)+'</span>'+cdChip(d)+(tg?'<span class="chip gray">QR '+esc(d.tag.code)+'</span>':'')+'</div>'+
+        '<div class="sub">'+esc([d.model,d.color].filter(Boolean).join(' '))+' · '+esc(d.label)+(d.state?' · '+esc(d.state):'')+'</div>'+
+        '<div class="sub">'+esc(d.type||'')+(d.date?' · '+esc(d.date):'')+'</div></div>'+
+        '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>'; }).join('')+'</div>'; }).join('')+
+    '<p class="muted" style="margin:0 6px 14px;font-size:12.5px">반납 = 고객에게서 수거된 기기(창고에 들어온 기기). 이용 중 = 어드민에 아직 고객이 쓰는 기기로 나오는 기기.</p>'; }
+function cdPick(gi,di){ var r=cdResTop(), c=r&&r.customers&&r.customers[gi], d=c&&c.devices[di]; if(!d) return;
+  if(d.tag&&!d.tag.out){ openSheet('<h3>이미 QR에 등록된 기기</h3><p><b class="mono">'+esc(d.serial)+'</b> 는 QR <b>'+esc(d.tag.code)+'</b>('+esc(d.tag.status)+')에 등록돼 있어요.</p>'+
+      '<button class="btn" onclick="closeSheet(function(){ push(\'tag\',{code:\''+jsa(d.tag.code)+'\'}); })">그 QR 보기</button>'); return; }
+  if(d.role==='return'){ cdUse(gi,di); return; }
+  openSheet('<h3>'+(d.role==='use'?'지금 이용 중인 기기예요':'다른 고객이 쓰는 기기예요')+'</h3><p><b class="mono">'+esc(d.serial)+'</b> · '+esc(d.label)+'<br>'+(d.role==='use'?'어드민에는 '+esc(c.name||'고객')+' 님이 지금 쓰는 기기로 나와요.':'어드민에는 다른 고객 기기로 나와요.')+' 실제로 창고에 들어온 기기가 맞을 때만 재고로 등록하세요.</p>'+
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm dark" onclick="closeSheet(function(){ cdUse('+gi+','+di+',\''+jsa(d.serial)+'\'); })">그래도 재고로</button></div>'); }
+function cdUse(gi,di,serial){ var r=cdResTop(), c=r&&r.customers&&r.customers[gi], d=c&&c.devices[di];
+  if(!d||(serial&&d.serial!==serial)){ toast('목록이 바뀌었어요. 다시 골라 주세요'); return; }   // 확인 창을 띄운 사이 목록이 새로 그려진 경우
+  var item={reqId:'',subId:c.subId||'',name:c.name||'재고',type:(d.role==='return'?'반납 기기 재고 등록':'재고 등록'),model:d.model||'',color:d.color||'',serial:d.serial,frame:d.frame||'',stock:true,kind:'재고',source:'admin'};
+  var v=regView(); if(v&&v.state.step==='s'){ stockChoose(v,item); return; }
+  matchQR(item); }
+VIEWS.custdev={ render:function(v){ var q=v.params.q; v.refresh=function(){ return cdLoad(v); };
+  v.onResume=function(){ if(v.state.r) cdDraw(v); cdLoad(v); };   // 돌아오면 다시 받아 방금 등록한 QR 표시 (같은 기기를 두 번 등록하지 않게)
+  v.el.innerHTML=title('고객 기기',esc(q)+' · 이용 중 · 반납')+spin('어드민에서 고객 기기 찾는 중'); cdLoad(v); }};
+function cdLoad(v){ return run('adminCustomerDevices',v.params.q,v.params.subId||'').then(function(r){ if(stack.indexOf(v)<0) return; v.state.r=r; cdDraw(v); })
+  .catch(function(e){ if(stack.indexOf(v)<0) return; if(v.state.r) toast('새로고침 실패: '+e.message); else v.el.innerHTML=title('고객 기기','')+errBox(e); }); }
+function cdDraw(v){ v.el.innerHTML=title('고객 기기',esc(v.params.q)+' · 이용 중 · 반납')+
+  '<div class="tipb">창고에 들어온 <b>반납</b> 기기를 누르면 QR을 찍어 재고로 등록해요. 이미 QR이 있는 기기는 그 QR로 가요.</div>'+cdHtml(v.state.r); }
 function stepsBar(n){ var h='<div class="steps">'; for(var i=1;i<=5;i++) h+='<i class="'+(i<=n?'on':'')+'"></i>'; return h+'</div>'; }
-function loadList(v,date,force){ v.state.date=date; v.state.selected=null; v.state.step=1; var c=wlCache[date]; if(!(c&&!force)) v.el.innerHTML=spin('작업리스트 불러오는 중');
-  return getWorkListCached(date,force).then(function(res){ if(v.state.date!==date) return; v.state.list=res.items||[]; v.state.err=res.error; drawStep1(v); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }
+function loadList(v,date,force){ v.state.date=date; v.state.selected=null; v.state.step=1; var c=wlCache[date], seq=v.state.lseq=(v.state.lseq||0)+1;
+  if(force||!c||Date.now()-c.t>=120000) v.el.innerHTML=spin('작업리스트 불러오는 중');   // 새로 받는 중이면 로딩 표시 (예전 목록은 안 보임)
+  var live=function(){ return stack.indexOf(v)>=0&&v.state.step===1&&v.state.date===date&&v.state.lseq===seq; };   // 그 사이 다른 단계로 갔으면 늦게 온 결과로 덮지 않음
+  return getWorkListCached(date,force).then(function(res){ if(!live()) return; v.state.list=res.items||[]; v.state.err=res.error; drawStep1(v); })
+    .catch(function(e){ if(!live()) return; v.el.innerHTML=errBox(e)+(v.state.kind&&!v.params.item?'<button class="btn line" onclick="drawKindFirst(regView())">‹ 출고/수거/재고 다시 고르기</button>':''); }); }
 function drawStep1(v){ reanim(v); v.state.step=1; var d=v.state.date;
-  var h=title('<span class="code-badge">'+esc(v.params.code)+'</span>','1/5 · 어떤 작업의 기기인가요?')+stepsBar(1);
+  var kf=v.state.kind&&!v.params.item;   // 출고/수거를 먼저 고른 흐름
+  var h=title('<span class="code-badge">'+esc(v.params.code)+'</span>',kf?('2/5 · '+kindName(v.state.kind)+' 기기 · 어떤 작업인가요?'):'1/5 · 어떤 작업의 기기인가요?')+stepsBar(kf?2:1);
+  if(kf) h+='<button class="btn line sm" style="margin:0 0 12px;width:auto;padding:0 14px" onclick="drawKindFirst(regView())">‹ 출고/수거/재고 다시 고르기</button>';
   h+='<div class="seg">'+[['어제',-1],['오늘',0],['내일',1]].map(function(x){ var iso=todayISO(x[1]); return '<button class="'+(d===iso?'on':'')+'" onclick="loadList(stack[stack.length-1],\''+iso+'\')">'+x[0]+'</button>'; }).join('')+'</div>';
   h+='<div class="row" style="margin:0 0 10px"><input type="date" class="input" style="flex:1" value="'+esc(d)+'" onchange="loadList(stack[stack.length-1],this.value)"><input class="input" style="flex:1.4" id="q" placeholder="이름·모델·일련번호" oninput="drawItems()"><button class="btn line sm" style="flex:0 0 auto;padding:0 14px" onclick="loadList(stack[stack.length-1],stack[stack.length-1].state.date,true)" title="새로고침">↻</button></div>';
   if(v.state.err) h+='<div class="note">'+esc(v.state.err)+'</div>';
@@ -1200,11 +1385,12 @@ function drawItems(){ var v=stack[stack.length-1]; var q=(($('q')||{}).value||''
       '<div class="sub">'+(it.serial?'<span class="sn">'+esc(it.serial)+'</span>':'<span style="color:var(--muted2)">신규 배송 · 수거 기기 없음</span>')+'</div></div></button>'; });
   if(list.length) h+='</div>';
   $('items').innerHTML=h; countUp($('items')); drawConfirm(); }
-function pick(i){ var v=stack[stack.length-1]; v.state.selected=(v.state.selected===i?null:i); v.state.dev=null; drawItems();
+function pick(i){ var v=stack[stack.length-1]; v.state.selected=(v.state.selected===i?null:i); v.state.dev=null; v.state.serial=''; v.state.frame=''; drawItems();   // 다른 작업을 고르면 앞 작업의 일련번호는 버림
   if(v.state.selected!==null){ getDevCached(v.state.list[i].reqId); } }
 function drawConfirm(){ var v=stack[stack.length-1]; var box=$('confirm'); if(!box) return; if(v.state.selected===null){ box.innerHTML=''; return; } var it=v.state.list[v.state.selected];
   box.innerHTML='<div class="stickybar"><div class="card" style="margin:0;box-shadow:0 10px 36px rgba(25,31,40,.16)"><div style="font-weight:800;font-size:17px;letter-spacing:-.3px">'+esc(it.name)+' <span class="muted" style="font-weight:600">'+esc(it.type)+'</span></div>'+
-    '<button class="btn" style="margin-top:12px" onclick="toStep2()">다음 · 출고/수거 선택</button></div></div>'; box.scrollIntoView({behavior:'smooth',block:'end'}); }
+    (v.state.kind&&!v.params.item?kindHint(it,v.state.kind):'')+
+    '<button class="btn" style="margin-top:12px" onclick="goFromList()">'+(v.state.kind&&!v.params.item?'다음 · 일련번호':'다음 · 출고/수거 선택')+'</button></div></div>'; box.scrollIntoView({behavior:'smooth',block:'end'}); }
 function toStep2(){ var v=stack[stack.length-1]; var it=v.state.list[v.state.selected];
   if(!v.state.kind) v.state.kind = it.stock ? '재고' : (/주문|재배송/.test(it.type) ? '출고' : (/해지|철회|대차 진행 X/.test(it.type) ? '입고' : null));
   drawStep2(v); }
@@ -1229,15 +1415,17 @@ function applyDev(v){ var d=v.state.dev; if(!d||!d.ok) return; if(v.state.serial
   if(k==='출고'){ if(d.outSerial){ v.state.serial=d.outSerial; v.state.frame=d.outFrame||''; } }
   else { // 수거·재고: 회수한(수거) 기기 우선, 없으면 출고 기기
     if(d.inSerial){ v.state.serial=d.inSerial; v.state.frame=d.inFrame||''; } else if(d.outSerial){ v.state.serial=d.outSerial; v.state.frame=d.outFrame||''; } } }
-function drawStep3(v){ reanim(v); v.state.step=3; var it=v.state.list[v.state.selected]; var d=v.state.dev||{}; var auto=d.ok && (v.state.kind==='출고' ? !!d.outSerial : !!(d.inSerial||d.outSerial));
+function drawStep3(v){ reanim(v); v.state.step=3; var it=v.state.list[v.state.selected]; var d=v.state.dev||{}; var auto=!!(d.ok&&v.state.serial&&v.state.serial===(v.state.kind==='출고'?d.outSerial:(d.inSerial||d.outSerial)));   // 칸의 값이 이 작업의 어드민 기기와 같을 때만 "자동" 표시
   var h=title(esc(it.name)+' '+kindBadge(v.state.kind),'3/5 · 기기 일련번호')+stepsBar(3);
   h+='<div class="card"><label class="muted" style="font-size:12.5px;font-weight:600">일련번호</label><input class="input code" id="f_serial" value="'+esc(v.state.serial)+'" placeholder="예: S9-1-1504" style="letter-spacing:1px;font-size:20px;text-transform:none;margin-top:6px">'+
     (auto?'<p class="muted" style="margin:8px 0 0;color:var(--green-ink);font-weight:600">어드민에서 자동으로 가져왔어요. 기기 라벨과 같은지 확인하세요.</p>':(d.ok===false?'<p class="muted" style="margin:8px 0 0">어드민에서 못 가져와서 직접 입력해 주세요.</p>':'<p class="muted" style="margin:8px 0 0">기기 라벨의 일련번호를 입력하세요.</p>'))+
     '<button class="btn line" style="margin-top:12px" onclick="camTarget=\'f_serial\';$(\'camfile\').click()"><svg viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg>기기 QR/바코드 사진으로 읽기</button></div>';
   if(v.state.kind==='재고') h=h.replace('<p class="muted" style="margin:8px 0 0">어드민에서 못 가져와서 직접 입력해 주세요.</p>','<p class="muted" style="margin:8px 0 0">재고 기기의 일련번호를 확인하세요.</p>');
-  h+='<div class="row"><button class="btn line sm" onclick="stack[stack.length-1].state.serial=$(\'f_serial\').value;drawStep2(stack[stack.length-1])">이전</button><button class="btn sm" style="flex:2" onclick="toStep4()">다음 · 액세서리</button></div>';
+  h+='<div class="row"><button class="btn line sm" onclick="step3Back()">이전</button><button class="btn sm" style="flex:2" onclick="toStep4()">다음 · 액세서리</button></div>';
   v.el.innerHTML=h; }
-function toStep4(){ var v=stack[stack.length-1]; v.state.serial=($('f_serial').value||'').trim(); drawStep4(v); }
+function toStep4(){ var v=stack[stack.length-1]; v.state.serial=($('f_serial').value||'').trim();
+  if(v.state.kind==='재고'&&!v.state.serial){ toast('재고 기기는 일련번호를 입력해 주세요'); var f=$('f_serial'); if(f) f.focus(); return; }   // 일련번호 없는 재고는 찾을 수도, 재고 시트에 넣을 수도 없음
+  drawStep4(v); }
 function drawStep4(v){ reanim(v); v.state.step=4; var it=v.state.list[v.state.selected];
   var h=title(esc(it.name)+' '+kindBadge(v.state.kind),'4/5 · 함께 '+(v.state.kind==='출고'?'나가는':'들어온')+' 액세서리')+stepsBar(4);
   h+='<div class="card">'+accSheetHtml(v.state.acc)+'<p class="muted" style="margin:10px 0 0">배터리·충전기도 꼭 체크하세요. 없으면 그냥 다음.</p></div>';
@@ -2096,7 +2284,8 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
     '<div class="melb">'+(isAdminUp()?'관리':'목록')+'</div>'+mg+
     (SERVER==='swing'?swSettingsCard():'')+
     (SERVER==='swap'?'<div class="card"><h3>쓰는 법</h3><ul class="hist">'+
-    '<li><span><b>등록</b> → 기기에 QR 붙이고 찍기 → 작업 선택 → 출고/수거 → 일련번호 → 액세서리 → 특이사항</span></li>'+
+    '<li><span><b>등록</b> → 기기에 QR 붙이고 찍기 → 출고/수거/재고 → 작업 선택(재고는 고객 이름·일련번호로 기기 찾기) → 일련번호 → 액세서리 → 특이사항</span></li>'+
+    '<li><span><b>반납 기기 재고 등록</b> → 재고에서 고객 이름으로 찾기(또는 검색 → "고객의 이용·반납 기기 보기") → <b>반납</b> 기기를 골라 QR 매칭. 이용 중 기기는 확인 후에만</span></li>'+
     '<li><span><b>검색</b> → 고객명·일련번호로 등록 QR/작업리스트/어드민 찾기 → 항목 선택 → QR 찍어 매칭. 작업이 없는 기기는 <b>재고 기기</b>로 등록</span></li>'+
     '<li><span><b>현황</b> → 홈의 상태 칸이나 전체 보기. 오른쪽 위 <b>내 작업 현황</b>에서 슬랙 보고</span></li>'+
     '<li><span><b>자전거 주문</b> → 출고 QR 1장 · <b>교체수리</b> → 출고 1장 + 수거 1장</span></li>'+
