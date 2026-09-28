@@ -350,8 +350,9 @@
   .accbub .abad{position:relative;z-index:1;display:block;padding:11px 14px;border-radius:12px;background:#fff;color:#191f28;font-weight:800;font-size:15px;text-align:center;text-decoration:none;transition:transform .15s}
   body.swing .accbub .abo button.on{background:rgba(255,255,255,.13);box-shadow:inset 0 0 0 2px #fff}   /* SWING 은 --p 가 검정이라 말풍선 배경과 안 구분됨 → 테두리로 */
   .accbub .abo.jd button{flex:1 1 auto}   /* 판정 버튼은 글자 길이대로 (기기이상 수거해야함이 안 잘리게) */
-  .accbub .abad:active{transform:scale(.96)} .accbub .abad+.abo,.accbub .abno+.abo{margin-top:6px}
+  .accbub .abad:active{transform:scale(.96)} .accbub .abad+.abo,.accbub .abno+.abo{margin-top:6px} .accbub .abn+.abo,.accbub .abo+.abo{margin-top:8px}
   .accbub .abno{position:relative;z-index:1;font-size:13px;color:rgba(255,255,255,.62);margin:0 2px}
+  .accbub .abn{position:relative;z-index:1;font-size:12.5px;font-weight:700;color:rgba(255,255,255,.85);margin:8px 2px 0;max-width:280px;white-space:normal} .accbub .abn.warn{color:#ffd166}
   #accchips button.on{background:var(--p)}
   textarea.input{min-height:110px;resize:vertical;line-height:1.5}
   .kindpick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -596,8 +597,9 @@
   .wkq b.im{white-space:normal;word-break:break-all;font-size:12px;line-height:1.3}   /* QR 없이 IMEI로 나오는 기기 */
   .wkq>div.low{background:#fdecec;box-shadow:inset 0 0 0 1.5px var(--danger)} .wkq .bt{display:block;font-style:normal;font-size:11.5px;font-weight:800;color:var(--ink2);margin-top:2px} .wkq .low .bt{color:var(--danger)}
   .wkq>div[data-i]{cursor:pointer;transition:transform .15s} .wkq>div[data-i]:active{transform:scale(.96)}
-  .wkq em.of,.wkq em.jd{display:inline-block;margin-top:3px;padding:1px 6px;border-radius:6px;font-style:normal;font-size:11px;font-weight:800;line-height:1.5}
+  .wkq em.of,.wkq em.jd,.wkq em.pw,.wkq em.pd,.wkq em.pn{display:inline-block;margin-top:3px;padding:1px 6px;border-radius:6px;font-style:normal;font-size:11px;font-weight:800;line-height:1.5}
   .wkq em.of{background:#fff4e0;color:#b45309} .wkq em.jd{background:var(--p-soft,#f1e8fd);color:var(--p)} .wkq em.jd.no{background:var(--danger-soft,#fdecec);color:var(--danger)}
+  .wkq em.pw{background:#fff4e0;color:#b45309} .wkq em.pd{background:#e6f7ec;color:#1f6b3a} .wkq em.pn{background:var(--fill);color:var(--muted)}
   .wkq>div.cut b{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--muted)}
   /* SWING 홈 (작업내역 요약) */
   .hello h1.swt{font-size:24px;margin-top:6px}
@@ -640,7 +642,11 @@
   .pkrow{display:flex;align-items:center;gap:10px;width:100%;padding:12px 10px;border-radius:12px;text-align:left;font-size:15.5px}
   .pkrow:active{background:var(--fill)} .pkrow i{flex:0 0 22px;height:22px;border-radius:7px;box-shadow:inset 0 0 0 2px var(--line2);font-style:normal;font-weight:800;font-size:13px;color:#fff;display:flex;align-items:center;justify-content:center}
   .pkrow.on i{background:var(--p);box-shadow:none} .pkrow b{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .pkrow span{font-size:12.5px;color:var(--muted)}
-  .catbar{display:flex;gap:6px;overflow-x:auto;margin:0 -2px 12px;padding:2px;scrollbar-width:none} .catbar::-webkit-scrollbar{display:none}
+  .catbar{display:flex;flex-wrap:wrap;gap:6px;margin:0 -2px 12px;padding:2px}   /* 줄바꿈 → 탭이 한 화면에 다 보임 (웹에서 끝이 잘리지 않게) */
+  .catbar.res{align-items:center;margin-top:-4px;padding-top:8px;border-top:1px dashed #e5e8eb} .catbar.res .rl{font-size:12px;font-weight:700;color:var(--muted);margin:0 4px 0 2px}
+  .catbar button.rb{color:#1f6b3a} .catbar button.rb b{color:#1f6b3a} .catbar button.rb.on{background:#1f6b3a;color:#fff} .catbar button.rb.on b{color:#fff}
+  .catbar button.rm{color:var(--danger)} .catbar button.rm b{color:var(--danger)} .catbar button.rm.on{background:var(--danger);color:#fff} .catbar button.rm.on b{color:#fff}
+  .rchk{margin:-4px 0 12px}
   .catbar button{flex:0 0 auto;padding:9px 12px;border-radius:12px;background:#fff;font-weight:700;font-size:13.5px;color:var(--ink2);box-shadow:0 1px 3px rgba(25,31,40,.05)}
   .catbar button b{margin-left:5px;color:var(--muted)} .catbar button.on{background:var(--ink);color:#fff} .catbar button.on b{color:rgba(255,255,255,.75)}
   .catbar button.ck{color:var(--danger)} .catbar button.ck b{color:var(--danger)} .catbar button.ck.on{background:var(--danger);color:#fff} .catbar button.ck.on b{color:#fff}
@@ -710,7 +716,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.14';
+var APP_VER = '10.15';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -1858,12 +1864,14 @@ VIEWS.sw_extras={ render:function(v){ reanim(v);
 /* ================= 작업내역 (SWING 홈 간단 보고 · 작업자 작업내역 · 작업자 세부 · 작업 현황정리) ================= */
 /* 서버(Swing.gs)가 어드민 "킥보드 전체 기록"에서 관리자가 등록한 작업자의 기록만 모아, 작업자·기기마다 분류해서 준다:
    재배치수거됨+배터리 교체+배치됨 = 교체 후 재배치 / 배터리 교체만 = 배터리 교체 / 재배치수거됨+배치됨 = 재배치 / 재배치수거됨만 = 고장수거 OR 재배치수거됨 / 배치됨만 = 배치.
-   같은 기기는 한 번만. 교체했는데 교체 직후 배터리가 40% 미만이면 확인필요_작업실수, 잴 때 오프라인이면 오프라인 확인(90% 이상 정산 반영 · 50% 미만 작업 불량 · 그 사이 확인 대기).
-   작업자 세부에서 QR 을 누르면 말풍선: 어드민 열기 + (고장수거OR재배치수거됨) 고장수거·작업실수 / (오프라인 확인) 작업실수·기기이상 수거해야함 → 작업현황 정산에 반영.
+   같은 기기는 한 번만. 교체했는데 교체 직후 배터리가 40% 미만이면 작업 불량_확인필요, 잴 때 오프라인이면 오프라인 확인(90% 이상 정산 반영 · 50% 미만 작업 불량 의심 · 그 사이 확인 대기).
+   작업자 세부에서 QR 을 누르면 말풍선: 어드민 열기 + (고장수거OR재배치수거됨) 고장수거·작업 불량 / (오프라인 확인) 작업 불량·기기이상 수거해야함 / (확인필요) 작업 불량·정상
+   → 고른 기기는 아래 줄 "고장수거"·"작업 불량" 탭으로 옮겨 가고 작업현황 정산에 반영. 고장수거 탭은 어드민 상태로 처리예정(고장·미수거)·처리완료(창고) 딱지.
    홈 = 작업내역 간단 보고(어제 기본, 오늘~7일 전, 7일 그래프). 추가기능 → 작업자 작업내역 = 작업자 고르기 → 필터 → 작업자 세부(슬랙 전송·내용 복사 = 확인).
    아직 안 받은 날짜는 서버가 10초씩 받아 {pending, progress}를 주고, 여기서 이어서 호출한다. */
-var SW_CATS=[['swap','배터리 교체'],['swapRe','교체 후 재배치'],['re','재배치'],['fault','고장수거 OR 재배치수거됨'],['place','배치']], SW_CHECK='확인필요_작업실수', SW_MODELS=['S9','W9','I9'];
-var SW_OFF='오프라인 확인', SW_OFF_TXT={ok:'정산 반영',wait:'확인 대기',bad:'작업 불량'}, SW_JUDGE={broken:'고장수거',mistake:'작업실수',device:'기기이상 수거해야함'}, SW_JUDGE_RO={broken:'고장수거로',mistake:'작업실수로',device:'기기이상 수거해야함으로'};
+var SW_CATS=[['swap','배터리 교체'],['swapRe','교체 후 재배치'],['re','재배치'],['fault','고장수거 OR 재배치수거됨'],['place','배치']], SW_CHECK='작업 불량_확인필요', SW_MODELS=['S9','W9','I9'];
+var SW_OFF='오프라인 확인', SW_OFF_TXT={ok:'정산 반영',wait:'확인 대기',bad:'작업 불량 의심'}, SW_JUDGE={broken:'고장수거',mistake:'작업 불량',device:'기기이상 수거해야함',ok:'정상'}, SW_JUDGE_RO={broken:'고장수거로',mistake:'작업 불량으로',device:'기기이상 수거해야함으로',ok:'정상으로'};
+var SW_PROC={wait:'처리예정',done:'처리완료'};   // 고장수거 탭 딱지: 어드민 고장·미수거 = 처리예정, 창고 = 처리완료
 var SW_ADMIN='https://adminweb.theswing.co.kr/#/app/scoot/';   // 어드민 기기 상세 (서버 SWING_ADMIN_WEB 과 같음)
 var SW_CAT_COLOR={swap:'#2a78d6',swapRe:'#eb6834',re:'#1baf7a',fault:'#eda100',place:'#e87ba4'};   // 7일 그래프 분류 색 (색약 검증된 순서)
 var swDayMem={};   // {date:{t,res}} 작업자 작업내역·세부가 같이 쓰는 캐시 (2분)
@@ -1971,7 +1979,7 @@ function swWorkFs(s){ var v=swWorkView(); if(!v||v.state.fs===s) return; haptic(
 function swWorkRows(v){ var ws=(v.state.res&&v.state.res.workers)||[], ks=v.state.keys, fm=v.state.fm, fs=v.state.fs;
   return ws.filter(function(w){ return !ks.length||ks.indexOf(w.key)>=0; }).map(function(w){
     var ts=(w.tasks||[]).filter(function(t){ return fm==='all'||(t.m||'기타')===fm; }), c={swap:0,swapRe:0,re:0,fault:0,place:0,check:0};
-    ts.forEach(function(t){ c[t.c]++; if(t.low) c.check++; }); return {w:w,count:ts.length,cats:c}; })
+    ts.forEach(function(t){ c[t.c]++; if(t.low&&!t.j) c.check++; }); return {w:w,count:ts.length,cats:c}; })
     .filter(function(r){ return fs==='all'||(fs==='un'?!r.w.confirmed:!!r.w.confirmed); }); }
 function swWorkDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res||{}, d=v.state.date, admin=!!(AUTH&&AUTH.admin);
   var h=swWorkHead(v);
@@ -2067,31 +2075,37 @@ function swWdDraw(v,quiet){ if(!quiet) reanim(v); var d=v.state.date, w=swWdWork
   var keepNote=$('wd_note')?$('wd_note').value:v.state.note; v.state.note=keepNote;
   var models=SW_MODELS.slice(); Object.keys(w.models||{}).forEach(function(m){ if(models.indexOf(m)<0) models.push(m); });
   if(v.state.model!=='all'&&models.indexOf(v.state.model)<0) v.state.model='all';
-  var ts=swWdTasks(v,w), cnt={}; SW_CATS.forEach(function(c){ cnt[c[0]]=0; }); ts.forEach(function(t){ cnt[t.c]++; }); var low=ts.filter(function(t){ return t.low; }), offl=ts.filter(function(t){ return t.off; });
-  var nOf=function(c){ return c==='check'?low.length:(c==='off'?offl.length:cnt[c]); };
-  var cat=v.state.cat; if(!cat||!nOf(cat)){ cat=(SW_CATS.filter(function(c){ return cnt[c[0]]; })[0]||[low.length?'check':(offl.length?'off':'swap')])[0]; v.state.cat=cat; }
+  // 판정한 기기는 원래 탭에서 빠져 아래 줄 탭(고장수거·작업 불량)으로 옮겨 감. 정상은 확인필요에서만 빠짐
+  var ts=swWdTasks(v,w), L=swWdLists(ts), cnt={}; SW_CATS.forEach(function(c){ cnt[c[0]]=L[c[0]].length; });
+  var cat=v.state.cat; if(!cat||!L[cat]){ cat=(SW_CATS.filter(function(c){ return cnt[c[0]]; })[0]||[['check','off','r_broken','r_mistake'].filter(function(k){ return L[k].length; })[0]||'swap'])[0]; v.state.cat=cat; }   // 처음에만 고름 (판정해서 빈 탭이 돼도 그 탭에 머묾)
   var h=title(esc(w.name),fmtDateK(d)+(w.branch?' · '+esc(w.branch):''));
   h+=w.confirmed?'<div class="wdst ok">✓ '+esc(w.confirmed.by||'')+' · '+esc(String(w.confirmed.at||'').slice(5))+' '+({'슬랙':'슬랙 전송으로','복사':'내용 복사로'}[w.confirmed.method]||esc(w.confirmed.method||''))+' 확인함</div>'
                 :'<div class="wdst un">⚠️ 미확인 · 슬랙 전송이나 내용 복사를 하면 확인돼요</div>';
   h+='<div class="seg mseg">'+['all'].concat(models).map(function(m){ var n=m==='all'?(w.tasks||[]).length:((w.models||{})[m]||0);
     return '<button class="'+(v.state.model===m?'on':'')+(n?'':' z')+'" onclick="swWdModel(\''+esc(m)+'\')">'+(m==='all'?'전체':esc(m))+'<b>'+n+'</b></button>'; }).join('')+'</div>';
-  h+='<div class="catbar">'+SW_CATS.map(function(c){ return '<button class="'+(cat===c[0]?'on':'')+(cnt[c[0]]?'':' z')+'" onclick="swWdCat(\''+c[0]+'\')">'+c[1]+'<b>'+cnt[c[0]]+'</b></button>'; }).join('')+
-    '<button class="ck'+(cat==='check'?' on':'')+(low.length?'':' z')+'" onclick="swWdCat(\'check\')">⚠️'+SW_CHECK+'<b>'+low.length+'</b></button>'+
-    '<button class="of'+(cat==='off'?' on':'')+(offl.length?'':' z')+'" onclick="swWdCat(\'off\')">'+SW_OFF+'<b>'+offl.length+'</b></button></div>';
-  var list=cat==='check'?low:(cat==='off'?offl:ts.filter(function(t){ return t.c===cat; }));
-  var label=cat==='check'?SW_CHECK:(cat==='off'?SW_OFF:SW_CATS.filter(function(c){ return c[0]===cat; })[0][1]);
+  var tb=function(k,label,n,cls){ return '<button class="'+(cls||'')+(cat===k?' on':'')+(n?'':' z')+'" onclick="swWdCat(\''+k+'\')">'+label+'<b>'+n+'</b></button>'; };
+  h+='<div class="catbar">'+SW_CATS.map(function(c){ return tb(c[0],c[1],cnt[c[0]]); }).join('')+tb('check','⚠️'+SW_CHECK,L.check.length,'ck')+tb('off',SW_OFF,L.off.length,'of')+'</div>'+
+    '<div class="catbar res"><span class="rl">판정한 기기</span>'+tb('r_broken',SW_JUDGE.broken,L.r_broken.length,'rb')+tb('r_mistake',SW_JUDGE.mistake,L.r_mistake.length,'rm')+'</div>';
+  var list=L[cat], label=swWdLabel(cat);
   var catName=function(t){ return (SW_CATS.filter(function(c){ return c[0]===t.c; })[0]||['',''])[1]; };
   h+='<div class="card"><h3 class="wkt"><span>'+label+'</span><b>'+list.length+'건</b></h3>';
   var tip=function(s){ return '<p class="muted" style="margin:-4px 0 12px;font-size:13px">'+s+'</p>'; };
-  if(cat==='check') h+=tip('배터리 교체·교체 후 재배치를 했는데 교체 직후 배터리가 '+40+'% 미만이에요. 작업 실수인지 확인해 주세요.');
-  else if(cat==='off') h+=tip('배터리 교체·교체 후 재배치 뒤 배터리를 잴 때 기기가 <b>오프라인</b>이었어요. 90% 이상은 정산 반영, 50% 미만은 작업 불량(정산 안 함), 그 사이·모름은 확인 대기(정산 안 함). QR을 눌러 <b>작업실수</b> 또는 <b>기기이상 수거해야함</b>(정산 반영)을 골라 주세요.');
-  else if(cat==='fault') h+=tip('재배치수거 뒤 배치 기록이 없어요. QR을 눌러 <b>고장수거</b>(수거 +1) 또는 <b>작업실수</b>(정산 안 함)를 골라 주세요. 고르기 전에는 수거(교체 기록이 있으면 교체 후 수거)로 들어가요.');
+  var rchk=function(txt){ return list.length?'<button class="btn line sm rchk" onclick="swRecheck()"'+(v.state.rechecking?' disabled':'')+'>'+(v.state.rechecking?'어드민 다시 보는 중…':txt)+'</button>':''; };
+  if(cat==='check') h+=tip('배터리 교체·교체 후 재배치를 했는데 교체 직후 배터리가 '+40+'% 미만이에요. QR을 눌러 <b>작업 불량</b>(정산 안 함 · 작업 불량 탭으로) 또는 <b>정상</b>(정산 그대로)을 골라 주세요.');
+  else if(cat==='off') h+=tip('배터리 교체·교체 후 재배치 뒤 배터리를 잴 때 기기가 <b>오프라인</b>이었어요. 90% 이상은 정산 반영, 50% 미만은 작업 불량 의심, 그 사이·모름은 확인 대기(둘 다 정산 안 함). <b>다시 확인</b>으로 어드민을 다시 보면 지금 온라인인 기기는 빠지고 정산에 들어가요. 그래도 오프라인이면 QR을 눌러 <b>작업 불량</b> 또는 <b>기기이상 수거해야함</b>(고장수거 탭으로 · 정산은 교체로만)을 골라 주세요.')+rchk('다시 확인 (어드민 온라인·오프라인)');
+  else if(cat==='fault') h+=tip('재배치수거 뒤 배치 기록이 없어요. QR을 눌러 <b>고장수거</b>(수거 +1 · 고장수거 탭으로) 또는 <b>작업 불량</b>(정산 안 함 · 작업 불량 탭으로)을 골라 주세요. 고르기 전에는 수거(교체 기록이 있으면 교체 후 수거)로 들어가요.');
+  else if(cat==='r_broken') h+=tip('고장수거·기기이상 수거로 고른 기기예요. 어드민 상태가 <b>고장·미수거</b>가 되면 <b>처리예정</b>, <b>창고</b>가 되면 <b>처리완료</b>로 바뀌어요(15분마다 자동 · <b>다시 확인</b>으로 바로). <b>기기이상 수거는 정산이 교체로만</b> 들어가요(수거 +1 아님).')+rchk('다시 확인 (어드민 처리 상태)');
+  else if(cat==='r_mistake') h+=tip('작업 불량으로 고른 기기예요. 정산에 안 들어가고 작업현황 그 날짜 칸에 표시돼요. 잘못 골랐으면 QR을 눌러 <b>판정 취소</b>.');
   else if(list.length) h+=tip('QR을 누르면 어드민으로 바로 갈 수 있어요.');
   if(!list.length) h+='<div class="empty" style="padding:18px 0">없어요.</div>';
-  else h+='<div class="wkq">'+list.map(function(t){ var tm=t.t1+(t.t2&&t.t2!==t.t1?'~'+t.t2:''), cls=(t.low?' low':'')+(t.x?' cut':'')+(t.off?' off':'');
-    var badge=((t.off&&!(cat==='off'&&t.j))?'<em class="of">'+(cat==='off'?SW_OFF_TXT[t.off]:'오프라인')+'</em>':'')+(t.j?'<em class="jd'+(t.j==='mistake'?' no':'')+'">'+SW_JUDGE[t.j]+'</em>':'');
+  else h+='<div class="wkq">'+list.map(function(t){ var tm=t.t1+(t.t2&&t.t2!==t.t1?'~'+t.t2:''), res=(cat==='r_broken'||cat==='r_mistake');
+    var cls=(t.low&&!res?' low':'')+(t.x?' cut':'')+(t.off?' off':'');
+    var badge='';
+    if(cat==='r_broken') badge=swProcBadge(t)+(t.j==='device'?'<em class="jd">기기이상 · 교체로 정산</em>':'');
+    else if(!res){ if(t.off) badge+='<em class="of">'+(cat==='off'?SW_OFF_TXT[t.off]:'오프라인')+'</em>'; if(t.j==='ok') badge+='<em class="jd">'+SW_JUDGE.ok+'</em>'; }
+    var small=(cat==='check'||cat==='off'||res)?'<small>'+esc(catName(t))+'</small>':(t.n?'<small>'+esc(t.n)+'</small>':'');
     return '<div class="'+cls.slice(1)+'" data-i="'+esc(t.i||'')+'" onclick="swQrTap(this)" role="button" tabindex="0"'+(t.n?' title="'+esc(t.n)+'"':'')+'><b'+(/^\d{12,}$/.test(t.q)?' class="im"':'')+'>'+esc(t.q)+'</b><i>'+esc(tm)+(v.state.model==='all'&&t.m?' · '+esc(t.m):'')+'</i>'+
-      (t.b!==null&&t.b!==undefined?'<em class="bt">🔋 '+esc(t.b)+'%'+(t.low?' ⚠️':'')+'</em>':'')+badge+((cat==='check'||cat==='off')?'<small>'+esc(catName(t))+'</small>':(t.n?'<small>'+esc(t.n)+'</small>':''))+'</div>'; }).join('')+'</div>';
+      (t.b!==null&&t.b!==undefined?'<em class="bt">🔋 '+esc(t.b)+'%'+(t.low?' ⚠️':'')+'</em>':'')+badge+small+'</div>'; }).join('')+'</div>';
   h+='</div>';
   var off=(!ts.length||v.state.sending)?' disabled':'';
   h+='<div class="card wdsend"><h3>슬랙으로 보내기</h3><textarea class="input" id="wd_note" placeholder="특이사항 (없으면 비워두세요)" oninput="swWdNote(this.value)">'+esc(keepNote)+'</textarea>'+
@@ -2099,24 +2113,39 @@ function swWdDraw(v,quiet){ if(!quiet) reanim(v); var d=v.state.date, w=swWdWork
     '<button class="btn line" style="margin-top:8px" onclick="swWdCopy()"'+off+'>내용 복사</button>'+
     '<p class="muted" style="margin:12px 0 0;font-size:13px;text-align:center">'+(v.state.model==='all'?'전체':esc(v.state.model))+' '+ts.length+'건 · 보내거나 복사하면 확인 표시돼요.</p></div>';
   v.el.innerHTML=h; v.state.drawn=true;
-  // QR 말풍선이 떠 있는데 화면을 다시 그렸으면(다른 판정 저장·뒤에서 새로 받음) 새 칸에 다시 붙이고 내용도 새로 (history 칸은 이어 씀). 그 칸이 없어졌으면 닫음
+  // QR 말풍선이 떠 있는데 화면을 다시 그렸으면(다른 판정 저장·뒤에서 새로 받음) 새 칸에 다시 붙이고 내용도 새로 (history 칸은 이어 씀). 그 칸이 없어졌으면(다른 탭으로 옮겨 감) 닫음
   if(accBub&&accBub.sw&&accBub.sw.v===v){ var bid=accBub.sw.id, nb=[].filter.call(v.el.querySelectorAll('.wkq>div[data-i]'),function(x){ return x.getAttribute('data-i')===bid; })[0];
     if(nb&&swWdView()===v){ accBubClose(false,true); swQrTap(nb); } else accBubClose(); } }
+/* 탭별 목록: 분류 탭은 판정해서 옮긴 기기를 빼고, 확인필요는 판정 전(정상·작업 불량 고르면 빠짐), 오프라인은 옮기기 전, 아래 줄 = 고장수거(고장수거·기기이상)·작업 불량 */
+function swMoved(t){ return t.j==='broken'||t.j==='device'||t.j==='mistake'; }
+function swWdLists(ts){ var L={}; SW_CATS.forEach(function(c){ L[c[0]]=ts.filter(function(t){ return t.c===c[0]&&!swMoved(t); }); });
+  L.check=ts.filter(function(t){ return t.low&&!t.j; }); L.off=ts.filter(function(t){ return t.off&&!swMoved(t); });
+  L.r_broken=ts.filter(function(t){ return t.j==='broken'||t.j==='device'; }); L.r_mistake=ts.filter(function(t){ return t.j==='mistake'; }); return L; }
+function swWdLabel(cat){ return cat==='check'?SW_CHECK:cat==='off'?SW_OFF:cat==='r_broken'?SW_JUDGE.broken:cat==='r_mistake'?SW_JUDGE.mistake:((SW_CATS.filter(function(c){ return c[0]===cat; })[0]||['',''])[1]); }
+/* 고장수거 탭 처리 딱지: 어드민 상태 고장·미수거 = 처리예정, 창고 = 처리완료, 아직 = 처리 전 */
+function swProcBadge(t){ return t.p==='done'?'<em class="pd">'+SW_PROC.done+'</em>':(t.p==='wait'?'<em class="pw">'+SW_PROC.wait+'</em>':'<em class="pn">처리 전</em>'); }
 function swWdView(){ var v=stack[stack.length-1]; return (v&&v.name==='sw_wd')?v:null; }
 function swWdModel(m){ var v=swWdView(); if(!v||v.state.model===m) return; haptic(6); v.state.model=m; v.state.cat=null; swWdDraw(v,true); }
 function swWdCat(c){ var v=swWdView(); if(!v||v.state.cat===c) return; haptic(6); v.state.cat=c; swWdDraw(v,true); }
 function swWdNote(val){ var v=swWdView(); if(v) v.state.note=val; }
-/* QR 말풍선: 어드민 열기 + 판정 (고장수거OR재배치수거됨 → 고장수거·작업실수 / 오프라인 확인 → 작업실수·기기이상 수거해야함). 판정은 작업자 작업내역 권한이면 누구나 */
+/* QR 말풍선: 어드민 열기 + 판정 (고장수거OR재배치수거됨 → 고장수거·작업 불량 / 오프라인 확인 → 작업 불량·기기이상 수거해야함 / 작업 불량_확인필요 → 작업 불량·정상)
+   고장수거 탭 기기 → 처리 딱지 + [고장]·[미수거](어드민 상태 바꾸면 처리예정). 판정은 작업자 작업내역 권한이면 누구나 */
 function swTaskOf(v,id){ var w=v&&swWdWorker(v); return (w&&(w.tasks||[]).filter(function(t){ return t.i===id; })[0])||null; }
-function swJudgeOpts(t){ return t.c==='fault'?['broken','mistake']:(t.off?['mistake','device']:[]); }
+function swJudgeOpts(t,cat){ if(swMoved(t)) return [];
+  if(cat==='check') return ['mistake','ok']; if(cat==='off') return ['mistake','device'];
+  if(t.c==='fault') return ['broken','mistake']; if(t.off) return ['mistake','device']; if(t.low) return ['mistake','ok']; return []; }
 function swQrTap(el){ var v=swWdView(); if(!v) return; var id=el.getAttribute('data-i'), t=swTaskOf(v,id); if(!t) return;
   if(accBubShut.b===el&&Date.now()-accBubShut.t<500) return;   // 열린 말풍선을 이 QR 을 눌러 닫은 탭 → 다시 열지 않음
-  var im=/^\d{15}$/.test(t.i||'')?t.i:'', opts=swJudgeOpts(t);
-  var sub=[t.m, t.off?'오프라인 · '+SW_OFF_TXT[t.off]:'', t.j?SW_JUDGE[t.j]+(t.jb?' ('+t.jb+')':''):''].filter(Boolean).map(esc).join(' · ');
+  var im=/^\d{15}$/.test(t.i||'')?t.i:'', opts=swJudgeOpts(t,v.state.cat), mv=swMoved(t);
+  var sub=[t.m, t.off&&!mv?'오프라인 · '+SW_OFF_TXT[t.off]:'', t.j?SW_JUDGE[t.j]+(t.jb?' ('+t.jb+')':''):''].filter(Boolean).map(esc).join(' · ');
   var h='<div class="abh">'+esc(t.q)+(sub?' · '+sub:'')+'</div>'+
-    (im?'<a class="abad" href="'+esc(SW_ADMIN+im)+'" target="_blank" rel="noopener" onclick="swQrAdmin()">어드민 열기</a>':'<div class="abno">IMEI 를 몰라 어드민을 못 열어요</div>')+
-    (opts.length?'<div class="abo jd">'+opts.map(function(k){ return '<button type="button" class="'+(t.j===k?'on':'')+'" aria-pressed="'+(t.j===k)+'" onclick="swJudgeTap(\''+k+'\')">'+SW_JUDGE[k]+'</button>'; }).join('')+'</div>':'')+
-    (t.j?'<button type="button" class="abx" onclick="swJudgeTap(\'\')">판정 취소</button>':'');   // 판정한 뒤 다시 재기에서 온라인이 돼 오프라인 확인에서 빠져도 판정은 남아 있으니 취소는 늘 보여줌
+    (im?'<a class="abad" href="'+esc(SW_ADMIN+im)+'" target="_blank" rel="noopener" onclick="swQrAdmin()">어드민 열기</a>':'<div class="abno">IMEI 를 몰라 어드민을 못 열어요</div>');
+  if(t.j==='broken'||t.j==='device'){
+    h+='<div class="abn">'+(t.p==='done'?'처리완료 · 창고로 들어왔어요':(t.p==='wait'?'처리예정'+(t.ps?' · 어드민 '+esc(t.ps):'')+' · 창고가 되면 처리완료':'처리 전 · 어드민 상태를 고장·미수거로 바꾸면 처리예정'))+'</div>'+
+      (t.j==='device'?'<div class="abn warn">고장수거지만 정산은 교체로만 들어가요 (수거 +1 아님)</div>':'')+
+      (t.p!=='done'&&im?'<div class="abo jd"><button type="button" onclick="swProcTap(\'Broken\')">고장</button><button type="button" onclick="swProcTap(\'Missing\')">미수거</button></div>':''); }
+  h+=(opts.length?'<div class="abo jd">'+opts.map(function(k){ return '<button type="button" class="'+(t.j===k?'on':'')+'" aria-pressed="'+(t.j===k)+'" onclick="swJudgeTap(\''+k+'\')">'+SW_JUDGE[k]+'</button>'; }).join('')+'</div>':'')+
+    (t.j?'<button type="button" class="abx" onclick="swJudgeTap(\'\')">판정 취소</button>':'');   // 판정은 옮겨 간 탭·원래 탭 어디서든 취소 가능
   var me=bubOpen(el,h,t.q+' 처리'); me.sw={v:v,id:id}; }
 function swQrAdmin(){ haptic(10); setTimeout(function(){ accBubClose(); },0); }   // 새 탭은 그대로 열리고 말풍선만 닫음
 function swJudgeTap(k){ var s=accBub; if(!s||!s.sw) return; var v=s.sw.v, id=s.sw.id, t=swTaskOf(v,id);
@@ -2126,7 +2155,7 @@ function swJudgeTap(k){ var s=accBub; if(!s||!s.sw) return; var v=s.sw.v, id=s.s
   if(k==='device'){ haptic(8); accBubClose(false,false,function(){ swJudgeAsk(v,id); }); return; }   // 어드민 상태를 바꾸니 한 번 더 물어봄
   haptic(8); accBubClose(); swJudgeGo(v,id,k); }
 function swJudgeAsk(v,id){ var t=swTaskOf(v,id); if(!t||swWdView()!==v) return;
-  openSheet('<h3>기기이상 수거해야함으로 처리할까요?</h3><p><b>'+esc(t.q)+'</b>'+(t.m?' · '+esc(t.m):'')+' · 작업은 정산에 반영돼요.<br>스윙 어드민 기기 상태를 <b>미수거</b>로 바꿔요.</p>'+
+  openSheet('<h3>기기이상 수거해야함으로 처리할까요?</h3><p><b>'+esc(t.q)+'</b>'+(t.m?' · '+esc(t.m):'')+' · <b>고장수거 탭</b>으로 옮기고, <b>정산은 교체로만</b> 들어가요(수거 +1 아님).<br>스윙 어드민 기기 상태를 <b>미수거</b>로 바꿔요 → 처리예정 (창고가 되면 처리완료).</p>'+
     '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="flex:2" onclick="closeSheet(function(){ swJudgeGo(swWdView(),\''+jsa(id)+'\',\'device\'); })">미수거로 바꾸기</button></div>'); }
 /* 판정 저장 → 서버가 판정 붙은 작업을 돌려줌 (확인한 날이면 작업현황 칸도 서버가 다시 채움) */
 function swJudgeGo(v,id,k){ if(!v) return; var t=swTaskOf(v,id); if(!t) return; var J=v.state.judging=v.state.judging||{};   // 기기마다 따로 (여러 QR 을 이어서 판정해도 앞 것이 끝나길 안 기다림 · 서버가 잠금으로 차례대로)
@@ -2135,16 +2164,60 @@ function swJudgeGo(v,id,k){ if(!v) return; var t=swTaskOf(v,id); if(!t) return; 
   run('swingWorkJudge',v.state.date,v.state.key,id,k,worker).then(function(res){ delete J[id];
     if(!res||!res.ok){ toast((t.q?t.q+' ':'')+((res&&res.error)||'저장 실패')); if(res&&res.stale&&stack.indexOf(v)>=0) swDayLoad(v,v.state.date,true); return; }
     swJudgeSet(v,res.task); haptic([10,30,10]);
-    var msg=(t.q?t.q+' ':'')+(k?SW_JUDGE_RO[k]+' 처리했어요'+(res.status?' · 어드민 '+res.status:''):'판정을 취소했어요'+(t.j==='device'?' (어드민 상태는 그대로예요)':''));
-    toast(res.sheetError?msg+' · 작업현황 시트 오류: '+res.sheetError:msg); })
+    var go={broken:' · 고장수거 탭으로 옮겼어요',mistake:' · 작업 불량 탭으로 옮겼어요',ok:' · 확인필요에서 뺐어요'}[k]||'';
+    var msg=(t.q?t.q+' ':'')+(k?SW_JUDGE_RO[k]+' 처리했어요'+go+(res.status?' · 어드민 '+res.status:''):'판정을 취소했어요'+(t.j==='device'?' (어드민 상태는 그대로예요)':''));
+    if(res.sheetError) msg+=' · 작업현황 시트 오류: '+res.sheetError;
+    if(k==='device'){ toast(msg); bubble((t.q?t.q+' ':'')+'고장수거 탭으로 옮겼어요 · 정산은 교체로만 들어가요',2200); }   // 꼭 알려야 함: 고장수거인데 정산은 교체로만
+    else toast(msg); })
   .catch(function(e){ delete J[id]; toast((t.q||'')+' 저장 실패: '+((e&&e.message)||e)); }); }
 function swJudgeSet(v,nt){ if(!nt) return; var set=function(res){ ((res&&res.workers)||[]).forEach(function(w){ if(w.key===v.state.key) w.tasks=(w.tasks||[]).map(function(t){ return t.i===nt.i?nt:t; }); }); };
-  set(v.state.res); var c=swDayMem[v.state.date]; if(c&&c.res!==v.state.res) set(c.res);
+  set(v.state.res); var c=swDayMem[v.state.date]; if(c&&c.res!==v.state.res) set(c.res); swHomeStale();
   if(stack[stack.length-1]===v) swWdDraw(v,true); }
-/* 복사·슬랙 공통 내용: "[날짜 · 이름]" 다음 분류별로 "배터리 교체_3" + QR 한 줄씩 (서버 swwReportLines_ 와 같은 모양) */
-function swWdText(v){ var w=swWdWorker(v); if(!w) return ''; var ts=swWdTasks(v,w), m=v.state.model, lines=[];
-  SW_CATS.forEach(function(c){ var qs=ts.filter(function(t){ return t.c===c[0]; }); if(!qs.length) return; if(lines.length) lines.push(''); lines.push(c[1]+'_'+qs.length); qs.forEach(function(t){ lines.push(t.q); }); });
-  var low=ts.filter(function(t){ return t.low; }); if(low.length){ lines.push(''); lines.push(SW_CHECK+'_'+low.length); low.forEach(function(t){ lines.push(t.q); }); }
+/* 판정·다시 확인으로 홈의 작업 불량_확인필요 개수가 바뀔 수 있으니 홈은 돌아갈 때 다시 받음 */
+function swHomeStale(){ stack.forEach(function(x){ if(x.name==='home'&&SERVER==='swing') x.state.stale=true; }); }
+/* 고장수거 탭: [고장]·[미수거] → 한 번 물어보고 어드민 상태 변경 → 처리예정 (고장은 사유 필수) */
+function swProcTap(type){ var s=accBub; if(!s||!s.sw) return; var v=s.sw.v, id=s.sw.id, t=swTaskOf(v,id);
+  if(!t||swWdView()!==v){ accBubClose(); return; }
+  haptic(8); accBubClose(false,false,function(){ swProcAsk(v,id,type); }); }
+function swProcAsk(v,id,type){ var t=swTaskOf(v,id); if(!t||swWdView()!==v) return;
+  var br=(type==='Broken');
+  openSheet('<h3>어드민 상태를 '+(br?'고장으로':'미수거로')+' 바꿀까요?</h3><p><b>'+esc(t.q)+'</b>'+(t.m?' · '+esc(t.m):'')+' · 바꾸면 <b>처리예정</b>, 창고로 들어오면 <b>처리완료</b>로 바뀌어요.</p>'+
+    (br?'<textarea class="input" id="pr_reason" placeholder="고장 사유 (필수 · 어드민 코멘트에도 남아요)" style="margin-bottom:10px"></textarea>':'')+
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="flex:2" onclick="swProcOk(\''+jsa(id)+'\',\''+type+'\')">'+(br?'고장으로 바꾸기':'미수거로 바꾸기')+'</button></div>');
+  if(br) setTimeout(function(){ var r=$('pr_reason'); if(r) r.focus(); },380); }
+function swProcOk(id,type){ var reason=type==='Broken'?String(($('pr_reason')||{}).value||'').trim():'';
+  if(type==='Broken'&&!reason){ toast('고장 사유를 적어 주세요'); return; }
+  closeSheet(function(){ swProcGo(swWdView(),id,type,reason); }); }
+function swProcGo(v,id,type,reason){ if(!v) return; var t=swTaskOf(v,id); if(!t) return; var J=v.state.judging=v.state.judging||{};
+  if(J[id]){ toast('이 기기를 저장하는 중이에요'); return; }
+  J[id]=1; toast('어드민 상태 바꾸는 중…');
+  run('swingWorkProcSet',v.state.date,v.state.key,id,type,reason,worker).then(function(res){ delete J[id];
+    if(!res||!res.ok){ toast((t.q?t.q+' ':'')+((res&&res.error)||'바꾸기 실패')); if(res&&res.stale&&stack.indexOf(v)>=0) swDayLoad(v,v.state.date,true); return; }
+    swJudgeSet(v,res.task); haptic([10,30,10]);
+    toast((t.q?t.q+' ':'')+'어드민 '+({Broken:'고장으로',Missing:'미수거로'}[type]||'')+' 바꿨어요 · 처리예정'+(res.warn?' ('+res.warn+')':'')); })
+  .catch(function(e){ delete J[id]; toast((t.q||'')+' 바꾸기 실패: '+((e&&e.message)||e)); }); }
+/* 오프라인 확인·고장수거 탭 "다시 확인": 어드민을 지금 다시 봄 → 온라인이면 오프라인 확인에서 빠짐 · 창고면 처리완료 */
+function swRecheck(){ var v=swWdView(); if(!v||v.state.rechecking) return; var key=v.state.key, date=v.state.date, what=v.state.cat==='off'?'off':(v.state.cat==='r_broken'?'proc':''); haptic(8);   // 탭에 맞는 것만 (오프라인 탭 = 온라인·오프라인, 고장수거 탭 = 처리 상태)
+  v.state.rechecking=true; swWdDraw(v,true); toast('어드민 다시 보는 중…');
+  run('swingWorkRecheck',date,key,what,v.state.model||'all').then(function(res){ v.state.rechecking=false; swHomeStale();
+    if(!res||!res.ok){ if(stack.indexOf(v)>=0) swWdDraw(v,true); toast((res&&res.error)||'다시 확인 실패'); return; }
+    if(res.worker) swWorkerSet(v,res.worker);
+    if(stack.indexOf(v)>=0&&stack[stack.length-1]===v) swWdDraw(v,true);
+    var n=res.n||{}, p=[];
+    if(n.online||n.offline) p.push('온라인 '+(n.online||0)+' · 오프라인 '+(n.offline||0));
+    if(n.wait||n.done) p.push('처리예정 '+(n.wait||0)+' · 처리완료 '+(n.done||0));
+    if(n.fail) p.push('못 읽음 '+n.fail);
+    toast(n.checked?(n.checked+'대 다시 봤어요'+(p.length?' · '+p.join(' · '):'')+(res.skipped?' (기록 시트를 못 열어 온라인은 못 적었어요 · 다시 눌러 주세요)':'')):'다시 볼 기기가 없어요'); })
+  .catch(function(e){ v.state.rechecking=false; if(stack.indexOf(v)>=0) swWdDraw(v,true); toast('다시 확인 실패: '+((e&&e.message)||e)); }); }
+/* 서버가 준 작업자 결과로 바꿔 끼움 (이 화면 결과 · 캐시 둘 다) */
+function swWorkerSet(v,nw){ var set=function(res){ var ws=(res&&res.workers)||[]; for(var i=0;i<ws.length;i++){ if(ws[i].key===nw.key){ ws[i]=Object.assign({},ws[i],nw); } } };
+  set(v.state.res); var c=swDayMem[v.state.date]; if(c&&c.res!==v.state.res) set(c.res); }
+/* 복사·슬랙 공통 내용: "[날짜 · 이름]" 다음 탭과 같은 순서로 "배터리 교체_3" + QR 한 줄씩 (서버 swwReportLines_ 와 같은 모양) */
+function swWdText(v){ var w=swWdWorker(v); if(!w) return ''; var ts=swWdTasks(v,w), m=v.state.model, lines=[], L=swWdLists(ts);
+  var sec=function(label,qs,fmt){ if(!qs.length) return; if(lines.length) lines.push(''); lines.push(label+'_'+qs.length); qs.forEach(function(t){ lines.push(fmt?fmt(t):t.q); }); };
+  SW_CATS.forEach(function(c){ sec(c[1],L[c[0]]); });
+  sec(SW_CHECK,L.check); sec(SW_OFF,L.off);
+  sec(SW_JUDGE.broken,L.r_broken,function(t){ return t.q+(t.j==='device'?' (기기이상 · 교체로 정산)':''); }); sec(SW_JUDGE.mistake,L.r_mistake);
   var note=String($('wd_note')?$('wd_note').value:(v.state.note||'')).trim(); if(note){ lines.push(''); lines.push('특이사항'); lines.push(note); }
   return '['+fmtDateK(v.state.date)+' · '+w.name+(w.branch?' ('+w.branch+')':'')+(m!=='all'?' · '+m:'')+']\n\n'+lines.join('\n'); }
 /* 확인 표시를 캐시(홈·세부가 같이 씀)에 반영: 이 화면이 들고 있는 결과와 지금 캐시의 결과 둘 다(당겨서 새로고침으로 바뀌었을 수 있음).
