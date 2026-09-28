@@ -494,6 +494,9 @@
   .srow .sv{display:flex;gap:6px;flex:0 0 auto} .srow .sv em{font-style:normal;font-size:12.5px;font-weight:700;padding:5px 9px;border-radius:9px;background:var(--fill);color:var(--muted);white-space:nowrap}
   .srow .sv em.ch{background:var(--p-soft);color:var(--p-ink)} .srow .sv em s{text-decoration:line-through;opacity:.55;margin-right:4px}
   .srow.dim .sn b{color:var(--muted)}
+  .srow .sbtns{display:flex;gap:6px;flex:0 0 auto}   /* 줄 고르기 · 태그 */
+  .sprow{display:flex;align-items:baseline;gap:8px;width:100%;padding:12px 4px;border-top:1px solid var(--line);text-align:left} .sprow:active{background:var(--fill)}
+  .sprow b{font-weight:800;font-size:15px} .sprow span{flex:1;min-width:0;color:var(--ink2);font-weight:600;font-size:14px} .sprow em{font-style:normal;font-size:12px;color:var(--muted);white-space:nowrap}
   /* ===== 로그인 (접속 코드) ===== */
   .login{position:fixed;inset:0;z-index:60;background:#08070c;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,5vh,44px);overflow:hidden;
          padding:24px calc(20px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));transition:opacity .45s,transform .45s var(--spring)}
@@ -697,7 +700,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.12';
+var APP_VER = '10.13';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -2436,27 +2439,45 @@ function reportSendGo(){ var v=stack[stack.length-1]; var st=v.state; var payloa
   run('sendWorkReport',payload,worker).then(function(res){ if(stack.indexOf(v)<0) return; if(res.ok){ haptic([12,40,18]); st.sentAt=res.sentAt||''; reportSave(v); toast('전송 완료'); } else toast(res.noHook?'슬랙 웹훅이 아직 없어요 (SLACK_WEBHOOK)':res.error); drawReport(v); })
     .catch(function(e){ if(stack.indexOf(v)<0) return; toast('전송 실패: '+(e&&e.message||e)); drawReport(v); }); }
 /* ================= 재고 시트 반영 ================= */
-VIEWS.stocksync={ render:function(v){ v.refresh=function(){ return loadStock(v); }; v.el.innerHTML=title('재고 시트 반영','')+spin('시트와 앱 재고를 비교하는 중'); loadStock(v); }};
+VIEWS.stocksync={ render:function(v){ v.refresh=function(){ return loadStock(v); }; v.onResume=function(){ loadStock(v); };   /* 태그에서 고치고 돌아오면 새로 */ v.el.innerHTML=title('재고 시트 반영','')+spin('시트와 앱 재고를 비교하는 중'); loadStock(v); }};
 function loadStock(v){ return run('stockPreview').then(function(r){ if(stack.indexOf(v)<0) return; v.state.pv=r; drawStock(v); }).catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('재고 시트 반영','')+errBox(e); }); }
-/* 기기 단위로 들어오고 나간 게 있나 (같은 줄에서 +1·−1 상쇄돼 숫자가 안 바뀌어도 true → 반영 기록은 해야 "나간 기기" 카드가 정리됨) */
-function stockDevChange(r){ return r.items.some(function(i){ return i.added.length||i.removed.length; })||!!(r.gone&&r.gone.length)||!!(r.passed&&r.passed.length); }
-/* 시트 숫자가 안 바뀌는 이유 (상쇄 · 시트 0 · 시트 줄 없음 · 반영 전에 들어왔다 나감) */
-function stockZeroWhy(r){ var nz=r.items.filter(function(i){ return !i.changed&&!i.floor&&(i.added.length||i.removed.length); }).length, fl=r.items.filter(function(i){ return i.floor&&!i.changed; }).length, G=(r.gone||[]).length, P=(r.passed||[]).length;
-  return [nz?'같은 줄에서 +1·−1이 상쇄된 줄 '+nz+'개':'', fl?'시트 값이 이미 0이라 못 뺀 줄 '+fl+'개':'', G?'시트 줄을 못 찾아 직접 빼야 하는 기기 '+G+'대(아래 빨간 카드)':'', P?'반영 전에 들어왔다 나간 기기 '+P+'대':''].filter(String).join(' · '); }
+/* 기기 단위로 들어오고 나간 게 있나 (같은 줄에서 +1·−1 상쇄돼 숫자가 안 바뀌어도 true → 반영 기록은 해야 "나간 기기" 카드가 정리됨).
+   센 줄 확인 대기(confirm)·아직 재고인데 줄 못 찾은 기기는 반영해도 기록이 그대로라 셈하지 않음 */
+function stockDevChange(r){ return r.items.some(function(i){ return i.added.length||i.removed.length; })||!!(r.passed&&r.passed.length)||!!(r.dropped&&r.dropped.length); }
+/* 시트 숫자가 안 바뀌는 이유 (상쇄 · 시트 0 · 이미 뺀 기기 정리 · 반영 전에 들어왔다 나감) */
+function stockZeroWhy(r){ var nz=r.items.filter(function(i){ return !i.changed&&!i.floor&&(i.added.length||i.removed.length); }).length, fl=r.items.filter(function(i){ return i.floor&&!i.changed; }).length, D=(r.dropped||[]).length, P=(r.passed||[]).length;
+  return [nz?'같은 줄에서 +1·−1이 상쇄된 줄 '+nz+'개':'', fl?'시트 값이 이미 0이라 못 뺀 줄 '+fl+'개':'', D?'"이미 뺐어요"로 정한 기기 '+D+'대 기록 정리':'', P?'반영 전에 들어왔다 나간 기기 '+P+'대':''].filter(String).join(' · '); }
 function stockWhy(d){ return esc(d.why||'')+(d.name?' → '+esc(d.name):'')+(d.why==='재고 출고 매칭'&&d.status?' · '+esc(d.status):''); }
-function drawStock(v){ var r=v.state.pv; var changed=r.items.filter(function(i){ return i.changed; }), devCh=stockDevChange(r), L=r.left||[], P=r.passed||[];
+function drawStock(v){ var r=v.state.pv; var changed=r.items.filter(function(i){ return i.changed; }), devCh=stockDevChange(r), L=r.left||[], P=r.passed||[], CF=r.confirm||[], rc=r.rowChange;
   var h=title('재고 시트 반영','<a href="'+esc(r.sheetUrl)+'" target="_blank" style="color:var(--p);font-weight:700">'+esc(r.tab)+' 열기 ›</a>');
   h+='<div class="card sum"><div class="lb">앱에 재고로 있는 기기</div><div class="big">'+num(r.total,'st')+'<span>대</span></div>'+
-     '<div class="muted" style="margin-top:6px">신품 '+num(r.newTotal,'sn')+'대 · 중고 '+num(r.total-r.newTotal,'su')+'대'+(r.updated?' · 시트 마지막 반영 '+esc(r.updated):'')+'</div></div>';
+     '<div class="muted" style="margin-top:6px">신품 '+num(r.newTotal,'sn')+'대 · 중고 '+num(r.total-r.newTotal,'su')+'대'+(r.updated?' · 시트 마지막 반영 '+esc(r.updated):'')+'</div>'+
+     ((r.ambiguous.length+r.unmatched.length)?'<div style="margin-top:6px;color:var(--danger);font-weight:700;font-size:13.5px">이 중 '+(r.ambiguous.length+r.unmatched.length)+'대는 시트 줄을 못 찾아 시트에 안 들어가요 · 아래에서 줄 고르기</div>':'')+
+     (CF.length?'<div style="margin-top:4px;color:var(--danger);font-weight:700;font-size:13.5px">센 줄 확인이 필요한 기기 '+CF.length+'대 · 확인할 때까지 ± 보류</div>':'')+
+     (rc?'<div class="muted" style="margin-top:4px;font-size:13px">지난 반영 뒤 시트 줄이 바뀌었어요 ('+[rc.renamed?'이름 바뀜 '+rc.renamed:'',rc.added?'새 줄 '+rc.added:'',rc.removed?'없어진 줄 '+rc.removed:'',rc.unsure?'확실하지 않음 '+rc.unsure:''].filter(String).join(' · ')+'). 세어 둔 기기는 줄 위치를 따라가요.</div>':'')+
+     (r.finished?'<div class="muted" style="margin-top:4px;font-size:13px">지난 반영이 도중에 멈춰서 마저 마무리했어요.'+(r.finished.length?' <b style="color:var(--danger)">'+r.finished.map(esc).join(' / ')+'</b>':'')+'</div>':'')+'</div>';
   // 재고였다가 나간 기기 (출고 매칭·출고대기중·태그 비움 등): 반영하면 시트 −1. 반영 전에 들어왔다 나간 기기는 ±0 으로 같이 보여줌
   if(L.length||P.length){ var sN=L.filter(function(d){ return d.sheet; }).length, pTxt='재고에 들어왔다가 반영 전에 나간 기기 '+P.length+'대', pNote='<p class="muted" style="margin:0 0 6px;font-size:13px">시트에 +1 한 적이 없어서 −1도 안 해요. 들어오고 나간 게 같이 반영돼 시트 숫자는 그대로예요.</p>';
     h+='<div class="card">'+(L.length?'<h3>재고에서 나간 기기 '+L.length+'대'+(sN?' <span class="pill" style="background:var(--danger-soft);color:var(--danger);vertical-align:middle">시트 −'+sN+'</span>':'')+'</h3>'+
       '<p class="muted" style="margin:0 0 6px;font-size:13px">지난 반영 뒤 재고에서 빠진 기기예요. 아래 <b>시트에 반영</b>을 누르면 시트에서 −1 해요. 새로 재고가 된 기기(+1)도 같이 반영돼요.</p>':'<h3>'+pTxt+'</h3>'+pNote);
     L.forEach(function(d){ h+='<div class="srow"><div class="sn"><b>'+esc(d.model)+' '+esc(d.color)+'</b><span>'+esc(d.serial||d.code)+' · '+stockWhy(d)+'</span></div>'+
-      '<div class="sv">'+(d.sheet?'<em class="ch">'+(d.isNew?'새제품':'중고-중')+' −1</em>':'<em style="color:var(--danger)">시트 줄 없음 · 직접 빼기</em>')+'</div></div>'; });
+      '<div class="sv">'+(d.sheet?'<em class="ch">'+(d.isNew?'새제품':'중고-중')+' −1</em>':(d.done?'<em>이미 뺌</em>':'<em style="color:var(--danger)">센 줄 확인</em>'))+'</div></div>'; });
     if(P.length){ if(L.length) h+='<div class="lb" style="margin-top:14px">'+pTxt+'</div>'+pNote;
       P.forEach(function(d){ h+='<div class="srow dim"><div class="sn"><b>'+esc(d.model||'모델 없음')+'</b><span>'+esc(d.serial||d.code)+' · '+stockWhy(d)+'</span></div><div class="sv"><em>±0</em></div></div>'; }); }
     h+='</div>'; }
+  var nMiss=r.ambiguous.length+r.unmatched.length;
+  var pickB=function(kind,i,d,lbl){ return (kind==='g'||String(d.model||'').trim())?'<button class="edit" onclick="stockPick(\''+kind+'\','+i+')">'+(lbl||'줄 고르기')+'</button>':''; };
+  var tagB=function(d){ return '<button class="edit" onclick="push(\'tag\',{code:\''+jsa(d.code)+'\'})">태그</button>'; };
+  var wasT=function(d){ return d.was?' · 지난번에 <b>'+esc(d.was.model)+' '+esc(d.was.color)+'</b> 줄에 셌음 (같은 줄을 고르면 숫자 그대로)':(d.counted?' · 지난번에 셌음 (센 줄은 나중에 확인)':''); };
+  // 시트 줄을 못 찾은 재고 기기 → "넣을 줄" 고르기 (앱 기종·색상 → 시트 줄 · 같은 이름 기기는 다음부터 그 줄로)
+  if(nMiss){ h+='<div class="card"><h3 style="color:var(--danger)">시트 줄을 못 찾은 재고 기기 '+nMiss+'대</h3><p class="muted" style="margin:0 0 6px;font-size:13px">앱에선 재고인데 시트의 기종·색상 이름과 달라서 시트에 셀 줄을 못 찾았어요. <b>줄 고르기</b>로 시트의 어느 줄인지 정하면 다음 반영 때 그 줄로 셈해요(새 기기면 +1, 지난번에 같은 줄에 셌으면 그대로). 한 번 정하면 같은 기종·색상 기기는 계속 그 줄로 셈해요. 시트에 그 기종 줄이 아예 없으면 시트에 줄을 먼저 만든 뒤 새로고침하세요.</p>';
+    r.ambiguous.forEach(function(d,i){ h+='<div class="srow"><div class="sn"><b>'+esc(d.model)+' '+esc(d.color)+'</b><span>'+esc(d.serial||d.code)+' · 시트에 '+(d.options||[]).map(esc).join(' / ')+' 가 있어 애매함'+wasT(d)+'</span></div><div class="sbtns">'+pickB('a',i,d)+tagB(d)+'</div></div>'; });
+    r.unmatched.forEach(function(d,i){ h+='<div class="srow"><div class="sn"><b>'+esc(d.model||'모델 없음')+' '+esc(d.color)+'</b><span>'+esc(d.serial||d.code)+(String(d.model||'').trim()?' · 시트에 같은 기종·색상 줄이 없음':' · 모델이 없어요. 태그에서 어드민 새로고침')+wasT(d)+'</span></div><div class="sbtns">'+pickB('u',i,d)+tagB(d)+'</div></div>'; });
+    h+='</div>'; }
+  // 센 줄 확인: 시트 줄이 바뀌어 지난번에 어느 줄에 셌는지 확실하지 않은 기기 (± 보류 · 기록 유지) → 지금 세어져 있는 줄 고르기 / 이미 뺐어요
+  if(CF.length){ h+='<div class="card"><h3 style="color:var(--danger)">센 줄 확인이 필요한 기기 '+CF.length+'대</h3><p class="muted" style="margin:0 0 6px;font-size:13px">시트 줄이 바뀌어서(이름 바뀜·줄 추가·삭제) 이 기기를 지난번에 어느 줄에 셌는지 확실하지 않아요. 추측하지 않고 확인할 때까지 ±를 미뤄요. <b>센 줄 고르기</b>로 지금 시트에서 이 기기가 세어져 있는 줄을 골라 주세요. 나간 기기는 그 줄에서 −1, 아직 재고인 기기는 지금 셀 줄과 다르면 옮겨요(−1·+1). 나간 기기를 시트에서 이미 직접 뺐다면 <b>이미 뺐어요</b>. 아직 재고인데 시트 어느 줄에도 안 세어져 있으면(줄을 지웠다 새로 만든 경우 등) <b>어디에도 안 세어져 있어요</b> → 지금 셀 줄에 +1.</p>';
+    CF.forEach(function(d,i){ h+='<div class="srow"><div class="sn"><b>'+esc(d.model)+' '+esc(d.color)+'</b><span>'+esc(d.serial||d.code)+(d.isNew?' · 새제품 칸':' · 중고-중 칸')+(d.still?' · <b>아직 재고</b>'+(d.nowName?' · 지금 셀 줄 '+esc(d.nowName):''):' · 나감')+'</span></div>'+
+      '<div class="sbtns">'+pickB('g',i,d,'센 줄 고르기')+'<button class="edit" onclick="stockNone('+i+')">'+(d.still?'어디에도 안 세어져 있어요':'이미 뺐어요')+'</button></div></div>'; }); h+='</div>'; }
   h+='<div class="card"><h3>바뀔 줄 '+changed.length+'개</h3><p class="muted" style="margin:0 0 6px;font-size:13px">'+(r.first?'<b>처음 실행</b>이라 앱 재고 '+r.tracked+'대 전부를 기종·색상별로 나눠 +1씩 더해요. ':'새로 재고가 된 기기는 +1, 빠진 기기는 -1. ')+'신품 → <b>새제품</b> 칸, 중고 → <b>중고-중</b> 칸에 각각 따로. 시트에 있던 숫자는 덮어쓰지 않아요.</p>';
   var shown=r.items.filter(function(i){ return i.changed||i.floor; });   // 시트 값이 0이라 못 빼는 줄도 보여줌 (숫자는 안 바뀌어도 알아야 함)
   if(!shown.length) h+='<div class="empty">'+(devCh?esc(stockZeroWhy(r))+'.<br>시트 숫자는 그대로예요. 아래 버튼으로 반영 기록만 남기면 목록이 정리돼요.':'지난 반영 이후 들어오거나 빠진 기기가 없어요.')+'</div>';
@@ -2464,26 +2485,61 @@ function drawStock(v){ var r=v.state.pv; var changed=r.items.filter(function(i){
     h+='<div class="srow"><div class="sn"><b>'+esc(i.model)+' '+esc(i.color)+'</b><span>'+who+(i.floor?' · <span style="color:var(--danger)">시트 값이 0이라 더 못 뺌</span>':'')+'</span></div>'+
     '<div class="sv">'+cell(i.sheetNew,i.newNew,i.dNew,'새제품')+cell(i.sheetUsed,i.newUsed,i.dUsed,'중')+'</div></div>'; });
   h+='</div>';
-  if(r.gone&&r.gone.length){ h+='<div class="card"><h3 style="color:var(--danger)">빼야 하는데 시트 줄을 못 찾은 기기 '+r.gone.length+'대</h3><p class="muted" style="margin:0 0 6px;font-size:13px">지난번에 더해 둔 기기가 재고에서 빠졌는데, 시트에서 그 줄을 못 찾아 -1을 못 해요. 시트에서 직접 빼 주세요.</p>';
-    r.gone.forEach(function(d){ h+='<div class="srow dim"><div class="sn"><b>'+esc(d.model)+' '+esc(d.color)+'</b><span>'+esc(d.serial||d.code)+(d.isNew?' · 새제품 칸':' · 중고-중 칸')+'</span></div></div>'; }); h+='</div>'; }
-  if(r.ambiguous.length||r.unmatched.length){ h+='<div class="card"><h3 style="color:var(--danger)">시트 줄을 못 찾은 기기 '+(r.ambiguous.length+r.unmatched.length)+'대</h3><p class="muted" style="margin:0 0 6px;font-size:13px">이 기기들은 반영에서 빠져요. 태그의 모델·색상을 시트 표기와 맞게 고치면 다음 반영 때 들어가요.</p>';
-    r.ambiguous.forEach(function(d){ h+='<div class="srow dim"><div class="sn"><b>'+esc(d.model)+' '+esc(d.color)+'</b><span>'+esc(d.serial||d.code)+' · 시트에 '+d.options.map(esc).join(' / ')+' 가 있어 애매함</span></div><button class="edit" onclick="push(\'tag\',{code:\''+jsa(d.code)+'\'})">태그</button></div>'; });
-    r.unmatched.forEach(function(d){ h+='<div class="srow dim"><div class="sn"><b>'+esc(d.model||'모델 없음')+' '+esc(d.color)+'</b><span>'+esc(d.serial||d.code)+' · 시트에 같은 기종·색상 줄이 없음</span></div><button class="edit" onclick="push(\'tag\',{code:\''+jsa(d.code)+'\'})">태그</button></div>'; });
-    h+='</div>'; }
+  var al=r.aliases||[], ou=r.outs||[];
+  if(al.length||ou.length){ h+='<div class="card"><h3>직접 정한 줄 '+(al.length+ou.length)+'개</h3><p class="muted" style="margin:0 0 6px;font-size:13px">"줄 고르기"로 정한 것이에요. <b>넣을 줄</b> = 이 기종·색상 재고 기기를 셀 줄(계속 씀). <b>센 줄</b> = 그 기기 한 대를 지난번에 센 줄(이번 반영에 쓰고 지워짐). 잘못 골랐으면 지우고 다시 고르세요.</p>';
+    al.forEach(function(a,i){ h+='<div class="srow"><div class="sn"><b>'+esc(a.fm)+' '+esc(a.fc)+'</b><span>넣을 줄 → 시트 '+esc(a.model)+' '+esc(a.color)+'</span></div><button class="edit" onclick="stockAliasDel('+i+')">지우기</button></div>'; });
+    ou.forEach(function(a,i){ h+='<div class="srow"><div class="sn"><b>'+esc(a.serial||a.code)+'</b><span>'+esc(a.model)+' '+esc(a.color)+' · 센 줄 → '+(a.none?(a.still?'어디에도 안 세어짐 → 지금 줄 +1':'이미 뺌'):'시트 '+esc(a.to))+(a.stale?' · <b style="color:var(--danger)">고른 뒤 시트 줄이 바뀌어 다시 골라 주세요</b>':'')+'</span></div><button class="edit" onclick="stockOutDel('+i+')">지우기</button></div>'; }); h+='</div>'; }
   h+='<button class="btn" '+(changed.length||devCh?'':'disabled style="opacity:.5"')+' onclick="stockApplyAsk(\'\')">'+(changed.length||!devCh?'시트에 반영 ('+changed.length+'줄)':'반영 기록 남기기 (시트 숫자 그대로)')+'</button>';
   if(r.first) h+='<button class="btn line" style="margin-top:8px" onclick="stockApplyAsk(\'baseline\')">시트에 이미 넣어둠 · 더하지 않고 기억만</button>';
   v.el.innerHTML=h; countUp(v.el);
   function cell(a,b,d,label){ var ch=a!==b; return '<em class="'+(ch?'ch':'')+'">'+label+' '+(ch?'<s>'+a+'</s>':'')+b+(d?' <small>('+(d>0?'+':'')+d+')</small>':'')+'</em>'; } }
 function stockApplyAsk(mode){ needWorker(function(){ var v=stack[stack.length-1]; var r=v.state.pv; var changed=r.items.filter(function(i){ return i.changed; }); var base=(mode==='baseline'); if(!base&&!changed.length&&!stockDevChange(r)) return;
-  var outN=(r.left||[]).filter(function(d){ return d.sheet; }).length, G=(r.gone||[]).length;
-  var goneW=G?'<b style="color:var(--danger)">시트 줄을 못 찾은 기기 '+G+'대는 반영하면 목록에서 사라져요. 먼저 시트에서 직접 빼 주세요.</b> ':'';
-  var msg=base ? '시트 숫자는 그대로 두고, 앱 재고 '+r.tracked+'대를 이미 반영된 것으로 기억만 해요. 다음부터 들어오고 빠지는 기기만 ±1 해요.'
-               : goneW+(changed.length ? esc(r.tab)+' 탭의 '+changed.length+'줄에서 새제품·중고-중 칸에 더하고 빼요.'+(outN?' 재고에서 나간 기기 '+outN+'대(−1)도 들어 있어요.':'')+' 다른 칸은 그대로예요.'
+  var outN=(r.left||[]).filter(function(d){ return d.sheet; }).length, CF=(r.confirm||[]).length, nMiss=r.ambiguous.length+r.unmatched.length;
+  var holdW=(CF?'<b style="color:var(--danger)">센 줄 확인이 필요한 기기 '+CF+'대는 이번 반영에서 빼고 기록을 그대로 둬요.</b> ':'');
+  var msg=base ? '시트 숫자는 그대로 두고, 앱 재고 '+r.total+'대를 이미 시트에 넣은 것으로 기억만 해요.'+(nMiss?' 시트 줄을 못 찾은 '+nMiss+'대도 넣은 것으로 기억하고, 나중에 줄을 고를 때 더하지 않아요.':'')+' 다음부터 들어오고 빠지는 기기만 ±1 해요.'
+               : holdW+(changed.length ? esc(r.tab)+' 탭의 '+changed.length+'줄에서 새제품·중고-중 칸에 더하고 빼요.'+(outN?' 재고에서 나간 기기 '+outN+'대(−1)도 들어 있어요.':'')+' 다른 칸은 그대로예요.'
                                  : '시트 숫자는 안 바뀌어요('+esc(stockZeroWhy(r))+'). 반영 기록만 새로 남겨 목록을 정리해요.');
   openSheet('<h3>'+(base?'기억만 할까요?':'시트에 반영할까요?')+'</h3><p>'+msg+'</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ stockApplyGo(\''+(base?'baseline':'')+'\'); })">'+(base?'기억만':'반영')+'</button></div>'); }); }
 function stockApplyGo(mode){ var v=stack[stack.length-1]; var changed=v.state.pv.items.filter(function(i){ return i.changed; }).map(function(i){ return {row:i.row,model:i.model,dNew:i.dNew,dUsed:i.dUsed}; });
   v.el.innerHTML=title('재고 시트 반영','')+spin(mode==='baseline'?'기억하는 중':'시트에 쓰는 중');
-  run('stockApply',changed,worker,mode||'').then(function(res){ if(stack.indexOf(v)<0) return; if(res.ok){ haptic([12,40,18]); toast(res.baseline?'기억 완료 ('+res.tracked+'대)':(res.n?res.n+'줄 반영 완료':'반영 기록 완료 (시트 숫자 그대로)')); } else toast(res.error); return loadStock(v); }).catch(function(e){ v.el.innerHTML=title('재고 시트 반영','')+errBox(e); }); }
+  run('stockApply',changed,worker,mode||'').then(function(res){ if(stack.indexOf(v)<0) return; var fin=res&&res.finished; if(res.ok){ haptic([12,40,18]); toast(res.baseline?'기억 완료 ('+res.tracked+'대)':(res.n?res.n+'줄 반영 완료':'반영 기록 완료 (시트 숫자 그대로)')); } else toast(res.error);
+    return loadStock(v).then(function(){ if(fin&&stack.indexOf(v)>=0&&v.state.pv){ v.state.pv.finished=(v.state.pv.finished||[]).concat(fin); drawStock(v); } }); /* 다른 사람의 멈춘 반영을 마무리했으면 그 알림(직접 확인)을 계속 보여줌 */ })
+    .catch(function(e){ v.el.innerHTML=title('재고 시트 반영','')+errBox(e); }); }
+/* ---- 줄 고르기 ----
+   kind 'u' = 줄 없음(재고) · 'a' = 애매함(재고) → 넣을 줄 (앱 기종·색상 → 시트 줄, 같은 이름 기기 모두)
+   kind 'g' = 센 줄 확인 (기기 한 대: 지난번에 센 줄이 지금 어느 줄인지) */
+function stockPickDev(kind,i){ var v=permView('stocksync'); if(!v||!v.state.pv) return null; var r=v.state.pv; return ((kind==='g'?r.confirm:(kind==='a'?r.ambiguous:r.unmatched))||[])[i]||null; }
+/* 고르는 동안 목록이 새로 그려져도(다른 지정 결과·당겨서 새로고침) 엉뚱한 기기에 저장되지 않게, 열 때 기기·줄 목록을 그대로 떠 둠 */
+function stockPick(kind,i){ var d0=stockPickDev(kind,i); if(!d0) return; needWorker(function(){ var v=permView('stocksync'), d=d0; if(!v) return;
+  v.state.pick={kind:kind, key:d.key||'', model:d.model, color:d.color, serial:d.serial||d.code, cands:(d.cands||[]).slice(), rows:(v.state.pv.sheetRows||[]).slice()};
+  openSheet(kind==='g'
+    ? '<h3>'+esc(d.serial||d.code)+' · 지난번에 센 줄?</h3><p>지난번에 <b>'+esc(d.model)+' '+esc(d.color)+'</b> 줄에 셌던 기기예요. 지금 시트에서 이 기기가 세어져 있는 줄을 골라 주세요(보통 이름이 바뀐 그 줄). 이 기기 한 대에만 써요.</p>'
+    : '<h3>'+esc(d.model)+' '+esc(d.color)+' → 시트 어느 줄?</h3><p>이 기기를 <b>셀</b> 줄을 골라요. 같은 기종·색상 기기는 다음부터 이 줄로 셈해요. 시트에 그 기종 줄이 없으면 시트에 줄을 먼저 만들어 주세요.</p>');
+  $('sheet').insertAdjacentHTML('beforeend','<input class="input" id="spq" placeholder="기종·색상 검색 (예: P1 Black)" oninput="stockPickList()" autocomplete="off" style="margin-bottom:4px"><div id="spl"></div>');
+  stockPickList(); }); }
+function stockPickList(){ var v=permView('stocksync'), el=$('spl'); if(!v||!el||!v.state.pick) return; var p=v.state.pick;
+  var rows=p.rows||[], cands=p.cands||[], norm=function(s){ return String(s||'').toLowerCase().replace(/[\s\-_·()]+/g,''); },   // 서버처럼 띄어쓰기·-_·괄호 무시
+    words=String(($('spq')||{}).value||'').trim().split(/\s+/).map(norm).filter(Boolean), q=words.length;   // 낱말마다 따로 (예: "X5 Black" ↔ "X5 (15Ah) Black")
+  var row=function(x){ return '<button class="sprow" onclick="stockPickGo('+(Number(x.row)||0)+')"><b>'+esc(x.model)+'</b><span>'+esc(x.color||'색상 없음')+'</span><em>새제품 '+(Number(x.newQ)||0)+' · 중 '+(Number(x.usedQ)||0)+'</em></button>'; };
+  var h='';
+  if(q){ var hit=rows.filter(function(x){ var t=norm(x.model+' '+x.color); return words.every(function(w){ return t.indexOf(w)>=0; }); });
+    h=hit.length?hit.map(row).join(''):'<div class="empty" style="padding:18px 0">검색어와 맞는 줄이 없어요.<br>검색어를 줄이거나 지우고 전체 목록에서 찾아보세요.</div>'; }
+  else { var cs=cands.map(function(n){ return rows.filter(function(x){ return x.row===n; })[0]; }).filter(Boolean);   // 서버가 정한 순서 (지금 셀 줄 · 같은 번호 같은 기종 줄 · 비슷한 기종)
+    if(cs.length) h+='<div class="lb" style="margin-top:10px">먼저 볼 줄</div>'+cs.map(row).join('');
+    h+='<div class="lb" style="margin-top:12px">시트 전체 줄 '+rows.length+'개</div>'+rows.map(row).join(''); }
+  el.innerHTML=h; }
+function stockSetDone(v,pv,msg){ if(!pv||pv.ok===false){ toast((pv&&pv.error)||'정하기 실패'); return; } if(permView('stocksync')===v){ v.state.pv=pv; drawStock(v); } haptic([12,40,18]); toast(msg); }
+function stockPickGo(row){ var v=permView('stocksync'); if(!v||!v.state.pick) return; var p=v.state.pick, g=p.kind==='g', x=(p.rows||[]).filter(function(y){ return y.row===row; })[0]; if(!x) return;
+  haptic(8); closeSheet(function(){ toast('정하는 중…');   // 그 사이 시트 줄이 밀렸으면 서버가 "시트 줄이 바뀌었어요"로 거부
+    run('stockSetRow',p.model,p.color,{row:x.row,model:x.model,color:x.color},worker,g?'g':'',p.key).then(function(pv){ stockSetDone(v,pv,(g?p.serial+' 센 줄':p.model+' '+p.color)+' → 시트 '+x.model+' '+x.color+' · 아래 "바뀔 줄"에서 확인하세요'); })
+      .catch(function(e){ toast('정하기 실패: '+e.message); }); }); }
+/* 센 줄 확인 → "이미 뺐어요" (나간 기기를 시트에서 이미 직접 뺐음 → −1 안 하고 기록만 정리) */
+function stockNone(i){ var d=stockPickDev('g',i); if(!d) return; var v=permView('stocksync');
+  needWorker(function(){ run('stockSetRow',d.model,d.color,'none',worker,'g',d.key).then(function(pv){ stockSetDone(v,pv,(d.serial||d.code)+(d.still?' · 시트에 안 세어진 기기로 정해요 (다음 반영 때 지금 줄에 +1)':' · 이미 뺀 기기로 정리해요 (다음 반영 때 기록만)')); }).catch(function(e){ toast('정하기 실패: '+e.message); }); }); }
+function stockAliasDel(i){ var v=permView('stocksync'); if(!v||!v.state.pv) return; var a=(v.state.pv.aliases||[])[i]; if(!a) return;
+  needWorker(function(){ run('stockSetRow',a.fm,a.fc,null,worker,'').then(function(pv){ stockSetDone(v,pv,'넣을 줄 지정을 지웠어요 · '+a.fm+' '+a.fc); }).catch(function(e){ toast('지우기 실패: '+e.message); }); }); }
+function stockOutDel(i){ var v=permView('stocksync'); if(!v||!v.state.pv) return; var a=(v.state.pv.outs||[])[i]; if(!a) return;
+  needWorker(function(){ run('stockSetRow',a.model,a.color,null,worker,'g',a.key).then(function(pv){ stockSetDone(v,pv,'센 줄 지정을 지웠어요 · '+(a.serial||a.code)); }).catch(function(e){ toast('지우기 실패: '+e.message); }); }); }
 
 /* ================= 환경설정 ================= */
 var ICON_KEY='<svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4.2"/><path d="M11 12l8.5-8.5M16 7l3 3M13.5 9.5l2.5 2.5"/></svg>';
