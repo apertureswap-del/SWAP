@@ -727,7 +727,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.17';
+var APP_VER = '10.18';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -1875,7 +1875,8 @@ VIEWS.sw_extras={ render:function(v){ reanim(v);
 /* ================= 작업내역 (SWING 홈 간단 보고 · 작업자 작업내역 · 작업자 세부 · 작업 현황정리) ================= */
 /* 서버(Swing.gs)가 어드민 "킥보드 전체 기록"에서 관리자가 등록한 작업자의 기록만 모아, 작업자·기기마다 분류해서 준다:
    재배치수거됨+배터리 교체+배치됨 = 교체 후 재배치 / 배터리 교체만 = 배터리 교체 / 재배치수거됨+배치됨 = 재배치 / 재배치수거됨만 = 고장수거 OR 재배치수거됨 / 배치됨만 = 배치.
-   같은 기기는 한 번만. 교체했는데 교체 직후 배터리가 40% 미만이면 작업 불량_확인필요, 잴 때 오프라인이면 오프라인 확인(90% 이상 정산 반영 · 50% 미만 작업 불량 의심 · 그 사이 확인 대기).
+   같은 기기는 한 번만. 교체·재배치·배치 뒤 배터리가 60% 미만(v10.18 전 날짜는 40%, 서버 lowBat)이면 작업 불량_확인필요, 교체 때 오프라인이면 오프라인 확인(90% 이상 정산 반영 · 50% 미만 작업 불량 의심 · 그 사이 확인 대기).
+   야간(v10.18): 전날 20시 이후 작업이 있는 작업자의 새벽 0~8시 기록은 전날 작업일로 (타일 시각 "익일 01:30").
    작업자 세부에서 QR 을 누르면 말풍선: 어드민 열기 + (고장수거OR재배치수거됨) 고장수거·작업 불량 / (오프라인 확인) 작업 불량·기기이상 수거해야함 / (확인필요) 작업 불량·정상
    → 고른 기기는 아래 줄 "고장수거"·"작업 불량" 탭으로 옮겨 가고 작업현황 정산에 반영. 고장수거 탭은 어드민 상태로 처리예정(고장·미수거)·처리완료(창고) 딱지.
    홈 = 작업내역 간단 보고(어제 기본, 오늘~7일 전, 7일 그래프). 추가기능 → 작업자 작업내역 = 작업자 고르기 → 필터 → 작업자 세부(슬랙 전송·내용 복사 = 확인).
@@ -2076,7 +2077,8 @@ function swDayLoad(v,date,force){ v.state.date=date; var tok=v.state.tok=(v.stat
 VIEWS.sw_wd={ render:function(v){ reanim(v); v.state.date=v.params.date; v.state.key=v.params.key; v.state.model=v.state.model||v.params.model||'all'; v.state.note=v.state.note||'';
   v.refresh=function(){ return swDayLoad(v,v.state.date,true); };
   v.onResume=function(){ if(v.state.stale||!swDayMem[v.state.date]){ v.state.stale=false; swDayLoad(v,v.state.date,false); } };
-  var c=swDayMem[v.state.date]; if(c){ v.state.res=c.res; swWdDraw(v); if(v.state.date===todayISO(0)&&Date.now()-c.t>120000) swDayLoad(v,v.state.date,true); }   // 오늘인데 받은 지 2분 넘었으면 뒤에서 새로
+  var c=swDayMem[v.state.date]; if(c){ v.state.res=c.res; swWdDraw(v); var dp=v.state.date.split('-'), liveEnd=new Date(+dp[0],+dp[1]-1,+dp[2]+1,8).getTime();
+    if(Date.now()-c.t>120000&&c.t<liveEnd+120000) swDayLoad(v,v.state.date,true); }   // 그 작업일이 끝나기 전(다음 날 08시, 야간)에 받아 둔 목록이고 2분 넘었으면 뒤에서 새로
   else swDayLoad(v,v.state.date,false); }};
 function swWdWorker(v){ var ws=(v.state.res&&v.state.res.workers)||[]; return ws.filter(function(w){ return w.key===v.state.key; })[0]||null; }
 function swWdTasks(v,w){ var m=v.state.model; return (w.tasks||[]).filter(function(t){ return m==='all'||(t.m||'기타')===m; }); }
@@ -2114,7 +2116,7 @@ function swWdCard(v,w,ts,L,cat){ var q=swWdQNorm(v.state.q), srch=!!q;
   var tip=function(s){ return '<p class="muted" style="margin:-4px 0 12px;font-size:13px">'+s+'</p>'; };
   var rchk=function(txt){ return list.length?'<button class="btn line sm rchk" onclick="swRecheck()"'+(v.state.rechecking?' disabled':'')+'>'+(v.state.rechecking?'어드민 다시 보는 중…':txt)+'</button>':''; };
   if(srch){ if(list.length) h+=tip('모든 탭에서 찾았어요 (기종 탭과 상관없이). 작은 글씨가 그 기기가 있는 탭이에요. QR을 누르면 어드민·판정.'); }
-  else if(cat==='check') h+=tip('배터리 교체·교체 후 재배치·배치 뒤 배터리가 '+40+'% 미만이라 원래 탭 대신 여기로 먼저 왔어요. <b>판정 전에는 정산에 안 들어가요.</b> QR을 눌러 <b>작업 불량</b>(작업 불량 탭으로) 또는 <b>정상</b>(원래 탭으로 · 정산 반영)을 골라 주세요.')+rchk('다시 확인 (지금 온라인·배터리)');
+  else if(cat==='check') h+=tip('배터리 교체·교체 후 재배치·재배치·배치 뒤 배터리가 '+esc((v.state.res&&v.state.res.lowBat)||60)+'% 미만이라 원래 탭 대신 여기로 먼저 왔어요. <b>판정 전에는 정산에 안 들어가요.</b> QR을 눌러 <b>작업 불량</b>(작업 불량 탭으로) 또는 <b>정상</b>(원래 탭으로 · 정산 반영)을 골라 주세요.')+rchk('다시 확인 (지금 온라인·배터리)');
   else if(cat==='swap'||cat==='swapRe') h+=tip('배터리가 괜찮아 보여도 이상하면 QR을 눌러 <b>작업 불량</b> 또는 <b>기기이상 수거해야함</b>을 고를 수 있어요. <b>다시 확인</b>은 지금 온라인·배터리·어드민 상태를 보여주기만 해요(정산은 교체 때 잰 값 기준).')+rchk('다시 확인 (지금 온라인·배터리)');
   else if(cat==='off') h+=tip('배터리 교체·교체 후 재배치 뒤 배터리를 잴 때 기기가 <b>오프라인</b>이었어요. 90% 이상은 정산 반영, 50% 미만은 작업 불량 의심, 그 사이·모름은 확인 대기(둘 다 정산 안 함). <b>다시 확인</b>으로 어드민을 다시 보면 지금 온라인인 기기는 빠지고 정산에 들어가요. 그래도 오프라인이면 QR을 눌러 <b>작업 불량</b> 또는 <b>기기이상 수거해야함</b>(고장수거 탭으로 · 정산은 교체로만)을 골라 주세요.')+rchk('다시 확인 (어드민 온라인·오프라인)');
   else if(cat==='fault') h+=tip('재배치수거 뒤 배치 기록이 없어요. QR을 눌러 <b>고장수거</b>(수거 +1 · 고장수거 탭으로) 또는 <b>작업 불량</b>(정산 안 함 · 작업 불량 탭으로)을 골라 주세요. 고르기 전에는 수거(교체 기록이 있으면 교체 후 수거)로 들어가요.');
@@ -2125,7 +2127,7 @@ function swWdCard(v,w,ts,L,cat){ var q=swWdQNorm(v.state.q), srch=!!q;
   else h+='<div class="wkq">'+list.map(function(t){ return swWdTile(v,t,srch?swWdTabOf(t):cat,srch); }).join('')+'</div>';
   return h+'</div>'; }
 /* QR 칸 하나. cat = 보여 주는 탭(딱지가 달라짐), srch = 검색 결과면 작은 글씨에 그 기기가 있는 탭 */
-function swWdTile(v,t,cat,srch){ var tm=t.t1+(t.t2&&t.t2!==t.t1?'~'+t.t2:''), res=(cat==='r_broken'||cat==='r_mistake');
+function swWdTile(v,t,cat,srch){ var tm=(t.d1?'익일 ':'')+t.t1+(t.t2&&(t.t2!==t.t1||!t.d1!==!t.d2)?'~'+(t.d2&&!t.d1?'익일 ':'')+t.t2:''), res=(cat==='r_broken'||cat==='r_mistake');   // 야간: 다음 날 새벽 기록은 "익일"
   var catName=(SW_CATS.filter(function(c){ return c[0]===t.c; })[0]||['',''])[1];
   var cls=(t.low&&!res?' low':'')+(t.x?' cut':'')+(t.off?' off':'');
   var badge='';
@@ -2135,7 +2137,7 @@ function swWdTile(v,t,cat,srch){ var tm=t.t1+(t.t2&&t.t2!==t.t1?'~'+t.t2:''), re
   var lv=(v.state.live||{})[t.i], live=lv?'<em class="lv'+(lv.on==='N'?' no':'')+'">지금 '+(lv.on==='Y'?'온라인':(lv.on==='N'?'오프라인':'?'))+(lv.b!==null&&lv.b!==undefined?' '+esc(lv.b)+'%':'')+(lv.st?' · '+esc(lv.st):'')+'</em>':'';   // 다시 확인 결과 (보여주기만)
   return '<div class="'+cls.slice(1)+'" data-i="'+esc(t.i||'')+'" onclick="swQrTap(this)" role="button" tabindex="0"'+(t.n?' title="'+esc(t.n)+'"':'')+'><b'+(/^\d{12,}$/.test(t.q)?' class="im"':'')+'>'+esc(t.q)+'</b><i>'+esc(tm)+((v.state.model==='all'||srch)&&t.m?' · '+esc(t.m):'')+'</i>'+
     (t.b!==null&&t.b!==undefined?'<em class="bt">🔋 '+esc(t.b)+'%'+(t.low?' ⚠️':'')+'</em>':'')+badge+live+small+'</div>'; }
-/* 그 기기가 있는 탭: 판정해서 옮겼으면 고장수거·작업 불량, 40% 미만 판정 전이면 확인필요, 아니면 분류 (+ 오프라인 확인) */
+/* 그 기기가 있는 탭: 판정해서 옮겼으면 고장수거·작업 불량, 60% 미만 판정 전이면 확인필요, 아니면 분류 (+ 오프라인 확인) */
 function swWdTabOf(t){ return (t.j==='broken'||t.j==='device')?'r_broken':(t.j==='mistake'?'r_mistake':(t.low&&!t.j?'check':t.c)); }
 function swWdTabsText(t){ var k=swWdTabOf(t), a=[swWdLabel(k)]; if(!swMoved(t)){ if(t.off) a.push(SW_OFF); } return a.join(' · '); }
 /* QR 말풍선이 떠 있는데 목록을 다시 그렸으면(다른 판정 저장·뒤에서 새로 받음·검색) 새 칸에 다시 붙이고 내용도 새로 (history 칸은 이어 씀). 그 칸이 없어졌으면(다른 탭으로 옮겨 감) 닫음 */
@@ -2154,7 +2156,7 @@ function swWdQClear(){ var v=swWdView(); if(!v) return; haptic(6); var i=$('wd_q
 function swWdQEnter(){ var v=swWdView(); if(!v) return; var i=$('wd_q'); if(i) i.blur(); var tiles=v.el.querySelectorAll('#wd_listc .wkq>div[data-i]');
   if(swWdQNorm(v.state.q)&&tiles.length===1) setTimeout(function(){ if(swWdView()===v) swQrTap(tiles[0]); },250);
   else if(swWdQNorm(v.state.q)&&!tiles.length) toast('이 작업자 기록에 없는 QR이에요'); }
-/* 탭별 목록: 분류 탭은 판정해서 옮긴 기기와 40% 미만 판정 전 기기를 빼고(확인필요로 먼저 감), 확인필요는 판정 전(정상 → 원래 탭, 작업 불량 → 작업 불량 탭), 오프라인은 옮기기 전, 아래 줄 = 고장수거(고장수거·기기이상)·작업 불량 */
+/* 탭별 목록: 분류 탭은 판정해서 옮긴 기기와 60% 미만 판정 전 기기를 빼고(확인필요로 먼저 감), 확인필요는 판정 전(정상 → 원래 탭, 작업 불량 → 작업 불량 탭), 오프라인은 옮기기 전, 아래 줄 = 고장수거(고장수거·기기이상)·작업 불량 */
 function swMoved(t){ return t.j==='broken'||t.j==='device'||t.j==='mistake'; }
 function swWdLists(ts){ var L={}; SW_CATS.forEach(function(c){ L[c[0]]=ts.filter(function(t){ return t.c===c[0]&&!swMoved(t)&&!(t.low&&!t.j); }); });
   L.check=ts.filter(function(t){ return t.low&&!t.j; }); L.off=ts.filter(function(t){ return t.off&&!swMoved(t); });
@@ -2171,7 +2173,7 @@ function swWdNote(val){ var v=swWdView(); if(v) v.state.note=val; }
 function swTaskOf(v,id){ var w=v&&swWdWorker(v); return (w&&(w.tasks||[]).filter(function(t){ return t.i===id; })[0])||null; }
 function swJudgeOpts(t,cat){ if(swMoved(t)) return [];
   if(cat==='check') return ['mistake','ok']; if(cat==='off') return ['mistake','device'];
-  if(t.c==='fault') return ['broken','mistake']; if(t.off) return ['mistake','device']; if(t.low&&(!t.j||t.c==='place')) return ['mistake','ok'];   // 정상으로 고른 교체 기기는 교체 탭 기준(작업 불량·기기이상)
+  if(t.c==='fault') return ['broken','mistake']; if(t.off) return ['mistake','device']; if(t.low&&(!t.j||t.c==='place'||t.c==='re')) return ['mistake','ok'];   // 정상으로 고른 교체 기기는 교체 탭 기준(작업 불량·기기이상) · 배치·재배치는 그대로 작업 불량·정상
   if(t.c==='swap'||t.c==='swapRe') return ['mistake','device'];   // 배터리 교체·교체 후 재배치: 괜찮아 보여도 사람이 보고 고를 수 있게
   return []; }
 /* 판정 안 한 기기 (이게 남아 있으면 슬랙·복사 잠금): 작업 불량_확인필요 · 오프라인 확인(확인 대기·작업 불량 의심) · 고장수거OR재배치수거됨 */
