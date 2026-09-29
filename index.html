@@ -620,6 +620,11 @@
   .wkb i{font-style:normal} .wkb .ck{position:absolute;right:10px;top:9px;font-size:11.5px;font-weight:800}
   .wkb .lw{position:absolute;right:9px;bottom:9px;font-size:11px;font-weight:800;background:#fdecec;color:var(--danger);border-radius:999px;padding:1px 7px}
   .wkb.done{background:var(--fill);color:var(--muted);box-shadow:none} .wkb.done b{color:var(--muted)}
+  .wkb .nt{margin-top:6px;font-size:11.5px;font-weight:700;line-height:1.5;opacity:.92}   /* [야간] 21:10~익일 06:40 — 폭이 모자라면 시각만 다음 줄로 */
+  .wkb .nt em{font-style:normal;display:inline-block;font-size:10.5px;font-weight:800;background:rgba(255,255,255,.22);border-radius:999px;padding:0 7px;margin-right:4px}
+  .wkb .nt span{font-size:11.5px;opacity:1;white-space:nowrap}
+  .wkb.done .nt em{background:#e3e6ea;color:var(--ink2)} .wkb.hn .lw{position:static;margin-top:5px}   /* 야간 표시가 있으면 ⚠️ 는 그 아래 줄로 (겹치지 않게) */
+  .swold{margin-top:12px;font-size:12.5px;font-weight:700;color:var(--danger);background:#fdecec;border-radius:10px;padding:8px 10px;line-height:1.45}
   /* 작업자 세부 */
   .wdst{margin:-6px 4px 12px;font-size:13.5px;font-weight:700} .wdst.ok{color:var(--green-ink)} .wdst.un{color:#b45309}
   .seg button.z,.catbar button.z{opacity:.45}
@@ -728,7 +733,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.19';
+var APP_VER = '10.20';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -2003,18 +2008,21 @@ function swWorkDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res||{}, d=v
   var un=busy.filter(function(r){ return !r.w.confirmed; }).length;
   h+='<div class="card sum"><div class="lb">'+(d===todayISO(0)?'오늘':d===todayISO(-1)?'어제':fmtDateK(d))+(v.state.fm!=='all'?' · '+esc(v.state.fm):'')+' · 작업자 '+busy.length+'명'+(res.updated?' · '+esc(res.updated)+' 기준':'')+'</div>'+
     '<div class="big">'+(quiet?'<b class="num">'+tot+'</b>':num(tot,'sww'))+'<span>건</span></div>'+swCatBrk(c)+
-    (un?'<div class="swwarn" style="margin-top:12px">⚠️ 작업내역 미확인 '+un+'명</div>':'')+'</div>';
+    (un?'<div class="swwarn" style="margin-top:12px">⚠️ 작업내역 미확인 '+un+'명</div>':'')+
+    (admin&&res.workers&&res.lowBat===undefined?'<div class="swold">서버(Apps Script)가 아직 옛 버전이라 야간 작업일·60% 기준이 안 돼요. Code.gs·Swing.gs 를 붙여넣고 배포 → 배포 관리 → 새 버전으로 배포해 주세요.</div>':'')+'</div>';   // v10.18 서버는 lowBat 을 줌
   h+='<div class="card"><h3>작업자별</h3>';
   if(!busy.length) h+='<div class="empty" style="padding:18px 0">조건에 맞는 작업자 기록이 없어요.</div>';
   else {
     if(busy.some(function(r){ return r.w.confirmed; })&&!lsGet('sw_tip_off')) h+='<div class="tipb" id="swtip">회색 버튼은 슬랙 전송이나 내용 복사로 <b>확인한 작업자</b>예요. 다시 눌러서 볼 수 있어요.<button onclick="swTipOff()" aria-label="닫기">×</button></div>';
-    h+='<div class="wkbtns">'+busy.map(function(r){ var w=r.w; return '<button class="wkb'+(w.confirmed?' done':'')+'" onclick="swOpenWorker(\''+esc(w.key)+'\')"><b>'+esc(w.name)+'</b><span>'+r.count+'건'+(w.branch?' · '+esc(w.branch):'')+'</span>'+
-      (w.confirmed?'<i class="ck">✓ 확인</i>':'')+(r.cats.check?'<i class="lw">⚠️ '+r.cats.check+'</i>':'')+'</button>'; }).join('')+'</div>';
+    h+='<div class="wkbtns">'+busy.map(function(r){ var w=r.w, nt=swNightTxt(w); return '<button class="wkb'+(w.confirmed?' done':'')+(nt?' hn':'')+'" onclick="swOpenWorker(\''+esc(w.key)+'\')"><b>'+esc(w.name)+'</b><span>'+r.count+'건'+(w.branch?' · '+esc(w.branch):'')+'</span>'+
+      (nt?'<i class="nt"><em>야간</em><span>'+esc(nt.replace(/^야간 /,''))+'</span></i>':'')+(w.confirmed?'<i class="ck">✓ 확인</i>':'')+(r.cats.check?'<i class="lw">⚠️ '+r.cats.check+'</i>':'')+'</button>'; }).join('')+'</div>';
   }
   if(idle.length) h+='<p class="muted" style="margin:12px 2px 0;font-size:13px">기록 없음 · '+idle.map(function(r){ return esc(r.w.name); }).join(', ')+'</p>';
   h+='</div>';
   v.el.innerHTML=h; v.state.drawn=true; if(!quiet) countUp(v.el); }
 function swTipOff(){ lsSet('sw_tip_off',1); var t=$('swtip'); if(t) t.remove(); }
+/* 야간 작업자 표시 (서버 w.night: 그 날 20시 이후 작업이 있으면 다음 날 08시 전 작업까지 그 날로) → "야간 21:10~익일 06:40" */
+function swNightTxt(w){ var n=w&&w.night; return n?'야간 '+n.t1+'~'+(n.d2?'익일 ':'')+n.t2:''; }
 function swOpenWorker(key){ var v=swWorkView(); if(!v) return; push('sw_wd',{date:v.state.date,key:key,model:'all'}); }   // 목록의 기종 필터는 보기용 → 세부는 전체로 (한 기종만 보내고 전부 확인되는 일 방지)
 /* 작업자 고르기 시트: 지점 탭(향남·수원) + 검색창 + 명단(스크롤) — 누르면 체크(탭을 옮겨도 유지), 아무도 안 고르고 확인 = 전체 */
 function swPickOpen(v){ if(!v||v.name!=='sw_work'||sheetOpen) return; v.state.pick=(v.state.keys||[]).slice(); v.state.pq='';
@@ -2092,7 +2100,7 @@ function swWdDraw(v,quiet){ if(!quiet) reanim(v); var d=v.state.date, w=swWdWork
   // 판정한 기기는 원래 탭에서 빠져 아래 줄 탭(고장수거·작업 불량)으로 옮겨 감. 정상은 확인필요에서만 빠짐
   var ts=swWdTasks(v,w), L=swWdLists(ts), cnt={}; SW_CATS.forEach(function(c){ cnt[c[0]]=L[c[0]].length; });
   var cat=v.state.cat; if(!cat||!L[cat]){ cat=(SW_CATS.filter(function(c){ return cnt[c[0]]; })[0]||[['check','off','r_broken','r_mistake'].filter(function(k){ return L[k].length; })[0]||'swap'])[0]; v.state.cat=cat; }   // 처음에만 고름 (판정해서 빈 탭이 돼도 그 탭에 머묾)
-  var h=title(esc(w.name),fmtDateK(d)+(w.branch?' · '+esc(w.branch):''),swWdSearchBox(v));
+  var h=title(esc(w.name),fmtDateK(d)+(w.branch?' · '+esc(w.branch):'')+(w.night?' · '+esc(swNightTxt(w)):''),swWdSearchBox(v));
   h+=w.confirmed?'<div class="wdst ok">✓ '+esc(w.confirmed.by||'')+' · '+esc(String(w.confirmed.at||'').slice(5))+' '+({'슬랙':'슬랙 전송으로','복사':'내용 복사로'}[w.confirmed.method]||esc(w.confirmed.method||''))+' 확인함</div>'
                 :'<div class="wdst un">⚠️ 미확인 · 슬랙 전송이나 내용 복사를 하면 확인돼요</div>';
   h+='<div class="seg mseg">'+['all'].concat(models).map(function(m){ var n=m==='all'?(w.tasks||[]).length:((w.models||{})[m]||0);
