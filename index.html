@@ -627,6 +627,16 @@
   /* I9 작업 (작업자 세부 · 슬랙으로 보내기 위): 체크하면 아래 말풍선에서 I9 교체·I9 민원 대수 */
   .i9card{padding:14px 16px} .i9card .chk{width:100%}
   .i9card .chk small{margin-left:auto;font-size:12px;font-weight:600;color:var(--muted)} .i9card .chk.on small{color:var(--p-ink);opacity:.75}
+  /* 추가작업 버튼 (v10.26) + 말풍선 안 I9·타리요 탭 */
+  .exbtn{width:100%;display:flex;align-items:center;gap:8px;padding:11px 12px;border-radius:12px;background:var(--fill);font-size:14.5px;font-weight:700;color:var(--ink2);text-align:left;transition:transform .15s}
+  .exbtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round;flex:0 0 auto}
+  .exbtn b{flex:0 0 auto} .exbtn small{margin-left:auto;min-width:0;font-size:12px;font-weight:600;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .exbtn i{font-style:normal;font-size:11px;color:var(--muted);flex:0 0 auto} .exbtn:active{transform:scale(.98)}
+  .exbtn.on{background:var(--p-soft);color:var(--p-ink)} .exbtn.on small,.exbtn.on i{color:var(--p-ink)}
+  .exseg{position:relative;display:flex;gap:4px;background:#fff;border-radius:10px;padding:3px;margin-bottom:6px}
+  .exseg button{position:relative;flex:1;height:32px;border-radius:8px;font-size:13.5px;font-weight:700;color:var(--muted)}
+  .exseg button.on{background:var(--p);color:#fff}
+  .exseg button i{position:absolute;top:7px;right:10px;width:6px;height:6px;border-radius:50%;background:var(--p)} .exseg button.on i{background:#fff}   /* 넣은 대수가 있는 탭 */
   .i9bub{position:relative;margin-top:12px;background:var(--p-soft);border-radius:14px;padding:12px 14px 10px}
   .i9bub::before{content:'';position:absolute;top:-7px;left:22px;width:14px;height:14px;background:var(--p-soft);transform:rotate(45deg);border-radius:2px}
   .i9row{position:relative;display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:15px;font-weight:700;color:var(--ink)}
@@ -743,7 +753,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.25';
+var APP_VER = '10.27';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -2119,7 +2129,7 @@ function swWdDraw(v,quiet){ if(!quiet) reanim(v); var d=v.state.date, w=swWdWork
   h+='<div class="catbar">'+SW_CATS.map(function(c){ return tb(c[0],c[1],cnt[c[0]]); }).join('')+tb('check','⚠️'+SW_CHECK,L.check.length,'ck')+tb('off',SW_OFF,L.off.length,'of')+'</div>'+
     '<div class="catbar res"><span class="rl">판정한 기기</span>'+tb('r_broken',SW_JUDGE.broken,L.r_broken.length,'rb')+tb('r_mistake',SW_JUDGE.mistake,L.r_mistake.length,'rm')+'</div>';
   h+='<div id="wd_listc">'+swWdCard(v,w,ts,L,cat)+'</div>';   // QR 검색은 이 칸만 다시 그림 (입력칸은 그대로)
-  h+=swWdI9Html(v,w);   // I9 작업 (슬랙으로 보내기 위)
+  h+=swWdExHtml(v,w);   // 추가작업 I9·타리요 (슬랙으로 보내기 위)
   var pend=swWdPending(w), off=(!ts.length||v.state.sending||pend.n)?' disabled':'';   // 판정 안 한 게 남아 있으면 슬랙·복사 잠금 (기종 탭과 상관없이 그 작업자 전체)
   h+='<div class="card wdsend"><h3>슬랙으로 보내기</h3>'+(pend.n?swWdPendHtml(pend):'')+'<textarea class="input" id="wd_note" placeholder="특이사항 (없으면 비워두세요)" oninput="swWdNote(this.value)">'+esc(keepNote)+'</textarea>'+
     '<button class="btn" style="margin-top:12px" onclick="swWdSendAsk()"'+off+'><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>슬랙으로 보내기</button>'+
@@ -2138,9 +2148,9 @@ function swWdCard(v,w,ts,L,cat){ var q=swWdQNorm(v.state.q), srch=!!q;
   if(srch){ if(list.length) h+=tip('모든 탭에서 찾았어요 (기종 탭과 상관없이). 작은 글씨가 그 기기가 있는 탭이에요. QR을 누르면 어드민·판정.'); }
   else if(cat==='check') h+=tip('배터리 교체·교체 후 재배치·재배치·배치 뒤 배터리가 '+esc((v.state.res&&v.state.res.lowBat)||60)+'% 미만이라 원래 탭 대신 여기로 먼저 왔어요. <b>판정 전에는 정산에 안 들어가요.</b> QR을 눌러 <b>작업 불량</b>(작업 불량 탭으로) 또는 <b>정상</b>(원래 탭으로 · 정산 반영)을 골라 주세요.')+rchk('다시 확인 (지금 온라인·배터리)');
   else if(cat==='swap'||cat==='swapRe') h+=tip('배터리가 괜찮아 보여도 이상하면 QR을 눌러 <b>작업 불량</b> 또는 <b>기기이상 수거해야함</b>을 고를 수 있어요. <b>다시 확인</b>은 지금 온라인·배터리·어드민 상태를 보여주기만 해요(정산은 교체 때 잰 값 기준).')+rchk('다시 확인 (지금 온라인·배터리)');
-  else if(cat==='off') h+=tip('배터리 교체·교체 후 재배치 뒤 배터리를 잴 때 기기가 <b>오프라인</b>이었어요. 90% 이상은 정산 반영, 50% 미만은 작업 불량 의심, 그 사이·모름은 확인 대기(둘 다 정산 안 함). <b>다시 확인</b>으로 어드민을 다시 보면 지금 온라인인 기기는 빠지고 정산에 들어가요. 그래도 오프라인이면 QR을 눌러 <b>작업 불량</b> 또는 <b>기기이상 수거해야함</b>(고장수거 탭으로 · 정산은 교체로만)을 골라 주세요.')+rchk('다시 확인 (어드민 온라인·오프라인)');
+  else if(cat==='off') h+=tip('배터리 교체·교체 후 재배치 뒤 배터리를 잴 때 기기가 <b>오프라인</b>이었어요. 90% 이상은 정산 반영, 50% 미만은 작업 불량 의심, 그 사이·모름은 확인 대기(둘 다 정산 안 함). <b>다시 확인</b>으로 어드민을 다시 보면 지금 온라인인 기기는 빠지고 정산에 들어가요. 그래도 오프라인이면 QR을 눌러 골라 주세요: <b>작업 불량</b>(정산 안 함) · <b>기기이상 수거해야함</b>(고장수거 탭으로 · 정산은 교체로만) · <b>고장수거</b>(작업자가 그냥 가져온 기기 · 고장수거 탭으로 · 수거로 정산) · <b>정상</b>(배터리 교체 후 80% 이상으로 온라인 · 원래 탭으로 · 교체로 정산).')+rchk('다시 확인 (어드민 온라인·오프라인)');
   else if(cat==='fault') h+=tip('재배치수거 뒤 배치 기록이 없어요. QR을 눌러 <b>고장수거</b>(수거 +1 · 고장수거 탭으로) 또는 <b>작업 불량</b>(정산 안 함 · 작업 불량 탭으로)을 골라 주세요. 고르기 전에는 수거(교체 기록이 있으면 교체 후 수거)로 들어가요.');
-  else if(cat==='r_broken') h+=tip('고장수거·기기이상 수거로 고른 기기예요. <b>배터리 교체만 찍고 창고에 들어온 기기</b>(교체 뒤 그 날~다음 날 수거대상 → 창고)도 자동으로 여기 들어와요(어드민 코멘트도 남김). 어드민 상태가 <b>고장·미수거</b>가 되면 <b>처리예정</b>, <b>창고</b>가 되면 <b>처리완료</b>로 바뀌어요(15분마다 자동 · <b>다시 확인</b>으로 바로). <b>기기이상 수거는 정산이 교체로만</b> 들어가요(수거 +1 아님).')+rchk('다시 확인 (어드민 처리 상태)');
+  else if(cat==='r_broken') h+=tip('고장수거·기기이상 수거로 고른 기기예요. <b>배터리 교체만 찍고 창고에 들어온 기기</b>(교체 뒤 그 날~다음 날 수거대상 → 창고)도 자동으로 여기 들어와요(어드민 코멘트도 남김). 오프라인 확인에서 <b>고장수거</b>로 고른 기기는 <b>수거로 정산</b>돼요(교체 아님). 어드민 상태가 <b>고장·미수거</b>가 되면 <b>처리예정</b>, <b>창고</b>가 되면 <b>처리완료</b>로 바뀌어요(15분마다 자동 · <b>다시 확인</b>으로 바로). <b>기기이상 수거는 정산이 교체로만</b> 들어가요(수거 +1 아님).')+rchk('다시 확인 (어드민 처리 상태)');
   else if(cat==='r_mistake') h+=tip('작업 불량으로 고른 기기예요. 정산에 안 들어가고 작업현황 그 날짜 칸에 표시돼요. 잘못 골랐으면 QR을 눌러 <b>판정 취소</b>.');
   else if(list.length) h+=tip('QR을 누르면 어드민으로 바로 갈 수 있어요.');
   if(!list.length) h+='<div class="empty" style="padding:18px 0">'+(srch?'이 작업자 기록에 없는 QR이에요.':'없어요.')+'</div>';
@@ -2151,7 +2161,7 @@ function swWdTile(v,t,cat,srch){ var tm=(t.d1?'익일 ':'')+t.t1+(t.t2&&(t.t2!==
   var catName=(SW_CATS.filter(function(c){ return c[0]===t.c; })[0]||['',''])[1];
   var cls=(t.low&&!res?' low':'')+(t.x?' cut':'')+(t.off?' off':'');
   var badge='';
-  if(cat==='r_broken') badge=swProcBadge(t)+(t.j==='device'?'<em class="jd">기기이상 · 교체로 정산</em>':'')+(t.cg?'<em class="jd">교체만 찍고 창고 입고'+(t.cg.a?' · 자동':'')+'</em>':'');
+  if(cat==='r_broken') badge=swProcBadge(t)+(t.j==='device'?'<em class="jd">기기이상 · 교체로 정산</em>':'')+(t.j==='broken'&&t.c!=='fault'?'<em class="jd">오프라인 · 수거로 정산</em>':'')+(t.cg?'<em class="jd">교체만 찍고 창고 입고'+(t.cg.a?' · 자동':'')+'</em>':'');
   else if(!res){ if(t.off) badge+='<em class="of">'+(cat==='off'?SW_OFF_TXT[t.off]:'오프라인')+'</em>'; if(t.j==='ok') badge+='<em class="jd">'+SW_JUDGE.ok+'</em>'; }
   var small=srch?'<small>'+esc(swWdTabsText(t))+'</small>':((cat==='check'||cat==='off'||res)?'<small>'+esc(catName)+'</small>':(t.n?'<small>'+esc(t.n)+'</small>':''));
   var lv=(v.state.live||{})[t.i], live=lv?'<em class="lv'+(lv.on==='N'?' no':'')+'">지금 '+(lv.on==='Y'?'온라인':(lv.on==='N'?'오프라인':'?'))+(lv.b!==null&&lv.b!==undefined?' '+esc(lv.b)+'%':'')+(lv.st?' · '+esc(lv.st):'')+'</em>':'';   // 다시 확인 결과 (보여주기만)
@@ -2159,7 +2169,7 @@ function swWdTile(v,t,cat,srch){ var tm=(t.d1?'익일 ':'')+t.t1+(t.t2&&(t.t2!==
     (t.b!==null&&t.b!==undefined?'<em class="bt">🔋 '+esc(t.b)+'%'+(t.low?' ⚠️':'')+'</em>':'')+badge+live+small+'</div>'; }
 /* 그 기기가 있는 탭: 판정해서 옮겼으면 고장수거·작업 불량, 60% 미만 판정 전이면 확인필요, 아니면 분류 (+ 오프라인 확인) */
 function swWdTabOf(t){ return (t.j==='broken'||t.j==='device')?'r_broken':(t.j==='mistake'?'r_mistake':(t.low&&!t.j?'check':t.c)); }
-function swWdTabsText(t){ var k=swWdTabOf(t), a=[swWdLabel(k)]; if(!swMoved(t)){ if(t.off) a.push(SW_OFF); } return a.join(' · '); }
+function swWdTabsText(t){ var k=swWdTabOf(t), a=[swWdLabel(k)]; if(!swOffDone(t)){ if(t.off) a.push(SW_OFF); } return a.join(' · '); }
 /* QR 말풍선이 떠 있는데 목록을 다시 그렸으면(다른 판정 저장·뒤에서 새로 받음·검색) 새 칸에 다시 붙이고 내용도 새로 (history 칸은 이어 씀). 그 칸이 없어졌으면(다른 탭으로 옮겨 감) 닫음 */
 function swWdBubSync(v){ if(!(accBub&&accBub.sw&&accBub.sw.v===v)) return; var bid=accBub.sw.id, nb=[].filter.call(v.el.querySelectorAll('.wkq>div[data-i]'),function(x){ return x.getAttribute('data-i')===bid; })[0];
   if(nb&&swWdView()===v){ accBubClose(false,true); swQrTap(nb); } else accBubClose(); }
@@ -2178,8 +2188,9 @@ function swWdQEnter(){ var v=swWdView(); if(!v) return; var i=$('wd_q'); if(i) i
   else if(swWdQNorm(v.state.q)&&!tiles.length) toast('이 작업자 기록에 없는 QR이에요'); }
 /* 탭별 목록: 분류 탭은 판정해서 옮긴 기기와 60% 미만 판정 전 기기를 빼고(확인필요로 먼저 감), 확인필요는 판정 전(정상 → 원래 탭, 작업 불량 → 작업 불량 탭), 오프라인은 옮기기 전, 아래 줄 = 고장수거(고장수거·기기이상)·작업 불량 */
 function swMoved(t){ return t.j==='broken'||t.j==='device'||t.j==='mistake'; }
+function swOffDone(t){ return swMoved(t)||!!t.jo; }   // 오프라인 확인 끝 = 옮겼거나 오프라인 확인 탭에서 정상(jo, v10.27 · 서버 swwOffDone_ 과 같게)
 function swWdLists(ts){ var L={}; SW_CATS.forEach(function(c){ L[c[0]]=ts.filter(function(t){ return t.c===c[0]&&!swMoved(t)&&!(t.low&&!t.j); }); });
-  L.check=ts.filter(function(t){ return t.low&&!t.j; }); L.off=ts.filter(function(t){ return t.off&&!swMoved(t); });
+  L.check=ts.filter(function(t){ return t.low&&!t.j; }); L.off=ts.filter(function(t){ return t.off&&!swOffDone(t); });
   L.r_broken=ts.filter(function(t){ return t.j==='broken'||t.j==='device'; }); L.r_mistake=ts.filter(function(t){ return t.j==='mistake'; }); return L; }
 function swWdLabel(cat){ return cat==='check'?SW_CHECK:cat==='off'?SW_OFF:cat==='r_broken'?SW_JUDGE.broken:cat==='r_mistake'?SW_JUDGE.mistake:((SW_CATS.filter(function(c){ return c[0]===cat; })[0]||['',''])[1]); }
 /* 고장수거 탭 처리 딱지: 어드민 상태 고장·미수거 = 처리예정, 창고 = 처리완료, 아직 = 처리 전 */
@@ -2188,41 +2199,61 @@ function swWdView(){ var v=stack[stack.length-1]; return (v&&v.name==='sw_wd')?v
 function swWdModel(m){ var v=swWdView(); if(!v||v.state.model===m) return; haptic(6); v.state.model=m; v.state.cat=null; swWdDraw(v,true); }
 function swWdCat(c){ var v=swWdView(); if(!v||(v.state.cat===c&&!v.state.q)) return; haptic(6); v.state.cat=c; v.state.q=''; swWdDraw(v,true); }   // 탭을 누르면 검색은 끝냄
 function swWdNote(val){ var v=swWdView(); if(v) v.state.note=val; }
-/* ---- I9 작업 (v10.21): 슬랙으로 보내기 위 체크 → 말풍선에서 I9 교체·I9 민원 대수 → 보내거나 복사하면 작업현황 I9 교체(앱이 센 수에 더해)·I9 민원(앱 숫자로) 칸에 ----
-   처음엔 확인 때 넣은 값(w.confirmed.i9)으로 채움. 끈 채로 보내면 예전에 넣은 값은 지움({0,0}), 한 번도 안 넣었으면 안 건드림(null) */
-function swWdI9State(v,w){ var c=(w&&w.confirmed&&w.confirmed.i9)||null, k=v.state.key+'|'+v.state.date, base=JSON.stringify(c), s=v.state.i9;
-  if(!s||s.k!==k||(!s.dirty&&s.base!==base)) s=v.state.i9={k:k,base:base,dirty:false,on:!!(c&&(c.s||c.c)),s:(c&&c.s)||0,c:(c&&c.c)||0};   // 안 건드렸으면 새로 받은(다른 사람이 저장한) 값으로 다시
-  s.saved=!!(c&&(c.s||c.c)); return s; }
-function swWdI9Html(v,w){ var s=swWdI9State(v,w);
-  return '<div class="card i9card" id="wd_i9"><label class="chk'+(s.on?' on':'')+'"><input type="checkbox" data-f="on"'+(s.on?' checked':'')+' onchange="swWdI9On(this.checked)"><i></i>I9 작업<small>'+(s.on&&(s.s||s.c)?esc(swWdI9Lines(s).slice(1).join(' · ')):'I9 교체·I9 민원 대수')+'</small></label>'+
-    (s.on?'<div class="i9bub">'+[['s','I9 교체'],['c','I9 민원']].map(function(x){ return '<div class="i9row"><span>'+x[1]+'</span><div class="stp">'+
-      '<button type="button" data-f="'+x[0]+'-" aria-label="'+x[1]+' 하나 빼기" onclick="swWdI9Step(\''+x[0]+'\',-1)"'+(s[x[0]]?'':' disabled')+'>−</button><b aria-live="polite" aria-label="'+x[1]+' '+s[x[0]]+'대">'+s[x[0]]+'</b>'+
-      '<button type="button" data-f="'+x[0]+'+" aria-label="'+x[1]+' 하나 더하기" onclick="swWdI9Step(\''+x[0]+'\',1)"'+(s[x[0]]>=99?' disabled':'')+'>+</button></div></div>'; }).join('')+
-      '<p>보내거나 복사하면 작업현황 <b>I9 교체</b>(앱이 센 수에 더해)·<b>I9 민원</b>(이 숫자로) 칸에 들어가요.</p></div>':'')+'</div>'; }
-function swWdI9Redraw(v){ var el=v.el.querySelector('#wd_i9'), w=swWdWorker(v); if(!el||!w) return;
+/* ---- 추가작업 (v10.26 · v10.21 "I9 작업" 체크를 버튼으로): 슬랙으로 보내기 위 [추가작업] → 말풍선 탭 I9(I9 교체·I9 민원) · 타리요(타리요 교체·타리요 재배치) 대수(＋/−)
+   → 보내거나 복사하면 작업현황 I9 교체(앱이 센 수에 더해)·I9 민원(이 숫자로), 타리요 탭(교체 ×0.7 · 재배치 ×1.3, 합본 포인트 합계에도). 슬랙·복사에도 줄로.
+   탭(그룹)마다 따로: 처음엔 확인 때 넣은 값(w.confirmed.i9·tr), 안 건드리면 서버가 저장된 값 그대로(null), 0 으로 만들고 보내면 앞에 넣은 값 지움, 한 번도 안 넣은 날은 안 건드림 */
+var SW_EX={i9:{label:'I9',f:[['s','I9 교체'],['c','I9 민원']]},tr:{label:'타리요',f:[['s','타리요 교체'],['r','타리요 재배치']]}};
+function swWdExState(v,w){ var k=v.state.key+'|'+v.state.date, st=v.state.ex;
+  if(!st||st.k!==k) st=v.state.ex={k:k,open:false,tab:'i9',g:{}};
+  Object.keys(SW_EX).forEach(function(gk){ var c=(w&&w.confirmed&&w.confirmed[gk])||null, base=JSON.stringify(c), g=st.g[gk];
+    if(!g||(!g.dirty&&g.base!==base)){ g=st.g[gk]={base:base,dirty:false}; SW_EX[gk].f.forEach(function(f){ g[f[0]]=(c&&c[f[0]])||0; }); }   // 안 건드렸으면 새로 받은(다른 사람이 저장한) 값으로 다시
+    g.saved=!!(c&&SW_EX[gk].f.some(function(f){ return c[f[0]]; })); });
+  return st; }
+function swWdExHas(gk,g){ return SW_EX[gk].f.some(function(f){ return g[f[0]]; }); }
+function swWdExVal(gk,g){ var o={}; SW_EX[gk].f.forEach(function(f){ o[f[0]]=g[f[0]]||0; }); return o; }
+/* 서버로 보낼 값(그룹마다) */
+function swWdExPayload(v,gk){ var g=swWdExState(v,swWdWorker(v)).g[gk]; if(!g.dirty) return null; return (swWdExHas(gk,g)||g.saved)?swWdExVal(gk,g):null; }
+/* 화면에 보이는(= 복사·슬랙에 들어갈) 값 */
+function swWdExShown(v,gk){ var g=swWdExState(v,swWdWorker(v)).g[gk]; return swWdExHas(gk,g)?swWdExVal(gk,g):null; }
+/* 서버 swwI9Lines_·swwTrLines_ 와 같게: ['I9 작업','I9 교체 2','I9 민원 1'] (다 0 이면 []) */
+function swWdExLines(gk,val){ if(!val||!SW_EX[gk].f.some(function(f){ return val[f[0]]; })) return []; var o=[SW_EX[gk].label+' 작업']; SW_EX[gk].f.forEach(function(f){ if(val[f[0]]) o.push(f[1]+' '+val[f[0]]); }); return o; }
+function swWdExSummary(v,w){ var st=swWdExState(v,w), a=[]; Object.keys(SW_EX).forEach(function(gk){ a=a.concat(swWdExLines(gk,swWdExHas(gk,st.g[gk])?swWdExVal(gk,st.g[gk]):null).slice(1)); }); return a; }
+function swWdExHtml(v,w){ var st=swWdExState(v,w), sum=swWdExSummary(v,w), g=st.g[st.tab];
+  var h='<div class="card i9card" id="wd_i9"><button type="button" class="exbtn'+(st.open?' on':'')+'" data-f="ex" aria-expanded="'+st.open+'" onclick="swWdExOpen()">'+
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><b>추가작업</b><small>'+(sum.length?esc(sum.join(' · ')):'I9 · 타리요 대수')+'</small><i>'+(st.open?'▴':'▾')+'</i></button>';
+  if(st.open){ h+='<div class="i9bub"><div class="exseg" role="tablist">'+Object.keys(SW_EX).map(function(gk){ var on=st.tab===gk, has=swWdExHas(gk,st.g[gk]);
+      return '<button type="button" role="tab" data-f="tab-'+gk+'" aria-selected="'+on+'" class="'+(on?'on':'')+'" onclick="swWdExTab(\''+gk+'\')">'+SW_EX[gk].label+(has?'<i></i>':'')+'</button>'; }).join('')+'</div>'+
+    SW_EX[st.tab].f.map(function(x){ var n=g[x[0]]||0, df=st.tab+'-'+x[0];
+      return '<div class="i9row"><span>'+x[1]+'</span><div class="stp">'+
+        '<button type="button" data-f="'+df+'-" aria-label="'+x[1]+' 하나 빼기" onclick="swWdExStep(\''+x[0]+'\',-1)"'+(n?'':' disabled')+'>−</button><b aria-live="polite" aria-label="'+x[1]+' '+n+'대">'+n+'</b>'+
+        '<button type="button" data-f="'+df+'+" aria-label="'+x[1]+' 하나 더하기" onclick="swWdExStep(\''+x[0]+'\',1)"'+(n>=99?' disabled':'')+'>+</button></div></div>'; }).join('')+
+    '<p>'+(st.tab==='i9'?'보내거나 복사하면 작업현황 <b>I9 교체</b>(앱이 센 수에 더해)·<b>I9 민원</b>(이 숫자로) 칸에 들어가요.':'보내거나 복사하면 작업현황 <b>타리요 탭</b>에 들어가요 (교체 ×0.7 · 재배치 ×1.3, 합본 포인트 합계에도).')+'</p></div>'; }
+  return h+'</div>'; }
+function swWdExRedraw(v){ var el=v.el.querySelector('#wd_i9'), w=swWdWorker(v); if(!el||!w) return;
   var a=document.activeElement, f=(a&&el.contains(a)&&a.getAttribute('data-f'))||'';   // 누르던 칸에 포커스를 다시 (키보드·화면 읽기)
-  el.outerHTML=swWdI9Html(v,w);
-  if(f){ var n=v.el.querySelector('#wd_i9 [data-f="'+f+'"]'); if(n&&n.disabled) n=v.el.querySelector('#wd_i9 [data-f="'+f.charAt(0)+(f.charAt(1)==='-'?'+':'-')+'"]'); if(n) n.focus(); } }
-function swWdI9On(on){ var v=swWdView(); if(!v) return; haptic(6); var s=swWdI9State(v,swWdWorker(v)); s.on=!!on; s.dirty=true; swWdI9Redraw(v); }
-function swWdI9Step(k,d){ var v=swWdView(); if(!v) return; var s=swWdI9State(v,swWdWorker(v)); s[k]=Math.max(0,Math.min(99,(s[k]||0)+d)); s.dirty=true; haptic(4); swWdI9Redraw(v); }
-/* 서버로 보낼 값: 안 건드렸으면 null(서버가 저장된 값 그대로) · 체크하고 대수가 있으면 {s,c} · 끄거나 0·0 인데 저장된 값이 있으면 {0,0}(지움) · 아니면 null (한 번도 안 넣은 날의 I9 민원 칸은 안 건드림) */
-function swWdI9Payload(v){ var s=swWdI9State(v,swWdWorker(v)); if(!s.dirty) return null;
-  return (s.on&&(s.s||s.c))?{s:s.s||0,c:s.c||0}:(s.saved?{s:0,c:0}:null); }
-/* 화면에 보이는(= 복사·슬랙에 들어갈) I9 */
-function swWdI9Shown(v){ var s=swWdI9State(v,swWdWorker(v)); return (s.on&&(s.s||s.c))?{s:s.s,c:s.c}:null; }
-/* 서버 swwI9Lines_ 와 같게: ['I9 작업','I9 교체 2','I9 민원 1'] (둘 다 0 이면 []) */
-function swWdI9Lines(i9){ if(!i9||(!i9.s&&!i9.c)) return []; var o=['I9 작업']; if(i9.s) o.push('I9 교체 '+i9.s); if(i9.c) o.push('I9 민원 '+i9.c); return o; }
-/* QR 말풍선: 어드민 열기 + 판정 (고장수거OR재배치수거됨 → 고장수거·작업 불량 / 오프라인 확인 → 작업 불량·기기이상 수거해야함 / 작업 불량_확인필요 → 작업 불량·정상)
+  el.outerHTML=swWdExHtml(v,w);
+  if(f){ var n=v.el.querySelector('#wd_i9 [data-f="'+f+'"]'); if(n&&n.disabled) n=v.el.querySelector('#wd_i9 [data-f="'+f.slice(0,-1)+(f.slice(-1)==='-'?'+':'-')+'"]'); if(n) n.focus(); } }
+function swWdExOpen(){ var v=swWdView(); if(!v) return; haptic(6); var st=swWdExState(v,swWdWorker(v)); st.open=!st.open; swWdExRedraw(v); }
+function swWdExTab(gk){ var v=swWdView(); if(!v||!SW_EX[gk]) return; haptic(4); swWdExState(v,swWdWorker(v)).tab=gk; swWdExRedraw(v); }
+function swWdExStep(k,d){ var v=swWdView(); if(!v) return; var st=swWdExState(v,swWdWorker(v)), g=st.g[st.tab]; g[k]=Math.max(0,Math.min(99,(g[k]||0)+d)); g.dirty=true; haptic(4); swWdExRedraw(v); }
+/* 보내기·복사가 끝나면 저장된 값으로 다시 (다음 화면 갱신 때 서버 값으로) */
+function swWdExClean(v){ var st=v.state.ex; if(st) Object.keys(st.g).forEach(function(gk){ st.g[gk].dirty=false; }); }
+/* 복사·슬랙에 들어갈 추가작업 줄 (m = 기종 탭: I9 는 전체·I9 탭, 타리요는 전체 탭에서만 — 서버와 같게) */
+function swWdExTextLines(v,m){ var out=[];
+  if(m==='all'||m==='I9') out.push(swWdExLines('i9',swWdExShown(v,'i9')));
+  if(m==='all') out.push(swWdExLines('tr',swWdExShown(v,'tr')));
+  return out.filter(function(l){ return l.length; }); }
+/* QR 말풍선: 어드민 열기 + 판정 (고장수거OR재배치수거됨 → 고장수거·작업 불량 / 오프라인 확인 → 작업 불량·기기이상 수거해야함·고장수거·정상(v10.27) / 작업 불량_확인필요 → 작업 불량·정상)
    고장수거 탭 기기 → 처리 딱지 + [고장]·[미수거](어드민 상태 바꾸면 처리예정). 판정은 작업자 작업내역 권한이면 누구나 */
 function swTaskOf(v,id){ var w=v&&swWdWorker(v); return (w&&(w.tasks||[]).filter(function(t){ return t.i===id; })[0])||null; }
 function swJudgeOpts(t,cat){ if(swMoved(t)) return [];
-  if(cat==='check') return ['mistake','ok']; if(cat==='off') return ['mistake','device'];
+  if(cat==='check') return ['mistake','ok']; if(cat==='off') return ['mistake','device','broken','ok'];   // 오프라인 확인: + 고장수거(작업자가 그냥 가져옴 · 수거로 정산) · 정상(교체 후 80% 이상 온라인 · 교체로 정산)
   if(t.c==='fault') return ['broken','mistake']; if(t.off) return ['mistake','device']; if(t.low&&(!t.j||t.c==='place'||t.c==='re')) return ['mistake','ok'];   // 정상으로 고른 교체 기기는 교체 탭 기준(작업 불량·기기이상) · 배치·재배치는 그대로 작업 불량·정상
   if(t.c==='swap'||t.c==='swapRe') return ['mistake','device'];   // 배터리 교체·교체 후 재배치: 괜찮아 보여도 사람이 보고 고를 수 있게
   return []; }
 /* 판정 안 한 기기 (이게 남아 있으면 슬랙·복사 잠금): 작업 불량_확인필요 · 오프라인 확인(확인 대기·작업 불량 의심) · 고장수거OR재배치수거됨 */
 function swWdPending(w){ var ts=(w&&w.tasks)||[], p={check:0,off:0,fault:0};
-  ts.forEach(function(t){ if(t.low&&!t.j) p.check++; else if(t.off&&t.off!=='ok'&&!swMoved(t)) p.off++; else if(t.c==='fault'&&!t.j) p.fault++; });
+  ts.forEach(function(t){ if(t.low&&!t.j) p.check++; else if(t.off&&t.off!=='ok'&&!swOffDone(t)) p.off++; else if(t.c==='fault'&&!t.j) p.fault++; });
   p.n=p.check+p.off+p.fault; return p; }
 function swWdPendHtml(p){ var b=function(k,label,n){ return n?'<button class="btn line sm" onclick="swWdGoTab(\''+k+'\')">'+label+' '+n+'</button>':''; };
   return '<div class="wdpend"><b>판정 안 한 기기 '+p.n+'대가 있어 아직 못 보내요.</b><span>눌러서 그 탭으로 가서 판정해 주세요.</span><div class="row">'+
@@ -2230,8 +2261,8 @@ function swWdPendHtml(p){ var b=function(k,label,n){ return n?'<button class="bt
 function swWdGoTab(k){ var v=swWdView(); if(!v) return; haptic(6); if(v.state.model!=='all') v.state.model='all'; v.state.cat=k; v.state.q=''; swWdDraw(v,true); v.el.scrollTo({top:0,behavior:'smooth'}); }
 function swQrTap(el){ var v=swWdView(); if(!v) return; var id=el.getAttribute('data-i'), t=swTaskOf(v,id); if(!t) return;
   if(accBubShut.b===el&&Date.now()-accBubShut.t<500) return;   // 열린 말풍선을 이 QR 을 눌러 닫은 탭 → 다시 열지 않음
-  var im=/^\d{15}$/.test(t.i||'')?t.i:'', opts=swJudgeOpts(t,swWdQNorm(v.state.q)?swWdTabOf(t):v.state.cat), mv=swMoved(t);   // 검색 결과면 그 기기가 있는 탭 기준
-  var sub=[t.m, t.off&&!mv?'오프라인 · '+SW_OFF_TXT[t.off]:'', t.j?SW_JUDGE[t.j]+(t.jb?' ('+t.jb+')':''):''].filter(Boolean).map(esc).join(' · ');
+  var im=/^\d{15}$/.test(t.i||'')?t.i:'', cat=swWdQNorm(v.state.q)?((t.off&&!swOffDone(t))?'off':swWdTabOf(t)):v.state.cat, opts=swJudgeOpts(t,cat);   // 검색 결과면 그 기기가 있는 탭 기준 (오프라인 확인 전이면 오프라인 확인 탭 — v10.27 고장수거·정상도 고를 수 있게)
+  var sub=[t.m, t.off&&!swOffDone(t)?'오프라인 · '+SW_OFF_TXT[t.off]:'', t.j?SW_JUDGE[t.j]+(t.jb?' ('+t.jb+')':''):''].filter(Boolean).map(esc).join(' · ');
   var h='<div class="abh">'+esc(t.q)+(sub?' · '+sub:'')+'</div>'+
     (im?'<a class="abad" href="'+esc(SW_ADMIN+im)+'" target="_blank" rel="noopener" onclick="swQrAdmin()">어드민 열기</a>':'<div class="abno">IMEI 를 몰라 어드민을 못 열어요</div>');
   if(t.cg) h+='<div class="abn warn">배터리 교체만 찍고 수거는 안 찍었는데 창고에 들어왔어요 · 수거대상 '+(t.cg.wn?'익일 ':'')+esc(t.cg.w)+' → 창고 '+(t.cg.cn?'익일 ':'')+esc(t.cg.c)+
@@ -2239,28 +2270,33 @@ function swQrTap(el){ var v=swWdView(); if(!v) return; var id=el.getAttribute('d
   if(t.j==='broken'||t.j==='device'){
     h+='<div class="abn">'+(t.p==='done'?'처리완료 · 창고로 들어왔어요':(t.p==='wait'?'처리예정'+(t.ps?' · 어드민 '+esc(t.ps):'')+' · 창고가 되면 처리완료':'처리 전 · 어드민 상태를 고장·미수거로 바꾸면 처리예정'))+'</div>'+
       (t.j==='device'?'<div class="abn warn">고장수거지만 정산은 교체로만 들어가요 (수거 +1 아님)</div>':'')+
+      (t.j==='broken'&&t.c!=='fault'?'<div class="abn warn">오프라인 확인에서 고장수거로 골라 정산은 수거로 들어가요 (교체 아님)</div>':'')+
       (t.p!=='done'&&im?'<div class="abo jd"><button type="button" onclick="swProcTap(\'Broken\')">고장</button><button type="button" onclick="swProcTap(\'Missing\')">미수거</button></div>':''); }
-  h+=(opts.length?'<div class="abo jd">'+opts.map(function(k){ return '<button type="button" class="'+(t.j===k?'on':'')+'" aria-pressed="'+(t.j===k)+'" onclick="swJudgeTap(\''+k+'\')">'+SW_JUDGE[k]+'</button>'; }).join('')+'</div>':'')+
+  if(cat==='off'&&opts.length) h+='<div class="abn">고장수거 = 작업자가 그냥 가져온 기기 (수거로 정산)<br>정상 = 배터리 교체 후 80% 이상으로 온라인 (교체로 정산)</div>';   // v10.27
+  var on=function(k){ return t.j===k&&!(k==='ok'&&cat==='off'&&!t.jo); };   // 확인필요에서 고른 정상은 오프라인 확인 탭에선 아직 안 고른 것
+  var row=function(ks){ return '<div class="abo jd">'+ks.map(function(k){ return '<button type="button" class="'+(on(k)?'on':'')+'" aria-pressed="'+on(k)+'" onclick="swJudgeTap(\''+k+'\')">'+SW_JUDGE[k]+'</button>'; }).join('')+'</div>'; };
+  h+=(opts.length>2?row(opts.slice(0,2))+row(opts.slice(2)):(opts.length?row(opts):''))+   // 4개(오프라인 확인)는 두 줄로
     (t.j?'<button type="button" class="abx" onclick="swJudgeTap(\'\')">판정 취소</button>':'');   // 판정은 옮겨 간 탭·원래 탭 어디서든 취소 가능
-  var me=bubOpen(el,h,t.q+' 처리'); me.sw={v:v,id:id}; }
+  var me=bubOpen(el,h,t.q+' 처리'); me.sw={v:v,id:id,cat:cat}; }
 function swQrAdmin(){ haptic(10); setTimeout(function(){ accBubClose(); },0); }   // 새 탭은 그대로 열리고 말풍선만 닫음
-function swJudgeTap(k){ var s=accBub; if(!s||!s.sw) return; var v=s.sw.v, id=s.sw.id, t=swTaskOf(v,id);
+function swJudgeTap(k){ var s=accBub; if(!s||!s.sw) return; var v=s.sw.v, id=s.sw.id, cat=s.sw.cat||'', t=swTaskOf(v,id);
   if(!t||swWdView()!==v){ accBubClose(); return; }
   if(v.state.judging&&v.state.judging[id]){ accBubClose(); toast('이 기기 판정을 저장하는 중이에요'); return; }
-  if(k&&t.j===k){ accBubClose(); toast('이미 '+SW_JUDGE_RO[k]+' 처리했어요'); return; }
-  if(k==='device'){ haptic(8); accBubClose(false,false,function(){ swJudgeAsk(v,id); }); return; }   // 어드민 상태를 바꾸니 한 번 더 물어봄
-  haptic(8); accBubClose(); swJudgeGo(v,id,k); }
-function swJudgeAsk(v,id){ var t=swTaskOf(v,id); if(!t||swWdView()!==v) return;
+  if(k&&t.j===k&&!(k==='ok'&&cat==='off'&&!t.jo)){ accBubClose(); toast('이미 '+SW_JUDGE_RO[k]+' 처리했어요'); return; }   // 확인필요에서 고른 정상 → 오프라인 확인 탭에서 다시 정상 = 오프라인 확인도 풂
+  if(k==='device'){ haptic(8); accBubClose(false,false,function(){ swJudgeAsk(v,id,cat); }); return; }   // 어드민 상태를 바꾸니 한 번 더 물어봄
+  haptic(8); accBubClose(); swJudgeGo(v,id,k,cat); }
+function swJudgeAsk(v,id,cat){ var t=swTaskOf(v,id); if(!t||swWdView()!==v) return;
   openSheet('<h3>기기이상 수거해야함으로 처리할까요?</h3><p><b>'+esc(t.q)+'</b>'+(t.m?' · '+esc(t.m):'')+' · <b>고장수거 탭</b>으로 옮기고, <b>정산은 교체로만</b> 들어가요(수거 +1 아님).<br>스윙 어드민 기기 상태를 <b>미수거</b>로 바꿔요 → 처리예정 (창고가 되면 처리완료).</p>'+
-    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="flex:2" onclick="closeSheet(function(){ swJudgeGo(swWdView(),\''+jsa(id)+'\',\'device\'); })">미수거로 바꾸기</button></div>'); }
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="flex:2" onclick="closeSheet(function(){ swJudgeGo(swWdView(),\''+jsa(id)+'\',\'device\',\''+jsa(cat||'')+'\'); })">미수거로 바꾸기</button></div>'); }
 /* 판정 저장 → 서버가 판정 붙은 작업을 돌려줌 (확인한 날이면 작업현황 칸도 서버가 다시 채움) */
-function swJudgeGo(v,id,k){ if(!v) return; var t=swTaskOf(v,id); if(!t) return; var J=v.state.judging=v.state.judging||{};   // 기기마다 따로 (여러 QR 을 이어서 판정해도 앞 것이 끝나길 안 기다림 · 서버가 잠금으로 차례대로)
+function swJudgeGo(v,id,k,cat){ if(!v) return; var t=swTaskOf(v,id); if(!t) return; var J=v.state.judging=v.state.judging||{};   // 기기마다 따로 (여러 QR 을 이어서 판정해도 앞 것이 끝나길 안 기다림 · 서버가 잠금으로 차례대로)
   if(J[id]){ toast('이 기기 판정을 저장하는 중이에요'); return; }
   J[id]=1; toast(k==='device'?'어드민 상태 바꾸는 중…':'저장하는 중…');
-  run('swingWorkJudge',v.state.date,v.state.key,id,k,worker).then(function(res){ delete J[id];
+  run('swingWorkJudge',v.state.date,v.state.key,id,k,worker,cat||'').then(function(res){ delete J[id];   // cat = 판정한 탭 (v10.27: 오프라인 확인 탭의 정상은 오프라인 확인도 풂)
     if(!res||!res.ok){ toast((t.q?t.q+' ':'')+((res&&res.error)||'저장 실패')); if(res&&res.stale&&stack.indexOf(v)>=0) swDayLoad(v,v.state.date,true); return; }
     swJudgeSet(v,res.task); haptic([10,30,10]);
-    var go={broken:' · 고장수거 탭으로 옮겼어요',mistake:' · 작업 불량 탭으로 옮겼어요',ok:' · 확인필요에서 뺐어요'}[k]||'';
+    var go=({broken:' · 고장수거 탭으로 옮겼어요',mistake:' · 작업 불량 탭으로 옮겼어요',ok:' · 확인필요에서 뺐어요'})[k]||'';
+    if(k==='broken'&&res.task&&res.task.c!=='fault') go+=' (수거로 정산)'; else if(k==='ok'&&res.task&&res.task.jo) go=' · 오프라인 확인에서 뺐어요 (교체로 정산)';
     var msg=(t.q?t.q+' ':'')+(k?SW_JUDGE_RO[k]+' 처리했어요'+go+(res.status?' · 어드민 '+res.status:''):'판정을 취소했어요'+(t.j==='device'?' (어드민 상태는 그대로예요)':''));
     if(res.sheetError) msg+=' · 작업현황 시트 오류: '+res.sheetError;
     if(k==='device'){ toast(msg); bubble((t.q?t.q+' ':'')+'고장수거 탭으로 옮겼어요 · 정산은 교체로만 들어가요',2200); }   // 꼭 알려야 함: 고장수거인데 정산은 교체로만
@@ -2325,8 +2361,8 @@ function swWdText(v){ var w=swWdWorker(v); if(!w) return ''; var ts=swWdTasks(v,
   var sec=function(label,qs,fmt){ if(!qs.length) return; if(lines.length) lines.push(''); lines.push(label+'_'+qs.length); qs.forEach(function(t){ lines.push(fmt?fmt(t):t.q); }); };
   SW_CATS.forEach(function(c){ sec(c[1],L[c[0]]); });
   sec(SW_CHECK,L.check); sec(SW_OFF,L.off);
-  sec(SW_JUDGE.broken,L.r_broken,function(t){ return t.q+(t.j==='device'?' (기기이상 · 교체로 정산)':(t.cg?' (교체만 찍고 창고 입고)':'')); }); sec(SW_JUDGE.mistake,L.r_mistake);
-  if(m==='all'||m==='I9'){ var l9=swWdI9Lines(swWdI9Shown(v)); if(l9.length){ if(lines.length) lines.push(''); lines=lines.concat(l9); } }   // I9 작업 (서버 슬랙 메시지와 같게)
+  sec(SW_JUDGE.broken,L.r_broken,function(t){ return t.q+(t.j==='device'?' (기기이상 · 교체로 정산)':(t.cg?' (교체만 찍고 창고 입고)':(t.c!=='fault'?' (오프라인 · 수거로 정산)':''))); }); sec(SW_JUDGE.mistake,L.r_mistake);
+  swWdExTextLines(v,m).forEach(function(l){ if(lines.length) lines.push(''); lines=lines.concat(l); });   // 추가작업 I9·타리요 (서버 슬랙 메시지와 같게)
   var note=String($('wd_note')?$('wd_note').value:(v.state.note||'')).trim(); if(note){ lines.push(''); lines.push('특이사항'); lines.push(note); }
   return '['+fmtDateK(v.state.date)+' · '+w.name+(w.branch?' ('+w.branch+')':'')+(m!=='all'?' · '+m:'')+']\n\n'+lines.join('\n'); }
 /* 확인 표시를 캐시(홈·세부가 같이 씀)에 반영: 이 화면이 들고 있는 결과와 지금 캐시의 결과 둘 다(당겨서 새로고침으로 바뀌었을 수 있음).
@@ -2340,24 +2376,24 @@ function swWdMark(v,conf){ if(!conf) return; var set=function(res){ ((res&&res.w
 /* 보내는 중에는 슬랙·복사 버튼을 잠근다 (두 번 눌러 두 번 가는 것 방지) */
 function swWdBusy(v,on){ v.state.sending=on; [].forEach.call(v.el.querySelectorAll('.wdsend .btn'),function(b){ b.disabled=on; }); }
 function swWdPendStop(v){ var p=swWdPending(swWdWorker(v)); if(!p.n) return false; toast('판정 안 한 기기 '+p.n+'대가 있어요 · 먼저 판정해 주세요'); return true; }   // 판정 끝낼 때까지 슬랙·복사 못 함
-function swWdCopy(){ var v=swWdView(); if(!v||v.state.sending||swWdPendStop(v)) return; var t=swWdText(v); if(!t) return; var w=swWdWorker(v), all=(w&&w.tasks||[]).length, i9=swWdI9Payload(v);
+function swWdCopy(){ var v=swWdView(); if(!v||v.state.sending||swWdPendStop(v)) return; var t=swWdText(v); if(!t) return; var w=swWdWorker(v), all=(w&&w.tasks||[]).length, i9=swWdExPayload(v,'i9'), tr=swWdExPayload(v,'tr');
   var done=function(){ swWdBusy(v,true); toast('복사했어요 · 확인 표시하는 중…');
-    run('swingWorkConfirm',v.state.date,v.state.key,'복사',worker,i9).then(function(res){ swWdBusy(v,false);
+    run('swingWorkConfirm',v.state.date,v.state.key,'복사',worker,i9,tr).then(function(res){ swWdBusy(v,false);
       if(!res||!res.ok){ toast((res&&res.error)||'확인 표시 실패'); if(res&&res.stale&&stack.indexOf(v)>=0) swDayLoad(v,v.state.date,true); return; }   // 서버에서 본 판정 안 한 기기 → 화면을 새로 받아 보여줌
-      if(v.state.i9) v.state.i9.dirty=false; swWdMark(v,res.confirmed);   // I9 칸은 저장된 값으로 다시
+      swWdExClean(v); swWdMark(v,res.confirmed);   // 추가작업 칸은 저장된 값으로 다시
       if(typeof res.count==='number'&&res.count!==all){ toast('그 사이 새 기록이 있어요. 다시 불러왔으니 한 번 더 복사해 주세요'); if(stack.indexOf(v)>=0) swDayLoad(v,v.state.date,true); return; }   // 복사한 내용과 시트에 적힌 숫자가 다르면
       toast(res.sheetError?'복사·확인했어요 (현황정리 시트 오류: '+res.sheetError+')':'복사했어요 · '+(w?w.name:'')+' 확인 표시'); })
       .catch(function(e){ swWdBusy(v,false); toast('복사는 됐는데 확인 표시 실패: '+e.message); }); };
   if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done,function(){ fallbackCopy(t); done(); }); else { fallbackCopy(t); done(); } }
 function swWdSendAsk(){ var v=swWdView(); if(!v||v.state.sending||swWdPendStop(v)) return; var w=swWdWorker(v); if(!w) return; var ts=swWdTasks(v,w); if(!ts.length){ toast('보낼 작업이 없어요'); return; }
   var ta=v.el.querySelector('#wd_note'); v.state.note=ta?ta.value:v.state.note;
-  var l9=(v.state.model==='all'||v.state.model==='I9')?swWdI9Lines(swWdI9Shown(v)).slice(1):[];   // 슬랙 메시지엔 전체·I9 탭일 때만 (다른 탭이어도 작업현황엔 들어감)
+  var l9=[].concat.apply([],swWdExTextLines(v,v.state.model).map(function(l){ return l.slice(1); }));   // 슬랙 메시지에 들어가는 추가작업 (I9 는 전체·I9 탭, 타리요는 전체 탭 · 다른 탭이어도 작업현황엔 들어감)
   openSheet('<h3>슬랙으로 보낼까요?</h3><p>'+esc(fmtDateK(v.state.date))+' · '+esc(w.name)+(v.state.model!=='all'?' · '+esc(v.state.model):'')+' · '+ts.length+'건'+(l9.length?' + '+esc(l9.join('·')):'')+(String(v.state.note||'').trim()?' + 특이사항':'')+'<br>보내면 확인 표시돼요.</p>'+
     '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="flex:2" onclick="closeSheet(function(){ swWdSendGo(); })">보내기</button></div>'); }
 function swWdSendGo(){ var v=swWdView(); if(!v||v.state.sending||swWdPendStop(v)) return; var note=String(v.state.note||'').trim(); haptic(12); swWdBusy(v,true); toast('보내는 중…');
-  run('swingWorkSlack',v.state.date,v.state.key,note,v.state.model,worker,swWdI9Payload(v)).then(function(res){ swWdBusy(v,false); $('toast').classList.remove('on');
+  run('swingWorkSlack',v.state.date,v.state.key,note,v.state.model,worker,swWdExPayload(v,'i9'),swWdExPayload(v,'tr')).then(function(res){ swWdBusy(v,false); $('toast').classList.remove('on');
     if(res&&res.ok){ haptic([12,40,18]); v.state.note=''; var ta=v.el.querySelector('#wd_note'); if(ta) ta.value='';   // 이 화면의 칸만 비움 (다른 작업자 화면 칸은 건드리지 않게)
-      if(v.state.i9&&res.confirmed) v.state.i9.dirty=false; swWdMark(v,res.confirmed);
+      if(res.confirmed) swWdExClean(v); swWdMark(v,res.confirmed);
       toast(res.confirmError?'슬랙으로 보냈어요 · 확인 표시는 실패 ('+res.confirmError+')':(res.sheetError?'보냈어요 (현황정리 시트 오류: '+res.sheetError+')':'슬랙으로 보냈어요 ('+res.count+'건) · 확인 표시')); return; }
     if(res&&res.stale){ toast(res.error); if(stack.indexOf(v)>=0) swDayLoad(v,v.state.date,true); return; }   // 밀린 기록이 많으면 화면을 새로 받아 보여주고 다시 보내게
     if(res&&res.noHook){ openSheet('<h3>슬랙 연결이 아직 안 됐어요</h3><p>관리자가 Apps Script → 프로젝트 설정 → 스크립트 속성에 <b>SLACK_WORK_WEBHOOK</b>(작업내역 채널 Incoming Webhook 주소, 없으면 SLACK_WEBHOOK)을 넣으면 바로 전송돼요. 지금은 내용 복사로 붙여넣을 수 있어요 (복사해도 확인 표시돼요).</p>'+
@@ -2389,7 +2425,7 @@ function swSumDraw(v){ var r=v.state.info||{}, ym=v.state.ym, cur=(r.months||[])
   h+='<div class="card"><h3>'+esc(swYmLabel(ym))+' 작업현황</h3>';
   if(v.state.err) h+=errBox(v.state.err)+'<button class="btn line" onclick="swSumRetry()">다시 시도</button>';
   else if(!cur.has) h+='<div class="empty" style="padding:18px 0">이 달은 아직 확인한 작업자가 없어요.<br>작업자 세부에서 슬랙 전송이나 내용 복사로 확인하면 만들어져요.</div>';
-  else h+='<p class="muted" style="margin:0 0 14px;line-height:1.6">확인한 작업자마다 한 블록(날짜별 개수 + 포인트). 다시 확인하면 그 날짜의 앱이 세는 칸만 새로 써져요. 작업자 세부에서 <b>I9 작업</b>을 넣은 날은 I9 교체·I9 민원도 앱이 써요. 그 밖의 I9 민원·금액은 시트에서 직접 넣어 주세요.</p>'+
+  else h+='<p class="muted" style="margin:0 0 14px;line-height:1.6">확인한 작업자마다 한 블록(날짜별 개수 + 포인트). 다시 확인하면 그 날짜의 앱이 세는 칸만 새로 써져요. 작업자 세부 <b>추가작업</b>에서 I9 를 넣은 날은 I9 교체·I9 민원도 앱이 쓰고, 타리요는 <b>타리요 탭</b>(교체 ×0.7 · 재배치 ×1.3, 합본 포인트 합계에도)에 들어가요. 그 밖의 I9 민원·금액은 시트에서 직접 넣어 주세요.</p>'+
     (r.left&&r.ym===ym?'<div class="tipb">시트에 아직 안 들어간 확인 <b>'+r.left+'건</b> — 엑셀로 받을 때나 15분 안에 채워져요.</div>':'')+
     '<button class="btn" onclick="swSumXlsx()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>엑셀로 받기 (.xlsx)</button>'+
     (r.url&&r.ym===ym?'<a class="btn line" style="margin-top:8px;text-decoration:none" href="'+esc(r.url)+'" target="_blank" rel="noopener">구글 시트 열기</a>':'');
