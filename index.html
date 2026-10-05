@@ -11,8 +11,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <style>
   :root{
     --bg:#f2f4f6; --card:#ffffff; --fill:#f2f4f6; --fill2:#f9fafb; --line:#e5e8eb; --line2:#d1d6db;
@@ -410,6 +412,12 @@
   .hist li{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--muted);padding:11px 0;border-top:1px solid var(--fill)}
   .hist li:first-child{border-top:0} .hist b{color:var(--ink);font-weight:700}
   .note{background:var(--amber);border-radius:14px;padding:12px 14px;font-size:14px;margin-top:12px;color:var(--amber-ink);line-height:1.5}
+  /* v10.34 기기 화면 바로 열기: 폰에 저장된 목록으로 먼저 그림 → 최신 정보가 올 때까지 버튼 잠금 (링크는 됨) */
+  .stalebar{display:flex;align-items:center;gap:8px;margin:0 0 12px;padding:10px 14px;border-radius:14px;background:var(--fill);color:var(--muted);font-size:13.5px;font-weight:600;line-height:1.4}
+  .stalebar i{flex:0 0 auto;width:14px;height:14px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--p);animation:rot .8s linear infinite}
+  .stalebar.err{background:var(--danger-soft);color:var(--danger)} .stalebar span{flex:1}
+  .stalebar button{flex:0 0 auto;border:0;border-radius:999px;padding:6px 12px;background:var(--card);color:var(--ink2);font:inherit;font-size:13px;cursor:pointer}
+  .tagstale button:not(.stb),.tagstale label.chk{opacity:.45;pointer-events:none}
   .toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + 20px);transform:translateX(-50%) translateY(10px);opacity:0;background:rgba(25,31,40,.92);color:#fff;
          padding:13px 20px;border-radius:16px;font-size:14.5px;font-weight:600;z-index:99;max-width:88%;text-align:center;pointer-events:none;
          transition:transform .45s var(--spring),opacity .25s;backdrop-filter:blur(8px)}
@@ -769,7 +777,8 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.33';
+var APP_VER = '10.34';
+var libsReady=false; document.addEventListener('DOMContentLoaded',function(){ libsReady=true; });   // v10.34: defer 로 받는 QR 라이브러리(qrcode·jsQR)는 DOMContentLoaded 전에 다 받음(또는 실패) — 그 전엔 "받는 중"
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -854,8 +863,23 @@ function refreshSysBg(){ if(Date.now()-sysRefreshT<60000) return; sysRefreshT=Da
     else run('listTags',500).then(function(tags){ lsSet('tags2',tags); var v=stack[stack.length-1]; if(!v) return;
       if(SERVER!=='swap') return;   // 그 사이 SWING 으로 바꿨으면 (SWING 홈도 이름이 home) 그리지 않음
       if(v.name==='status'){ v.state.tags=tags; drawStatus(v); } }).catch(function(){}); }).catch(function(){}); }
+/* v10.34 튀는 호출 자르기: Apps Script 는 가끔 한 번만 10~25초씩 걸림 → 가벼운 읽기는 7초 지나면 같은 요청을 하나 더 보내 먼저 온 답을 씀 (최대 2번).
+ * 읽기만 (같은 걸 두 번 해도 안전한 것). getTag 는 열 때 어드민 확인·기록을 할 수 있어 안 겹침. 쓰기는 절대 안 겹침.
+ * 다시 해도 소용없는 오류(접속 코드·권한·허용 안 된 요청)는 다시 안 보냄 */
+var HEDGE_FNS={homeTags:1,listTags:1,search:1,getWorkList:1}, HEDGE_MS=7000;
+function retryable(e){ return !!e && e.auth!==false && !/서버 권한이 없어요|권한이 없어요\. 관리자에게|허용되지 않은 요청|마스터 계정만|관리자만 할 수/.test(String(e.message||'')); }   // 앱이 내는 권한 문구만 (Apps Script 자체의 일시적인 "…권한이 없습니다" 는 지금처럼 한 번 더)
 function run(fn){ var args=[].slice.call(arguments,1);
-  return runOnce(fn,args).catch(function(e){ if(READ_FNS[fn]) return runOnce(fn,args); throw e; }); }
+  if(HEDGE_FNS[fn]) return runHedged(fn,args);
+  return runOnce(fn,args).catch(function(e){ if(READ_FNS[fn]&&retryable(e)) return runOnce(fn,args); throw e; }); }
+function runHedged(fn,args){
+  return new Promise(function(res,rej){ var n=0, live=0, done=false, ht=null;
+    function fin(){ done=true; clearTimeout(ht); }
+    function go(){ n++; live++;
+      runOnce(fn,args).then(function(r){ live--; if(done) return; fin(); res(r); },
+        function(e){ live--; if(done) return;
+          if(n<2&&retryable(e)){ clearTimeout(ht); go(); return; }   // 7초 전에 실패(네트워크 등) → 바로 한 번 더
+          if(!live){ fin(); rej(e); } }); }                          // 다른 하나가 아직 가는 중이면 그걸 기다림
+    go(); ht=setTimeout(function(){ if(!done&&n<2) go(); },HEDGE_MS); }); }
 function runOnce(fn,args){
   return new Promise(function(res,rej){
     var cb='swapcb_'+(++_rid)+'_'+Math.floor(Math.random()*1e6); var s=document.createElement('script'); var done=false, t;
@@ -1053,6 +1077,7 @@ function decodeAsync(src){ // 비동기: BarcodeDetector → jsQR
 function stopScan(){ if(scanRAF) cancelAnimationFrame(scanRAF); scanRAF=null; if(scanStream){ scanStream.getTracks().forEach(function(t){t.stop();}); scanStream=null; } }
 function liveScan(v){ camTarget=null;   // 일련번호 사진 읽기를 취소하고 남은 대상 칸이 있으면 비움
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ scanFail('카메라 API 없음 (secure='+String(window.isSecureContext)+', v'+APP_VER+'). 주소가 https://apertureswap-del.github.io/SWAP/ 인지 확인해 주세요. 아래 버튼으로 사진을 찍어 읽을 수 있어요.'); return; }
+  if(!bd && typeof jsQR==='undefined' && !libsReady){ var smg=$('scanmsg'); if(smg) smg.textContent='QR 인식 모듈 받는 중…'; document.addEventListener('DOMContentLoaded',function(){ if(stack[stack.length-1]===v) liveScan(v); }); return; }   // v10.34: jsQR 을 defer 로 받으니 아주 빨리 누르면 아직 없을 수 있음 → 다 받고 시작
   if(!bd && typeof jsQR==='undefined'){ scanFail('QR 인식 모듈을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'); return; }
   navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:1280}},audio:false}).then(function(stream){
     scanStream=stream; var vid=$('vid'); if(!vid){ stopScan(); return; } vid.srcObject=stream; vid.setAttribute('playsinline',''); vid.muted=true; vid.play().catch(function(){});
@@ -1169,7 +1194,7 @@ function handleScanned(text){
     var oldc=cur.params.rematch; stopScan(); var bx=$('scanbox'); if(bx) bx.style.display='none'; $('scanmsg').textContent=code+' 로 교체 중…';
     run('rematchTag',oldc,code,worker).then(function(res){ if(stack.indexOf(cur)<0) return;
       if(!res.ok){ toast(res.error); liveScan(cur); if(bx) bx.style.display=''; return; }
-      haptic([12,40,18]); toast('QR 교체 완료: '+oldc+' → '+code); try{ history.replaceState({d:hDepth},'',WEBAPP+'?q='+code); }catch(e){}
+      haptic([12,40,18]); tagSnapDrop(oldc); toast('QR 교체 완료: '+oldc+' → '+code); try{ history.replaceState({d:hDepth},'',WEBAPP+'?q='+code); }catch(e){}
       // 이전 태그 화면(구 코드)도 새 코드로 바꿔 둔다
       var prev=stack[stack.length-2]; if(prev&&prev.name==='tag'){ prev.params.code=code; prev.state.tag=res.tag; prev._tagDrawn=false; drawTag(prev); }
       pop(); }).catch(function(e){ toast('교체 실패: '+(e&&e.message||e)); liveScan(cur); if(bx) bx.style.display=''; });
@@ -1272,14 +1297,39 @@ function dayLabel(iso){ var t=todayISO(0), y=todayISO(-1); if(iso===t) return '�
 function fmtDateK(iso){ var p=iso.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]); return (+p[1])+'월 '+(+p[2])+'일 '+'일월화수목금토'[d.getDay()]+'요일'; }
 function fallbackCopy(t){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); }catch(e){} ta.remove(); }
 /* ================= 태그 메인 ================= */
+/* v10.34 바로 열기: 폰에 저장된 홈·현황 목록에 이 기기가 있으면 그걸로 먼저 그리고(v.state.stale — 버튼 잠금) getTag 가 오면 새로 그림.
+   목록엔 이력이 없어서 이력 칸은 "불러오는 중". 못 불러오면 저장된 화면은 두고 "다시 시도" (권한 오류면 지움) */
+function tagSnap(code){ code=String(code||'').toUpperCase(); var best=null;
+  [(lsGet('home')||{}).tags,lsGet('tags2')].forEach(function(a){ if(!Array.isArray(a)) return;
+    a.forEach(function(t){ if(t&&String(t['코드']||'').toUpperCase()===code&&(!best||String(t['최종변경시각']||'')>String(best['최종변경시각']||''))) best=t; }); });
+  if(!best) return null; try{ best=JSON.parse(JSON.stringify(best)); }catch(e){ return null; } delete best.history; return best; }
+/* 비우거나 교체한 QR 은 저장된 목록에서 뺌 (다시 찍었을 때 예전 기기 화면이 잠깐 뜨지 않게) */
+function tagSnapDrop(code){ code=String(code||'').toUpperCase(); var keep=function(t){ return !(t&&String(t['코드']||'').toUpperCase()===code); };
+  var h=lsGet('home'); if(h&&Array.isArray(h.tags)){ h.tags=h.tags.filter(keep); lsSet('home',h); } var a=lsGet('tags2'); if(Array.isArray(a)) lsSet('tags2',a.filter(keep)); }
+function tagGot(v,code,tag){ if(stack.indexOf(v)<0) return;
+  if(tag){ if(v.state.stale) v.state.unlocked=undefined;   // 저장 화면 → 최신으로 바꿀 땐 잠금 풀림 애니메이션·진동 없이
+    v.state.stale=false; v.state.staleErr=''; v.state.tag=tag; drawTag(v); return; }
+  if(stack[stack.length-1]===v){ replace('register',{code:code}); return; }
+  if(v.state.stale){ v.state.staleErr='이 QR은 지금 등록돼 있지 않아요 (비워졌을 수 있어요). 다시 열어 주세요.'; drawTag(v); } }
+function tagLoad(v){ var code=v.params.code;
+  return run('getTag',code).then(function(tag){ tagGot(v,code,tag); }).catch(function(e){ if(stack.indexOf(v)<0) return;
+    if(v.state.stale&&retryable(e)&&AUTH&&canServer('swap')){ v.state.staleErr='최신 정보를 못 불러왔어요 — 저장돼 있던 화면이에요 ('+(e&&e.message||e)+')'; drawTag(v); }
+    else { v.state.stale=false; v.el.classList.remove('tagstale'); v.el.innerHTML=errBox(e); } }); }
+function tagRetry(){ var v=tagView(); if(!v||!v.state.stale) return; haptic(8); v.state.staleErr=''; drawTag(v); tagLoad(v); }
+/* 저장된 화면을 보여주는 중이면 버튼 동작을 막음 (오래된 상태로 바꾸지 않게) */
+function tagStale(){ var v=tagView(); if(v&&v.state.stale){ toast(v.state.staleErr?'최신 정보를 못 불러왔어요. 위의 "다시 시도"를 눌러 주세요':'최신 정보를 불러오는 중이에요. 잠시 뒤 다시 눌러 주세요'); return true; } return false; }
 VIEWS.tag={ render:function(v){ var code=v.params.code;
-  v.refresh=function(){ return run('getTag',code).then(function(tag){ if(stack.indexOf(v)<0) return; if(tag){ v.state.tag=tag; drawTag(v); } else if(stack[stack.length-1]===v) replace('register',{code:code}); }); };
+  v.refresh=function(){ return run('getTag',code).then(function(tag){ tagGot(v,code,tag); }); };
   if(v.params.tag){ v.state.tag=v.params.tag; drawTag(v); return; }
-  run('getTag',code).then(function(tag){ if(tag){ v.state.tag=tag; drawTag(v); } else if(stack[stack.length-1]===v) replace('register',{code:code}); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }};
+  var snap=(AUTH&&canServer('swap'))?tagSnap(code):null; if(snap){ v.state.tag=snap; v.state.stale=true; drawTag(v); }   // SWAP 권한이 있는 코드일 때만 (같은 폰을 쓰던 다른 사람의 저장 화면을 안 보이게)
+  tagLoad(v); }};
 function accList(str){ return String(str||'').split(/[,、\n]/).map(function(x){return x.trim();}).filter(Boolean); }
 function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=normStatus(v.state.tag); var out=isOut(t);
   var pair = out ? (t['수거일련번호']||'') : (t['출고일련번호']||''); if(pair&&pair===t['일련번호']) pair='';   // 자기 자신은 짝 기기가 아님
   var h=title('<span class="code-badge">'+esc(t['코드'])+'</span>','');
+  var stale=!!v.state.stale; v.el.classList.toggle('tagstale',stale);   // v10.34 저장된 화면 → 버튼 잠금
+  if(stale) h+=v.state.staleErr?'<div class="stalebar err"><span>'+esc(v.state.staleErr)+'</span><button class="stb" onclick="tagRetry()">다시 시도</button></div>'
+    :'<div class="stalebar"><i></i><span>저장된 화면이에요 · 최신 정보 불러오는 중 (잠시 버튼 잠김)</span></div>';
   h+='<div class="card">'+
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'+
       '<div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:26px;font-weight:800;letter-spacing:-.8px;line-height:1.2">'+esc(t['고객명'])+'</span>'+kindBadge(t['구분'])+
@@ -1345,15 +1395,15 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
   h+='</div>';
   h+='<div class="card"><h3>이력</h3><ul class="hist">';
   (t.history||[]).forEach(function(x){ h+='<li><span><b>'+esc(x['동작'])+'</b> · '+esc(x['상태'])+' · '+esc(x['처리자'])+(x['메모']?' <span style="color:var(--muted2)">'+esc(x['메모'])+'</span>':'')+'</span><span style="white-space:nowrap">'+esc(String(x['시각']).slice(5,16))+'</span></li>'; });
-  if(!(t.history||[]).length) h+='<li>이력이 없습니다.</li>'; h+='</ul></div>';
+  if(!(t.history||[]).length) h+=(stale&&!t.history)?'<li class="muted">'+(v.state.staleErr?'이력을 못 불러왔어요':'불러오는 중…')+'</li>':'<li>이력이 없습니다.</li>'; h+='</ul></div>';
   h+='<button class="btn line" style="margin-bottom:10px" onclick="rematchAsk()"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 12h8M12 8v8"/></svg>QR 교체 (라벨이 찢어졌을 때)</button>'+
      '<button class="btn danger" onclick="doRelease()">태그 비우기</button><p class="muted" style="text-align:center;margin:10px 0 0">기기가 나간 뒤 용지를 다른 기기에 다시 쓸 때 누르세요. 이력은 남습니다.</p>';
   v.el.innerHTML=h;
 }
-function checkRedeliveryNow(){ haptic(12); needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('어드민에서 재배송 요청 확인 중');
+function checkRedeliveryNow(){ if(tagStale()) return; haptic(12); needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('어드민에서 재배송 요청 확인 중');
   run('checkRedelivery',code,worker).then(function(res){ if(stack.indexOf(v)<0) return; if(res.tag) v.state.tag=res.tag; drawTag(v);
     if(!res.ok) toast(res.error); else if(res.moved) { haptic([12,40,18]); toast('출고 예정 '+res.task.date+' · 출고준비완료로 넘김'); } else if(res.found) toast('최근 요청이 재배송인데 작업예정일자가 아직 없어요'); else toast(res.latest?'최근 고객요청이 재배송이 아니에요':'고객요청이 없어요'); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
-function setStatus(s,sure){ var v0=stack[stack.length-1], t0=v0&&v0.state.tag;
+function setStatus(s,sure){ if(tagStale()) return; var v0=stack[stack.length-1], t0=v0&&v0.state.tag;
   if(s==='출고완료'&&!sure&&t0&&t0.stockOut&&t0.matchState!=='ok'&&!v0.state.rechecked){   // 재고 출고인데 전산 매칭이 안 됨 → 어드민을 지금 다시 보고(1번), 그래도 안 되면 아래 창으로 묻는다
     v0.state.rechecked=true; verifyMatchNow(true,v0.params.code).then(function(r){ if(stack[stack.length-1]!==v0){ v0.state.rechecked=false; return; }
       if(r&&r.ok&&r.match){ v0.state.rechecked=false; closeSheet(); setStatus('출고완료',true); } else closeSheet(function(){ setStatus('출고완료'); }); }); return; }
@@ -1362,10 +1412,10 @@ function setStatus(s,sure){ var v0=stack[stack.length-1], t0=v0&&v0.state.tag;
       '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--green)" onclick="closeSheet(function(){ setStatus(\'출고완료\',true); })">그래도 출고완료</button></div>'); return; }
   haptic(12); needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('저장 중');
   run('updateStatus',code,s,worker,'').then(function(res){ if(res.ok){ v.state.tag=res.tag; drawTag(v); toast(s+' 처리 완료'); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
-function saveFields(fields,msg){ needWorker(function(){ var v=stack[stack.length-1]; closeSheet(); v.el.innerHTML=spin('저장 중');
+function saveFields(fields,msg){ if(tagStale()){ var vs=tagView(); if(vs) drawTag(vs); return; } needWorker(function(){ var v=stack[stack.length-1]; closeSheet(); v.el.innerHTML=spin('저장 중');
   run('updateFields',v.params.code,fields,worker).then(function(res){ if(res.ok){ v.state.tag=res.tag; drawTag(v);
       toast(fields.serial!==undefined&&res.tag.stockOut&&res.tag.matchState==='no'?'⚠️ 바꾼 일련번호는 어드민 고객요청 출고 기기와 달라요':(msg||'저장 완료')); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
-function editSerial(){ var t=stack[stack.length-1].state.tag;
+function editSerial(){ if(tagStale()) return; var t=stack[stack.length-1].state.tag;
   openSheet('<h3>일련번호</h3><p>기기 라벨의 일련번호 (예: S9-1-1504)</p><input class="input code" id="f_serial" value="'+esc(t['일련번호'])+'" style="letter-spacing:1px;font-size:18px;text-transform:none;margin-bottom:8px">'+
     '<button class="btn line" style="margin-bottom:8px" onclick="serialScan(\'f_serial\')">QR·바코드 스캔</button>'+
     '<button class="btn" onclick="saveFields({serial:$(\'f_serial\').value},\'일련번호 저장\')">저장</button>'); }
@@ -1420,18 +1470,18 @@ function accBubClose(fromPop,keep,cb){ var s=accBub; if(!s) return; accBub=null;
 /* x = 고른 옵션 · '' = 빼기 */
 function accPick(x){ var s=accBub; if(!s) return; var btn=s.btn, a=btn.getAttribute('data-acc');
   btn.setAttribute('data-sel',x); btn.classList.toggle('on',!!x); btn.textContent=x?a+' '+x:a; haptic(8); accBubClose(); }
-function editAcc(){ var t=stack[stack.length-1].state.tag;
+function editAcc(){ if(tagStale()) return; var t=stack[stack.length-1].state.tag;
   openSheet('<h3>액세서리</h3><p>함께 들어온/나가는 물품을 전부 체크하세요. 바구니·짐받이·레인커버는 누르면 위치·사이즈를 골라요.</p>'+accSheetHtml(t['액세서리'])+'<button class="btn" style="margin-top:12px" onclick="saveFields({accessories:collectAcc()},\'액세서리 저장\')">저장</button>'); }
-function editNote(){ var t=stack[stack.length-1].state.tag;
+function editNote(){ if(tagStale()) return; var t=stack[stack.length-1].state.tag;
   openSheet('<h3>특이사항</h3><p>파손·분실·고객 요청 등</p><textarea class="input" id="f_note">'+esc(t['특이사항'])+'</textarea><button class="btn" style="margin-top:10px" onclick="saveFields({note:$(\'f_note\').value},\'특이사항 저장\')">저장</button>'); }
-function syncAdmin(){ var v=stack[stack.length-1]; v.el.innerHTML=spin('어드민에서 불러오는 중');
+function syncAdmin(){ if(tagStale()) return; var v=stack[stack.length-1]; v.el.innerHTML=spin('어드민에서 불러오는 중');
   run('syncFromAdmin',v.params.code,worker).then(function(res){ if(res.ok){ v.state.tag=res.tag; drawTag(v); toast('어드민 동기화 완료'); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }
-function doRelease(){ needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code;
+function doRelease(){ if(tagStale()) return; needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code;
   openSheet('<h3>태그를 비울까요?</h3><p>'+esc(code)+' 용지를 다른 기기에 다시 쓸 수 있게 됩니다. 이력은 그대로 남습니다.</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--danger);color:#fff" onclick="closeSheet();releaseNow()">비우기</button></div>'); }); }
-function rematchAsk(){ needWorker(function(){ var v=stack[stack.length-1]; var t=v.state.tag;
+function rematchAsk(){ if(tagStale()) return; needWorker(function(){ var v=stack[stack.length-1]; var t=v.state.tag;
   openSheet('<h3>QR 교체</h3><p><b>'+esc(t['고객명'])+'</b> · '+esc(t['모델'])+' '+esc(t['일련번호'])+' 의 정보는 그대로 두고 QR만 새 라벨로 바꿔요. 다음 화면에서 <b>새 QR</b>을 찍으세요.</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ push(\'scan\',{rematch:\''+jsa(t['코드'])+'\',name:\''+jsa(t['고객명']||'')+'\'}); })">새 QR 찍기</button></div>'); }); }
-function releaseNow(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('처리 중');
-  run('releaseTag',code,worker).then(function(res){ if(res.ok){ toast('태그를 비웠습니다'); replace('register',{code:code}); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }
+function releaseNow(){ if(tagStale()) return; var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('처리 중');
+  run('releaseTag',code,worker).then(function(res){ if(res.ok){ tagSnapDrop(code); toast('태그를 비웠습니다'); replace('register',{code:code}); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }
 
 /* ================= 재고 기기 → 다른 고객에게 출고 (고객요청 매칭 + 전산 매칭 확인) ================= */
 /* 재고·출고대기중 기기(예전 이용자 이름이 붙어 있거나 그냥 재고) → 이름 옆 "고객 매칭" → 고객 이름·고객요청ID로 어드민 고객요청 찾기 → 고르면 출고준비완료.
@@ -1446,7 +1496,7 @@ function stockOutCard(t){ if(!t||!t.stockOut) return '';
   return '<div class="block" style="margin-top:12px">'+head+body+
     '<div class="row" style="margin-top:10px"><button class="btn line sm" onclick="verifyMatchNow()">전산 매칭 다시 확인</button>'+(t['상태']==='출고준비완료'?'<button class="btn line sm" onclick="unmatchAsk()">재고로 되돌리기</button>':'')+'</div></div>'; }
 function tagView(){ var v=stack[stack.length-1]; return (v&&v.name==='tag')?v:null; }
-function openStockMatch(){ var v=tagView(); if(!v) return; needWorker(function(){ push('stockmatch',{code:v.params.code}); }); }
+function openStockMatch(){ var v=tagView(); if(!v||tagStale()) return; needWorker(function(){ push('stockmatch',{code:v.params.code}); }); }
 /* 말풍선: 화면 가운데 잠깐 떴다 사라짐 → 끝나면 resolve */
 function bubble(msg,ms){ return new Promise(function(res){ var b=document.createElement('div'); b.className='mbubble'; b.textContent=msg; document.body.appendChild(b);
   requestAnimationFrame(function(){ b.classList.add('on'); }); haptic([10,40,10]);
@@ -1485,15 +1535,15 @@ function smGo(i,force){ var v=smView(); if(!v) return; var it=(v.state.res&&v.st
   run('matchStockToTask',code,task,worker,!!force).then(function(res){ var here=smView()===v;
     if(!res.ok){ if(!here){ toast(res.error); return; } smDraw(v); if(res.needConfirm){ openSheet('<h3>이미 출고 기기가 있는 고객요청</h3><p>'+esc(res.error).replace(/\n/g,'<br>')+'</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ smGo('+i+',true); })">그래도 매칭</button></div>'); } else toast(res.error); return; }
     haptic([12,40,18]);
-    stack.forEach(function(x){ if(x.name==='tag'&&x.params.code===code){ x.state.tag=res.tag; x._tagDrawn=false; drawTag(x); } });   // 이 기기 상세가 열려 있으면 새 정보로 (화면을 떠났어도)
+    stack.forEach(function(x){ if(x.name==='tag'&&x.params.code===code){ x.state.tag=res.tag; x.state.stale=false; x.state.staleErr=''; x._tagDrawn=false; drawTag(x); } });   // 이 기기 상세가 열려 있으면 새 정보로 (화면을 떠났어도)
     if(here) pop(); else toast(code+' 매칭 완료 · 전산 매칭 확인 중');   // 기기 상세로 돌아가서
     setTimeout(function(){ bubble('어드민 작업을 먼저 진행해주세요!',1200).then(function(){ verifyMatchNow(true,code,res.warn); }); },here?420:0); })   // 확인은 이 기기(code)로 — 그 사이 다른 화면으로 가도
     .catch(function(e){ if(smView()===v){ smDraw(v); toast('매칭 실패: '+(e&&e.message||e)); } }); }
 /* 어드민 고객요청 상세의 출고 기기가 이 기기(code)인지 확인. auto = 매칭 직후, warn = 모델이 다를 때 알림 (결과 창에 같이) → Promise(결과) */
-function verifyMatchNow(auto,code,warn){ if(!code){ var v0=tagView(); if(!v0) return Promise.resolve(null); code=v0.params.code; } if(!auto) haptic(8);
+function verifyMatchNow(auto,code,warn){ if(!code){ var v0=tagView(); if(!v0||tagStale()) return Promise.resolve(null); code=v0.params.code; } if(!auto) haptic(8);
   toast('어드민 고객요청 확인 중…');
   return run('verifyStockMatch',code).then(function(r){ $('toast').classList.remove('on');
-    if(r.tag) stack.forEach(function(x){ if(x.name==='tag'&&x.params.code===code){ x.state.tag=r.tag; drawTag(x); } });   // 이 기기 상세(열려 있으면)를 새 결과로
+    if(r.tag) stack.forEach(function(x){ if(x.name==='tag'&&x.params.code===code){ x.state.tag=r.tag; x.state.stale=false; x.state.staleErr=''; drawTag(x); } });   // 이 기기 상세(열려 있으면)를 새 결과로
     var t=r.tag||{}, wl=warn?'<div class="note" style="margin:0 0 12px">'+esc(warn)+'</div>':'';
     if(!r.ok){ if(wl) openSheet('<h3>확인해 주세요</h3>'+wl+'<button class="btn" onclick="closeSheet()">확인</button>'); toast(r.error||'확인 실패'); return r; }
     if(r.match){ haptic([12,40,18]);
@@ -1504,9 +1554,9 @@ function verifyMatchNow(auto,code,warn){ if(!code){ var v0=tagView(); if(!v0) re
       (t.taskUrl?'<a class="btn" style="text-decoration:none" href="'+esc(t.taskUrl)+'" target="_blank" rel="noopener" onclick="closeSheet()">어드민 작업 상세 열기</a>':'<button class="btn" onclick="closeSheet()">확인</button>'));
     return r; })
     .catch(function(e){ toast('확인 실패: '+(e&&e.message||e)); return null; }); }
-function unmatchAsk(){ var v=tagView(); if(!v) return; var t=v.state.tag||{};
+function unmatchAsk(){ var v=tagView(); if(!v||tagStale()) return; var t=v.state.tag||{};
   openSheet('<h3>재고로 되돌릴까요?</h3><p>'+esc(t['고객명'])+' '+esc(t['고객요청ID'])+' 매칭을 취소하고 원래대로('+esc(t.originText||'재고')+') 돌려요.</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm dark" onclick="closeSheet(function(){ unmatchGo(false); })">재고로 되돌리기</button></div>'); }
-function unmatchGo(force){ needWorker(function(){ var v=tagView(); if(!v) return; var code=v.params.code; v.el.innerHTML=spin('되돌리는 중');
+function unmatchGo(force){ if(tagStale()) return; needWorker(function(){ var v=tagView(); if(!v) return; var code=v.params.code; v.el.innerHTML=spin('되돌리는 중');
   run('unmatchStock',code,worker,!!force).then(function(res){ if(tagView()!==v) return; if(res.ok){ v.state.tag=res.tag; drawTag(v); toast('재고로 되돌렸어요'); return; } drawTag(v);
     if(res.needConfirm) openSheet('<h3>어드민에도 배정돼 있어요</h3><p>'+esc(res.error).replace(/\n/g,'<br>')+'</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm dark" onclick="closeSheet(function(){ unmatchGo(true); })">그래도 되돌리기</button></div>');
     else toast(res.error); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
@@ -1698,7 +1748,8 @@ VIEWS.labels={ render:function(v){ v.refresh=function(){ buildLabels(); toast('�
     '<div class="card"><h3 id="lcount">미리보기</h3><div class="lab-preview" id="lprev"></div></div>';
   buildLabels(); }};
 var labelCodes=[];
-function drawQR(el,text,size){ if(typeof QRCode==='undefined'){ el.innerHTML='<div style="width:'+size+'px;height:'+size+'px;border:1.5px dashed #c9ced5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9295a0;text-align:center">QR 로드 실패<br>새로고침</div>'; return; } new QRCode(el,{text:text,width:size,height:size,correctLevel:QRCode.CorrectLevel.M}); }
+function drawQR(el,text,size){ if(typeof QRCode==='undefined'&&!libsReady){ document.addEventListener('DOMContentLoaded',function(){ if(el.isConnected) drawQR(el,text,size); }); return; }   // v10.34 defer: 아직 받는 중이면 받은 뒤 그림
+  if(typeof QRCode==='undefined'){ el.innerHTML='<div style="width:'+size+'px;height:'+size+'px;border:1.5px dashed #c9ced5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9295a0;text-align:center">QR 로드 실패<br>새로고침</div>'; return; } new QRCode(el,{text:text,width:size,height:size,correctLevel:QRCode.CorrectLevel.M}); }
 function qrUrl(c){ return WEBAPP+(WEBAPP.indexOf('?')>=0?'&':'?')+'q='+c; }
 function buildLabels(){ var pages=Math.max(1,Math.min(20,parseInt($('lpages').value,10)||1)); var per=parseInt($('lper').value,10);
   labelCodes=[]; for(var i=0;i<pages*per;i++) labelCodes.push(genCode());
@@ -2243,7 +2294,8 @@ function swJudgeOpts(t,cat){ if(swMoved(t)) return [];
   if(t.c==='swap') return ['mistake','device'];   // 배터리 교체: 괜찮아 보여도 사람이 보고 고를 수 있게
   return []; }
 /* 고장수거로 고른 기기가 원래 있던 곳 (분류가 고장수거OR재배치수거됨이 아닐 때 · 서버 swwBrokenFrom_ 과 같게) */
-function swBrokenFrom(t){ return t.off?'오프라인':((SW_CATS.filter(function(c){ return c[0]===t.c; })[0]||['',''])[1]||'오프라인'); }
+function swBrokenFrom(t){ if(t.jk==='off') return '오프라인'; if(t.jk==='rt'||t.jk==='re') return '재배치'; if(!t.jk&&(t.off||t.c==='swap')) return '오프라인';   // 고른 탭(jk) 기준 — 그 뒤 온라인 여부가 바뀌어도 그대로
+  return ((SW_CATS.filter(function(c){ return c[0]===t.c; })[0]||['',''])[1])||'오프라인'; }
 /* 판정 안 한 기기 (이게 남아 있으면 슬랙·복사 잠금): 작업 불량_확인필요 · 오프라인 확인(확인 대기·작업 불량 의심) · 고장수거OR재배치수거됨 */
 function swWdPending(w){ var ts=(w&&w.tasks)||[], p={check:0,off:0,fault:0};
   ts.forEach(function(t){ if(t.low&&!t.j) p.check++; else if(t.off&&t.off!=='ok'&&!swOffDone(t)) p.off++; else if(t.c==='fault'&&!t.j) p.fault++; });
@@ -2289,8 +2341,9 @@ function swJudgeAsk(v,id,cat){ var t=swTaskOf(v,id); if(!t||swWdView()!==v) retu
     '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="flex:2" onclick="closeSheet(function(){ swJudgeGo(swWdView(),\''+jsa(id)+'\',\'device\',\''+jsa(cat||'')+'\'); })">미수거로 바꾸기</button></div>'); }
 /* 판정 바로 반영 (v10.32): 누르면 서버 규칙(swwJudgeApply_)대로 이 화면에서 먼저 옮기고 '저장 중' 딱지 → 서버가 돌려준 작업으로 덮음 (저장·정산은 서버가 정함).
    처리 딱지·정산 제외(cut)·자동 판정은 흉내 내지 않음 → 서버 결과로. 저장 중인 판정이 있거나 저장 못 한 판정이 있으면 슬랙·복사는 잠금 */
-function swJudgeLocal(t,k,cat){ var n=JSON.parse(JSON.stringify(t)); delete n.j; delete n.jb; delete n.ja; delete n.x; delete n.jo; delete n.jc; delete n.jf; if(n.cg) delete n.cg.a;
-  if(k){ n.j=k; n.jb=(AUTH&&AUTH.master)?'마스터':((AUTH&&AUTH.name)||worker||''); if(k==='ok'&&cat==='off'&&n.off) n.jo=1; if(SW_JUDGE_CLS[k]) n.jc=SW_JUDGE_CLS[k]; }
+function swJudgeLocal(t,k,cat){ var n=JSON.parse(JSON.stringify(t)); delete n.j; delete n.jb; delete n.ja; delete n.x; delete n.jo; delete n.jc; delete n.jf; delete n.jk; if(n.cg) delete n.cg.a;
+  if(k){ n.j=k; n.jb=(AUTH&&AUTH.master)?'마스터':((AUTH&&AUTH.name)||worker||''); if(k==='ok'&&cat==='off'&&n.off) n.jo=1; if(SW_JUDGE_CLS[k]) n.jc=SW_JUDGE_CLS[k];
+    if(k==='broken'&&n.c!=='fault') n.jk=(cat==='off'||n.off)?'off':(n.c==='re'?'rt':'sw'); }   // 고른 탭 (서버 결과로 곧 덮음)
   var x=''; if(n.j==='mistake') x='mistake'; else if(!n.j||(n.j==='ok'&&!n.jo)){ x=n.off==='bad'?'bad':(n.off==='wait'?'wait':''); if(!x&&n.low&&!n.j) x='low'; }
   if(x) n.x=x; if(!(n.j==='broken'||n.j==='device')){ delete n.p; delete n.ps; delete n.pa; }
   n._sv=1; return n; }
