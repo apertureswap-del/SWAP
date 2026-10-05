@@ -1,4 +1,4 @@
-/* SWAP 입출고 — 서비스 워커 (설치 가능 조건 + 오프라인 대비)
+/* SWAP 입출고 — 서비스 워커 (설치 가능 조건 + 오프라인 대비 + 작업보고 알림)
    항상 서버에 새 파일이 있는지 먼저 확인(no-cache)하고, 실패할 때만 저장해 둔 사본을 쓴다. */
 const CACHE = 'swap-v3';
 self.addEventListener('install', function (e) { self.skipWaiting(); });
@@ -17,4 +17,26 @@ self.addEventListener('fetch', function (e) {
       return res;
     }).catch(function () { return caches.match(e.request); })
   );
+});
+
+/* 작업보고 알림 (v10.30): 서버(pushTick)가 데이터 없이 보냄 → 문구는 여기 고정. 누르면 앱의 업무보고 화면으로 */
+self.addEventListener('push', function (e) {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (x) { d = {}; }
+  e.waitUntil(self.registration.showNotification(d.title || 'S&P 워크+ · 작업보고', {
+    body: d.body || '아직 작업보고를 안 했어요. 눌러서 업무보고를 보내 주세요.',
+    icon: 'icon-192.png', badge: 'icon-192.png', tag: 'report-remind', renotify: true,
+    data: { url: './?go=report' }
+  }));
+});
+self.addEventListener('notificationclick', function (e) {
+  e.notification.close();
+  const url = new URL((e.notification.data && e.notification.data.url) || './?go=report', self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+    for (let i = 0; i < list.length; i++) {
+      const w = list[i];
+      if (w.url.indexOf(self.registration.scope) === 0 && 'focus' in w) { try { w.postMessage({ go: 'report' }); } catch (x) {} return w.focus(); }
+    }
+    return self.clients.openWindow ? self.clients.openWindow(url) : null;
+  }));
 });

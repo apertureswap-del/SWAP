@@ -442,6 +442,11 @@
   .lab-preview .lb .t{font-size:10px;color:var(--muted)}
   #printarea{display:none}
 
+  /* 작업보고 알림 지정 (v10.30): 출근 요일 · 날짜 예외 */
+  .pawd{display:flex;gap:6px;margin-top:8px} .pawd button{flex:1;padding:11px 0;border-radius:12px;background:var(--fill);font-weight:800;font-size:15px;color:var(--ink2);transition:transform .15s}
+  .pawd button.sun{color:#e5484d} .pawd button.sat{color:#2b6fe0} .pawd button.on{background:var(--p);color:#fff} .pawd button:active{transform:scale(.94)}
+  .paex{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px} .paex span{display:inline-flex;align-items:center;gap:2px;padding:5px 4px 5px 11px;border-radius:999px;font-size:13px;font-weight:700}
+  .paex .add{background:var(--p-soft);color:var(--p-ink)} .paex .off{background:var(--fill);color:var(--muted)} .paex button{width:26px;height:26px;border-radius:50%;font-size:16px;line-height:1;color:inherit}
   /* 추가기능 메뉴 */
   .mitem{display:flex;align-items:center;gap:14px;width:100%;padding:16px 14px;border-radius:18px;background:#fff;text-align:left;margin-bottom:10px;box-shadow:0 1px 2px rgba(25,31,40,.04),0 6px 20px rgba(25,31,40,.05);transition:transform .15s}
   .mitem:active{transform:scale(.98)} .mitem .mi{flex:0 0 46px;height:46px;border-radius:14px;background:var(--p-soft);color:var(--p);display:flex;align-items:center;justify-content:center}
@@ -754,7 +759,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.29';
+var APP_VER = '10.30';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -873,7 +878,7 @@ function isOut(t){ return t['구분']==='출고'; }
 
 /* ================= 네비게이션 ================= */
 var stack=[]; var animating=false; var VIEWS={};
-var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',eggs:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
+var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',pushadmin:'extras',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',eggs:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
 /* ---- 권한: 마스터(모든 기능 · 접속 코드 관리) / 관리자(접속 코드 관리 빼고 전부) / 일반(추가기능은 관리자가 켜고 끔 → 꺼진 건 자물쇠) ---- */
 function isMaster(){ return !!(AUTH&&AUTH.master); }
 function isAdminUp(){ return !!(AUTH&&AUTH.admin); }
@@ -1750,7 +1755,8 @@ VIEWS.extras={ render:function(v){ reanim(v);
     mItem('labels','{}','<svg viewBox="0 0 24 24" class="em"><g fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v7h-7"/></g></svg>','QR 라벨 생성','A4에 인쇄할 무작위 코드 라벨','swap.labels')+
     mItem('sw_cam','{kind:\'vehicle\'}','<svg viewBox="0 0 24 24" class="em"><path d="M3.5 13.5 5.8 8.2A2 2 0 0 1 7.6 7h8.8a2 2 0 0 1 1.8 1.2l2.3 5.3v4.3a1.2 1.2 0 0 1-1.2 1.2H4.7a1.2 1.2 0 0 1-1.2-1.2z" fill="#e53935" stroke="#9f1d1a" stroke-width="1"/><path d="M6.4 12.5 7.9 9h8.2l1.5 3.5z" fill="#cfe8ff"/><circle cx="7.3" cy="18.6" r="2.4" fill="#111"/><circle cx="16.7" cy="18.6" r="2.4" fill="#111"/><circle cx="7.3" cy="18.6" r=".9" fill="#ddd"/><circle cx="16.7" cy="18.6" r=".9" fill="#ddd"/><rect x="4.2" y="14" width="2.4" height="1.4" rx=".6" fill="#ffd54f"/><rect x="17.4" y="14" width="2.4" height="1.4" rx=".6" fill="#ffd54f"/></svg>','차량 사진','차량번호·작업자·시각을 사진에 찍어 저장','swap.vehicle')+
     mItem('sw_gallery','{}','<svg viewBox="0 0 24 24" class="em"><rect x="2.5" y="4" width="19" height="16" rx="2.5" fill="#7ec8ff" stroke="#111" stroke-width="1.5"/><circle cx="16.5" cy="9" r="2" fill="#ffd54f"/><path d="M4 18.5l5-6 3.5 4 2.5-2.5 5 4.5z" fill="#2e9e4f"/><path d="M4 18.5l5-6 3.5 4 1.5-1.6" fill="#1e7d3a"/></svg>','사진모음','찍은 사진 보기 · Slack 공유 · 삭제','swap.gallery')+
-    mItem('stocksync','{}','<svg viewBox="0 0 24 24" class="em"><rect x="3" y="3.5" width="18" height="17" rx="2" fill="#fff" stroke="#1f9d55" stroke-width="1.7"/><path d="M3 8.5h18M3 13.5h18M9 3.5v17M15 3.5v17" stroke="#1f9d55" stroke-width="1.4"/></svg>','재고 시트 반영','새로 들어온·빠진 재고 기기를 Swap_재고 테이블에 ±1','swap.stocksync'); }};
+    mItem('stocksync','{}','<svg viewBox="0 0 24 24" class="em"><rect x="3" y="3.5" width="18" height="17" rx="2" fill="#fff" stroke="#1f9d55" stroke-width="1.7"/><path d="M3 8.5h18M3 13.5h18M9 3.5v17M15 3.5v17" stroke="#1f9d55" stroke-width="1.4"/></svg>','재고 시트 반영','새로 들어온·빠진 재고 기기를 Swap_재고 테이블에 ±1','swap.stocksync')+
+    pushAdminRow(); }};   // 작업보고 알림 (마스터만 · v10.30)
 
 
 
@@ -1897,7 +1903,8 @@ VIEWS.sw_extras={ render:function(v){ reanim(v);
     mi('sw_cam','{kind:\'vehicle\'}','#e0f4f6','#00838f','<svg viewBox="0 0 24 24" class="em"><path d="M3.5 13.5 5.8 8.2A2 2 0 0 1 7.6 7h8.8a2 2 0 0 1 1.8 1.2l2.3 5.3v4.3a1.2 1.2 0 0 1-1.2 1.2H4.7a1.2 1.2 0 0 1-1.2-1.2z" fill="#e53935" stroke="#9f1d1a" stroke-width="1"/><path d="M6.4 12.5 7.9 9h8.2l1.5 3.5z" fill="#cfe8ff"/><circle cx="7.3" cy="18.6" r="2.4" fill="#111"/><circle cx="16.7" cy="18.6" r="2.4" fill="#111"/><circle cx="7.3" cy="18.6" r=".9" fill="#ddd"/><circle cx="16.7" cy="18.6" r=".9" fill="#ddd"/><rect x="4.2" y="14" width="2.4" height="1.4" rx=".6" fill="#ffd54f"/><rect x="17.4" y="14" width="2.4" height="1.4" rx=".6" fill="#ffd54f"/></svg>','차량 사진','차량번호를 사진에 찍어 저장')+
     mi('sw_qr','{}','#e6f4ea','#2e7d32','<svg viewBox="0 0 24 24" class="em"><g fill="#111"><path d="M3 3h8v8H3zm2 2v4h4V5zm1 1h2v2H6z"/><path d="M13 3h8v8h-8zm2 2v4h4V5zm1 1h2v2h-2z"/><path d="M3 13h8v8H3zm2 2v4h4v-4zm1 1h2v2H6z"/><path d="M13 13h2v2h-2zm4 0h4v2h-4zm-4 4h2v4h-2zm4 0h2v2h-2zm2 2h2v2h-2zm-6-2h2v2h-2z"/></g></svg>','QR 스캔','기기 QR에서 시리얼번호 수집·복사')+
     mi('sw_gallery','{}','#efe7e3','#5d4037','<svg viewBox="0 0 24 24" class="em"><rect x="2.5" y="4" width="19" height="16" rx="2.5" fill="#7ec8ff" stroke="#111" stroke-width="1.5"/><circle cx="16.5" cy="9" r="2" fill="#ffd54f"/><path d="M4 18.5l5-6 3.5 4 2.5-2.5 5 4.5z" fill="#2e9e4f"/><path d="M4 18.5l5-6 3.5 4 1.5-1.6" fill="#1e7d3a"/></svg>','사진모음','찍은 사진 보기 · Slack 공유 · 삭제')+
-    (AUTH&&AUTH.admin?mi('sw_workers','{}','','','<svg viewBox="0 0 24 24" class="em"><circle cx="9" cy="8" r="3.6" fill="#ffcc80" stroke="#111" stroke-width="1.5"/><path d="M2.8 20c.4-3.6 3-5.8 6.2-5.8s5.8 2.2 6.2 5.8z" fill="#5c6bc0" stroke="#111" stroke-width="1.5" stroke-linejoin="round"/><circle cx="17" cy="8.8" r="2.8" fill="#ffe0b2" stroke="#111" stroke-width="1.4"/><path d="M15.6 13.5c.4-.1.9-.1 1.4-.1 2.6 0 4.6 1.8 4.9 4.6h-4.4" fill="#9fa8da" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>','작업자 관리','관리자 전용 · 작업내역에 모을 컬렉터 아이디'):''); }};
+    (AUTH&&AUTH.admin?mi('sw_workers','{}','','','<svg viewBox="0 0 24 24" class="em"><circle cx="9" cy="8" r="3.6" fill="#ffcc80" stroke="#111" stroke-width="1.5"/><path d="M2.8 20c.4-3.6 3-5.8 6.2-5.8s5.8 2.2 6.2 5.8z" fill="#5c6bc0" stroke="#111" stroke-width="1.5" stroke-linejoin="round"/><circle cx="17" cy="8.8" r="2.8" fill="#ffe0b2" stroke="#111" stroke-width="1.4"/><path d="M15.6 13.5c.4-.1.9-.1 1.4-.1 2.6 0 4.6 1.8 4.9 4.6h-4.4" fill="#9fa8da" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>','작업자 관리','관리자 전용 · 작업내역에 모을 컬렉터 아이디'):'')+
+    pushAdminRow(); }};   // 작업보고 알림 (마스터만 · v10.30)
 
 /* ================= 작업내역 (SWING 홈 간단 보고 · 작업자 작업내역 · 작업자 세부 · 작업 현황정리) ================= */
 /* 서버(Swing.gs)가 어드민 "킥보드 전체 기록"에서 관리자가 등록한 작업자의 기록만 모아, 작업자·기기마다 분류해서 준다:
@@ -2818,13 +2825,135 @@ function stockPickGo(row){ var v=permView('stocksync'); if(!v||!v.state.pick) re
     run('stockSetRow',p.model,p.color,{row:x.row,model:x.model,color:x.color},worker).then(function(pv){ stockSetDone(v,pv,p.model+' '+p.color+' → 시트 '+x.model+' '+x.color+' · 아래 "바뀔 줄"에서 확인하세요'); })
       .catch(function(e){ toast('정하기 실패: '+e.message); }); }); }
 
+/* ================= 작업보고 알림 (웹 푸시 · v10.30) =================
+   마스터가 사람마다 근무(주간·야간)·출근 요일·날짜 예외를 정하면(추가기능 → 작업보고 알림), 출근일에 업무보고를 안 보낸 사람 폰으로 서버(pushTick)가 알림:
+   주간 = 그 날 저녁 7시 · 야간 = 다음 날 아침 7시. 받는 사람은 환경설정 → 작업보고 알림 → [이 폰에서 알림 켜기] 한 번 (아이폰은 홈 화면 앱에서만).
+   알림 문구는 sw.js 에 고정, 누르면 ?go=report → 업무보고 화면 */
+var PUSHME=null, PUSH_WD='일월화수목금토', GO_PARAM=(new URLSearchParams(location.search).get('go')||'');
+function pushOk(){ return 'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window; }
+function pushIos(){ return /iPhone|iPad|iPod/.test(navigator.userAgent); }
+function b64uToU8(s){ s=String(s||'').replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; var r=atob(s), u=new Uint8Array(r.length); for(var i=0;i<r.length;i++) u[i]=r.charCodeAt(i); return u; }
+/* 이 폰 구독이 지금 서버 키로 만든 건가 (서버 키가 바뀌면 다시 구독) */
+function pushSameKey(sub,key){ try{ var k=sub.options&&sub.options.applicationServerKey; if(!k||!key) return true; var a=new Uint8Array(k), b=b64uToU8(key); if(a.length!==b.length) return false; for(var i=0;i<a.length;i++){ if(a[i]!==b[i]) return false; } return true; }catch(e){ return true; } }
+function pushDevLabel(){ var u=navigator.userAgent; return /iPhone/.test(u)?'iPhone':/iPad/.test(u)?'iPad':/Android/.test(u)?'Android':/Macintosh/.test(u)?'Mac':/Windows/.test(u)?'PC':'폰'; }
+function pushMD(d){ var p=String(d).split('-'); var x=new Date(+p[0],+p[1]-1,+p[2]); return (+p[1])+'/'+(+p[2])+'('+PUSH_WD[x.getDay()]+')'; }
+function pushPlanTxt(pl){ if(!pl) return '지정 안 함'; var w=[1,2,3,4,5,6,0].filter(function(d){ return (pl.wd||[]).indexOf(d)>=0; }).map(function(d){ return PUSH_WD[d]; }).join('');
+  return (pl.sh==='night'?'야간':'주간')+' · '+(w||'요일 없음')+((pl.add||[]).length?' · 추가 출근 '+pl.add.length:'')+((pl.off||[]).length?' · 휴무 '+pl.off.length:''); }
+function pushWhen(pl){ return pl&&pl.sh==='night'?'출근한 다음 날 아침 7시':'출근일 저녁 7시'; }
+/* 서비스 워커 준비 (sw.js 를 못 받았으면 영영 안 끝나서 6초 제한) */
+function pushReady(){ return Promise.race([navigator.serviceWorker.ready,new Promise(function(res,rej){ setTimeout(function(){ rej(new Error('알림 준비가 안 됐어요 · 앱을 껐다 다시 열어 주세요')); },6000); })]); }
+function pushSub(){ if(!pushOk()) return Promise.resolve(null); return pushReady().then(function(reg){ return reg.pushManager.getSubscription(); }).catch(function(){ return null; }); }
+/* 앱을 열 때: 내 알림 상태를 받고, 이 폰이 알림을 허용했는데 서버에 없거나 서버 키가 바뀌었으면 조용히 다시 등록 */
+function pushSync(){ if(!AUTH) return Promise.resolve();
+  return pushSub().then(function(s){ return run('pushMine',s?s.endpoint:'').then(function(me){ PUSHME=me;
+      if(!pushOk()||Notification.permission!=='granted') return;
+      if(s&&me.here&&(!me.key||pushSameKey(s,me.key))) return;
+      if(!s&&(!me.plan||lsGet('pushoff'))) return;   // 지정 안 됐고 이 폰도 안 켰음 · 이 폰에서 직접 끔 → 그대로 (다시 켜기는 버튼으로만)
+      return pushEnableQuiet(); }); }).catch(function(){}).then(function(){ pushRedraw(); }); }
+function pushEnableQuiet(){ return Promise.all([run('pushKey'),pushReady()]).then(function(r){ var key=r[0].key, reg=r[1];
+    return reg.pushManager.getSubscription().then(function(s){ if(s&&!pushSameKey(s,key)) return s.unsubscribe().then(function(){ return null; }); return s; })
+      .then(function(s){ return s||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64uToU8(key)}); }); })
+  .then(function(sub){ return run('pushSubscribe',sub.toJSON(),pushDevLabel()); })
+  .then(function(me){ if(!me||me.ok===false) throw new Error((me&&me.error)||'알림 등록 실패'); PUSHME=me; return me; }); }
+/* [알림 켜기] — 버튼을 누른 그 순간에 권한을 물어야 해서(아이폰) 다른 창을 거치지 않고 바로 부름 */
+function pushEnable(){ haptic(8);
+  if(!pushOk()){ pushNoSupport(); return; }
+  if(Notification.permission==='denied'){ toast('이 폰에서 알림이 막혀 있어요 · 폰 설정에서 이 앱 알림을 허용해 주세요'); return; }
+  var ask; try{ ask=Notification.requestPermission(); }catch(e){ ask=null; }
+  toast('알림 켜는 중…');
+  Promise.resolve(ask).then(function(p){ p=p||Notification.permission; if(p!=='granted') throw new Error(p==='denied'?'알림이 막혔어요 · 폰 설정에서 이 앱 알림을 허용해 주세요':'알림을 허용해야 받을 수 있어요'); return pushEnableQuiet(); })
+    .then(function(){ lsSet('pushoff',0); haptic([10,30,10]); toast('이 폰에서 작업보고 알림을 켰어요'); pushRedraw(); })
+    .catch(function(e){ toast((e&&e.message)||'알림 켜기 실패'); pushRedraw(); }); }
+function pushDisable(){ haptic(8);
+  pushSub().then(function(s){ if(!s) return run('pushMine',''); var e=s.endpoint; return s.unsubscribe().catch(function(){}).then(function(){ return run('pushUnsubscribe',e); }); })
+    .then(function(me){ PUSHME=me; lsSet('pushoff',1); toast('이 폰 알림을 껐어요'); pushRedraw(); }).catch(function(e){ toast((e&&e.message)||'끄기 실패'); }); }   // pushoff = 앱을 다시 열어도 저절로 다시 켜지 않음
+function pushTestSelf(){ haptic(8); toast('테스트 알림 보내는 중…');
+  run('pushTestMe').then(function(r){ toast(r.devices?(r.sent?r.sent+'대에 보냈어요 · 곧 알림이 와요':'못 보냈어요')+(r.fail?' (실패 '+r.fail+' · '+(r.codes||[]).join(',')+')':''):'알림을 켠 폰이 없어요'); }).catch(function(e){ toast(e.message); }); }
+function pushNoSupport(){ openSheet('<h3>이 폰에서는 알림을 못 받아요</h3><p>'+(pushIos()?'아이폰은 <b>홈 화면에 추가한 앱</b>에서만 알림을 받을 수 있어요 (iOS 16.4 이상). 사파리 아래 <b>공유</b> → <b>홈 화면에 추가</b> 후, 홈 화면의 앱으로 열어서 다시 켜 주세요.':'이 브라우저는 웹 알림을 지원하지 않아요. 크롬으로 열거나 앱을 홈 화면에 설치해 주세요.')+'</p><button class="btn" onclick="closeSheet()">확인</button>'); }
+/* 환경설정 카드 (지정됐거나 이 코드로 알림을 켠 폰이 있거나 마스터일 때) */
+function pushCardShow(){ return !!AUTH&&(isMaster()||!!(PUSHME&&(PUSHME.plan||PUSHME.devices))); }
+function pushCardHtml(){ var me=PUSHME||{}, pl=me.plan, ok=pushOk(), perm=ok?Notification.permission:'', on=ok&&!!me.here&&perm==='granted';
+  return '<h3>작업보고 알림</h3><p class="muted" style="margin:6px 0 0;font-size:13.5px">'+(pl?'마스터가 알림 대상으로 정했어요 · <b>'+esc(pushPlanTxt(pl))+'</b><br>'+pushWhen(pl)+'까지 업무보고를 안 보내면 이 폰으로 알림이 와요.'
+      :'알림 대상이 아니에요. 마스터가 정하면 출근일에 업무보고를 안 보냈을 때 알림이 와요.')+'</p>'+
+    '<div class="muted" style="margin:8px 0 0;font-size:13.5px">이 폰: <b>'+(!ok?'알림 못 받음'+(pushIos()?' (홈 화면 앱에서만)':''):(on?'알림 켜짐':(perm==='denied'?'알림 막힘 · 폰 설정에서 허용':'알림 꺼짐')))+'</b>'+(me.devices?' · 알림 켠 폰 '+me.devices+'대':'')+'</div>'+
+    '<div class="row" style="margin-top:12px;gap:8px">'+(on?'<button class="btn line sm" onclick="pushDisable()">이 폰 알림 끄기</button><button class="btn sm" onclick="pushTestSelf()">테스트 알림</button>':'<button class="btn sm" onclick="pushEnable()">이 폰에서 알림 켜기</button>')+'</div>'; }
+function pushRedraw(){ var v=stack[stack.length-1]; if(!v) return; if(v.name==='me'){ var c=$('pushcard'); if(c&&pushCardShow()) c.innerHTML=pushCardHtml(); else if(pushCardShow()!==!!c) viewOf('me').render(v); } }
+/* 지정됐는데 이 폰은 아직 알림을 안 켰으면 하루 한 번 물어봄 (알림 켜기 = 바로 권한 물음) */
+function pushPrompt(){ var me=PUSHME; if(!me||!me.plan||me.here||sheetOpen) return; if(pushOk()&&Notification.permission==='denied') return;
+  var k='pushask:'+todayISO(0); if(lsGet(k)) return; lsSet(k,1);
+  if(!pushOk()){ openSheet('<h3>작업보고 알림</h3><p>마스터가 작업보고 알림 대상으로 정했어요 (<b>'+esc(pushPlanTxt(me.plan))+'</b>).<br>'+(pushIos()?'아이폰은 <b>홈 화면에 추가한 앱</b>에서만 알림을 받을 수 있어요. 사파리 <b>공유</b> → <b>홈 화면에 추가</b> 후 그 앱으로 열면 알림을 켤 수 있어요.':'이 브라우저는 알림을 못 받아요. 크롬으로 열거나 앱을 설치해 주세요.')+'</p><button class="btn" onclick="closeSheet()">확인</button>'); return; }
+  openSheet('<h3>작업보고 알림을 켜 주세요</h3><p>마스터가 작업보고 알림 대상으로 정했어요 (<b>'+esc(pushPlanTxt(me.plan))+'</b>).<br>'+pushWhen(me.plan)+'까지 업무보고를 안 보내면 이 폰으로 알림이 와요.</p>'+
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">나중에</button><button class="btn sm" style="flex:2" onclick="closeSheet();pushEnable()">알림 켜기</button></div>'); }
+/* 알림을 눌러 열었을 때 (?go=report 또는 sw.js 메시지): SWING 업무보고 화면으로 */
+function pushGoReport(){ if(!AUTH||!appStarted) return; if(!canServer('swing')){ toast('이 코드는 SWING 서버 권한이 없어요'); return; }
+  if(sheetOpen) closeSheet();
+  var go=function(n){ var top=stack[stack.length-1]; if(top&&top.name==='report') return; if(animating&&n<10){ setTimeout(function(){ go(n+1); },200); return; } push('report',{}); };
+  if(SERVER!=='swing'){ setServer('swing'); tabTo('home'); if(hDepth>0) hBack(hDepth); setTimeout(function(){ go(0); },500); } else setTimeout(function(){ go(0); },250); }   // goTab('home') 은 이미 홈이면 아무것도 안 해서 SWAP 홈이 남음 → 새로 그림
+if('serviceWorker' in navigator){ try{ navigator.serviceWorker.addEventListener('message',function(e){ if(e.data&&e.data.go==='report') pushGoReport(); }); }catch(e){} }
+
+/* ---- 마스터: 추가기능 → 작업보고 알림 (사람마다 근무·출근 요일·날짜 예외) ---- */
+var ICON_BELL='<svg viewBox="0 0 24 24" class="em"><path d="M12 3.2a5.8 5.8 0 0 0-5.8 5.8v3.6l-1.8 3.1h15.2l-1.8-3.1V9A5.8 5.8 0 0 0 12 3.2z" fill="#ffd54f" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.6 18.4a2.5 2.5 0 0 0 4.8 0" fill="none" stroke="#111" stroke-width="1.7" stroke-linecap="round"/><circle cx="18" cy="5.5" r="2.6" fill="#e5484d"/></svg>';
+function pushAdminRow(){ return isMaster()?mItem('pushadmin','{}',ICON_BELL,'작업보고 알림','출근일에 업무보고 안 한 사람에게 알림 · 마스터',''):''; }
+VIEWS.pushadmin={ render:function(v){ reanim(v); v.refresh=function(){ return pushAdminLoad(v); }; v.el.innerHTML=title('작업보고 알림','마스터')+spin('불러오는 중'); pushAdminLoad(v); }};
+function pushAdminLoad(v){ return run('pushPlanList').then(function(r){ if(stack.indexOf(v)<0) return; v.state.r=r; pushAdminDraw(v); })
+  .catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('작업보고 알림','마스터')+errBox(e); }); }
+function pushAdminDraw(v){ var r=v.state.r||{}, today=r.today||todayISO(0), ps=(r.people||[]).filter(function(p){ return p.active||p.plan; });
+  var h=title('작업보고 알림','마스터 · '+fmtToday());
+  h+='<div class="card"><p class="muted" style="margin:0;font-size:13.5px">사람마다 <b>근무</b>와 <b>출근 요일</b>(매주), 필요하면 <b>날짜 예외</b>(추가 출근·휴무)를 정해 두면 출근일에 업무보고를 안 보낸 사람 폰으로 알림이 가요.<br>· 주간 = 그 날 <b>저녁 7시</b> · 야간 = 출근한 <b>다음 날 아침 7시</b> (출근일 낮 12시부터 보고가 없으면)<br>· 받는 사람이 앱 <b>환경설정 → 작업보고 알림 → 알림 켜기</b>를 한 번 해야 해요 (아이폰은 홈 화면에 추가한 앱에서만).</p></div>';
+  h+='<div class="card"><h3>사람 '+ps.length+'명</h3>'+(ps.length?ps.map(function(p){ var pl=p.plan, nm=p.name||('이름 없음 · '+p.no+'번 코드'), bits=[];
+      bits.push(pl?esc(pushPlanTxt(pl)):'지정 안 함');
+      if(pl) bits.push(p.devices.length?'알림 켠 폰 '+p.devices.length+'대 ('+esc(p.devices.join('·'))+')':'<span style="color:var(--danger)">알림 안 켬</span>');
+      if(pl&&p.works) bits.push('<b>오늘 출근</b>'+(p.last&&p.last.slice(0,10)===today?' · 오늘 보고함':''));
+      if(p.last) bits.push('마지막 보고 '+esc(p.last.slice(5)));
+      if(pl&&p.sent&&p.sent.at) bits.push('마지막 알림 '+esc(p.sent.at.slice(5))+(p.sent.n?' ('+p.sent.n+'대)':' (보낸 폰 없음)'));
+      if(!p.swing) bits.push('<span style="color:var(--danger)">SWING 권한 없음 · 업무보고 못 씀</span>');
+      if(!p.active) bits.push('사용 중지');
+      return '<div class="srow"><div class="sn"><b>'+esc(nm)+'</b><span>'+bits.join(' · ')+'</span></div><button class="edit" onclick="pushAdminEdit(\''+jsa(p.pid)+'\')">'+(pl?'바꾸기':'정하기')+'</button></div>'; }).join('')
+    :'<div class="empty">접속 코드가 없어요.</div>')+'</div>';
+  if(r.trigger===false&&ps.some(function(p){ return p.plan; })) h+='<p class="muted" style="text-align:center;font-size:12.5px">알림 트리거가 아직 없어요 · 한 사람을 다시 저장하면 설치돼요</p>';
+  v.el.innerHTML=h; }
+var PA=null;   // 편집 중 {pid, name, on, sh, wd, add, off, devices}
+function pushAdminEdit(pid){ var v=permView('pushadmin'); if(!v||!v.state.r) return; var p=(v.state.r.people||[]).filter(function(x){ return x.pid===pid; })[0]; if(!p) return; haptic(6);
+  var pl=p.plan||{sh:'day',wd:[1,2,3,4,5],add:[],off:[]};
+  PA={pid:pid,name:p.name||('이름 없음 · '+p.no+'번 코드'),on:!!p.plan,sh:pl.sh,wd:(pl.wd||[]).slice(),add:(pl.add||[]).slice(),off:(pl.off||[]).slice(),devices:p.devices.length};
+  openSheet('<div id="pa_body">'+pushAdminSheet()+'</div>'); }
+function pushAdminSheet(){ var a=PA, h='<h3>'+esc(a.name)+'</h3>';
+  h+='<div class="seg" style="margin:8px 0 0">'+[['off','지정 안 함'],['day','주간'],['night','야간']].map(function(o){ var on=o[0]==='off'?!a.on:(a.on&&a.sh===o[0]); return '<button class="'+(on?'on':'')+'" onclick="pushAdminSh(\''+o[0]+'\')">'+o[1]+'</button>'; }).join('')+'</div>';
+  if(a.on){
+    h+='<p class="muted" style="font-size:12.5px;margin:8px 0 0">'+(a.sh==='night'?'야간: 출근일 밤 근무 → <b>다음 날 아침 7시</b>까지 업무보고가 없으면 알림':'주간: 출근일 <b>저녁 7시</b>까지 업무보고가 없으면 알림')+'</p>';
+    h+='<div class="lb" style="margin-top:14px">출근 요일 (매주)</div><div class="pawd">'+[1,2,3,4,5,6,0].map(function(d){ var on=a.wd.indexOf(d)>=0; return '<button type="button" class="'+(on?'on':'')+(d===0?' sun':(d===6?' sat':''))+'" aria-pressed="'+on+'" onclick="pushAdminWd('+d+')">'+PUSH_WD[d]+'</button>'; }).join('')+'</div>';
+    h+='<div class="lb" style="margin-top:14px">날짜 예외 (요일과 다른 날만)</div><div class="row" style="gap:6px;margin-top:6px;align-items:center"><input type="date" class="input" id="pa_date" value="'+todayISO(0)+'" style="flex:1.5;min-width:0;margin:0">'+
+      '<button class="btn line sm" style="flex:1" onclick="pushAdminExc(\'add\')">출근</button><button class="btn line sm" style="flex:1" onclick="pushAdminExc(\'off\')">휴무</button></div>';
+    var ex=a.add.map(function(d){ return [d,'add']; }).concat(a.off.map(function(d){ return [d,'off']; })).sort(function(x,y){ return x[0]<y[0]?-1:(x[0]>y[0]?1:0); });
+    h+=ex.length?'<div class="paex">'+ex.map(function(x){ return '<span class="'+x[1]+'">'+esc(pushMD(x[0]))+' '+(x[1]==='add'?'출근':'휴무')+'<button type="button" aria-label="'+esc(pushMD(x[0]))+' 예외 지우기" onclick="pushAdminExcDel(\''+jsa(x[0])+'\')">×</button></span>'; }).join('')+'</div>'
+      :'<p class="muted" style="font-size:12.5px;margin:6px 0 0">없어요</p>';
+  }
+  h+='<div class="row" style="margin-top:16px;gap:8px">'+(a.devices?'<button class="btn line sm" onclick="pushAdminTest()">테스트 알림</button>':'')+'<button class="btn sm" style="flex:2" onclick="pushAdminSave()">저장</button></div>';
+  if(a.on&&!a.devices) h+='<p class="muted" style="font-size:12.5px;margin:8px 0 0;text-align:center">이 사람은 아직 폰에서 알림을 안 켰어요 (그 사람 앱 → 환경설정 → 작업보고 알림)</p>';
+  return h; }
+function pushAdminRedraw(){ var b=$('pa_body'); if(b&&PA) b.innerHTML=pushAdminSheet(); }
+function pushAdminSh(k){ if(!PA) return; haptic(4); if(k==='off') PA.on=false; else { PA.on=true; PA.sh=k; } pushAdminRedraw(); }
+function pushAdminWd(d){ if(!PA) return; haptic(4); var i=PA.wd.indexOf(d); if(i>=0) PA.wd.splice(i,1); else PA.wd.push(d); pushAdminRedraw(); }
+function pushAdminExc(kind){ if(!PA) return; var d=($('pa_date')||{}).value||''; if(!/^\d{4}-\d{2}-\d{2}$/.test(d)){ toast('날짜를 골라 주세요'); return; }
+  if(d<todayISO(-7)){ toast('지난 날짜는 넣을 수 없어요'); return; } haptic(4);
+  PA.add=PA.add.filter(function(x){ return x!==d; }); PA.off=PA.off.filter(function(x){ return x!==d; }); PA[kind].push(d); pushAdminRedraw(); }
+function pushAdminExcDel(d){ if(!PA) return; haptic(4); PA.add=PA.add.filter(function(x){ return x!==d; }); PA.off=PA.off.filter(function(x){ return x!==d; }); pushAdminRedraw(); }
+function pushAdminSave(){ var v=permView('pushadmin'), a=PA; if(!v||!a) return; haptic(8);
+  var plan=a.on?{sh:a.sh,wd:a.wd.slice(),add:a.add.slice(),off:a.off.slice()}:null;
+  if(plan&&!plan.wd.length&&!plan.add.length){ toast('출근 요일이나 출근 날짜를 하나 이상 골라 주세요'); return; }
+  closeSheet(); toast('저장하는 중…');
+  run('pushPlanSet',a.pid,plan).then(function(r){ if(!r||r.ok===false){ toast((r&&r.error)||'저장 실패'); return; } if(permView('pushadmin')===v){ v.state.r=r; pushAdminDraw(v); } haptic([10,30,10]); toast(a.name+' · '+(plan?pushPlanTxt(plan):'지정 해제')); })
+    .catch(function(e){ toast('저장 실패: '+e.message); }); }
+function pushAdminTest(){ var a=PA; if(!a) return; haptic(8); toast('테스트 알림 보내는 중…');
+  run('pushTest',a.pid).then(function(r){ toast(r.devices?(r.sent?r.sent+'대에 보냈어요':'못 보냈어요')+(r.fail?' (실패 '+r.fail+' · '+(r.codes||[]).join(',')+')':''):'알림을 켠 폰이 없어요'); }).catch(function(e){ toast(e.message); }); }
+
 /* ================= 환경설정 ================= */
 var ICON_KEY='<svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4.2"/><path d="M11 12l8.5-8.5M16 7l3 3M13.5 9.5l2.5 2.5"/></svg>';
 var ICON_SHIELD='<svg viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.2c0 4.6-3.1 8.4-7.5 9.8-4.4-1.4-7.5-5.2-7.5-9.8V6z"/><path d="M8.8 12.2l2.2 2.2 4.3-4.4"/></svg>';
 var ICON_CAR='<svg viewBox="0 0 24 24"><path d="M3.5 17v-3.6L5.6 8.3A2 2 0 0 1 7.4 7h9.2a2 2 0 0 1 1.8 1.3l2.1 5.1V17z"/><path d="M3.5 13.4h17"/><circle cx="7.5" cy="17.5" r="1.8"/><circle cx="16.5" cy="17.5" r="1.8"/></svg>';
 var ICON_EGG='<svg viewBox="0 0 24 24"><path d="M12 3c3.6 0 6.5 5.2 6.5 9.8a6.5 6.5 0 0 1-13 0C5.5 8.2 8.4 3 12 3z"/><path d="M6.4 13.4l2.4-1.8 2.4 1.8 2.4-1.8 2.4 1.8 1.6-1.2"/></svg>';
 function roleName(){ return isMaster()?'마스터':(isAdminUp()?'관리자':''); }
-VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return Promise.resolve(); };
+VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return pushSync(); };   // 당겨서 새로고침 = 작업보고 알림 상태도 새로
   var fixedName=!!(AUTH&&!AUTH.master&&AUTH.name), rn=roleName();
   var row=function(view,svg,b,s){ return '<button class="mitem" onclick="push(\''+view+'\',{})"><span class="mi">'+svg+'</span><span class="mt"><b>'+b+'</b><span>'+s+'</span></span><span class="ar">›</span></button>'; };
   var mg=(isMaster()?row('codes',ICON_KEY,'접속 코드 관리','코드 만들기 · 이름 · 서버 · 관리자 지정'):'')+
@@ -2839,6 +2968,7 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
     '<button class="btn line sm" style="color:#d6336c" onclick="logoutAsk()">로그아웃</button></div></div>'+
     '<div class="card"><h3>서버</h3><div class="seg" style="margin:10px 0 0">'+['swap','swing'].map(function(sv){ var ok=canServer(sv); return '<button class="'+(SERVER===sv?'on':'')+'" '+(ok?'':'disabled style="opacity:.35"')+' onclick="switchServer(\''+sv+'\')">'+sv.toUpperCase()+'</button>'; }).join('')+'</div><p class="muted" style="margin:8px 0 0;font-size:13px">'+(SERVER==='swing'?'SWING 스윙과사람들 작업 화면을 쓰는 중이에요.':'SWAP 경기남부점 입출고 화면을 쓰는 중이에요.')+(canServer('swap')&&canServer('swing')?'':' 이 코드는 '+SERVER.toUpperCase()+' 서버만 쓸 수 있어요.')+'</p></div>'+
     '<div class="melb">'+(isAdminUp()?'관리':'목록')+'</div>'+mg+
+    (pushCardShow()?'<div class="card" id="pushcard">'+pushCardHtml()+'</div>':'')+   // 작업보고 알림 (v10.30)
     (SERVER==='swing'?swSettingsCard():'')+
     (SERVER==='swap'?'<div class="card"><h3>쓰는 법</h3><ul class="hist">'+
     '<li><span><b>등록</b> → 기기에 QR 붙이고 찍기 → 출고/수거/재고 → 작업 선택(재고는 고객 이름·일련번호로 기기 찾기) → 일련번호 → 액세서리 → 특이사항</span></li>'+
@@ -3112,6 +3242,7 @@ function applyAuth(a,auto){ var legacy=(a.role===undefined&&a.master===undefined
 /* 앱으로 돌아올 때(1분 넘게 지났으면) 권한·차량 목록을 다시 받아 추가기능 화면에 바로 반영 */
 var meAt=Date.now();
 document.addEventListener('visibilitychange',function(){ if(document.hidden||!AUTH||!appStarted||Date.now()-meAt<60000) return; meAt=Date.now();
+  pushSync().then(function(){ if(!sheetOpen&&stack.length===1) pushPrompt(); });   // 작업보고 알림 상태도 새로 (그 사이 마스터가 지정했을 수 있음 · v10.30)
   run('getMe').then(function(a){ if(!a||!AUTH) return; var before=JSON.stringify([AUTH.perms,AUTH.role]); applyAuth(a,AUTH.auto);
     if(JSON.stringify([AUTH.perms,AUTH.role])===before) return;
     var v=stack[0]; if(!v) return;   // 권한이 바뀜 → 맨 아래 탭 화면(추가기능·환경설정·홈)을 새 권한으로 다시 그림
@@ -3128,7 +3259,9 @@ var appStarted=false;
 function startApp(){ if(appStarted) return; appStarted=true;
   tabTo('home');
   if(CODE) push('tag',{code:CODE});
-  setTimeout(prefetch, 800); }
+  setTimeout(prefetch, 800);
+  if(GO_PARAM==='report'){ GO_PARAM=''; try{ history.replaceState(history.state,'',location.pathname); }catch(e){} setTimeout(pushGoReport,400); }   // 작업보고 알림을 눌러 열었음
+  setTimeout(function(){ pushSync().then(function(){ if(!sheetOpen&&stack.length===1) pushPrompt(); }); },1500); }   // 작업보고 알림 상태 · 지정됐는데 이 폰이 안 켰으면 물어봄 (v10.30)
 function boot(){ try{ history.replaceState({d:0},''); }catch(e){}
   var bye=new URLSearchParams(location.search).get('bye');
   if(bye){ try{ history.replaceState({d:0},'',location.pathname); }catch(e){} }
