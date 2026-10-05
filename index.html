@@ -287,6 +287,14 @@
   .rcard.done{box-shadow:inset 0 0 0 1.5px var(--p-soft)}
   .rcard.lock{background:var(--fill2);box-shadow:none} .rcard.lock .hd{color:var(--muted)} .rcard.lock textarea{color:var(--ink2);pointer-events:none} .rcard.lock textarea::placeholder{color:var(--muted2)}
   .rcard:not(.lock){box-shadow:0 0 0 2px var(--p),0 10px 26px rgba(120,32,232,.18)}
+  /* 업무보고 자동 기록 (v10.31): 칸 안 목록 · 위 안내 줄 · 익일 시각 */
+  .rcard .rauto{list-style:none;margin:0 0 6px;padding:0;font-size:12.5px;line-height:1.45;color:var(--ink2);font-weight:600} .rcard .rauto li{padding:2px 0 2px 10px;position:relative;word-break:break-all}
+  .rcard .rauto li:before{content:'';position:absolute;left:0;top:9px;width:4px;height:4px;border-radius:50%;background:var(--p)}
+  .rcard.lock .rauto{color:var(--ink2)}
+  .rainfo{margin:0 0 12px;padding:10px 12px;border-radius:14px;background:var(--fill);font-size:13px;font-weight:600;color:var(--ink2);line-height:1.45} .rainfo.ok{background:var(--p-soft);color:var(--p-ink)} .rainfo.warn{background:#fff4e5;color:#8a4b00}
+  .rainfo button{margin-left:6px;padding:3px 10px;border-radius:999px;background:#fff;font-weight:800;font-size:12.5px;color:inherit}
+  .modal .rainfo{margin:0 0 4px;font-size:12.5px}
+  .hr i small{display:block;font-size:9.5px;font-weight:800;opacity:.75;margin-top:1px} .bubble button.nx{font-size:13px}
   .rhint{grid-column:2;align-self:center;font-size:13px;color:var(--muted2);font-weight:600;padding-left:4px;pointer-events:none}
   .selbar{position:sticky;bottom:calc(var(--tab-h) + 10px);z-index:3;margin:0 0 12px;background:var(--ink);color:#fff;border-radius:16px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:700;font-size:14px;box-shadow:0 14px 34px rgba(25,31,40,.3);animation:pop .35s var(--spring) both}
   .selbar b{font-size:16px;letter-spacing:-.3px} .selbar span{display:block;font-size:12px;color:rgba(255,255,255,.7);font-weight:600;margin-top:2px}
@@ -759,7 +767,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.30';
+var APP_VER = '10.31';
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
@@ -829,6 +837,7 @@ function devAv(model,color){ var c=devColor(color); var t=devShort(model); var f
   return '<div class="av dev" style="background:'+c[0]+';color:'+c[1]+';font-size:'+fs+';'+border+'" title="'+esc(model||'')+' '+esc(color||'')+'">'+esc(t)+'</div>'; }
 /* 서버 호출: <script> 태그(JSONP) 방식 — 브라우저 CORS 제한을 받지 않아 Apps Script와 가장 잘 맞는다 */
 var _rid=0; var READ_FNS={getTag:1,listTags:1,homeTags:1,getWorkList:1,getTaskDevices:1,getConfig:1,getMyWork:1,search:1,searchAdmin:1};
+var SLOW_FNS={sendWorkReport:60000};   // 서버가 자동 기록을 다시 읽고(SWING 은 작업내역 받기) 슬랙까지 → 25초로 끊으면 슬랙엔 갔는데 실패로 보여 다시 보내게 됨
 /* 전산미완료: 재고/출고준비완료인데 어드민 고객요청이 완료가 아닌 기기 */
 function sysPending(t){ if(!t) return false; if(typeof t.sysPending==='boolean') return t.sysPending;
   var st=String(t['어드민상태']||'').trim(); return ['재고','출고준비완료','출고완료'].indexOf(t['상태'])>=0 && !!t['고객요청ID'] && (!st || /^(PENDING|IN_PROGRESS|WAITING|READY)$/i.test(st)); }
@@ -850,7 +859,7 @@ function runOnce(fn,args){
     function cleanup(){ done=true; try{ delete window[cb]; }catch(e){ window[cb]=undefined; } if(s.parentNode) s.parentNode.removeChild(s); clearTimeout(t); }
     window[cb]=function(j){ if(done) return; cleanup(); if(!j||!j.ok){ var er=new Error((j&&j.error)||'서버 오류'); if(j&&j.auth===false){ er.auth=false; if(fn!=='login') logout(er.message); } rej(er); } else res(j.result); };
     s.onerror=function(){ if(done) return; cleanup(); rej(new Error('서버 연결 실패(네트워크)')); };
-    t=setTimeout(function(){ if(done) return; cleanup(); rej(new Error('서버 응답 없음(25초)')); },25000);
+    var ms=SLOW_FNS[fn]||25000; t=setTimeout(function(){ if(done) return; cleanup(); var er=new Error('서버 응답 없음('+(ms/1000)+'초)'); er.timeout=true; rej(er); },ms);
     s.src=API+'?api=1&callback='+cb+'&fn='+encodeURIComponent(fn)+'&args='+encodeURIComponent(JSON.stringify(args))+'&auth='+encodeURIComponent(AUTH&&AUTH.code||'')+'&_='+Date.now();
     document.head.appendChild(s);
   }); }
@@ -878,14 +887,15 @@ function isOut(t){ return t['구분']==='출고'; }
 
 /* ================= 네비게이션 ================= */
 var stack=[]; var animating=false; var VIEWS={};
-var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',pushadmin:'extras',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',eggs:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',mywork:'home',search:'search'};
+var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',pushadmin:'extras',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',eggs:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',search:'search'};
 /* ---- 권한: 마스터(모든 기능 · 접속 코드 관리) / 관리자(접속 코드 관리 빼고 전부) / 일반(추가기능은 관리자가 켜고 끔 → 꺼진 건 자물쇠) ---- */
 function isMaster(){ return !!(AUTH&&AUTH.master); }
 function isAdminUp(){ return !!(AUTH&&AUTH.admin); }
 function can(k){ if(!k) return true; if(!AUTH) return false; if(AUTH.admin) return true; var p=AUTH.perms||{}; return p[k]!==false; }
 /* 화면 → 필요한 권한 (사진·갤러리는 지금 서버 기준) */
 function viewPerm(name,params){ params=params||{};
-  var m={labels:'swap.labels',stocksync:'swap.stocksync',report:'swing.report',sw_work:'swing.sw_work',sw_wd:'swing.sw_work',sw_sum:'swing.sw_sum',sw_qr:'swing.sw_qr'};
+  if(name==='report') return SERVER+'.report';   // 업무보고: SWAP·SWING 둘 다 (v10.31)
+  var m={labels:'swap.labels',stocksync:'swap.stocksync',sw_work:'swing.sw_work',sw_wd:'swing.sw_work',sw_sum:'swing.sw_sum',sw_qr:'swing.sw_qr'};
   if(m[name]) return m[name];
   if(name==='sw_cam') return SERVER+'.'+(params.kind==='battery'?'battery':'vehicle');
   if(name==='sw_gallery') return SERVER+'.gallery';
@@ -1183,8 +1193,7 @@ function drawStatus(v){ var f=v.state.filter; var tags=v.state.tags||[]; tags.fo
   if(f==='배송내역') list.sort(function(a,b){ return String(b['최종변경시각']||'').localeCompare(String(a['최종변경시각']||'')); });
   else list.sort(function(a,b){ var A=mk(a['모델']),B=mk(b['모델']); if(A!==B) return (A||'\uffff')<(B||'\uffff')?-1:1; var ac=mk(a['색상']),bc=mk(b['색상']); if(ac!==bc) return (ac||'\uffff')<(bc||'\uffff')?-1:1; return String(b['최종변경시각']||'').localeCompare(String(a['최종변경시각']||'')); });
   var cnt={}; tags.forEach(function(t){ cnt[t['상태']]=(cnt[t['상태']]||0)+1; }); var sysN=inside.filter(sysIssue).length, shipN=tags.length-inside.length;
-  var h=title('입출고 현황', num(inside.length,'all')+'대 관리 중',
-    '<button class="hbtn" onclick="openMyWork()"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>내 작업 현황</button>');
+  var h=title('입출고 현황', num(inside.length,'all')+'대 관리 중');   // v10.31: 내 작업 현황 버튼 없앰 → 추가기능 → 업무보고
   var btn=function(key,label,cls,c){ return '<button class="'+(cls||'')+(f===key?' on':'')+'" onclick="setFilter(\''+key+'\')">'+(cls?'':'<i class="dot s-'+key+'"></i>')+label+'<small>'+(c||0)+'</small></button>'; };
   h+='<div class="fgrid">'+btn('전체','전체','all',inside.length)+STATUS_IN.map(function(x){ return btn(x,x.replace('출고대기중','출고대기'),'',cnt[x]||0); }).join('')+btn('출고준비완료','출고준비','',cnt['출고준비완료']||0)+
      btn('전산미완료','⚠️전산미완료','sys',sysN)+btn('배송내역','배송내역','ship',shipN)+'</div>';
@@ -1255,54 +1264,10 @@ function manualStockGo(){ var serial=($('ms_serial').value||'').trim(); if(!seri
   var it={reqId:'',name:($('ms_name').value||'').trim()||'재고',type:'재고 등록',model:($('ms_model').value||'').trim(),color:'',serial:serial,stock:true,kind:'재고'};
   closeSheet(function(){ matchQR(it); }); }
 
-/* ================= 내 작업 현황 ================= */
-function openMyWork(){ needWorker(function(){ push('mywork',{}); }); }
-VIEWS.mywork={ render:function(v){ v.state.date=v.state.date||todayISO(0); v.state.note=v.state.note||'';
-  v.refresh=function(){ return loadMyWork(v,v.state.date,true); };
-  loadMyWork(v,v.state.date); }};
-function loadMyWork(v,date,silent){ v.state.date=date; if(!silent) v.el.innerHTML=title('내 작업 현황',esc(worker))+spin('내 작업을 불러오는 중');
-  return run('getMyWork',worker,date).then(function(w){ if(stack.indexOf(v)<0) return; if(v.state.date!==date) return; v.state.w=w; drawMyWork(v); }).catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('내 작업 현황','')+errBox(e); }); }
+/* (v10.31) 내 작업 현황은 업무보고로 합쳐서 없앰 — 추가기능 → 업무보고 (그 날 처리한 기기가 시간 칸에 자동으로 들어감) */
 function dayLabel(iso){ var t=todayISO(0), y=todayISO(-1); if(iso===t) return '오늘'; if(iso===y) return '어제'; var p=iso.split('-'); return (+p[1])+'/'+(+p[2]); }
 function fmtDateK(iso){ var p=iso.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2]); return (+p[1])+'월 '+(+p[2])+'일 '+'일월화수목금토'[d.getDay()]+'요일'; }
-function drawMyWork(v){ reanim(v); var w=v.state.w||{items:[],days:[]}; var d=v.state.date; var items=w.items||[];
-  var keepNote=$('f_report')?$('f_report').value:v.state.note; v.state.note=keepNote;
-  var days=(w.days||[]).slice(); if(!days.some(function(x){return x.date===todayISO(0);})) days.unshift({date:todayISO(0),count:0});
-  if(!days.some(function(x){return x.date===d;})) days.push({date:d,count:items.length}); days.sort(function(a,b){return b.date.localeCompare(a.date);});
-  var counts={}; items.forEach(function(it){ counts[it.action]=(counts[it.action]||0)+1; });
-  var h=title('내 작업 현황',esc(worker)+' · '+fmtDateK(d));
-  h+='<div class="days">'+days.map(function(x){ return '<button class="'+(x.date===d?'on':'')+'" onclick="loadMyWork(stack[stack.length-1],\''+x.date+'\')">'+dayLabel(x.date)+(x.count?'<b>'+x.count+'</b>':'')+'</button>'; }).join('')+
-    '</div><input type="date" class="input" style="margin-bottom:12px" value="'+esc(d)+'" onchange="loadMyWork(stack[stack.length-1],this.value)">';
-  h+='<div class="card sum"><div class="lb">'+(d===todayISO(0)?'오늘':fmtDateK(d))+' 처리한 기기</div><div class="big">'+num(items.length,'my')+'<span>건</span></div>'+
-    (items.length?'<div class="brk">'+[['등록','등록'],['상태변경','상태변경'],['수정','수정'],['출고기기수정','출고기기수정'],['태그해제','비우기']].filter(function(x){return counts[x[0]];}).map(function(x){ return '<span>'+x[1]+'<b>'+counts[x[0]]+'</b></span>'; }).join('')+'</div>':'')+'</div>';
-  h+='<div class="card"><h3>작업 내역</h3>';
-  if(!items.length) h+='<div class="empty">이 날 내 이름으로 처리한 기기가 없어요.</div>';
-  else { h+='<ul class="tl">'+items.map(function(it){ return '<li><span class="tm">'+esc(it.time)+'</span><i class="dt a-'+esc(it.action)+'"></i><div class="bd"><div class="nm">'+esc(it.name||it.code)+(it.model?' <span class="muted" style="font-weight:500">'+esc(it.model)+'</span>':'')+(it.serial?'<span class="sn">'+esc(it.serial)+'</span>':'')+'</div><div class="ds">'+esc(it.desc)+'</div></div></li>'; }).join('')+'</ul>'; }
-  h+='</div>';
-  h+='<div class="card"><h3>특이사항 및 보고사항</h3><textarea class="input" id="f_report" placeholder="파손·분실·고객 요청, 오늘 보고할 내용 (없으면 비워두세요)">'+esc(keepNote)+'</textarea>'+
-    '<button class="btn" style="margin-top:12px" onclick="sendReport()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>슬랙으로 보내기</button>'+
-    '<button class="btn line" style="margin-top:8px" onclick="copyReport()">내용 복사</button>'+
-    '<p class="muted" style="margin:12px 0 0;font-size:13px;text-align:center">'+fmtDateK(d)+' 작업 '+items.length+'건 + 보고사항이 함께 전송됩니다.</p></div>';
-  v.el.innerHTML=h; countUp(v.el); }
-function reportText(v){ var w=v.state.w||{items:[]}; var note=($('f_report')?$('f_report').value:'').trim(); var d=v.state.date;
-  var lines=['['+fmtDateK(d)+' 작업 보고 · '+worker+'] 총 '+w.items.length+'건',''];
-  w.items.forEach(function(it){ lines.push(it.time+'  '+[it.name,it.model].filter(Boolean).join(' · ')+(it.serial?' ('+it.serial+')':'')+' — '+it.desc); });
-  if(note){ lines.push(''); lines.push('■ 특이사항 및 보고사항'); lines.push(note); }
-  return lines.join('\n'); }
-function copyReport(){ var v=stack[stack.length-1]; var t=reportText(v);
-  var done=function(){ toast('복사했어요. 슬랙에 붙여넣기 하세요'); };
-  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done,function(){ fallbackCopy(t); done(); }); else { fallbackCopy(t); done(); } }
 function fallbackCopy(t){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); }catch(e){} ta.remove(); }
-function sendReport(){ var v=stack[stack.length-1]; var w=v.state.w||{items:[]}; var note=($('f_report').value||'').trim(); v.state.note=note;
-  if(!w.items.length&&!note){ toast('보낼 작업이나 보고사항이 없어요'); return; }
-  openSheet('<h3>슬랙으로 보낼까요?</h3><p>'+esc(fmtDateK(v.state.date))+' · '+esc(worker)+' · 작업 '+w.items.length+'건'+(note?' + 보고사항':'')+'</p>'+
-    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="flex:2" onclick="closeSheet();sendReportNow()">보내기</button></div>'); }
-function sendReportNow(){ var v=stack[stack.length-1]; var note=v.state.note||''; haptic(12); toast('보내는 중…');
-  run('sendSlackReport',worker,v.state.date,note).then(function(res){ $('toast').classList.remove('on');
-    if(res.ok){ toast('슬랙으로 보냈어요 ('+res.count+'건)'); if($('f_report')){ $('f_report').value=''; v.state.note=''; } return; }
-    if(res.noHook){ openSheet('<h3>슬랙 연결이 아직 안 됐어요</h3><p>관리자가 Apps Script → 프로젝트 설정 → 스크립트 속성에 <b>SLACK_WEBHOOK</b>(슬랙 Incoming Webhook 주소)을 넣으면 바로 전송돼요. 지금은 내용을 복사해서 붙여넣을 수 있어요.</p>'+
-      '<button class="btn" onclick="closeSheet();copyReport()">내용 복사</button>'); return; }
-    toast(res.error||'전송 실패'); }).catch(function(e){ toast('전송 실패: '+(e&&e.message||e)); }); }
-
 /* ================= 태그 메인 ================= */
 VIEWS.tag={ render:function(v){ var code=v.params.code;
   v.refresh=function(){ return run('getTag',code).then(function(tag){ if(stack.indexOf(v)<0) return; if(tag){ v.state.tag=tag; drawTag(v); } else if(stack[stack.length-1]===v) replace('register',{code:code}); }); };
@@ -1747,6 +1712,7 @@ function downloadLabels(){ var css=document.querySelector('style').textContent.s
   var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download='SWAP_QR라벨.html'; a.click(); }
 
 /* ================= 추가기능 ================= */
+var ICON_REPORT='<svg viewBox="0 0 24 24" class="em"><rect x="3" y="4" width="18" height="17" rx="3" fill="#fff" stroke="#111" stroke-width="1.6"/><path d="M3 9.5h18V7a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3z" fill="#111"/><path d="M8 2.5v3.5M16 2.5v3.5" stroke="#111" stroke-width="1.8" stroke-linecap="round"/><rect x="6.5" y="12.5" width="3" height="3" rx=".6" fill="#111"/><rect x="10.5" y="12.5" width="3" height="3" rx=".6" fill="#111"/><rect x="14.5" y="12.5" width="3" height="3" rx=".6" fill="#111"/><rect x="6.5" y="16.5" width="3" height="2" rx=".6" fill="#111"/><rect x="10.5" y="16.5" width="3" height="2" rx=".6" fill="#111"/></svg>';   // 업무보고 (SWAP·SWING)
 /* 추가기능 한 줄. 권한이 꺼져 있으면 흐리게 + 자물쇠, 누르면 안내 */
 function mItem(view,params,svg,b,s,pk){ var ok=can(pk);
   return '<button class="mitem'+(ok?'':' lock')+'" onclick="push(\''+view+'\','+params+')"><span class="mi em">'+svg+'</span><span class="mt"><b>'+b+'</b><span>'+(ok?s:'권한이 없어요 · 관리자에게 요청')+'</span></span><span class="ar">'+(ok?'›':LOCK_I)+'</span></button>'; }   // 누를 때 push 가 권한을 다시 봄 (그 사이 권한이 바뀌어도 맞게)
@@ -1756,6 +1722,7 @@ VIEWS.extras={ render:function(v){ reanim(v);
     mItem('sw_cam','{kind:\'vehicle\'}','<svg viewBox="0 0 24 24" class="em"><path d="M3.5 13.5 5.8 8.2A2 2 0 0 1 7.6 7h8.8a2 2 0 0 1 1.8 1.2l2.3 5.3v4.3a1.2 1.2 0 0 1-1.2 1.2H4.7a1.2 1.2 0 0 1-1.2-1.2z" fill="#e53935" stroke="#9f1d1a" stroke-width="1"/><path d="M6.4 12.5 7.9 9h8.2l1.5 3.5z" fill="#cfe8ff"/><circle cx="7.3" cy="18.6" r="2.4" fill="#111"/><circle cx="16.7" cy="18.6" r="2.4" fill="#111"/><circle cx="7.3" cy="18.6" r=".9" fill="#ddd"/><circle cx="16.7" cy="18.6" r=".9" fill="#ddd"/><rect x="4.2" y="14" width="2.4" height="1.4" rx=".6" fill="#ffd54f"/><rect x="17.4" y="14" width="2.4" height="1.4" rx=".6" fill="#ffd54f"/></svg>','차량 사진','차량번호·작업자·시각을 사진에 찍어 저장','swap.vehicle')+
     mItem('sw_gallery','{}','<svg viewBox="0 0 24 24" class="em"><rect x="2.5" y="4" width="19" height="16" rx="2.5" fill="#7ec8ff" stroke="#111" stroke-width="1.5"/><circle cx="16.5" cy="9" r="2" fill="#ffd54f"/><path d="M4 18.5l5-6 3.5 4 2.5-2.5 5 4.5z" fill="#2e9e4f"/><path d="M4 18.5l5-6 3.5 4 1.5-1.6" fill="#1e7d3a"/></svg>','사진모음','찍은 사진 보기 · Slack 공유 · 삭제','swap.gallery')+
     mItem('stocksync','{}','<svg viewBox="0 0 24 24" class="em"><rect x="3" y="3.5" width="18" height="17" rx="2" fill="#fff" stroke="#1f9d55" stroke-width="1.7"/><path d="M3 8.5h18M3 13.5h18M9 3.5v17M15 3.5v17" stroke="#1f9d55" stroke-width="1.4"/></svg>','재고 시트 반영','새로 들어온·빠진 재고 기기를 Swap_재고 테이블에 ±1','swap.stocksync')+
+    mItem('report','{}',ICON_REPORT,'업무보고','시간대별 업무 · 그 날 처리한 기기가 자동으로 들어가요','swap.report')+   // v10.31: 내 작업 현황 → 업무보고
     pushAdminRow(); }};   // 작업보고 알림 (마스터만 · v10.30)
 
 
@@ -1896,7 +1863,7 @@ function swSearchPick(serial){ var v=stack[stack.length-1]; v.state.q=serial; va
 VIEWS.sw_extras={ render:function(v){ reanim(v);
   var mi=function(view,params,bg,fg,svg,b,s){ return mItem(view,params,svg,b,s,viewPerm(view,view==='sw_cam'?{kind:/battery/.test(params)?'battery':'vehicle'}:{})); };
   v.el.innerHTML=title('추가기능','SWING')+
-    mi('report','{}','#e8f1ff','#2b6fe0','<svg viewBox="0 0 24 24" class="em"><rect x="3" y="4" width="18" height="17" rx="3" fill="#fff" stroke="#111" stroke-width="1.6"/><path d="M3 9.5h18V7a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3z" fill="#111"/><path d="M8 2.5v3.5M16 2.5v3.5" stroke="#111" stroke-width="1.8" stroke-linecap="round"/><rect x="6.5" y="12.5" width="3" height="3" rx=".6" fill="#111"/><rect x="10.5" y="12.5" width="3" height="3" rx=".6" fill="#111"/><rect x="14.5" y="12.5" width="3" height="3" rx=".6" fill="#111"/><rect x="6.5" y="16.5" width="3" height="2" rx=".6" fill="#111"/><rect x="10.5" y="16.5" width="3" height="2" rx=".6" fill="#111"/></svg>','업무보고','시간대별 업무 내용을 슬랙으로')+
+    mi('report','{}','#e8f1ff','#2b6fe0',ICON_REPORT,'업무보고','시간대별 업무 · 내 작업내역 QR이 자동으로 들어가요')+
     mi('sw_work','{}','','','<svg viewBox="0 0 24 24" class="em"><rect x="4" y="3.5" width="16" height="18" rx="2.5" fill="#fff" stroke="#111" stroke-width="1.6"/><rect x="8.5" y="2" width="7" height="3.6" rx="1.2" fill="#111"/><path d="M7.4 10.6l1.5 1.5 2.7-2.8M7.4 16l1.5 1.5 2.7-2.8" fill="none" stroke="#2e9e4f" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.3 11h3.6M13.3 16.4h3.6" stroke="#111" stroke-width="1.7" stroke-linecap="round"/></svg>','작업자 작업내역','작업자를 골라 날짜별 작업 보기 · 슬랙·복사로 확인')+
     mi('sw_sum','{}','','','<svg viewBox="0 0 24 24" class="em"><rect x="3" y="3.5" width="18" height="17" rx="2" fill="#fff" stroke="#1f9d55" stroke-width="1.7"/><path d="M3 8.5h18M3 13.5h18M9 3.5v17M15 3.5v17" stroke="#1f9d55" stroke-width="1.4"/><path d="M3 3.5h18v5H3z" fill="#1f9d55"/></svg>','작업 현황정리','달을 골라 사무실 양식 엑셀 받기')+
     mi('sw_cam','{kind:\'battery\'}','#e3edfb','#1565c0','<svg viewBox="0 0 24 24" class="em"><rect x="9.5" y="1.5" width="5" height="2.2" rx=".8" fill="#111"/><rect x="5" y="3.5" width="14" height="19" rx="3" fill="#fff" stroke="#111" stroke-width="1.7"/><rect x="7.5" y="6.2" width="9" height="3.6" rx="1" fill="#2ecc40"/><rect x="7.5" y="10.6" width="9" height="3.6" rx="1" fill="#ff9f1a"/><rect x="7.5" y="15" width="9" height="3.6" rx="1" fill="#ff3b30"/></svg>','배터리 사진','S9·W9·I9 수량을 사진에 찍어 저장')+
@@ -2641,69 +2608,165 @@ function swSettingsSave(){ var p=lsGet('sw_settings')||{};   // 차량 목록은
 function swSettingsClearQr(){ var n=swQrList().length; if(!n){ toast('삭제할 기록이 없습니다'); return; }
   openSheet('<h3>QR 기록 전체 삭제</h3><p>저장된 '+n+'개를 모두 지웁니다. 되돌릴 수 없습니다.</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#b71c1c" onclick="closeSheet(function(){ swQrSave([]); var e=$(\'sws_qrn\'); if(e) e.textContent=\'저장된 QR 기록 0개\'; toast(\'삭제했습니다\'); })">삭제</button></div>'); }
 
-/* ================= 업무보고 (SWING 관리자 작업현황 → 슬랙) ================= */
-VIEWS.report={ render:function(v){ reanim(v); var d=todayISO(0); v.state.date=d;
-  var draft=lsGet('report:'+d); if(draft&&draft.cfg){ v.state.cfg=draft.cfg; v.state.ranges=draft.ranges||[]; v.state.note=draft.note||''; v.state.sentAt=draft.sentAt||''; }
-  if(!v.state.cfg){ v.state.ranges=[]; v.state.note=''; drawReportSetup(v); } else drawReport(v);
-  v.onLeave=function(){ reportSave(v); }; }};
-function reportSave(v){ if(!v.state.cfg) return; lsSet('report:'+v.state.date,{cfg:v.state.cfg,ranges:v.state.ranges||[],note:v.state.note||'',sentAt:v.state.sentAt||''}); }
-/* 업무시간 설정 팝업 — 한 번만 그리고, 말풍선은 DOM만 넣고 빼서 창이 깜빡이지 않게 */
-function drawReportSetup(v){ var st=v.state; st.setup={start:(st.cfg&&st.cfg.start)||'09:00',end:(st.cfg&&st.cfg.end)||18};
-  var h=title('업무보고',fmtToday())+'<div class="card"><div class="empty">업무시간을 정하면 시간표가 열려요.</div></div>';
-  h+='<div class="modalbg" id="rmodal"><div class="modal"><h3>업무시간 설정</h3><p>'+fmtToday()+' · '+esc(worker||'')+'</p>'+
-     '<div class="lbl">시작</div><input type="time" id="rs_start" value="'+esc(st.setup.start)+'">'+
-     '<div class="lbl">업무 완료</div><div class="endpick" id="rs_endpick"><button class="cur" type="button" onclick="reportBubble()"><span id="rs_endlbl">'+('0'+st.setup.end).slice(-2)+':00</span><small id="rs_endhint">변경</small></button></div>'+
+/* ================= 업무보고 (SWAP · SWING → 슬랙 관리자-업무보고방 · v10.31 내 작업 현황을 합침) =================
+   업무시간을 정하면 시간 칸이 열리고, 칸마다 그 시간에 내가 한 작업이 자동으로 들어감 (서버 reportAuto:
+   SWAP = 이력에서 내가 처리한 기기 · SWING = 작업자 관리에서 내 이름과 같은 작업자의 작업내역 QR) → 아래 칸에 추가 업무를 적어 슬랙으로.
+   날짜를 골라 지난 날도 보냄 (작업보고 알림을 누르면 그 날짜). 야간은 업무 완료를 익일 시각까지 (시 24 넘으면 다음 날: 32 = 익일 08:00) */
+VIEWS.report={ render:function(v){ reanim(v); v.onLeave=function(){ reportSave(v); };
+  v.refresh=function(){ return reportLoadAuto(v,0,true); };
+  var d=String((v.params&&v.params.d)||''), okD=/^\d{4}-\d{2}-\d{2}$/.test(d)&&d<=todayISO(0)&&d>=todayISO(-30);
+  reportOpen(v,okD?d:reportDefDate(),okD); }};
+/* 기본 날짜: 오늘 · 야간 지정이면 낮 12시 전엔 어제 (밤 근무를 아침에 보고) */
+function reportDefDate(){ var pl=PUSHME&&PUSHME.plan; return (pl&&pl.sh==='night'&&new Date().getHours()<12)?todayISO(-1):todayISO(0); }
+function reportKey(d){ return 'report:'+SERVER+':'+d; }
+function reportPad(h){ return ('0'+h).slice(-2); }
+function reportHl(h){ return h>24?'익일 '+reportPad(h-24)+':00':reportPad(h)+':00'; }
+function reportStartH(cfg){ return parseInt(String((cfg&&cfg.start)||'09:00').slice(0,2),10)||0; }
+function reportNight(){ var pl=PUSHME&&PUSHME.plan; return !!(pl&&pl.sh==='night'); }
+/* 날짜 열기: 그 날짜 초안(서버별) → 업무시간이 있으면 시간표, 없으면 업무시간 설정 · 자동 기록은 뒤에서 받음.
+   pin = 사람이 고른 날짜 (날짜 칩 · 알림) → 알림 상태가 늦게 와도 기본 날짜로 안 바꿈 */
+function reportOpen(v,d,pin){ var st=v.state; if(st.date&&st.cfg) reportSave(v);
+  st.date=d; st.pinned=!!pin; st.cfg=null; st.ranges=[]; st.note=''; st.sentAt=''; st.noAuto={}; st.auto=null; st.autoErr=''; st.autoProg=0; st.sel=null; st.focus=undefined; st.redrawLater=false; st.setupTouched=false;
+  var dr=lsGet(reportKey(d))||(SERVER==='swing'?lsGet('report:'+d):null);   // v10.30 까지 SWING 은 'report:날짜'
+  if(dr&&dr.cfg){ st.cfg=dr.cfg; st.ranges=(dr.ranges||[]).filter(function(r){ return r&&r.e>r.s; }); st.note=dr.note||''; st.sentAt=dr.sentAt||''; st.noAuto=dr.noAuto||{}; }
+  reportPrune();
+  if(st.cfg) drawReport(v); else drawReportSetup(v);
+  reportLoadAuto(v,0); }
+function reportSave(v){ var st=v.state; if(!st.cfg||!st.date) return;
+  lsSet(reportKey(st.date),{cfg:st.cfg,ranges:(st.ranges||[]).map(function(r){ return {s:r.s,e:r.e,text:r.text||''}; }),note:st.note||'',sentAt:st.sentAt||'',noAuto:st.noAuto||{}}); }
+/* 30일 지난 초안 지우기 */
+function reportPrune(){ try{ var lim=todayISO(-30); Object.keys(localStorage).forEach(function(k){ var m=/^swapc:report:(?:\w+:)?(\d{4}-\d{2}-\d{2})$/.exec(k); if(m&&m[1]<lim) localStorage.removeItem(k); }); }catch(e){} }
+/* ---- 자동 기록 ---- */
+function reportLoadAuto(v,n,quiet){ var st=v.state, d=st.date, sv=SERVER, endH=st.cfg?st.cfg.end:(reportNight()?32:24); n=n||0;
+  if(!n){ st.autoLoading=true; st.autoErr=''; if(!quiet) reportAutoInfo(v); }
+  return run('reportAuto',sv,d,endH,worker).then(function(r){ if(stack.indexOf(v)<0||st.date!==d||SERVER!==sv) return;
+      if(r&&r.pending&&n<15){ st.autoProg=r.progress||0; reportAutoInfo(v); return new Promise(function(res){ setTimeout(res,300); }).then(function(){ return reportLoadAuto(v,n+1,true); }); }   // SWING 이 그 날을 다 안 받았음 → 이어서
+      st.autoLoading=false; st.auto=r||{}; st.autoErr=r&&r.pending?'작업내역을 아직 다 못 받았어요 · 잠시 뒤 당겨서 새로고침':'';
+      if(reportTyping(v)) st.autoApplyLater=true; else reportApplyAuto(v);   // 글 쓰는 중이면 칸 추가(순서 바뀜)는 손을 뗀 뒤에 — 입력칸 번호가 어긋나지 않게
+      reportRedraw(v); })
+    .catch(function(e){ if(stack.indexOf(v)<0||st.date!==d) return; st.autoLoading=false; st.autoErr=(e&&e.message)||'자동 기록을 못 받았어요'; reportRedraw(v); }); }
+function reportAutoHours(v){ var a=v.state.auto; return (a&&a.hours)?Object.keys(a.hours).map(Number).filter(function(h){ return (a.hours[h]||[]).length; }).sort(function(x,y){ return x-y; }):[]; }
+function reportAutoIn(v,s,e){ var a=v.state.auto, out=[]; if(!a||!a.hours) return out; for(var h=s;h<e;h++){ (a.hours[h]||[]).forEach(function(x){ out.push(x); }); } return out; }
+/* 업무시간 밖 자동 기록 (슬랙엔 "업무시간 밖 기록"으로) */
+function reportAutoOut(v){ var st=v.state, a=st.auto; if(!a||!a.hours||!st.cfg) return []; var s0=reportStartH(st.cfg), e0=st.cfg.end;
+  return reportAutoHours(v).filter(function(h){ return h<s0||h>=e0; }).map(function(h){ return {h:h,lines:a.hours[h]}; }); }
+/* 자동 기록이 있는 시간에 칸이 없으면 한 시간짜리 칸을 만듦 (지운 칸은 다시 안 만듦) */
+function reportApplyAuto(v){ var st=v.state; if(!st.cfg) return; var s0=reportStartH(st.cfg), e0=st.cfg.end, add=false;
+  reportAutoHours(v).forEach(function(h){ if(h<s0||h>=e0||st.noAuto[h]||rangeAt(v,h)) return; st.ranges.push({s:h,e:h+1,text:''}); add=true; });
+  if(add){ st.ranges.sort(function(a,b){ return a.s-b.s; }); reportSave(v); } }
+/* 다시 그리기 — 글을 쓰는 중이면 손을 뗄 때까지 미룸 (입력칸이 사라지지 않게) */
+function reportTyping(v){ var a=document.activeElement; return !!(a&&v.el.contains(a)&&/TEXTAREA|INPUT/.test(a.tagName)); }
+function reportRedraw(v){ if(stack[stack.length-1]!==v) return; var st=v.state;
+  if(st.cfg&&(reportTyping(v)||st.sending||st.pressing||$('rmodal'))){ st.redrawLater=true; return; }   // 업무시간 고치는 창 · 보내는 중 · 시간 칸을 누르는 중에도 덮지 않음 (끝나면 다시 그림)
+  if(st.cfg) drawReport(v); else reportSetupFill(v); }
+function reportBlur(){ var v=stack[stack.length-1]; if(!v||v.name!=='report'||!v.state.redrawLater) return; var d0=v.state.date;
+  setTimeout(function(){ if(v.state.date===d0&&v.state.redrawLater) reportRedraw(v); },120); }   // 그 사이 다시 그렸으면(drawReport 가 redrawLater 를 끔) 안 그림 · 다른 칸·업무시간 창·누르는 중이면 reportRedraw 가 다시 미룸
+function reportAutoInfoHtml(v){ var st=v.state, a=st.auto, sv=SERVER, nm=esc((a&&a.name)||worker||'');
+  if(st.autoLoading) return '<div class="rainfo">'+(sv==='swing'?'작업내역 받는 중'+(st.autoProg?' '+Math.round(st.autoProg*100)+'%':'')+'…':'그 날 처리한 기기 불러오는 중…')+'</div>';
+  if(st.autoErr) return '<div class="rainfo warn">'+esc(st.autoErr)+' <button type="button" onclick="reportLoadAuto(stack[stack.length-1],0)">다시</button></div>';
+  if(!a) return '';
+  if(!a.name) return '<div class="rainfo">이름이 없어 자동 기록을 못 붙여요 · 환경설정에서 이름을 넣어 주세요</div>';
+  if(a.noName) return '<div class="rainfo warn">접속 코드에 이름이 없어 작업내역 QR을 못 붙여요 · 마스터에게 접속 코드 이름을 작업자 관리 이름과 같게 정해 달라고 하세요</div>';
+  if(!a.matched) return '<div class="rainfo warn">'+(sv==='swing'?'작업자 관리에 <b>'+nm+'</b> 이름의 작업자가 없어 작업내역 QR을 못 붙여요 (관리자에게 이름을 맞춰 달라고 하세요)':'자동 기록 없음')+'</div>';
+  var tot=reportAutoHours(v).reduce(function(s,h){ return s+(a.hours[h]||[]).length; },0), out=reportAutoOut(v);
+  return '<div class="rainfo ok">'+(tot?(sv==='swing'?'<b>'+nm+'</b> 작업내역 '+(a.total||0)+'대가 시간 칸에 들어갔어요':'그 날 처리한 기기 '+(a.total||0)+'건이 시간 칸에 들어갔어요'):(sv==='swing'?'<b>'+nm+'</b> 이 날 작업내역이 없어요':'이 날 내 이름으로 처리한 기기가 없어요'))+
+    (out.length?'<br><b>업무시간 밖 기록 '+out.reduce(function(s,o){ return s+o.lines.length; },0)+'줄</b> ('+out.map(function(o){ return reportHl(o.h).replace(':00','시'); }).join(', ')+') · 업무시간을 넓히면 칸에 들어가요 (안 넓혀도 슬랙엔 "업무시간 밖"으로 같이 가요)':'')+'</div>'; }
+function reportAutoInfo(v){ var el=v.el.querySelector('#r_ainfo'); if(el) el.innerHTML=reportAutoInfoHtml(v); else if(!v.state.cfg) reportSetupFill(v); else { var si=v.el.querySelector('#rs_info'); if(si) si.innerHTML=reportAutoInfoHtml(v); } }   // 자동 기록 안내 자리만 (위 "미보고" 안내는 그대로)
+/* ---- 날짜 고르기 (오늘·어제·그제 + 알림이 가고 있는 날) ---- */
+function reportDatesHtml(v){ var d=v.state.date, ds=[todayISO(0),todayISO(-1),todayISO(-2)], pend=(PUSHME&&PUSHME.pend)||[];
+  pend.forEach(function(x){ if(ds.indexOf(x)<0) ds.push(x); }); if(ds.indexOf(d)<0) ds.push(d); ds.sort().reverse();
+  return '<div class="days">'+ds.map(function(x){ var p=pend.indexOf(x)>=0; return '<button class="'+(x===d?'on':'')+'" onclick="reportPickDate(\''+x+'\')">'+dayLabel(x)+(p?' <b style="color:#e5484d">미보고</b>':'')+'</button>'; }).join('')+'</div>'; }
+function reportPickDate(d){ var v=stack[stack.length-1]; if(!v||v.name!=='report'||v.state.date===d) return; haptic(6); reportOpen(v,d,true); }
+/* ---- 업무시간 설정 팝업 — 한 번만 그리고, 말풍선은 DOM만 넣고 빼서 창이 깜빡이지 않게 ---- */
+function reportEndOpts(sh){ var a=[]; if(sh>=15){ for(var h=Math.max(sh+1,20);h<=32;h++) a.push(h); } else { for(var h2=Math.max(sh+1,15);h2<=24;h2++) a.push(h2); } return a; }
+function reportEndLbl(h){ return h>24?'익일 '+(h-24)+'시':h+'시'; }
+function drawReportSetup(v){ var st=v.state, nt=reportNight(); st.setupNight=nt;
+  st.setup={start:(st.cfg&&st.cfg.start)||(nt?'20:00':'09:00'),end:(st.cfg&&st.cfg.end)||(nt?32:18)};
+  if(!st.cfg) reportSetupAutoFit(v);
+  var h=title('업무보고',fmtDateK(st.date))+reportDatesHtml(v)+'<div class="card"><div class="empty">업무시간을 정하면 시간표가 열려요.</div></div>';
+  h+='<div class="modalbg" id="rmodal"><div class="modal"><h3>업무시간 설정</h3><p>'+fmtDateK(st.date)+' · '+esc(worker||'')+' · '+(SERVER==='swing'?'SWING':'SWAP')+'</p>'+
+     '<div id="rs_info">'+reportAutoInfoHtml(v)+'</div>'+
+     '<div class="lbl">시작</div><input type="time" id="rs_start" value="'+esc(st.setup.start)+'" onchange="reportStartChg(this.value)">'+
+     '<div class="lbl">업무 완료</div><div class="endpick" id="rs_endpick"><button class="cur" type="button" onclick="reportBubble()"><span id="rs_endlbl">'+reportHl(st.setup.end)+'</span><small id="rs_endhint">변경</small></button></div>'+
      '<div style="height:22px"></div><button class="btn" onclick="reportSetupDone()">완료</button>'+
      (st.cfg?'<button class="btn line" style="margin-top:8px" onclick="drawReport(stack[stack.length-1])">취소</button>':'')+'</div></div>';
   v.el.innerHTML=h; }
+/* 처음 설정할 때: 자동 기록이 있는 시간이 다 들어가게 시작·완료를 넓혀 둠 (사용자가 손대기 전까지만).
+   완료는 줄이지 않고, 시작은 그 완료를 그대로 고를 수 있을 때만 당김 (야간 20시~익일 8시가 낮 시간표로 바뀌지 않게) */
+function reportSetupAutoFit(v){ var st=v.state, hs=reportAutoHours(v); if(!st.setup||st.cfg||st.setupTouched||!hs.length) return;
+  var sh=parseInt(st.setup.start.slice(0,2),10)||0, lo=hs[0], hi=hs[hs.length-1]+1, o=reportEndOpts(sh);
+  if(hi>st.setup.end){ var fit=o.filter(function(x){ return x>=hi; })[0]; st.setup.end=fit||Math.max(st.setup.end,o[o.length-1]); }
+  if(lo<sh&&lo<24&&reportEndOpts(lo).indexOf(st.setup.end)>=0) st.setup.start=reportPad(lo)+':00'; }
+function reportSetupFill(v){ var st=v.state; if(st.cfg||!$('rmodal')) return; var info=$('rs_info'); if(info) info.innerHTML=reportAutoInfoHtml(v);
+  if(!st.setupTouched){ reportSetupAutoFit(v); var i=$('rs_start'); if(i) i.value=st.setup.start; var l=$('rs_endlbl'); if(l) l.textContent=reportHl(st.setup.end); } }
+function reportStartChg(val){ var v=stack[stack.length-1]; if(!v||!v.state.setup) return; v.state.setupTouched=true; v.state.setup.start=val||'09:00';
+  var sh=parseInt(v.state.setup.start.slice(0,2),10)||0, o=reportEndOpts(sh); if(o.indexOf(v.state.setup.end)<0){ v.state.setup.end=sh>=15?32:18; if(o.indexOf(v.state.setup.end)<0) v.state.setup.end=o[o.length-1]; $('rs_endlbl').textContent=reportHl(v.state.setup.end); }
+  var b=$('rs_endpick')&&$('rs_endpick').querySelector('.bubble'); if(b) reportBubbleHide(b); }
 function reportBubble(){ haptic(8); var v=stack[stack.length-1]; var box=$('rs_endpick'); var b=box.querySelector('.bubble');
   if(b){ reportBubbleHide(b); return; }
+  var sh=parseInt((($('rs_start')||{}).value||v.state.setup.start).slice(0,2),10)||0;
   b=document.createElement('div'); b.className='bubble';
-  b.innerHTML=[18,19,20,21,22,23,24].map(function(x){ return '<button type="button" class="'+(v.state.setup.end===x?'on':'')+'" onclick="reportEnd('+x+')">'+x+'시</button>'; }).join('');
+  b.innerHTML=reportEndOpts(sh).map(function(x){ return '<button type="button" data-h="'+x+'" class="'+(v.state.setup.end===x?'on':'')+(x>24?' nx':'')+'" onclick="reportEnd('+x+')">'+reportEndLbl(x)+'</button>'; }).join('');
   box.appendChild(b); $('rs_endhint').textContent='닫기'; }
 function reportBubbleHide(b){ if(!b||b.classList.contains('out')) return; b.classList.add('out'); $('rs_endhint').textContent='변경'; setTimeout(function(){ if(b.parentNode) b.parentNode.removeChild(b); },220); }
-function reportEnd(x){ haptic(10); var v=stack[stack.length-1]; v.state.setup.end=x; $('rs_endlbl').textContent=('0'+x).slice(-2)+':00';
-  var b=$('rs_endpick').querySelector('.bubble'); if(b){ [].forEach.call(b.querySelectorAll('button'),function(el){ el.classList.toggle('on',el.textContent===x+'시'); }); setTimeout(function(){ reportBubbleHide(b); },120); } }
-function reportSetupDone(){ haptic([10,30,14]); var v=stack[stack.length-1]; var su=v.state.setup; su.start=$('rs_start').value||'09:00'; var sh=parseInt(su.start.slice(0,2),10)||9;
+function reportEnd(x){ haptic(10); var v=stack[stack.length-1]; v.state.setupTouched=true; v.state.setup.end=x; $('rs_endlbl').textContent=reportHl(x);
+  var b=$('rs_endpick').querySelector('.bubble'); if(b){ [].forEach.call(b.querySelectorAll('button'),function(el){ el.classList.toggle('on',+el.dataset.h===x); }); setTimeout(function(){ reportBubbleHide(b); },120); } }
+function reportSetupDone(){ haptic([10,30,14]); var v=stack[stack.length-1]; var su=v.state.setup; su.start=$('rs_start').value||'09:00'; var sh=parseInt(su.start.slice(0,2),10)||0;
   if(sh>=su.end){ toast('시작 시간이 완료 시간보다 늦어요'); return; }
-  var old=v.state.cfg; v.state.cfg={start:su.start,end:su.end};
+  var old=v.state.cfg, reload=SERVER==='swap'&&(!old||(old.end!==su.end&&Math.max(old.end,su.end)>24)); v.state.cfg={start:su.start,end:su.end};
   if(old){ v.state.ranges=(v.state.ranges||[]).filter(function(r){ return r.s>=sh&&r.e<=su.end; }); }   // 시간 범위 밖 구간은 버림
-  v.state.sel=null; reportSave(v); reanim(v); drawReport(v); }
-function reportHours(v){ var c=v.state.cfg; var out=[]; for(var h=parseInt(c.start.slice(0,2),10)||9; h<c.end; h++) out.push(h); return out; }
+  v.state.sel=null; reportApplyAuto(v); reportSave(v); reanim(v); drawReport(v);
+  if(reload) reportLoadAuto(v,0,true); }   // SWAP: 업무 완료가 익일이면 완료 시각에 따라 다음 날 새벽 기록 · 그 날 새벽 빼는 범위가 달라짐 → 다시 받음
+function reportHours(v){ var c=v.state.cfg; var out=[]; for(var h=reportStartH(c); h<c.end; h++) out.push(h); return out; }
 function rangeAt(v,h){ var rs=v.state.ranges||[]; for(var i=0;i<rs.length;i++){ if(h>=rs[i].s&&h<rs[i].e) return rs[i]; } return null; }
-function drawReport(v){ var st=v.state; var hours=reportHours(v); var sel=st.sel; var first=hours[0];
-  var dirty=(st.ranges||[]).length>0||!!(st.note&&st.note.trim());   // 뭔가 적혀 있으면 업무시간 버튼 대신 빨간 초기화 버튼
-  var h=title('업무보고',fmtToday()+' · '+st.cfg.start+' ~ '+('0'+st.cfg.end).slice(-2)+':00',
-    dirty ? '<button class="hbtn" style="background:#e5484d;box-shadow:0 8px 18px rgba(229,72,77,.3)" onclick="reportResetAsk()"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>초기화</button>'
-          : '<button class="hbtn" onclick="drawReportSetup(stack[stack.length-1])"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>업무시간</button>');
+function reportHasBody(v,r){ return !!((r.text&&r.text.trim())||reportAutoIn(v,r.s,r.e).length); }
+function reportCanSend(v){ var st=v.state; return (st.ranges||[]).some(function(r){ return reportHasBody(v,r); })||!!(st.note&&st.note.trim())||reportAutoOut(v).length>0
+  ||(!st.auto&&!st.autoLoading&&!!st.autoErr); }   // 자동 기록을 못 불러왔으면 보내 보게 (서버가 다시 읽어 붙임 · 정말 없으면 서버가 "작성한 내용이 없어요")
+function reportHeadBtnHtml(dirty){ return dirty ? '<button class="hbtn" style="background:#e5484d;box-shadow:0 8px 18px rgba(229,72,77,.3)" onclick="reportResetAsk()"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>초기화</button>'
+  : '<button class="hbtn" onclick="drawReportSetup(stack[stack.length-1])"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>업무시간</button>'; }
+function reportDirty(st){ return (st.ranges||[]).some(function(r){ return r.text&&r.text.trim(); })||!!(st.note&&st.note.trim()); }   // 사용자가 적은 게 있으면 초기화 버튼 (자동으로 생긴 빈 칸은 아님)
+function drawReport(v){ var st=v.state;
+  st.redrawLater=false; st.pressing=false;   // 시간표를 새로 그리면 누르던 칸도 없어짐
+  if(st.autoApplyLater){ st.autoApplyLater=false; var fr=st.focus!==undefined?st.ranges[st.focus]:null; reportApplyAuto(v); if(fr) st.focus=st.ranges.indexOf(fr); }   // 글 쓰는 동안 미뤄 둔 자동 칸 · 칸이 끼어들어도 열 칸은 그대로
+  var hours=reportHours(v); var sel=st.sel; var first=hours[0];
+  var h=title('업무보고',fmtDateK(st.date)+' · '+esc(st.cfg.start)+' ~ '+reportHl(st.cfg.end),reportHeadBtnHtml(reportDirty(st)));
+  h+=reportDatesHtml(v);
+  var pend=((PUSHME&&PUSHME.pend)||[]).filter(function(x){ return x!==st.date; });
+  if(pend.length) h+='<div class="rainfo warn">⚠️ '+pend.map(function(x){ return dayLabel(x); }).join(', ')+' 작업보고를 아직 안 했어요 · 위에서 그 날짜를 눌러 보내 주세요</div>';
+  h+='<div id="r_ainfo">'+reportAutoInfoHtml(v)+'</div>';
   h+='<div class="rgrid" id="rgrid">';
   hours.forEach(function(hh,i){ var r=rangeAt(v,hh); var inSel=sel&&hh>=sel.a&&hh<=sel.b; var cls='hr'+(r?' used':'')+(inSel?' on big wig':'')+(st.flash===hh?' bnc':'');
-    h+='<div class="'+cls+'" data-h="'+hh+'" style="grid-row:'+(i+1)+'"><i>'+('0'+hh).slice(-2)+'</i></div>'; });
-  (st.ranges||[]).forEach(function(r,idx){ var top=r.s-first+1, bot=r.e-first+1; var open=(st.focus===idx);
-    h+='<div class="rcard'+(r.text?' done':'')+(open?'':' lock')+'" data-i="'+idx+'" style="grid-row:'+top+' / '+bot+'"><div class="hd"><span>'+('0'+r.s).slice(-2)+':00 ~ '+('0'+r.e).slice(-2)+':00</span><button type="button" onclick="reportDel('+idx+')">×</button></div>'+
-    '<textarea rows="2" placeholder="업무내용" '+(open?'':'readonly ')+'oninput="reportText('+idx+',this.value);taGrow(this)" onblur="reportLock('+idx+')" id="rt'+idx+'">'+esc(r.text||'')+'</textarea></div>'; });
+    h+='<div class="'+cls+'" data-h="'+hh+'" style="grid-row:'+(i+1)+'"><i>'+reportPad(hh%24)+(hh>=24?'<small>익일</small>':'')+'</i></div>'; });
+  (st.ranges||[]).forEach(function(r,idx){ var top=r.s-first+1, bot=r.e-first+1; var open=(st.focus===idx), au=reportAutoIn(v,r.s,r.e);
+    h+='<div class="rcard'+(reportHasBody(v,r)?' done':'')+(open?'':' lock')+'" data-i="'+idx+'" style="grid-row:'+top+' / '+bot+'"><div class="hd"><span>'+reportHl(r.s)+' ~ '+reportHl(r.e)+'</span><button type="button" onclick="reportDel('+idx+')">×</button></div>'+
+    (au.length?'<ul class="rauto">'+au.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>':'')+
+    '<textarea rows="'+(au.length?1:2)+'" placeholder="'+(au.length?'추가 업무 (있으면 두 번 눌러 적기)':'업무내용')+'" '+(open?'':'readonly ')+'oninput="reportText('+idx+',this.value);taGrow(this)" onblur="reportLock('+idx+')" id="rt'+idx+'">'+esc(r.text||'')+'</textarea></div>'; });
   if(!(st.ranges||[]).length&&!sel) h+='<div class="rhint" style="grid-row:1">← 시간을 눌러 시작 · 길게 누르면 여러 시간</div>';
   h+='</div>';
   if(sel) h+=selbarHtml(sel);
-  h+='<div class="card"><h3>특이사항 및 보고사항</h3><textarea class="input" id="r_note" placeholder="파손·분실·고객 요청, 오늘 보고할 내용 (없으면 비워두세요)" oninput="reportNote(this.value)">'+esc(st.note||'')+'</textarea></div>';
-  var n=(st.ranges||[]).filter(function(r){ return r.text&&r.text.trim(); }).length; var can=n||(st.note&&st.note.trim());
+  h+='<div class="card"><h3>특이사항 및 보고사항</h3><textarea class="input" id="r_note" placeholder="파손·분실·고객 요청, 오늘 보고할 내용 (없으면 비워두세요)" oninput="reportNote(this.value)" onblur="reportBlur()">'+esc(st.note||'')+'</textarea></div>';
+  var n=(st.ranges||[]).filter(function(r){ return reportHasBody(v,r); }).length, can=reportCanSend(v);
   h+='<button class="btn" id="r_send" '+(can?'':'disabled style="opacity:.5"')+' onclick="reportSendAsk()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>'+(st.sentAt?'슬랙으로 다시 보내기':'슬랙으로 보내기')+(n?' ('+n+'구간)':'')+'</button>';
   if(st.sentAt) h+='<p class="muted" style="text-align:center;margin:10px 0 0;font-size:12.5px">'+esc(st.sentAt)+' 전송됨</p>';
   v.el.innerHTML=h; st.flash=null; reportBind(v); [].forEach.call(v.el.querySelectorAll('.rcard textarea'),taGrow);
   if(st.focus!==undefined){ var ta=$('rt'+st.focus); if(ta){ clearTimeout(st._focusT); st._focusT=setTimeout(function(){ ta.focus(); },380); } st.focus=undefined; } }
-function selbarHtml(sel){ return '<div class="selbar" id="selbar"><div><b>'+('0'+sel.a).slice(-2)+':00 ~ '+('0'+(sel.b+1)).slice(-2)+':00</b><span>끌어서 늘리고, 마지막 시간을 두 번 눌러 확정</span></div><div style="display:flex;gap:6px"><button onclick="reportSelCancel()">취소</button><button class="ok" onclick="reportSelConfirm()">확정</button></div></div>'; }
-function taGrow(ta){ ta.style.height='auto'; ta.style.height=Math.max(44,ta.scrollHeight)+'px'; }
-function reportResetAsk(){ haptic(10); openSheet('<h3>업무보고를 초기화할까요?</h3><p>오늘 적은 시간대별 내용과 특이사항이 모두 지워지고 업무시간 설정부터 다시 시작해요.</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#e5484d" onclick="closeSheet(function(){ reportReset(); })">초기화</button></div>'); }
-function reportReset(){ var v=stack[stack.length-1]; var st=v.state; st.ranges=[]; st.note=''; st.sentAt=''; st.sel=null; st.cfg=null; try{ localStorage.removeItem('swapc:report:'+st.date); }catch(e){} haptic([12,40,18]); toast('초기화했어요'); drawReportSetup(v); }
-function reportSendBtn(v){ var st=v.state; var n=st.ranges.filter(function(r){ return r.text&&r.text.trim(); }).length; var can=n||(st.note&&st.note.trim()); var btn=$('r_send'); if(btn){ btn.disabled=!can; btn.style.opacity=can?'':'.5'; } }
-function reportText(i,val){ var v=stack[stack.length-1]; v.state.ranges[i].text=val; reportSave(v); var c=$('rt'+i).parentNode; c.classList.toggle('done',!!val.trim()); reportSendBtn(v); }
+function selbarHtml(sel){ return '<div class="selbar" id="selbar"><div><b>'+reportHl(sel.a)+' ~ '+reportHl(sel.b+1)+'</b><span>끌어서 늘리고, 마지막 시간을 두 번 눌러 확정</span></div><div style="display:flex;gap:6px"><button onclick="reportSelCancel()">취소</button><button class="ok" onclick="reportSelConfirm()">확정</button></div></div>'; }
+function taGrow(ta){ ta.style.height='auto'; ta.style.height=Math.max(ta.getAttribute('rows')==='1'?30:44,ta.scrollHeight)+'px'; }
+function reportResetAsk(){ haptic(10); openSheet('<h3>업무보고를 초기화할까요?</h3><p>이 날짜에 적은 시간대별 내용과 특이사항이 모두 지워지고 업무시간 설정부터 다시 시작해요. (자동 기록은 다시 들어가요)</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#e5484d" onclick="closeSheet(function(){ reportReset(); })">초기화</button></div>'); }
+function reportReset(){ var v=stack[stack.length-1]; var st=v.state; st.ranges=[]; st.note=''; st.sentAt=''; st.sel=null; st.cfg=null; st.noAuto={}; st.setupTouched=false;
+  try{ localStorage.removeItem('swapc:'+reportKey(st.date)); localStorage.removeItem('swapc:report:'+st.date); }catch(e){} haptic([12,40,18]); toast('초기화했어요'); drawReportSetup(v); }
+function reportSendBtn(v){ var st=v.state; var can=reportCanSend(v); var btn=$('r_send'); if(btn){ btn.disabled=!can; btn.style.opacity=can?'':'.5'; } }
+function reportText(i,val){ var v=stack[stack.length-1]; v.state.ranges[i].text=val; reportSave(v); var c=$('rt'+i).parentNode; c.classList.toggle('done',reportHasBody(v,v.state.ranges[i])); reportSendBtn(v); reportHeadBtn(v); }
 function reportNote(val){ var v=stack[stack.length-1]; v.state.note=val; reportSave(v); reportSendBtn(v); reportHeadBtn(v); }
-function reportHeadBtn(v){ var st=v.state; var dirty=(st.ranges||[]).length>0||!!(st.note&&st.note.trim()); var rt=v.el.querySelector('.ptitle .rt'); if(!rt) return; var isReset=!!rt.querySelector('button[onclick^="reportResetAsk"]'); if(dirty===isReset) return;
-  rt.innerHTML=dirty ? '<button class="hbtn" style="background:#e5484d;box-shadow:0 8px 18px rgba(229,72,77,.3)" onclick="reportResetAsk()"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>초기화</button>' : '<button class="hbtn" onclick="drawReportSetup(stack[stack.length-1])"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>업무시간</button>'; }
-function reportDel(i){ haptic(10); var v=stack[stack.length-1]; v.state.ranges.splice(i,1); reportSave(v); drawReport(v); }
+function reportHeadBtn(v){ var st=v.state; var dirty=reportDirty(st); var rt=v.el.querySelector('.ptitle .rt'); if(!rt) return; var isReset=!!rt.querySelector('button[onclick^="reportResetAsk"]'); if(dirty===isReset) return;
+  rt.innerHTML=reportHeadBtnHtml(dirty); }
+/* 칸 지우기: 자동으로 생긴 시간이면 다시 안 만듦 */
+function reportDel(i){ haptic(10); var v=stack[stack.length-1], r=v.state.ranges[i]; if(!r) return;
+  for(var h=r.s;h<r.e;h++){ if(reportAutoIn(v,h,h+1).length) v.state.noAuto[h]=1; }
+  v.state.ranges.splice(i,1); reportSave(v); drawReport(v); }
 /* 업무내용 카드: 평소엔 회색(잠김). 두 번 누르면 열려서 수정, 다른 곳을 누르면 다시 잠김 */
 function reportUnlock(i){ var ta=$('rt'+i); if(!ta) return; haptic(8); ta.removeAttribute('readonly'); ta.parentNode.classList.remove('lock'); ta.focus(); try{ ta.setSelectionRange(ta.value.length,ta.value.length); }catch(e){} }
-function reportLock(i){ var ta=$('rt'+i); if(!ta) return; ta.setAttribute('readonly',''); ta.parentNode.classList.add('lock'); }
+function reportLock(i){ var ta=$('rt'+i); if(!ta) return; ta.setAttribute('readonly',''); ta.parentNode.classList.add('lock'); reportBlur(); }
 /* 시간 칸 터치: 한 번 = 1시간 구간(통통), 길게 = 흔들림 모드로 진입해 끌어서 선택, 흔들림 중 마지막 시간을 두 번 = 확정 */
 function reportBind(v){ var g=$('rgrid'); if(!g) return; var st=v.state; var down=null, moved=false, pressT=null; st._lastTap=st._lastTap||{h:null,t:0}; st._cardTap=st._cardTap||{i:null,t:0};
   function hAt(x,y){ var el=document.elementFromPoint(x,y); while(el&&el!==g){ if(el.dataset&&el.dataset.h!==undefined) return +el.dataset.h; el=el.parentNode; } return null; }
@@ -2711,35 +2774,58 @@ function reportBind(v){ var g=$('rgrid'); if(!g) return; var st=v.state; var dow
     for(var x=lo;x<=hi;x++){ if(rangeAt(v,x)){ if(x<a) lo=x+1; else { hi=x-1; break; } } }   // 이미 쓴 시간은 못 넘어감
     if(lo!==st.sel.a||hi!==st.sel.b){ st.sel.a=lo; st.sel.b=hi; haptic(6); paint(); } }
   function paint(){ [].forEach.call(g.querySelectorAll('.hr'),function(el){ var hh=+el.dataset.h; var on=st.sel&&hh>=st.sel.a&&hh<=st.sel.b; el.classList.toggle('on',!!on); el.classList.toggle('big',!!on); el.classList.toggle('wig',!!on); });
-    var bar=v.el.querySelector('.selbar b'); if(bar&&st.sel) bar.textContent=('0'+st.sel.a).slice(-2)+':00 ~ '+('0'+(st.sel.b+1)).slice(-2)+':00'; }
+    var bar=v.el.querySelector('.selbar b'); if(bar&&st.sel) bar.textContent=reportHl(st.sel.a)+' ~ '+reportHl(st.sel.b+1); }
   function startSel(hh){ if(rangeAt(v,hh)) return; clearTimeout(st._focusT); haptic([10,30,10]); st.sel={anchor:hh,a:hh,b:hh};   // 다시 그리지 않고 제자리에서 켠다 (손가락을 뗀 뒤 바로 끌 수 있게)
     paint(); var hint=g.querySelector('.rhint'); if(hint) hint.remove(); if(!$('selbar')) g.insertAdjacentHTML('afterend',selbarHtml(st.sel)); }
   g.addEventListener('pointerdown',function(e){
     var card=e.target.closest&&e.target.closest('.rcard'); if(card){ if(e.target.tagName==='BUTTON') return; var i=+card.dataset.i; var now=Date.now();   // 업무내용 카드: 두 번 눌러야 수정
       if(card.classList.contains('lock')){ e.preventDefault(); if(st._cardTap.i===i&&now-st._cardTap.t<380){ st._cardTap={i:null,t:0}; setTimeout(function(){ reportUnlock(i); },60); } else st._cardTap={i:i,t:now}; } return; }
-    var hh=hAt(e.clientX,e.clientY); if(hh===null) return; down={h:hh,x:e.clientX,y:e.clientY}; moved=false; try{ g.setPointerCapture(e.pointerId); }catch(x){}
+    var hh=hAt(e.clientX,e.clientY); if(hh===null) return; down={h:hh,x:e.clientX,y:e.clientY}; moved=false; st.pressing=true; try{ g.setPointerCapture(e.pointerId); }catch(x){}
     if(st.sel){ extend(hh); return; }
     clearTimeout(pressT); pressT=setTimeout(function(){ if(down&&!moved&&!st.sel) startSel(hh); },450); });   // 길게 누르기 → 흔들림 모드, 그대로 끌면 늘어남
   g.addEventListener('pointermove',function(e){ if(!down) return; if(Math.abs(e.clientX-down.x)>6||Math.abs(e.clientY-down.y)>6){ moved=true; clearTimeout(pressT); } if(st.sel&&moved){ e.preventDefault(); extend(hAt(e.clientX,e.clientY)); } });
-  g.addEventListener('pointerup',function(e){ clearTimeout(pressT); if(!down) return; var hh=down.h; var wasMove=moved; down=null; if(wasMove) return;
+  function released(){ st.pressing=false; setTimeout(function(){ if(st.redrawLater) reportRedraw(v); },0); }   // 누르는 동안 미뤄 둔 다시 그리기
+  g.addEventListener('pointerup',function(e){ clearTimeout(pressT); if(!down){ st.pressing=false; return; } var hh=down.h; var wasMove=moved; down=null; if(wasMove){ released(); return; }
     var now=Date.now(); var dbl=(st._lastTap.h===hh&&now-st._lastTap.t<380); st._lastTap={h:hh,t:now};
-    if(st.sel){ if(dbl) reportSelConfirm(); else extend(hh); return; }
+    if(st.sel){ if(dbl) reportSelConfirm(); else extend(hh); released(); return; }
     var r=rangeAt(v,hh);
     if(r){ haptic(8); st.flash=hh; drawReport(v); return; }                                     // 이미 있는 구간의 시간: 통통만
     haptic(8); st.ranges.push({s:hh,e:hh+1,text:''}); st.ranges.sort(function(a,b){ return a.s-b.s; }); st.flash=hh; st.focus=st.ranges.findIndex(function(x){ return x.s===hh; }); reportSave(v); drawReport(v); });
-  g.addEventListener('pointercancel',function(){ clearTimeout(pressT); down=null; }); }
+  g.addEventListener('pointercancel',function(){ clearTimeout(pressT); down=null; released(); }); }
 function reportSelCancel(){ var v=stack[stack.length-1]; v.state.sel=null; drawReport(v); }
 function reportSelConfirm(){ var v=stack[stack.length-1]; var sel=v.state.sel; if(!sel) return; haptic([12,40,18]);
   v.state.ranges.push({s:sel.a,e:sel.b+1,text:''}); v.state.ranges.sort(function(a,b){ return a.s-b.s; }); v.state.focus=v.state.ranges.findIndex(function(x){ return x.s===sel.a; }); v.state.sel=null; reportSave(v); drawReport(v); }
-function reportSendAsk(){ needWorker(function(){ var v=stack[stack.length-1]; var st=v.state; var rs=st.ranges.filter(function(r){ return r.text&&r.text.trim(); }); var note=(st.note||'').trim(); if(!rs.length&&!note) return;
-  var body=rs.map(function(r){ return '<div style="display:flex;gap:10px;margin:0 0 8px;font-size:14px"><b style="flex:0 0 96px;color:var(--p)">'+('0'+r.s).slice(-2)+':00~'+('0'+r.e).slice(-2)+':00</b><span>'+esc(r.text).replace(/\n/g,'<br>')+'</span></div>'; }).join('');
-  if(note) body+='<div style="margin:6px 0 0;font-size:14px"><b>특이사항 및 보고사항</b><br>'+esc(note).replace(/\n/g,'<br>')+'</div>';
-  openSheet('<h3>슬랙으로 보낼까요?</h3><p>'+fmtToday()+' · '+esc(worker)+' · '+esc(st.cfg.start)+' ~ '+('0'+st.cfg.end).slice(-2)+':00</p>'+body+
+/* 보낼 내용: 구간(시간 · 추가 업무)만 — 자동 기록은 서버가 다시 읽어 구간마다 붙이고 업무시간 밖 기록도 넣음 (auto:true · 주소 길이 제한 때문에 앱은 안 보냄).
+   빈 칸도 다 보냄: 앱이 자동 기록을 아직 못 받았어도(받는 중·오류) 서버가 그 칸 기록을 붙임 · 정말 빈 칸은 서버가 뺌.
+   noAuto = 사용자가 지운 시간 → 서버도 그 시간엔 칸을 안 만듦 (나머지 업무시간 안 자동 기록은 칸이 없어도 서버가 한 시간 칸으로 붙임) */
+function reportPayload(v){ var st=v.state;
+  return {server:SERVER,date:st.date,start:st.cfg.start,end:st.cfg.end,auto:true,
+    ranges:st.ranges.filter(function(r){ return r.e>r.s; }).map(function(r){ return {s:r.s,e:r.e,text:(r.text||'').trim()}; }),
+    noAuto:Object.keys(st.noAuto||{}).map(Number),
+    note:(st.note||'').trim()}; }
+function reportSendAsk(){ needWorker(function(){ var v=stack[stack.length-1]; if(!v||v.name!=='report'||!v.state.cfg) return; var st=v.state;
+  if(st.sending){ toast('앞의 업무보고를 보내는 중이에요'); return; }
+  if(st.autoLoading){ toast('자동 기록을 불러오는 중이에요 · 잠깐 뒤 다시 눌러 주세요'); return; }
+  var p=reportPayload(v), outA=reportAutoOut(v), shown=st.auto?p.ranges.filter(function(r){ return reportHasBody(v,r); }):p.ranges; if(st.auto&&!shown.length&&!p.note&&!outA.length) return;
+  var body=(st.auto?'':'<div class="muted" style="margin:0 0 8px;font-size:13px">자동 기록을 못 불러왔어요 · 보내면 서버가 다시 읽어 붙여요</div>')+shown.map(function(r){ var ra=reportAutoIn(v,r.s,r.e), au=ra.length?'<div class="muted" style="font-size:12.5px;margin-top:2px">자동 '+ra.length+'줄 · '+esc(ra.slice(0,2).join(' / '))+(ra.length>2?' …':'')+'</div>':'';
+    return '<div style="display:flex;gap:10px;margin:0 0 8px;font-size:14px"><b style="flex:0 0 96px;color:var(--p)">'+reportHl(r.s)+'~<br>'+reportHl(r.e)+'</b><span style="min-width:0">'+(r.text?esc(r.text).replace(/\n/g,'<br>'):'<span class="muted">추가 업무 없음</span>')+au+'</span></div>'; }).join('');
+  if(outA.length) body+='<div class="muted" style="margin:6px 0 0;font-size:13px">업무시간 밖 자동 기록 '+outA.reduce(function(s,o){ return s+o.lines.length; },0)+'줄도 같이 가요</div>';
+  if(p.note) body+='<div style="margin:6px 0 0;font-size:14px"><b>특이사항 및 보고사항</b><br>'+esc(p.note).replace(/\n/g,'<br>')+'</div>';
+  openSheet('<h3>슬랙으로 보낼까요?</h3><p>'+esc(fmtDateK(st.date))+' · '+esc(worker)+' · '+esc(st.cfg.start)+' ~ '+reportHl(st.cfg.end)+' · '+(SERVER==='swing'?'SWING':'SWAP')+'</p>'+body+
     '<div class="row" style="margin-top:14px"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ reportSendGo(); })">보내기</button></div>'); }); }
-function reportSendGo(){ var v=stack[stack.length-1]; var st=v.state; var payload={date:st.date,start:st.cfg.start,end:('0'+st.cfg.end).slice(-2)+':00',ranges:st.ranges.filter(function(r){ return r.text&&r.text.trim(); }),note:(st.note||'').trim()};
-  v.el.innerHTML=title('업무보고','')+spin('슬랙으로 보내는 중');
-  run('sendWorkReport',payload,worker).then(function(res){ if(stack.indexOf(v)<0) return; if(res.ok){ haptic([12,40,18]); st.sentAt=res.sentAt||''; reportSave(v); toast('전송 완료'); } else toast(res.noHook?'슬랙 웹훅이 아직 없어요 (SLACK_WEBHOOK)':res.error); drawReport(v); })
-    .catch(function(e){ if(stack.indexOf(v)<0) return; toast('전송 실패: '+(e&&e.message||e)); drawReport(v); }); }
+function reportSendGo(){ var v=stack[stack.length-1]; if(!v||v.name!=='report'||!v.state.cfg||v.state.sending) return; var st=v.state, payload=reportPayload(v), d=st.date, sv=SERVER, key=reportKey(d);
+  st.sending=true; v.el.innerHTML=title('업무보고','')+spin('슬랙으로 보내는 중');   // 보내는 동안 자동 기록·알림 상태가 와도 화면을 덮지 않음 (두 번 보내기 방지)
+  var after=function(){ if(stack[stack.length-1]===v) reportRedraw(v); };   // 다 보낸 뒤: 글 쓰는 중·업무시간 창이면 미뤘다가 (그 사이 다른 날짜로 갔어도 그 화면을 깨지 않게)
+  run('sendWorkReport',payload,worker).then(function(res){ st.sending=false;
+      if(res.ok){ haptic([12,40,18]);   // 화면을 떠났거나 날짜를 바꿨어도 결과는 남김 (안 그러면 "전송됨"이 없어 다시 보내게 됨)
+        var dr=lsGet(key); if(dr){ dr.sentAt=res.sentAt||''; lsSet(key,dr); }
+        stack.forEach(function(x){ if(x.name==='report'&&x.state.date===d&&SERVER===sv) x.state.sentAt=res.sentAt||''; });
+        toast(res.sheetError?'전송 완료 · 업무보고 탭 기록은 실패했어요':(res.autoErr?'전송 완료 · 자동 기록은 못 붙였어요':'전송 완료'));
+        pushSync().then(function(){ var top=stack[stack.length-1]; if(top&&top.name==='report') reportRedraw(top); }); }   // 알림이 가던 날짜면 멈춤 (서버가 보고한 날짜를 기록) · 미보고 표시도 새로
+      else toast(res.noHook?'슬랙 웹훅이 아직 없어요 (SLACK_REPORT_WEBHOOK)':res.error);   // pending = SWING 작업내역을 아직 받는 중 → 잠시 뒤 다시
+      after(); })
+    .catch(function(e){ st.sending=false;
+      toast(e&&e.timeout?'응답이 늦어요 · 슬랙 업무보고방에 갔는지 먼저 확인하고 다시 보내 주세요':'전송 실패: '+(e&&e.message||e)); after(); }); }
 /* ================= 재고 시트 반영 ================= */
 VIEWS.stocksync={ render:function(v){ v.refresh=function(){ return loadStock(v); }; v.onResume=function(){ loadStock(v); };   /* 태그에서 고치고 돌아오면 새로 */ v.el.innerHTML=title('재고 시트 반영','')+spin('시트와 앱 재고를 비교하는 중'); loadStock(v); }};
 function loadStock(v){ return run('stockPreview').then(function(r){ if(stack.indexOf(v)<0) return; v.state.pv=r; drawStock(v); }).catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('재고 시트 반영','')+errBox(e); }); }
@@ -2825,11 +2911,13 @@ function stockPickGo(row){ var v=permView('stocksync'); if(!v||!v.state.pick) re
     run('stockSetRow',p.model,p.color,{row:x.row,model:x.model,color:x.color},worker).then(function(pv){ stockSetDone(v,pv,p.model+' '+p.color+' → 시트 '+x.model+' '+x.color+' · 아래 "바뀔 줄"에서 확인하세요'); })
       .catch(function(e){ toast('정하기 실패: '+e.message); }); }); }
 
-/* ================= 작업보고 알림 (웹 푸시 · v10.30) =================
-   마스터가 사람마다 근무(주간·야간)·출근 요일·날짜 예외를 정하면(추가기능 → 작업보고 알림), 출근일에 업무보고를 안 보낸 사람 폰으로 서버(pushTick)가 알림:
-   주간 = 그 날 저녁 7시 · 야간 = 다음 날 아침 7시. 받는 사람은 환경설정 → 작업보고 알림 → [이 폰에서 알림 켜기] 한 번 (아이폰은 홈 화면 앱에서만).
-   알림 문구는 sw.js 에 고정, 누르면 ?go=report → 업무보고 화면 */
-var PUSHME=null, PUSH_WD='일월화수목금토', GO_PARAM=(new URLSearchParams(location.search).get('go')||'');
+/* ================= 작업보고 알림 (웹 푸시 · v10.30 · v10.31 8시간마다) =================
+   마스터가 사람마다 근무(주간·야간)·출근 요일·날짜 예외를 정하면(추가기능 → 작업보고 알림), 출근일 업무보고를 안 보낸 사람 폰으로 서버(pushTick)가 알림:
+   첫 알림 주간 = 그 날 저녁 7시 · 야간 = 다음 날 아침 7시 → 그 날짜 보고를 할 때까지 8시간마다 (3일까지). 받는 사람은 환경설정 → 작업보고 알림 → [이 폰에서 알림 켜기] 한 번 (아이폰은 홈 화면 앱에서만).
+   알림 문구("M월 D일 작업보고를…")는 서버가 암호화해 보냄 (sw.js 는 없을 때 기본 문구), 누르면 ?go=report&d=날짜 → 그 날짜 업무보고 화면 */
+/* PUSHME = 지난번 받은 내 알림 상태 (알림을 눌러 바로 열 때도 야간·미보고를 알게) · ?go=report&d=날짜 = 알림을 눌러 엶 */
+var PUSHME=(function(){ var p=lsGet('pushme'); return (p&&AUTH&&p.c===AUTH.code)?p.me:null; })(), PUSH_WD='일월화수목금토',
+    GO_PARAM=(new URLSearchParams(location.search).get('go')||''), GO_D=(new URLSearchParams(location.search).get('d')||'');
 function pushOk(){ return 'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window; }
 function pushIos(){ return /iPhone|iPad|iPod/.test(navigator.userAgent); }
 function b64uToU8(s){ s=String(s||'').replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; var r=atob(s), u=new Uint8Array(r.length); for(var i=0;i<r.length;i++) u[i]=r.charCodeAt(i); return u; }
@@ -2840,12 +2928,13 @@ function pushMD(d){ var p=String(d).split('-'); var x=new Date(+p[0],+p[1]-1,+p[
 function pushPlanTxt(pl){ if(!pl) return '지정 안 함'; var w=[1,2,3,4,5,6,0].filter(function(d){ return (pl.wd||[]).indexOf(d)>=0; }).map(function(d){ return PUSH_WD[d]; }).join('');
   return (pl.sh==='night'?'야간':'주간')+' · '+(w||'요일 없음')+((pl.add||[]).length?' · 추가 출근 '+pl.add.length:'')+((pl.off||[]).length?' · 휴무 '+pl.off.length:''); }
 function pushWhen(pl){ return pl&&pl.sh==='night'?'출근한 다음 날 아침 7시':'출근일 저녁 7시'; }
+function pushRule(pl){ return pushWhen(pl)+'부터 그 날짜 업무보고를 보낼 때까지 8시간마다 알림이 와요 (최대 3일).'; }   // v10.31
 /* 서비스 워커 준비 (sw.js 를 못 받았으면 영영 안 끝나서 6초 제한) */
 function pushReady(){ return Promise.race([navigator.serviceWorker.ready,new Promise(function(res,rej){ setTimeout(function(){ rej(new Error('알림 준비가 안 됐어요 · 앱을 껐다 다시 열어 주세요')); },6000); })]); }
 function pushSub(){ if(!pushOk()) return Promise.resolve(null); return pushReady().then(function(reg){ return reg.pushManager.getSubscription(); }).catch(function(){ return null; }); }
 /* 앱을 열 때: 내 알림 상태를 받고, 이 폰이 알림을 허용했는데 서버에 없거나 서버 키가 바뀌었으면 조용히 다시 등록 */
 function pushSync(){ if(!AUTH) return Promise.resolve();
-  return pushSub().then(function(s){ return run('pushMine',s?s.endpoint:'').then(function(me){ PUSHME=me;
+  return pushSub().then(function(s){ return run('pushMine',s?s.endpoint:'').then(function(me){ pushMeSet(me);
       if(!pushOk()||Notification.permission!=='granted') return;
       if(s&&me.here&&(!me.key||pushSameKey(s,me.key))) return;
       if(!s&&(!me.plan||lsGet('pushoff'))) return;   // 지정 안 됐고 이 폰도 안 켰음 · 이 폰에서 직접 끔 → 그대로 (다시 켜기는 버튼으로만)
@@ -2854,7 +2943,7 @@ function pushEnableQuiet(){ return Promise.all([run('pushKey'),pushReady()]).the
     return reg.pushManager.getSubscription().then(function(s){ if(s&&!pushSameKey(s,key)) return s.unsubscribe().then(function(){ return null; }); return s; })
       .then(function(s){ return s||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64uToU8(key)}); }); })
   .then(function(sub){ return run('pushSubscribe',sub.toJSON(),pushDevLabel()); })
-  .then(function(me){ if(!me||me.ok===false) throw new Error((me&&me.error)||'알림 등록 실패'); PUSHME=me; return me; }); }
+  .then(function(me){ if(!me||me.ok===false) throw new Error((me&&me.error)||'알림 등록 실패'); pushMeSet(me); return me; }); }
 /* [알림 켜기] — 버튼을 누른 그 순간에 권한을 물어야 해서(아이폰) 다른 창을 거치지 않고 바로 부름 */
 function pushEnable(){ haptic(8);
   if(!pushOk()){ pushNoSupport(); return; }
@@ -2866,30 +2955,38 @@ function pushEnable(){ haptic(8);
     .catch(function(e){ toast((e&&e.message)||'알림 켜기 실패'); pushRedraw(); }); }
 function pushDisable(){ haptic(8);
   pushSub().then(function(s){ if(!s) return run('pushMine',''); var e=s.endpoint; return s.unsubscribe().catch(function(){}).then(function(){ return run('pushUnsubscribe',e); }); })
-    .then(function(me){ PUSHME=me; lsSet('pushoff',1); toast('이 폰 알림을 껐어요'); pushRedraw(); }).catch(function(e){ toast((e&&e.message)||'끄기 실패'); }); }   // pushoff = 앱을 다시 열어도 저절로 다시 켜지 않음
+    .then(function(me){ pushMeSet(me); lsSet('pushoff',1); toast('이 폰 알림을 껐어요'); pushRedraw(); }).catch(function(e){ toast((e&&e.message)||'끄기 실패'); }); }   // pushoff = 앱을 다시 열어도 저절로 다시 켜지 않음
 function pushTestSelf(){ haptic(8); toast('테스트 알림 보내는 중…');
   run('pushTestMe').then(function(r){ toast(r.devices?(r.sent?r.sent+'대에 보냈어요 · 곧 알림이 와요':'못 보냈어요')+(r.fail?' (실패 '+r.fail+' · '+(r.codes||[]).join(',')+')':''):'알림을 켠 폰이 없어요'); }).catch(function(e){ toast(e.message); }); }
 function pushNoSupport(){ openSheet('<h3>이 폰에서는 알림을 못 받아요</h3><p>'+(pushIos()?'아이폰은 <b>홈 화면에 추가한 앱</b>에서만 알림을 받을 수 있어요 (iOS 16.4 이상). 사파리 아래 <b>공유</b> → <b>홈 화면에 추가</b> 후, 홈 화면의 앱으로 열어서 다시 켜 주세요.':'이 브라우저는 웹 알림을 지원하지 않아요. 크롬으로 열거나 앱을 홈 화면에 설치해 주세요.')+'</p><button class="btn" onclick="closeSheet()">확인</button>'); }
 /* 환경설정 카드 (지정됐거나 이 코드로 알림을 켠 폰이 있거나 마스터일 때) */
 function pushCardShow(){ return !!AUTH&&(isMaster()||!!(PUSHME&&(PUSHME.plan||PUSHME.devices))); }
 function pushCardHtml(){ var me=PUSHME||{}, pl=me.plan, ok=pushOk(), perm=ok?Notification.permission:'', on=ok&&!!me.here&&perm==='granted';
-  return '<h3>작업보고 알림</h3><p class="muted" style="margin:6px 0 0;font-size:13.5px">'+(pl?'마스터가 알림 대상으로 정했어요 · <b>'+esc(pushPlanTxt(pl))+'</b><br>'+pushWhen(pl)+'까지 업무보고를 안 보내면 이 폰으로 알림이 와요.'
+  return '<h3>작업보고 알림</h3><p class="muted" style="margin:6px 0 0;font-size:13.5px">'+(pl?'마스터가 알림 대상으로 정했어요 · <b>'+esc(pushPlanTxt(pl))+'</b><br>'+pushRule(pl)
       :'알림 대상이 아니에요. 마스터가 정하면 출근일에 업무보고를 안 보냈을 때 알림이 와요.')+'</p>'+
+    ((me.pend||[]).length?'<div class="muted" style="margin:8px 0 0;font-size:13.5px;color:#e5484d"><b>'+me.pend.map(function(x){ return pushMD(x); }).join(', ')+' 작업보고를 아직 안 했어요</b> · 추가기능 → 업무보고</div>':'')+
     '<div class="muted" style="margin:8px 0 0;font-size:13.5px">이 폰: <b>'+(!ok?'알림 못 받음'+(pushIos()?' (홈 화면 앱에서만)':''):(on?'알림 켜짐':(perm==='denied'?'알림 막힘 · 폰 설정에서 허용':'알림 꺼짐')))+'</b>'+(me.devices?' · 알림 켠 폰 '+me.devices+'대':'')+'</div>'+
     '<div class="row" style="margin-top:12px;gap:8px">'+(on?'<button class="btn line sm" onclick="pushDisable()">이 폰 알림 끄기</button><button class="btn sm" onclick="pushTestSelf()">테스트 알림</button>':'<button class="btn sm" onclick="pushEnable()">이 폰에서 알림 켜기</button>')+'</div>'; }
-function pushRedraw(){ var v=stack[stack.length-1]; if(!v) return; if(v.name==='me'){ var c=$('pushcard'); if(c&&pushCardShow()) c.innerHTML=pushCardHtml(); else if(pushCardShow()!==!!c) viewOf('me').render(v); } }
+function pushMeSet(me){ if(!me||me.ok===false) return; PUSHME=me; lsSet('pushme',{c:AUTH&&AUTH.code,me:me}); }
+function pushRedraw(){ var v=stack[stack.length-1]; if(!v) return; if(v.name==='me'){ var c=$('pushcard'); if(c&&pushCardShow()) c.innerHTML=pushCardHtml(); else if(pushCardShow()!==!!c) viewOf('me').render(v); }
+  if(v.name==='report'){ var st=v.state;   // 업무보고: 알림 상태(야간·미보고 날짜)가 늦게 왔으면 기본값·날짜 칩 다시
+    if(!st.cfg&&!st.setupTouched){ if(!st.pinned&&reportDefDate()!==st.date){ reportOpen(v,reportDefDate()); return; }
+      if(st.setupNight!==reportNight()&&$('rmodal')){ drawReportSetup(v); reportLoadAuto(v,0,true); } }
+    else if(st.cfg) reportRedraw(v); } }
 /* 지정됐는데 이 폰은 아직 알림을 안 켰으면 하루 한 번 물어봄 (알림 켜기 = 바로 권한 물음) */
 function pushPrompt(){ var me=PUSHME; if(!me||!me.plan||me.here||sheetOpen) return; if(pushOk()&&Notification.permission==='denied') return;
   var k='pushask:'+todayISO(0); if(lsGet(k)) return; lsSet(k,1);
   if(!pushOk()){ openSheet('<h3>작업보고 알림</h3><p>마스터가 작업보고 알림 대상으로 정했어요 (<b>'+esc(pushPlanTxt(me.plan))+'</b>).<br>'+(pushIos()?'아이폰은 <b>홈 화면에 추가한 앱</b>에서만 알림을 받을 수 있어요. 사파리 <b>공유</b> → <b>홈 화면에 추가</b> 후 그 앱으로 열면 알림을 켤 수 있어요.':'이 브라우저는 알림을 못 받아요. 크롬으로 열거나 앱을 설치해 주세요.')+'</p><button class="btn" onclick="closeSheet()">확인</button>'); return; }
-  openSheet('<h3>작업보고 알림을 켜 주세요</h3><p>마스터가 작업보고 알림 대상으로 정했어요 (<b>'+esc(pushPlanTxt(me.plan))+'</b>).<br>'+pushWhen(me.plan)+'까지 업무보고를 안 보내면 이 폰으로 알림이 와요.</p>'+
+  openSheet('<h3>작업보고 알림을 켜 주세요</h3><p>마스터가 작업보고 알림 대상으로 정했어요 (<b>'+esc(pushPlanTxt(me.plan))+'</b>).<br>업무보고를 안 보내면 '+pushRule(me.plan)+'</p>'+
     '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">나중에</button><button class="btn sm" style="flex:2" onclick="closeSheet();pushEnable()">알림 켜기</button></div>'); }
-/* 알림을 눌러 열었을 때 (?go=report 또는 sw.js 메시지): SWING 업무보고 화면으로 */
-function pushGoReport(){ if(!AUTH||!appStarted) return; if(!canServer('swing')){ toast('이 코드는 SWING 서버 권한이 없어요'); return; }
+/* 알림을 눌러 열었을 때 (?go=report&d=날짜 또는 sw.js 메시지): 업무보고 화면(그 날짜)으로 — 지금 서버에 업무보고 권한이 없으면 되는 서버로 */
+function pushGoReport(d){ if(!AUTH||!appStarted) return; d=/^\d{4}-\d{2}-\d{2}$/.test(d||'')?d:'';
+  var ok=function(sv){ return canServer(sv)&&can(sv+'.report'); }, sv=ok(SERVER)?SERVER:(ok('swing')?'swing':(ok('swap')?'swap':''));
+  if(!sv){ toast('업무보고 권한이 없어요 · 관리자에게 요청해 주세요'); return; }
   if(sheetOpen) closeSheet();
-  var go=function(n){ var top=stack[stack.length-1]; if(top&&top.name==='report') return; if(animating&&n<10){ setTimeout(function(){ go(n+1); },200); return; } push('report',{}); };
-  if(SERVER!=='swing'){ setServer('swing'); tabTo('home'); if(hDepth>0) hBack(hDepth); setTimeout(function(){ go(0); },500); } else setTimeout(function(){ go(0); },250); }   // goTab('home') 은 이미 홈이면 아무것도 안 해서 SWAP 홈이 남음 → 새로 그림
-if('serviceWorker' in navigator){ try{ navigator.serviceWorker.addEventListener('message',function(e){ if(e.data&&e.data.go==='report') pushGoReport(); }); }catch(e){} }
+  var go=function(n){ var top=stack[stack.length-1]; if(top&&top.name==='report'){ if(d&&top.state.date!==d) reportOpen(top,d,true); else if(d) top.state.pinned=true; return; } if(animating&&n<10){ setTimeout(function(){ go(n+1); },200); return; } push('report',d?{d:d}:{}); };
+  if(SERVER!==sv){ setServer(sv); tabTo('home'); if(hDepth>0) hBack(hDepth); setTimeout(function(){ go(0); },500); } else setTimeout(function(){ go(0); },250); }   // goTab('home') 은 이미 홈이면 아무것도 안 해서 다른 서버 홈이 남음 → 새로 그림
+if('serviceWorker' in navigator){ try{ navigator.serviceWorker.addEventListener('message',function(e){ if(e.data&&e.data.go==='report'){ var d=''; try{ d=new URL(e.data.url||'',location.href).searchParams.get('d')||''; }catch(x){} pushGoReport(d); } }); }catch(e){} }
 
 /* ---- 마스터: 추가기능 → 작업보고 알림 (사람마다 근무·출근 요일·날짜 예외) ---- */
 var ICON_BELL='<svg viewBox="0 0 24 24" class="em"><path d="M12 3.2a5.8 5.8 0 0 0-5.8 5.8v3.6l-1.8 3.1h15.2l-1.8-3.1V9A5.8 5.8 0 0 0 12 3.2z" fill="#ffd54f" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.6 18.4a2.5 2.5 0 0 0 4.8 0" fill="none" stroke="#111" stroke-width="1.7" stroke-linecap="round"/><circle cx="18" cy="5.5" r="2.6" fill="#e5484d"/></svg>';
@@ -2899,14 +2996,14 @@ function pushAdminLoad(v){ return run('pushPlanList').then(function(r){ if(stack
   .catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('작업보고 알림','마스터')+errBox(e); }); }
 function pushAdminDraw(v){ var r=v.state.r||{}, today=r.today||todayISO(0), ps=(r.people||[]).filter(function(p){ return p.active||p.plan; });
   var h=title('작업보고 알림','마스터 · '+fmtToday());
-  h+='<div class="card"><p class="muted" style="margin:0;font-size:13.5px">사람마다 <b>근무</b>와 <b>출근 요일</b>(매주), 필요하면 <b>날짜 예외</b>(추가 출근·휴무)를 정해 두면 출근일에 업무보고를 안 보낸 사람 폰으로 알림이 가요.<br>· 주간 = 그 날 <b>저녁 7시</b> · 야간 = 출근한 <b>다음 날 아침 7시</b> (출근일 낮 12시부터 보고가 없으면)<br>· 받는 사람이 앱 <b>환경설정 → 작업보고 알림 → 알림 켜기</b>를 한 번 해야 해요 (아이폰은 홈 화면에 추가한 앱에서만).</p></div>';
+  h+='<div class="card"><p class="muted" style="margin:0;font-size:13.5px">사람마다 <b>근무</b>와 <b>출근 요일</b>(매주), 필요하면 <b>날짜 예외</b>(추가 출근·휴무)를 정해 두면 그 날짜 업무보고를 안 보낸 사람 폰으로 <b>"M월 D일 작업보고를 하지 않은 상태에요!"</b> 알림이 가요.<br>· 첫 알림: 주간 = 그 날 <b>저녁 7시</b> · 야간 = 출근한 <b>다음 날 아침 7시</b> → 그 날짜를 보고할 때까지 <b>8시간마다</b> (최대 3일)<br>· 받는 사람이 앱 <b>환경설정 → 작업보고 알림 → 알림 켜기</b>를 한 번 해야 해요 (아이폰은 홈 화면에 추가한 앱에서만).</p></div>';
   h+='<div class="card"><h3>사람 '+ps.length+'명</h3>'+(ps.length?ps.map(function(p){ var pl=p.plan, nm=p.name||('이름 없음 · '+p.no+'번 코드'), bits=[];
       bits.push(pl?esc(pushPlanTxt(pl)):'지정 안 함');
       if(pl) bits.push(p.devices.length?'알림 켠 폰 '+p.devices.length+'대 ('+esc(p.devices.join('·'))+')':'<span style="color:var(--danger)">알림 안 켬</span>');
-      if(pl&&p.works) bits.push('<b>오늘 출근</b>'+(p.last&&p.last.slice(0,10)===today?' · 오늘 보고함':''));
+      if(pl&&p.works) bits.push('<b>오늘 출근</b>'+(p.today?' · 오늘 보고함':''));
+      if(pl&&(p.pend||[]).length) bits.push('<span style="color:var(--danger)"><b>미보고 '+esc(p.pend.map(pushMD).join(', '))+'</b> · 8시간마다 알림 중</span>');
       if(p.last) bits.push('마지막 보고 '+esc(p.last.slice(5)));
-      if(pl&&p.sent&&p.sent.at) bits.push('마지막 알림 '+esc(p.sent.at.slice(5))+(p.sent.n?' ('+p.sent.n+'대)':' (보낸 폰 없음)'));
-      if(!p.swing) bits.push('<span style="color:var(--danger)">SWING 권한 없음 · 업무보고 못 씀</span>');
+      if(pl&&p.sent&&p.sent.at) bits.push('마지막 알림 '+esc(p.sent.at.slice(5))+(p.sent.last?' ('+esc(pushMD(p.sent.last))+' · '+(p.sent.n||0)+'대)':''));
       if(!p.active) bits.push('사용 중지');
       return '<div class="srow"><div class="sn"><b>'+esc(nm)+'</b><span>'+bits.join(' · ')+'</span></div><button class="edit" onclick="pushAdminEdit(\''+jsa(p.pid)+'\')">'+(pl?'바꾸기':'정하기')+'</button></div>'; }).join('')
     :'<div class="empty">접속 코드가 없어요.</div>')+'</div>';
@@ -2920,7 +3017,7 @@ function pushAdminEdit(pid){ var v=permView('pushadmin'); if(!v||!v.state.r) ret
 function pushAdminSheet(){ var a=PA, h='<h3>'+esc(a.name)+'</h3>';
   h+='<div class="seg" style="margin:8px 0 0">'+[['off','지정 안 함'],['day','주간'],['night','야간']].map(function(o){ var on=o[0]==='off'?!a.on:(a.on&&a.sh===o[0]); return '<button class="'+(on?'on':'')+'" onclick="pushAdminSh(\''+o[0]+'\')">'+o[1]+'</button>'; }).join('')+'</div>';
   if(a.on){
-    h+='<p class="muted" style="font-size:12.5px;margin:8px 0 0">'+(a.sh==='night'?'야간: 출근일 밤 근무 → <b>다음 날 아침 7시</b>까지 업무보고가 없으면 알림':'주간: 출근일 <b>저녁 7시</b>까지 업무보고가 없으면 알림')+'</p>';
+    h+='<p class="muted" style="font-size:12.5px;margin:8px 0 0">'+(a.sh==='night'?'야간: 출근일 밤 근무 → <b>다음 날 아침 7시</b>부터':'주간: 출근일 <b>저녁 7시</b>부터')+' 그 날짜 업무보고가 없으면 <b>8시간마다</b> 알림 (최대 3일)</p>';
     h+='<div class="lb" style="margin-top:14px">출근 요일 (매주)</div><div class="pawd">'+[1,2,3,4,5,6,0].map(function(d){ var on=a.wd.indexOf(d)>=0; return '<button type="button" class="'+(on?'on':'')+(d===0?' sun':(d===6?' sat':''))+'" aria-pressed="'+on+'" onclick="pushAdminWd('+d+')">'+PUSH_WD[d]+'</button>'; }).join('')+'</div>';
     h+='<div class="lb" style="margin-top:14px">날짜 예외 (요일과 다른 날만)</div><div class="row" style="gap:6px;margin-top:6px;align-items:center"><input type="date" class="input" id="pa_date" value="'+todayISO(0)+'" style="flex:1.5;min-width:0;margin:0">'+
       '<button class="btn line sm" style="flex:1" onclick="pushAdminExc(\'add\')">출근</button><button class="btn line sm" style="flex:1" onclick="pushAdminExc(\'off\')">휴무</button></div>';
@@ -2974,7 +3071,7 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
     '<li><span><b>등록</b> → 기기에 QR 붙이고 찍기 → 출고/수거/재고 → 작업 선택(재고는 고객 이름·일련번호로 기기 찾기) → 일련번호 → 액세서리 → 특이사항</span></li>'+
     '<li><span><b>반납 기기 재고 등록</b> → 재고에서 고객 이름으로 찾기(또는 검색 → "고객의 이용·반납 기기 보기") → <b>반납</b> 기기를 골라 QR 매칭. 이용 중 기기는 확인 후에만</span></li>'+
     '<li><span><b>검색</b> → 고객명·일련번호로 등록 QR/작업리스트/어드민 찾기 → 항목 선택 → QR 찍어 매칭. 작업이 없는 기기는 <b>재고 기기</b>로 등록</span></li>'+
-    '<li><span><b>현황</b> → 홈의 상태 칸이나 전체 보기. 오른쪽 위 <b>내 작업 현황</b>에서 슬랙 보고</span></li>'+
+    '<li><span><b>현황</b> → 홈의 상태 칸이나 전체 보기</span></li>'+
     '<li><span><b>자전거 주문</b> → 출고 QR 1장 · <b>교체수리</b> → 출고 1장 + 수거 1장</span></li>'+
     '<li><span><b>수거 기기</b> → 입고 → 수리대기 → <b>수리가능</b> → 재고 또는 출고 대기중 (수리가능을 지나야 넘어감)</span></li>'+
     '<li><span><b>출고 기기</b> → 등록하면 바로 출고 준비완료</span></li>'+
@@ -2985,7 +3082,7 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
     '<li><span><b>재고 시트 반영</b> → 추가기능 → 앱의 재고 기기(신품 체크 포함)를 Swap_재고 테이블 경기남부점 탭에 기입</span></li>'+
     '<li><span><b>뒤로가기</b> → 폰 뒤로가기 버튼, 왼쪽 위 ‹, 또는 화면 왼쪽 끝에서 오른쪽으로 밀기</span></li>'+
     '<li><span><b>새로고침</b> → 화면 맨 위에서 아래로 당기기</span></li>'+
-    '<li><span><b>작업 보고</b> → 현황 화면 오른쪽 위 <b>내 작업 현황</b> → 날짜 선택 → 슬랙으로 보내기</span></li></ul></div>':'')+
+    '<li><span><b>업무보고</b> → 추가기능 → <b>업무보고</b> → 업무시간 정하기 → 그 날 처리한 기기가 시간 칸에 자동으로 들어감 · 추가 업무를 적고 슬랙으로 보내기</span></li></ul></div>':'')+
     '<p class="muted mver" style="text-align:center;font-size:12px" onclick="verTap()">SWAP 입출고 v'+APP_VER+' · '+(('BarcodeDetector' in window)?'내장 스캐너':'jsQR')+' · '+(window.isSecureContext?'https':'http')+'</p>';
   }};
 /* ---- 접속 코드 관리 (마스터 전용 페이지): 이름 · 사용 · 서버 · 관리자 지정 ---- */
@@ -3260,7 +3357,7 @@ function startApp(){ if(appStarted) return; appStarted=true;
   tabTo('home');
   if(CODE) push('tag',{code:CODE});
   setTimeout(prefetch, 800);
-  if(GO_PARAM==='report'){ GO_PARAM=''; try{ history.replaceState(history.state,'',location.pathname); }catch(e){} setTimeout(pushGoReport,400); }   // 작업보고 알림을 눌러 열었음
+  if(GO_PARAM==='report'){ var gd=GO_D; GO_PARAM=''; GO_D=''; try{ history.replaceState(history.state,'',location.pathname); }catch(e){} setTimeout(function(){ pushGoReport(gd); },400); }   // 작업보고 알림을 눌러 열었음 (그 날짜)
   setTimeout(function(){ pushSync().then(function(){ if(!sheetOpen&&stack.length===1) pushPrompt(); }); },1500); }   // 작업보고 알림 상태 · 지정됐는데 이 폰이 안 켰으면 물어봄 (v10.30)
 function boot(){ try{ history.replaceState({d:0},''); }catch(e){}
   var bye=new URLSearchParams(location.search).get('bye');
