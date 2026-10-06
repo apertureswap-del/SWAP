@@ -777,7 +777,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.34';
+var APP_VER = '10.36';
 var libsReady=false; document.addEventListener('DOMContentLoaded',function(){ libsReady=true; });   // v10.34: defer 로 받는 QR 라이브러리(qrcode·jsQR)는 DOMContentLoaded 전에 다 받음(또는 실패) — 그 전엔 "받는 중"
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
@@ -1864,7 +1864,7 @@ function swSearchTyped(val){ var v=stack[stack.length-1]; v.state.q=val; v.state
 function swSearchScan(){ haptic(8); push('scan',{swingq:true}); }   // 찍으면 handleScanned 가 QR 값을 검색창에 넣고 검색
 function swSearchRun(v){ v=v||stack[stack.length-1]; var q=String(v.state.q||'').trim().toUpperCase(); if(!q){ toast('QR 또는 IMEI 를 입력해 주세요'); return; }
   var box=$('swres'); if(!box) return; v.state.res={loading:true}; v.state.open=false;
-  box.innerHTML='<div class="card"><div class="loadlogo" style="padding:18px 0 10px">'+curLogo()+'<span>향남 → 수원 순서로 찾는 중</span><span class="muted" style="font-size:12px;margin-top:4px">처음이거나 목록이 오래됐으면 기기 목록을 새로 받느라 20~30초 걸릴 수 있어요</span></div></div>';
+  box.innerHTML='<div class="card"><div class="loadlogo" style="padding:18px 0 10px">'+curLogo()+'<span>향남 → 수원 순서로 찾는 중</span><span class="muted" style="font-size:12px;margin-top:4px">어드민 서버에서 바로 찾아요 · 새 검색이 안 되면 기기 목록을 새로 받느라 20~30초 걸릴 수 있어요</span></div></div>';
   var seq=v.state.seq=(v.state.seq||0)+1;
   run('swingSearch',q).then(function(r){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.res=r; swSearchDrawCard(v); if(r.found) haptic([10,30,10]); })
     .catch(function(e){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.res={ok:false,error:e.message}; swSearchDrawCard(v); }); }
@@ -2200,7 +2200,7 @@ function swWdTile(v,t,cat,srch){ var tm=(t.d1?'익일 ':'')+t.t1+(t.t2&&(t.t2!==
   var cls=(t.low&&!res?' low':'')+(t.x?' cut':'')+(t.off?' off':'');
   var badge='';
   if(cat==='r_broken') badge=swProcBadge(t)+(t.j==='device'?'<em class="jd">기기이상 · 교체로 정산</em>':'')+(t.j==='broken'&&t.c!=='fault'?'<em class="jd">'+esc(swBrokenFrom(t))+' · 수거로 정산</em>':'')+(t.cg?'<em class="jd">교체만 찍고 창고 입고'+(t.cg.a?' · 자동':'')+'</em>':'')+(t.rc?'<em class="jd">배치 뒤 다시 수거</em>':'');
-  else if(!res){ if(t.off) badge+='<em class="of">'+(cat==='off'?SW_OFF_TXT[t.off]:'오프라인')+'</em>'; if(t.j==='ok') badge+='<em class="jd">'+SW_JUDGE.ok+'</em>'; if(t.jc) badge+='<em class="jd">정산반영완료</em>';
+  else if(!res){ if(t.off) badge+='<em class="of">'+(cat==='off'?SW_OFF_TXT[t.off]:'오프라인')+'</em>'; if(t.j==='ok') badge+='<em class="jd">'+SW_JUDGE.ok+'</em>'; if(t.jc) badge+='<em class="jd">'+(t.c==='re'?'재배치 · 교체 전산 누락':'정산반영완료')+'</em>';
     if(t.rc) badge+='<em class="jd">배치 뒤 다시 수거</em>'; }   // v10.33: 배치(재배치)한 뒤 다시 수거해서 고장수거 OR 재배치수거됨으로 옴
   var small=srch?'<small>'+esc(swWdTabsText(t))+'</small>':((cat==='check'||cat==='off'||res)?'<small>'+esc(catName)+'</small>':(t.n?'<small>'+esc(t.n)+'</small>':''));
   var lv=(v.state.live||{})[t.i], live=lv?'<em class="lv'+(lv.on==='N'?' no':'')+'">지금 '+(lv.on==='Y'?'온라인':(lv.on==='N'?'오프라인':'?'))+(lv.b!==null&&lv.b!==undefined?' '+esc(lv.b)+'%':'')+(lv.st?' · '+esc(lv.st):'')+'</em>':'';   // 다시 확인 결과 (보여주기만)
@@ -2288,7 +2288,7 @@ function swTaskOf(v,id){ var w=v&&swWdWorker(v); return (w&&(w.tasks||[]).filter
 function swJudgeOpts(t,cat){ if(swMoved(t)) return [];
   if(cat==='check') return ['mistake','ok']; if(cat==='off') return ['mistake','device','broken','ok'];   // 오프라인 확인: + 고장수거(작업자가 그냥 가져옴 · 수거로 정산) · 정상(교체 후 80% 이상 온라인 · 교체로 정산)
   if(t.c==='fault') return ['broken','mistake'].concat(['toSwap','toSwapRe','toRe'].filter(function(k){ return swLenOk(t,k); })); if(t.off) return ['mistake','device'];
-  if(t.c==='re') return ['broken','mistake'].concat(t.low?['ok']:[]);   // 재배치: 전산이 꼬여 재배치로 들어간 고장수거 · 작업 불량 (v10.33 · 60% 미만이면 정상도)
+  if(t.c==='re') return ['broken','mistake'].concat(t.low?['ok']:[]).concat(swLenOk(t,'toSwapRe')?['toSwapRe']:[]);   // 재배치: 전산이 꼬여 재배치로 들어간 고장수거 · 작업 불량 (v10.33 · 60% 미만이면 정상도) · 교체 후 재배치 (v10.36: 교체 전산 누락)
   if(t.low&&(!t.j||t.c==='place')) return ['mistake','ok'];   // 정상으로 고른 교체 기기는 교체 탭 기준(작업 불량·기기이상) · 배치는 그대로 작업 불량·정상
   if(t.c==='swapRe') return ['broken','mistake','device'];   // 교체 후 재배치: + 고장수거 (v10.33)
   if(t.c==='swap') return ['mistake','device'];   // 배터리 교체: 괜찮아 보여도 사람이 보고 고를 수 있게
@@ -2326,7 +2326,7 @@ function swQrTap(el){ var v=swWdView(); if(!v) return; var id=el.getAttribute('d
   var row=function(ks,cls){ return '<div class="abo jd'+(cls?' '+cls:'')+'">'+ks.map(function(k){ return '<button type="button" class="'+(on(k)?'on':'')+'" aria-pressed="'+on(k)+'" onclick="swJudgeTap(\''+k+'\')">'+(SW_JUDGE_BTN[k]||SW_JUDGE[k])+'</button>'; }).join('')+'</div>'; };
   var main=opts.filter(function(k){ return !SW_JUDGE_CLS[k]; }), len=opts.filter(function(k){ return SW_JUDGE_CLS[k]; });   // 정상참작(v10.29)은 안내 한 줄 아래 따로
   h+=(main.length>2?row(main.slice(0,2))+row(main.slice(2)):(main.length?row(main):''))+   // 4개(오프라인 확인)는 두 줄로
-    (len.length?'<div class="abn">봐줄 기기 · 그 분류 탭으로 옮기고 정산 +1 (정산반영완료)</div>'+row(len,'len'):'')+
+    (len.length?'<div class="abn">'+(t.c==='re'?'배터리도 교체했는데 교체 전산이 안 들어간 기기 · 교체 후 재배치 탭으로 옮겨 그걸로 정산 (재배치 대신)':'봐줄 기기 · 그 분류 탭으로 옮기고 정산 +1 (정산반영완료)')+'</div>'+row(len,'len'):'')+   // v10.36 재배치 → 교체 후 재배치
     (t.j?'<button type="button" class="abx" onclick="swJudgeTap(\'\')">판정 취소</button>':'');   // 판정은 옮겨 간 탭·원래 탭 어디서든 취소 가능
   var me=bubOpen(el,h,t.q+' 처리'); me.sw={v:v,id:id,cat:cat}; }
 function swQrAdmin(){ haptic(10); setTimeout(function(){ accBubClose(); },0); }   // 새 탭은 그대로 열리고 말풍선만 닫음
@@ -2383,7 +2383,7 @@ function swJudgeGo(v,id,k,cat){ if(!v) return; var t=swTaskOf(v,id); if(!t) retu
     swJudgeSetDK(d,key,res.task); haptic([10,30,10]);
     var go=({broken:' · 고장수거 탭으로 옮겼어요',mistake:' · 작업 불량 탭으로 옮겼어요',ok:' · 확인필요에서 뺐어요'})[k]||'';
     if(k==='broken'&&res.task&&res.task.c!=='fault') go+=' ('+swBrokenFrom(res.task)+' → 수거로 정산)'; else if(k==='ok'&&res.task&&res.task.jo) go=' · 오프라인 확인에서 뺐어요 (교체로 정산)';
-    else if(SW_JUDGE_CLS[k]) go=' · '+swWdLabel(SW_JUDGE_CLS[k])+' 탭으로 옮겼어요 (정산반영완료 · 정산 +1)';   // 정상참작 (v10.29)
+    else if(SW_JUDGE_CLS[k]) go=' · '+swWdLabel(SW_JUDGE_CLS[k])+' 탭으로 옮겼어요 '+(t.c==='re'?'(재배치 대신 교체 후 재배치로 정산)':'(정산반영완료 · 정산 +1)');   // 정상참작 (v10.29) · 재배치 → 교체 후 재배치 (v10.36)
     var msg=(t.q?t.q+' ':'')+(k?SW_JUDGE_RO[k]+' 처리했어요'+go+(res.status?' · 어드민 '+res.status:''):'판정을 취소했어요'+(t.j==='device'?' (어드민 상태는 그대로예요)':''));
     if(res.sheetError) msg+=' · 작업현황 시트 오류: '+res.sheetError;
     if(k==='device'){ toast(msg); bubble((t.q?t.q+' ':'')+'고장수거 탭으로 옮겼어요 · 정산은 교체로만 들어가요',2200); }   // 꼭 알려야 함: 고장수거인데 정산은 교체로만
@@ -2449,7 +2449,7 @@ function swWorkerSet(v,nw){ var set=function(res){ var ws=(res&&res.workers)||[]
 /* 복사·슬랙 공통 내용: "[날짜 · 이름]" 다음 탭과 같은 순서로 "배터리 교체_3" + QR 한 줄씩 (서버 swwReportLines_ 와 같은 모양) */
 function swWdText(v){ var w=swWdWorker(v); if(!w) return ''; var ts=swWdTasks(v,w), m=v.state.model, lines=[], L=swWdLists(ts);
   var sec=function(label,qs,fmt){ if(!qs.length) return; if(lines.length) lines.push(''); lines.push(label+'_'+qs.length); qs.forEach(function(t){ lines.push(fmt?fmt(t):t.q); }); };
-  SW_CATS.forEach(function(c){ sec(c[1],L[c[0]],function(t){ return t.q+(t.jc?' (정산반영완료)':''); }); });   // 정상참작은 옮긴 분류에 "정산반영완료" 표시 (서버 swwReportLines_ 와 같게 · v10.29)
+  SW_CATS.forEach(function(c){ sec(c[1],L[c[0]],function(t){ return t.q+(t.jc?(t.c==='re'?' (재배치 · 교체 전산 누락)':' (정산반영완료)'):''); }); });   // 정상참작은 옮긴 분류에 "정산반영완료" 표시 (서버 swwReportLines_ 와 같게 · v10.29)
   sec(SW_CHECK,L.check); sec(SW_OFF,L.off);
   sec(SW_JUDGE.broken,L.r_broken,function(t){ return t.q+(t.j==='device'?' (기기이상 · 교체로 정산)':(t.cg?' (교체만 찍고 창고 입고)':(t.c!=='fault'?' ('+swBrokenFrom(t)+' · 수거로 정산)':(t.rc?' (배치 뒤 다시 수거)':'')))); }); sec(SW_JUDGE.mistake,L.r_mistake);   // 서버 swwReportLines_ 와 같게 (v10.33)
   swWdExTextLines(v,m).forEach(function(l){ if(lines.length) lines.push(''); lines=lines.concat(l); });   // 추가작업 I9·타리요 (서버 슬랙 메시지와 같게)
