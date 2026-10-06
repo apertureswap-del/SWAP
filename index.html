@@ -777,7 +777,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.36';
+var APP_VER = '10.37';
 var libsReady=false; document.addEventListener('DOMContentLoaded',function(){ libsReady=true; });   // v10.34: defer 로 받는 QR 라이브러리(qrcode·jsQR)는 DOMContentLoaded 전에 다 받음(또는 실패) — 그 전엔 "받는 중"
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
@@ -856,7 +856,7 @@ function sysPending(t){ if(!t) return false; if(typeof t.sysPending==='boolean')
 function sysIssue(t){ return sysPending(t)||(!!t&&t.stockOut&&t.matchState==='no'); }   // 전산미완료 + 재고 출고 전산 매칭 안됨
 function sysBadge(t,small){ return sysPending(t) ? '<span class="pill sys'+(small?' sm':'')+'">⚠️전산미완료</span>' : ''; }
 var sysRefreshT=0;
-function refreshSysBg(){ if(Date.now()-sysRefreshT<60000) return; sysRefreshT=Date.now();
+function refreshSysBg(){ if(Date.now()-sysRefreshT<600000) return; sysRefreshT=Date.now();   // v10.37: 1분 → 10분 (서버도 같은 기기는 1시간에 한 번만 다시 봄)
   run('refreshSysStatus',4).then(function(r){ if(!(r&&r.n>0)) return; var v0=stack[stack.length-1];
     if(v0&&v0.name==='home'&&SERVER==='swap') homeLoad().then(function(d){ lsSet('home',d); var v=stack[stack.length-1];   // 홈은 홈 전용 건수로 (목록으로 세면 숫자가 달라짐)
       if(v===v0&&SERVER==='swap') drawHome(v,d); }).catch(function(){});
@@ -866,7 +866,7 @@ function refreshSysBg(){ if(Date.now()-sysRefreshT<60000) return; sysRefreshT=Da
 /* v10.34 튀는 호출 자르기: Apps Script 는 가끔 한 번만 10~25초씩 걸림 → 가벼운 읽기는 7초 지나면 같은 요청을 하나 더 보내 먼저 온 답을 씀 (최대 2번).
  * 읽기만 (같은 걸 두 번 해도 안전한 것). getTag 는 열 때 어드민 확인·기록을 할 수 있어 안 겹침. 쓰기는 절대 안 겹침.
  * 다시 해도 소용없는 오류(접속 코드·권한·허용 안 된 요청)는 다시 안 보냄 */
-var HEDGE_FNS={homeTags:1,listTags:1,search:1,getWorkList:1}, HEDGE_MS=7000;
+var HEDGE_FNS={homeTags:1,listTags:1,search:1,getWorkList:1,login:1}, HEDGE_MS=7000;   // login (v10.37): 두 번 가도 접속 횟수가 하나 더 느는 정도
 function retryable(e){ return !!e && e.auth!==false && !/서버 권한이 없어요|권한이 없어요\. 관리자에게|허용되지 않은 요청|마스터 계정만|관리자만 할 수/.test(String(e.message||'')); }   // 앱이 내는 권한 문구만 (Apps Script 자체의 일시적인 "…권한이 없습니다" 는 지금처럼 한 번 더)
 function run(fn){ var args=[].slice.call(arguments,1);
   if(HEDGE_FNS[fn]) return runHedged(fn,args);
@@ -880,13 +880,21 @@ function runHedged(fn,args){
           if(n<2&&retryable(e)){ clearTimeout(ht); go(); return; }   // 7초 전에 실패(네트워크 등) → 바로 한 번 더
           if(!live){ fin(); rej(e); } }); }                          // 다른 하나가 아직 가는 중이면 그걸 기다림
     go(); ht=setTimeout(function(){ if(!done&&n<2) go(); },HEDGE_MS); }); }
+/* v10.37 속도 기록 (이 폰에만 · 함수 이름과 걸린 시간만 — 인자·고객 정보·접속 코드는 안 남김): {t 시작, f 함수, d 전체 ms, s 서버 안 ms(응답에 있으면), r ok·err·net·bad·timeout} 최근 300개.
+   서버 안 시간(s)이 짧은데 전체(d)가 길면 Google 쪽(웹앱 입구·실행 대기)에서 쓴 시간 → 환경설정 "속도 기록" */
+var SPD=null, spdSaveT=0;
+function spdAll(){ if(!SPD){ SPD=lsGet('spd'); if(!Array.isArray(SPD)) SPD=[]; } return SPD; }
+function spdLog(fn,t0,sms,r){ var a=spdAll(); a.push({t:t0,f:fn,d:Date.now()-t0,s:(typeof sms==='number')?sms:null,r:r}); if(a.length>300) a.splice(0,a.length-300);
+  clearTimeout(spdSaveT); spdSaveT=setTimeout(function(){ lsSet('spd',SPD); },1500); }
 function runOnce(fn,args){
   return new Promise(function(res,rej){
-    var cb='swapcb_'+(++_rid)+'_'+Math.floor(Math.random()*1e6); var s=document.createElement('script'); var done=false, t;
+    var cb='swapcb_'+(++_rid)+'_'+Math.floor(Math.random()*1e6); var s=document.createElement('script'); var done=false, t, t0=Date.now();
     function cleanup(){ done=true; try{ delete window[cb]; }catch(e){ window[cb]=undefined; } if(s.parentNode) s.parentNode.removeChild(s); clearTimeout(t); }
-    window[cb]=function(j){ if(done) return; cleanup(); if(!j||!j.ok){ var er=new Error((j&&j.error)||'서버 오류'); if(j&&j.auth===false){ er.auth=false; if(fn!=='login') logout(er.message); } rej(er); } else res(j.result); };
-    s.onerror=function(){ if(done) return; cleanup(); rej(new Error('서버 연결 실패(네트워크)')); };
-    var ms=SLOW_FNS[fn]||25000; t=setTimeout(function(){ if(done) return; cleanup(); var er=new Error('서버 응답 없음('+(ms/1000)+'초)'); er.timeout=true; rej(er); },ms);
+    window[cb]=function(j){ if(done) return; cleanup(); spdLog(fn,t0,j&&j.ms,(j&&j.ok)?'ok':'err'); if(!j||!j.ok){ var er=new Error((j&&j.error)||'서버 오류'); if(j&&j.auth===false){ er.auth=false; if(fn!=='login') logout(er.message); } rej(er); } else res(j.result); };
+    s.onerror=function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'net'); var er=new Error('서버 연결 실패(네트워크)'); er.net=true; rej(er); };
+    // v10.37: 스크립트는 받았는데 답(콜백)이 없음 = Google 이 오류 페이지를 줌(실행이 죽었거나 막힘) → 25초 기다리지 않고 바로 실패 (읽기는 바로 다시)
+    s.onload=function(){ setTimeout(function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'bad'); var er=new Error('서버 연결 실패(네트워크 · Google 오류)'); er.net=true; rej(er); },0); };
+    var ms=SLOW_FNS[fn]||25000; t=setTimeout(function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'timeout'); var er=new Error('서버 응답 없음('+(ms/1000)+'초)'); er.timeout=true; rej(er); },ms);
     s.src=API+'?api=1&callback='+cb+'&fn='+encodeURIComponent(fn)+'&args='+encodeURIComponent(JSON.stringify(args))+'&auth='+encodeURIComponent(AUTH&&AUTH.code||'')+'&_='+Date.now();
     document.head.appendChild(s);
   }); }
@@ -914,7 +922,7 @@ function isOut(t){ return t['구분']==='출고'; }
 
 /* ================= 네비게이션 ================= */
 var stack=[]; var animating=false; var VIEWS={};
-var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',pushadmin:'extras',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',eggs:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',search:'search'};
+var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',pushadmin:'extras',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',eggs:'me',speed:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',search:'search'};
 /* ---- 권한: 마스터(모든 기능 · 접속 코드 관리) / 관리자(접속 코드 관리 빼고 전부) / 일반(추가기능은 관리자가 켜고 끔 → 꺼진 건 자물쇠) ---- */
 function isMaster(){ return !!(AUTH&&AUTH.master); }
 function isAdminUp(){ return !!(AUTH&&AUTH.admin); }
@@ -1388,7 +1396,7 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
   if(!out && t['상태']==='출고대기중'){
     var adm=String(t['어드민상태']||''); var m=/^REDELIVERY\s+(\S+)\s+(.*)$/.exec(adm); var lm=/^LATEST\s+(\S+)\s*(.*)$/.exec(adm);
     h+='<div class="card"><h3>출고 날짜</h3>'+
-       '<p class="muted" style="margin:0 0 10px;font-size:13px">구독 상세의 <b>가장 최근 고객요청</b>이 <b>기기 재배송</b>이고 작업예정일자까지 설정돼 있으면 자동으로 <b>출고준비완료</b>로 넘어가요 (상세 열 때·15분마다 확인).'+
+       '<p class="muted" style="margin:0 0 10px;font-size:13px">구독 상세의 <b>가장 최근 고객요청</b>이 <b>기기 재배송</b>이고 작업예정일자까지 설정돼 있으면 자동으로 <b>출고준비완료</b>로 넘어가요 (상세 열 때·1시간마다 확인 · 밤 22~07시 제외).'+
        (m?'<br>마지막 확인: 최근 요청 = 재배송 <b>'+esc(m[1])+'</b> · '+(m[2]==='예정일없음'?'<span style="color:var(--danger)">작업예정일자 아직 없음</span>':esc(m[2])):(lm?'<br>마지막 확인: 최근 요청 '+esc(lm[1])+' = '+esc(lm[2]||'')+' (재배송 아님)':(t['어드민상태시각']?'<br>마지막 확인 '+esc(t['어드민상태시각'])+' · 고객요청 없음':'')))+'</p>'+
        '<div class="row" style="margin-top:0"><button class="btn sm line" onclick="checkRedeliveryNow()">어드민 확인</button><button class="btn sm dark" style="background:var(--ink)" onclick="setStatus(\'출고준비완료\')">수동으로 출고준비완료</button></div></div>';
   }
@@ -1550,7 +1558,7 @@ function verifyMatchNow(auto,code,warn){ if(!code){ var v0=tagView(); if(!v0||ta
       if(wl) openSheet('<h3>✓ 전산 매칭 확인</h3><p>어드민 고객요청 출고 기기가 이 기기예요.</p>'+wl+'<button class="btn" onclick="closeSheet()">확인</button>');
       else toast('✓ 전산 매칭 확인 — 어드민 출고 기기가 이 기기예요'); return r; }
     haptic([150,120,150]);
-    openSheet('<h3>⚠️ 전산 매칭 안됨</h3><p>QR <b>'+esc(code)+'</b> · '+esc(t['고객명']||'')+'<br>어드민 고객요청 <b class="mono">'+esc(t['고객요청ID']||'')+'</b>의 출고 기기가 '+(r.adminSerial?'<b class="mono">'+esc(r.adminSerial)+'</b> 예요 (이 기기 아님).':'아직 없어요.')+'<br>어드민에서 이 기기(<b class="mono">'+esc(t['일련번호']||'')+'</b>)를 배정한 뒤 <b>전산 매칭 다시 확인</b>을 눌러 주세요. 15분마다 자동으로도 확인해요.</p>'+wl+
+    openSheet('<h3>⚠️ 전산 매칭 안됨</h3><p>QR <b>'+esc(code)+'</b> · '+esc(t['고객명']||'')+'<br>어드민 고객요청 <b class="mono">'+esc(t['고객요청ID']||'')+'</b>의 출고 기기가 '+(r.adminSerial?'<b class="mono">'+esc(r.adminSerial)+'</b> 예요 (이 기기 아님).':'아직 없어요.')+'<br>어드민에서 이 기기(<b class="mono">'+esc(t['일련번호']||'')+'</b>)를 배정한 뒤 <b>전산 매칭 다시 확인</b>을 눌러 주세요. 1시간마다 자동으로도 확인해요(밤 22~07시 제외).</p>'+wl+
       (t.taskUrl?'<a class="btn" style="text-decoration:none" href="'+esc(t.taskUrl)+'" target="_blank" rel="noopener" onclick="closeSheet()">어드민 작업 상세 열기</a>':'<button class="btn" onclick="closeSheet()">확인</button>'));
     return r; })
     .catch(function(e){ toast('확인 실패: '+(e&&e.message||e)); return null; }); }
@@ -2349,7 +2357,8 @@ function swJudgeLocal(t,k,cat){ var n=JSON.parse(JSON.stringify(t)); delete n.j;
   n._sv=1; return n; }
 /* 저장 중인 판정·처리는 화면이 아니라 날짜·작업자·기기 기준 (v10.32 · 뒤로 갔다 같은 작업자를 다시 열어도 잠금·실패 안내가 이어짐)
    swJudging[날짜|작업자|기기] = 먼저 옮긴 작업(판정) 또는 1(처리 딱지) · swJFail[날짜|작업자] = [{q, msg}] · swJudged[날짜|작업자|기기] = {t: 서버가 준 작업, at: 끝난 시각} */
-var swJudging={}, swJFail={}, swJudged={};
+var swJudging={}, swJFail={}, swJudged={}, swJQ={};   // swJQ[날짜|작업자] = 판정 보내기 차례 (v10.37)
+function swWait(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
 function swDK(v){ return v.state.date+'|'+v.state.key; }
 /* 그 날짜·작업자 목록(캐시·열린 화면들)의 작업을 f 로 바꿈 */
 function swTasksMap(d,k,f){ var seen=[], one=function(res){ if(!res||seen.indexOf(res)>=0) return; seen.push(res); (res.workers||[]).forEach(function(w){ if(w.key===k) w.tasks=(w.tasks||[]).map(f); }); };
@@ -2371,12 +2380,13 @@ function swJudgeFail(d,k,id,opt,t0,msg,mode){
   toast((t0.q?t0.q+' ':'')+'판정 저장 실패: '+msg);
   if(here) swWdDraw(here,true); }
 function swJudgeFailOk(){ var v=swWdView(); if(!v) return; haptic(6); delete swJFail[swDK(v)]; swWdDraw(v,true); }
-function swJudgeGo(v,id,k,cat){ if(!v) return; var t=swTaskOf(v,id); if(!t) return; var d=v.state.date, key=v.state.key, jk=d+'|'+key+'|'+id;   // 기기마다 따로 (여러 QR 을 이어서 판정해도 앞 것이 끝나길 안 기다림 · 서버가 잠금으로 차례대로)
+function swJudgeGo(v,id,k,cat){ if(!v) return; var t=swTaskOf(v,id); if(!t) return; var d=v.state.date, key=v.state.key, jk=d+'|'+key+'|'+id;   // 기기마다 따로 (여러 QR 을 이어서 판정해도 화면은 바로 · 서버엔 작업자별 차례로 하나씩 — v10.37)
   if(swJudging[jk]){ toast('이 기기 판정을 저장하는 중이에요'); return; }
   var t0=t, c0=swDayMem[d], res0=c0?c0.res:v.state.res, opt=swJudgeLocal(t,k,cat); swJudging[jk]=opt; swJudgeSetDK(d,key,opt);   // 화면엔 바로 (v10.32)
   if(k==='device') toast('어드민 상태 바꾸는 중…');
+  var netTried=false;   // 연결 실패 다시 보내기는 한 번만 (v10.37)
   var send=function(n){ return run('swingWorkJudge',d,key,id,k,worker,cat||'').then(function(res){   // cat = 판정한 탭 (v10.27: 오프라인 확인 탭의 정상은 오프라인 확인도 풂)
-    if(res&&!res.ok&&!n&&k!=='device'&&/다른 작업 중/.test(res.error||'')) return new Promise(function(ok){ setTimeout(ok,1500); }).then(function(){ return send(1); });   // 잠금이 바빴으면 한 번 더 (기기이상은 어드민을 두 번 바꾸지 않게 안 함)
+    if(res&&!res.ok&&n<2&&k!=='device'&&/다른 작업 중/.test(res.error||'')) return swWait(2000*(n+1)).then(function(){ return send(n+1); });   // 잠금이 바빴으면 2초·4초 뒤 두 번 더 (v10.37 · 기기이상은 어드민을 두 번 바꾸지 않게 안 함)
     delete swJudging[jk];
     if(!res||!res.ok){ var cc=swDayMem[d]; swJudgeFail(d,key,id,opt,t0,(res&&res.error)||'저장 실패',((res&&res.stale)||(cc&&cc.res!==res0))?'stale':'no'); return; }
     var now=Date.now(); Object.keys(swJudged).forEach(function(x){ if(now-swJudged[x].at>180000) delete swJudged[x]; }); swJudged[jk]={t:res.task,at:now};
@@ -2388,8 +2398,10 @@ function swJudgeGo(v,id,k,cat){ if(!v) return; var t=swTaskOf(v,id); if(!t) retu
     if(res.sheetError) msg+=' · 작업현황 시트 오류: '+res.sheetError;
     if(k==='device'){ toast(msg); bubble((t.q?t.q+' ':'')+'고장수거 탭으로 옮겼어요 · 정산은 교체로만 들어가요',2200); }   // 꼭 알려야 함: 고장수거인데 정산은 교체로만
     else if(res.sheetError) toast(msg);   // 화면은 이미 옮겨 있음 → 평소엔 조용히 (오류만 알림)
-  }); };
-  send(0).catch(function(e){ delete swJudging[jk]; swJudgeFail(d,key,id,opt,t0,(e&&e.message)||String(e),'unknown'); }); }   // 시간 초과·연결 오류·서버 오류 = 됐는지 모름
+  }, function(e){ if(e&&e.net&&!netTried&&k!=='device'){ netTried=true; return swWait(2000).then(function(){ return send(n+1); }); } throw e; }); };   // v10.37: 연결 실패·Google 오류 페이지면 한 번 더 (같은 판정이라 두 번 저장돼도 결과 같음 · 기기이상은 안 함)
+  // v10.37: 한 작업자 판정은 차례대로 하나씩 보냄 (화면은 이미 옮겨 둠) — 동시에 보내면 서버 잠금 하나를 서로 기다리다 "다른 작업 중"으로 실패했음
+  var qk=d+'|'+key; swJQ[qk]=(swJQ[qk]||Promise.resolve()).then(function(){
+    return send(0).catch(function(e){ delete swJudging[jk]; swJudgeFail(d,key,id,opt,t0,(e&&e.message)||String(e),'unknown'); }); }).catch(function(){}); }   // 차례가 막히지 않게 (안에서 오류가 나도 다음 판정은 보냄)   // 시간 초과·연결 오류·서버 오류 = 됐는지 모름
 function swJudgeSet(v,nt){ swJudgeSetDK(v.state.date,v.state.key,nt); }
 /* 작업 목록 표시 (서버 swwTaskSig_ 와 같은 계산 · FNV-1a): 복사한 글의 목록과 서버가 정산에 쓰는 목록이 같은지 */
 function swTaskSig(ts){ var s=(ts||[]).map(function(t){ return [t.i,t.jc||t.c,t.j||'',t.jo?1:0,t.low?1:0,t.off||'',t.x||'',t.m||''].join('|'); }).sort().join('\n'), h=0x811c9dc5;
@@ -3165,7 +3177,8 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
   var mg=(isMaster()?row('codes',ICON_KEY,'접속 코드 관리','코드 만들기 · 이름 · 서버 · 관리자 지정'):'')+
     (isAdminUp()?row('perms',ICON_SHIELD,'권한 설정','일반 작업자 추가기능 켜고 끄기 · 사람별 예외'):'')+
     row('vehicles',ICON_CAR,'차량 목록',isAdminUp()?'차량 사진에서 고르는 목록 · 모든 작업자에게 적용':'차량 사진에서 고르는 목록 · 보기만 (관리자가 고침)')+
-    (isMaster()?row('eggs',ICON_EGG,'이스터에그 발견한 사람','처음 발견한 사람 · 찾은 순서'):'');
+    (isMaster()?row('eggs',ICON_EGG,'이스터에그 발견한 사람','처음 발견한 사람 · 찾은 순서'):'')+
+    row('speed',ICON_SPEED,'속도 기록 (이 폰)','느렸던 호출 · 서버 안 시간과 전체 시간');   // v10.37
   v.el.innerHTML=title('환경설정','')+
     '<div class="card"><div style="display:flex;align-items:center;gap:14px"><div style="flex:0 0 56px;height:56px;border-radius:18px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px">'+esc(initials(worker))+'</div>'+
     '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:21px;letter-spacing:-.5px">'+esc(worker||'이름 없음')+(rn?' <span class="pill sys sm" style="background:var(--p-soft);color:var(--p-ink);vertical-align:middle">'+rn+'</span>':'')+'</div>'+
@@ -3186,7 +3199,7 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
     '<li><span><b>출고 기기</b> → 등록하면 바로 출고 준비완료</span></li>'+
     '<li><span><b>출고대기중</b> → 인수형·대차 없는 고객 기기가 출고 날짜를 기다리는 상태. 구독 상세의 가장 최근 고객요청이 기기 재배송이고 작업예정일자가 설정되면 자동으로 출고준비완료 (상세의 "어드민 확인"으로 즉시, 안 되면 수동 버튼)</span></li>'+
     '<li><span><b>출고완료</b> → 출고준비완료 기기가 실제로 나가면 상세에서 누름. 배송내역 항목으로 옮겨져 공장 안 재고에서 빠짐</span></li>'+
-    '<li><span><b>⚠️전산미완료</b> → 재고·출고준비완료 기기인데 어드민 고객요청이 완료가 아닐 때 표시. 어드민에서 완료 처리하면 사라짐(15분마다 자동 확인, 상세 화면 열면 즉시 확인)</span></li>'+
+    '<li><span><b>⚠️전산미완료</b> → 재고·출고준비완료 기기인데 어드민 고객요청이 완료가 아닐 때 표시. 어드민에서 완료 처리하면 사라짐(1시간마다 자동 확인 · 밤 제외, 상세 화면 열면 즉시 확인)</span></li>'+
     '<li><span><b>용지 재사용</b> → 기기가 나간 뒤 태그 비우기 · 라벨이 찢어지면 <b>QR 교체</b></span></li>'+
     '<li><span><b>재고 시트 반영</b> → 추가기능 → 앱의 재고 기기(신품 체크 포함)를 Swap_재고 테이블 경기남부점 탭에 기입</span></li>'+
     '<li><span><b>뒤로가기</b> → 폰 뒤로가기 버튼, 왼쪽 위 ‹, 또는 화면 왼쪽 끝에서 오른쪽으로 밀기</span></li>'+
@@ -3194,6 +3207,29 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
     '<li><span><b>업무보고</b> → 추가기능 → <b>업무보고</b> → 업무시간 정하기 → 그 날 처리한 기기가 시간 칸에 자동으로 들어감 · 추가 업무를 적고 슬랙으로 보내기</span></li></ul></div>':'')+
     '<p class="muted mver" style="text-align:center;font-size:12px" onclick="verTap()">SWAP 입출고 v'+APP_VER+' · '+(('BarcodeDetector' in window)?'내장 스캐너':'jsQR')+' · '+(window.isSecureContext?'https':'http')+'</p>';
   }};
+/* ---- 속도 기록 (v10.37 · 이 폰에서 부른 서버 호출의 걸린 시간 — 함수 이름·시간만) ----
+   서버 안 시간이 짧은데 전체가 길면 Google 쪽(웹앱 입구·실행 대기)에서 쓴 시간 · 서버 안 시간이 길면 우리 서버 작업(잠금 대기·시트·어드민) */
+var ICON_SPEED='<svg viewBox="0 0 24 24"><path d="M4.5 16.5a8 8 0 1 1 15 0"/><path d="M12 13l3.5-4"/><circle cx="12" cy="13.5" r="1.3" fill="currentColor" stroke="none"/></svg>';
+var SPD_R={ok:'정상',err:'서버 오류 문구',net:'연결 실패',bad:'Google 오류',timeout:'시간 초과'};
+function spdSec(ms){ return ms===null||ms===undefined?'-':(ms/1000).toFixed(1)+'초'; }
+function spdTime(t){ var d=new Date(t); return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2); }
+function spdStats(){ var a=spdAll(), since=Date.now()-86400000, day=a.filter(function(x){ return x.t>=since; }), ds=day.map(function(x){ return x.d; }).sort(function(p,q){ return p-q; });
+  var pct=function(p){ return ds.length?ds[Math.floor((ds.length-1)*p)]:null; };
+  return { n:day.length, slow:day.filter(function(x){ return x.d>=8000; }).length, fail:day.filter(function(x){ return x.r!=='ok'&&x.r!=='err'; }).length, p50:pct(.5), p90:pct(.9),
+    list:a.filter(function(x){ return x.d>=5000||(x.r!=='ok'&&x.r!=='err'); }).slice(-40).reverse() }; }
+function spdText(){ var s=spdStats(), lines=['[속도 기록 · v'+APP_VER+' · '+(SERVER||'').toUpperCase()+']','최근 24시간 '+s.n+'번 · 8초 넘음 '+s.slow+' · 실패 '+s.fail+' · 보통 '+spdSec(s.p50)+' · 느린 10% '+spdSec(s.p90)];
+  s.list.forEach(function(x){ lines.push(spdTime(x.t)+' '+x.f+' 전체 '+spdSec(x.d)+' · 서버 '+spdSec(x.s)+' · '+(SPD_R[x.r]||x.r)+(x.s!==null&&x.d-x.s>=5000?' · Google 쪽 '+spdSec(x.d-x.s):'')); }); return lines.join('\n'); }
+VIEWS.speed={ render:function(v){ v.refresh=function(){ VIEWS.speed.render(v); return Promise.resolve(); };
+  var s=spdStats();
+  var h=title('속도 기록','이 폰에서 부른 서버 호출 · 함수 이름과 시간만 남겨요')+
+    '<div class="card"><h3>최근 24시간</h3><p style="margin:6px 0 0;font-size:15px;line-height:1.6">호출 <b>'+s.n+'</b>번 · 8초 넘음 <b>'+s.slow+'</b> · 실패 <b>'+s.fail+'</b><br>보통 <b>'+spdSec(s.p50)+'</b> · 느린 10% <b>'+spdSec(s.p90)+'</b></p>'+
+    '<p class="muted" style="margin:10px 0 0;font-size:13px">"서버" = 우리 서버 안에서 걸린 시간 · "전체" = 폰이 기다린 시간. 서버는 짧은데 전체가 길면 <b>Google 쪽 대기</b>, 서버가 길면 우리 서버 작업이에요.</p>'+
+    '<div class="row" style="margin-top:12px"><button class="btn line sm" onclick="spdCopy()">복사</button><button class="btn line sm" onclick="spdClear()">지우기</button></div></div>'+
+    '<div class="card"><h3>느렸던·실패한 호출 (최근 40)</h3><ul class="hist">'+(s.list.length?s.list.map(function(x){ var g=x.s!==null&&x.d-x.s>=5000;
+      return '<li><span><b>'+esc(x.f)+'</b> · 전체 '+spdSec(x.d)+' · 서버 '+spdSec(x.s)+(x.r!=='ok'?' · <span style="color:var(--danger)">'+esc(SPD_R[x.r]||x.r)+'</span>':'')+(g?' <span class="muted">(Google 쪽 '+spdSec(x.d-x.s)+')</span>':'')+'</span><span style="white-space:nowrap">'+esc(spdTime(x.t))+'</span></li>'; }).join(''):'<li>느렸던 호출이 없어요.</li>')+'</ul></div>';
+  v.el.innerHTML=h; }};
+function spdCopy(){ var t=spdText(); haptic(8); if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ toast('복사했어요'); },function(){ fallbackCopy(t); toast('복사했어요'); }); else { fallbackCopy(t); toast('복사했어요'); } }
+function spdClear(){ haptic(8); SPD=[]; lsSet('spd',[]); var v=stack[stack.length-1]; if(v&&v.name==='speed') VIEWS.speed.render(v); toast('지웠어요'); }
 /* ---- 접속 코드 관리 (마스터 전용 페이지): 이름 · 사용 · 서버 · 관리자 지정 ---- */
 VIEWS.codes={ render:function(v){ v.refresh=function(){ return loadCodes(v); };
   if(!isMaster()){ v.el.innerHTML=title('접속 코드 관리','')+'<div class="card"><div class="empty">마스터 계정만 쓸 수 있어요.</div></div>'; return; }
@@ -3436,7 +3472,11 @@ function doLogin(){ if(la||$('lbtn').disabled) return; var code=($('lcode').valu
 function autoLogin(){ showLogin('',AUTH.code); $('lbtn').disabled=true; $('glitch').classList.add('wild'); var sv=SERVER;
   var started=new Promise(function(r){ setTimeout(function(){ lanimStart(); r(); },250); });   // 카드가 나타난 다음
   var check=run('login',AUTH.code,sv).then(function(a){ applyAuth(a,true); return true; }).catch(function(e){ if(e.auth===false) return e; return true; /* 네트워크 오류면 저장된 코드로 진행 */ });
-  Promise.all([started,check]).then(function(r){
+  // v10.37: 서버가 4초 안에 답을 안 주면 저장된 코드로 먼저 들어가고 확인은 뒤에서 (Google 쪽이 느릴 때 로그인 화면에서 25초씩 멈추지 않게) — 나중에 코드가 막혔다고 오면 그때 로그아웃
+  var quick=Promise.race([check,new Promise(function(r){ setTimeout(function(){ r('slow'); },4000); })]).then(function(x){
+    if(x!=='slow') return x;
+    check.then(function(y){ if(y!==true) logout(y.message); }); return true; });
+  Promise.all([started,quick]).then(function(r){
     if(r[1]!==true){ if(AUTH){ AUTH.auto=false; try{ localStorage.setItem('swapAuth',JSON.stringify(AUTH)); }catch(e){} }   // 코드가 막힘 → 다음부턴 자동 로그인 안 함
       $('lauto').checked=false; loginFail(r[1].message); return; }
     lanimDone(function(){ if(SERVER!==sv) setServer(sv); $('glitch').classList.remove('wild'); hideLogin(); startApp(); }); }); }
