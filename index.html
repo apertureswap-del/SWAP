@@ -777,7 +777,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.37';
+var APP_VER = '10.38';
 var libsReady=false; document.addEventListener('DOMContentLoaded',function(){ libsReady=true; });   // v10.34: defer 로 받는 QR 라이브러리(qrcode·jsQR)는 DOMContentLoaded 전에 다 받음(또는 실패) — 그 전엔 "받는 중"
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
@@ -872,10 +872,10 @@ function run(fn){ var args=[].slice.call(arguments,1);
   if(HEDGE_FNS[fn]) return runHedged(fn,args);
   return runOnce(fn,args).catch(function(e){ if(READ_FNS[fn]&&retryable(e)) return runOnce(fn,args); throw e; }); }
 function runHedged(fn,args){
-  return new Promise(function(res,rej){ var n=0, live=0, done=false, ht=null;
-    function fin(){ done=true; clearTimeout(ht); }
-    function go(){ n++; live++;
-      runOnce(fn,args).then(function(r){ live--; if(done) return; fin(); res(r); },
+  return new Promise(function(res,rej){ var n=0, live=0, done=false, ht=null, metas=[];
+    function fin(){ done=true; clearTimeout(ht); metas.forEach(function(m){ if(!m.end) m.lost=true; }); }   // 아직 안 온 복제는 버림 표시
+    function go(){ n++; live++; var m={}; metas.push(m);
+      runOnce(fn,args,m).then(function(r){ live--; if(done) return; fin(); res(r); },
         function(e){ live--; if(done) return;
           if(n<2&&retryable(e)){ clearTimeout(ht); go(); return; }   // 7초 전에 실패(네트워크 등) → 바로 한 번 더
           if(!live){ fin(); rej(e); } }); }                          // 다른 하나가 아직 가는 중이면 그걸 기다림
@@ -884,17 +884,17 @@ function runHedged(fn,args){
    서버 안 시간(s)이 짧은데 전체(d)가 길면 Google 쪽(웹앱 입구·실행 대기)에서 쓴 시간 → 환경설정 "속도 기록" */
 var SPD=null, spdSaveT=0;
 function spdAll(){ if(!SPD){ SPD=lsGet('spd'); if(!Array.isArray(SPD)) SPD=[]; } return SPD; }
-function spdLog(fn,t0,sms,r){ var a=spdAll(); a.push({t:t0,f:fn,d:Date.now()-t0,s:(typeof sms==='number')?sms:null,r:r}); if(a.length>300) a.splice(0,a.length-300);
+function spdLog(fn,t0,sms,r,meta){ var a=spdAll(); a.push({t:t0,f:fn,d:Date.now()-t0,s:(typeof sms==='number')?sms:null,r:(meta&&meta.lost)?'lost':r}); if(a.length>300) a.splice(0,a.length-300);
   clearTimeout(spdSaveT); spdSaveT=setTimeout(function(){ lsSet('spd',SPD); },1500); }
-function runOnce(fn,args){
+function runOnce(fn,args,meta){   // meta (v10.38): 겹쳐 보낸 복제면 {lost} 를 나중에 켬 → 속도 기록에서 실패로 안 셈
   return new Promise(function(res,rej){
     var cb='swapcb_'+(++_rid)+'_'+Math.floor(Math.random()*1e6); var s=document.createElement('script'); var done=false, t, t0=Date.now();
     function cleanup(){ done=true; try{ delete window[cb]; }catch(e){ window[cb]=undefined; } if(s.parentNode) s.parentNode.removeChild(s); clearTimeout(t); }
-    window[cb]=function(j){ if(done) return; cleanup(); spdLog(fn,t0,j&&j.ms,(j&&j.ok)?'ok':'err'); if(!j||!j.ok){ var er=new Error((j&&j.error)||'서버 오류'); if(j&&j.auth===false){ er.auth=false; if(fn!=='login') logout(er.message); } rej(er); } else res(j.result); };
-    s.onerror=function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'net'); var er=new Error('서버 연결 실패(네트워크)'); er.net=true; rej(er); };
+    window[cb]=function(j){ if(done) return; cleanup(); spdLog(fn,t0,j&&j.ms,(j&&j.ok)?'ok':'err',meta); if(!j||!j.ok){ var er=new Error((j&&j.error)||'서버 오류'); if(j&&j.auth===false){ er.auth=false; if(fn!=='login') logout(er.message); } rej(er); } else res(j.result); };
+    s.onerror=function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'net',meta); var er=new Error('서버 연결 실패(네트워크)'); er.net=true; rej(er); };
     // v10.37: 스크립트는 받았는데 답(콜백)이 없음 = Google 이 오류 페이지를 줌(실행이 죽었거나 막힘) → 25초 기다리지 않고 바로 실패 (읽기는 바로 다시)
-    s.onload=function(){ setTimeout(function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'bad'); var er=new Error('서버 연결 실패(네트워크 · Google 오류)'); er.net=true; rej(er); },0); };
-    var ms=SLOW_FNS[fn]||25000; t=setTimeout(function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'timeout'); var er=new Error('서버 응답 없음('+(ms/1000)+'초)'); er.timeout=true; rej(er); },ms);
+    s.onload=function(){ setTimeout(function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'bad',meta); var er=new Error('서버 연결 실패(네트워크 · Google 오류)'); er.net=true; rej(er); },0); };
+    var ms=SLOW_FNS[fn]||25000; t=setTimeout(function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'timeout',meta); var er=new Error('서버 응답 없음('+(ms/1000)+'초)'); er.timeout=true; rej(er); },ms);
     s.src=API+'?api=1&callback='+cb+'&fn='+encodeURIComponent(fn)+'&args='+encodeURIComponent(JSON.stringify(args))+'&auth='+encodeURIComponent(AUTH&&AUTH.code||'')+'&_='+Date.now();
     document.head.appendChild(s);
   }); }
@@ -907,7 +907,7 @@ var devCache={};  // 어드민 기기 조회 {reqId:promise}
 function getWorkListCached(date,force){ var c=wlCache[date]; if(!force&&c&&Date.now()-c.t<120000) return Promise.resolve(c.res);
   return run('getWorkList',date).then(function(res){ wlCache[date]={t:Date.now(),res:res}; return res; }); }
 function getDevCached(reqId){ if(!devCache[reqId]) devCache[reqId]=run('getTaskDevices',reqId).catch(function(){ return {ok:false}; }); return devCache[reqId]; }
-function prefetch(){ if(!canServer('swap')) return; getWorkListCached(todayISO(0)).catch(function(){}); }   // SWAP 권한 없는 코드는 서버가 막음 → 안 부름
+function prefetch(){ if(SERVER!=='swap'||!canServer('swap')) return; getWorkListCached(todayISO(0)).catch(function(){}); }   // SWAP 권한 없는 코드는 서버가 막음 → 안 부름 · SWING 에선 안 씀 (v10.38: 열 때마다 서버 실행 1~2개 낭비였음)
 function slimItem(it){ return { reqId:it.reqId||'', subId:it.subId||'', name:it.name||'', type:it.type||'', model:it.model||'', color:it.color||'', serial:it.serial||'', frame:it.frame||'',
   grade:it.grade, date:it.date, changeModel:it.changeModel, changeColor:it.changeColor, note:String(it.note||'').slice(0,200) }; }
 /* 인라인 onclick 안의 '…' 문자열에 넣을 값: JS 이스케이프(\ ' 줄바꿈) 뒤 HTML 이스케이프. esc 만 쓰면 ' 로 문자열을 빠져나가 스크립트가 실행될 수 있음 */
@@ -1960,7 +1960,10 @@ function swIsDayView(v){ return v&&(v.name==='sw_work'||v.name==='sw_wd'); }
 /* 작업자가 바뀌면 캐시를 비우고, 열려 있는 작업내역·세부는 맨 위면 바로, 아래 깔려 있으면 돌아올 때 다시 불러오게 */
 function swWorkInvalidate(){ swDayMem={}; var top=stack[stack.length-1];
   stack.forEach(function(v){ if(swIsDayView(v)){ if(v===top) swDayLoad(v,v.state.date,true); else v.state.stale=true; } else if(v.name==='home'&&SERVER==='swing') v.state.stale=true; }); }
-function swWorkProg(v,p){ var s=v.el.querySelector('.loadlogo > span:not(.slogo)'); if(s) s.textContent='어드민 기록 받는 중 · '+Math.max(1,Math.min(99,Math.round((p||0)*100)))+'%'; }
+function swWorkProg(v,p,q){ var s=v.el.querySelector('.loadlogo > span:not(.slogo)'); if(s) s.textContent=(q?'처음 보는 지난 날짜라 서버가 뒤에서 받는 중 · ':'어드민 기록 받는 중 · ')+Math.max(1,Math.min(99,Math.round((p||0)*100)))+'%';
+  var m=v.el.querySelector('.loadlogo'); if(m&&q&&!m.querySelector('.bfq')){ var e=document.createElement('span'); e.className='muted bfq'; e.style.cssText='font-size:12px;margin-top:4px'; e.textContent='보통 2~5분 (앞에 받을 날짜가 있으면 더) · 다른 화면을 써도 돼요 (다 받으면 바로 열려요)'; m.appendChild(e); } }   // v10.38 지난 날짜 백그라운드 받기
+/* 서버가 '뒤에서 받는 중'(queued, 15초마다 확인)이거나 '다른 사람이 받는 중'(wait)이면 기다렸다 다시 · 아니면 바로 (v10.38) */
+function swPendWait(res){ return res.queued?15000:(res.wait?Math.min(10000,res.wait):0); }
 function swDayLabel(iso){ var t=todayISO(0), y=todayISO(-1); if(iso===t) return '오늘'; if(iso===y) return '어제'; var p=iso.split('-'); return (+p[1])+'/'+(+p[2]); }
 function swCatBrk(c){ var h=SW_CATS.filter(function(x){ return c[x[0]]; }).map(function(x){ return '<span>'+x[1]+'<b>'+c[x[0]]+'</b></span>'; }).join('');
   if(c.check) h+='<span class="ck">⚠️'+SW_CHECK+'<b>'+c.check+'</b></span>'; return h?'<div class="brk">'+h+'</div>':''; }
@@ -1985,12 +1988,13 @@ function swHomeLoad(v,quiet,fresh){ var date=v.state.date, tok=v.state.tok=(v.st
   function alive(){ return stack.indexOf(v)>=0&&v.state.tok===tok; }
   function fail(e){ if(!alive()) return; if(v.state.res){ toast('새로고침 실패: '+(e&&e.message||e)); return; }
     v.el.innerHTML=swHomeHead(v)+errBox(e)+'<button class="btn line" onclick="swHomeLoad(stack[stack.length-1],false)">다시 시도</button>'; }
-  function step(){ if(++steps>40) return fail(new Error('기록을 받는 데 너무 오래 걸려요. 잠시 뒤 다시 열어 주세요.'));
+  var qsteps=0, wsteps=0;   // queued = 뒤에서 받는 중 확인(15초) · wait = 다른 쪽이 받는 중(3초) — 직접 받는 40번과 따로 셈 (v10.38)
+  function step(){ if(steps>40||qsteps>80||wsteps>100) return fail(new Error('기록을 받는 데 너무 오래 걸려요. 잠시 뒤 다시 열어 주세요.'));
     return run('swingWorkHome',date,!!fresh).then(function(res){ if(!alive()) return;
       if(!res||res.ok===false) return fail(new Error(res&&res.error||'서버 오류'));
-      if(res.pending){ fails=0; if(!v.state.res){ swWorkProg(v,res.progress); } return step(); }
+      if(res.pending){ fails=0; if(res.queued) qsteps++; else if(res.wait) wsteps++; else steps++; if(!v.state.res){ swWorkProg(v,res.progress,res.queued); } var w=swPendWait(res); return w?swWait(w).then(function(){ if(alive()) return step(); }):step(); }   // v10.38
       lsSet('sw_home:'+date,res); var same=v.state.res&&JSON.stringify(v.state.res)===JSON.stringify(res); v.state.res=res; if(!same) swHomeDraw(v,!!cached||later>0);
-      if((res.week||[]).some(function(x){ return x.later; })&&++later<=3) return step(); })   // 서버가 시간이 모자라 못 묶은 날 → 한 번 더 (이미 묶은 날은 캐시라 금방)
+      if((res.week||[]).some(function(x){ return x.later; })&&++later<=3){ steps++; return step(); } })   // 서버가 시간이 모자라 못 묶은 날 → 한 번 더 (이미 묶은 날은 캐시라 금방)
     .catch(function(e){ if(!alive()) return; if(e&&e.auth===false) return; if(++fails<=2) return step(); return fail(e); }); }
   return step(); }
 function swHomeDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res; if(!res){ return; } var d=v.state.date, admin=!!(AUTH&&AUTH.admin), h=swHomeHead(v);
@@ -2034,7 +2038,7 @@ function swWeekTap(i){ var x=(window._swWeek||[])[i], el=$('wktip'); if(!x||!el)
 
 /* ---- 추가기능 → 작업자 작업내역: 들어오면 작업자 고르기 → 필터(작업자·기종·확인 상태) + 날짜 → 작업자 세부 ---- */
 VIEWS.sw_work={ render:function(v){ reanim(v); v.state.date=v.state.date||v.params.date||todayISO(-1); v.state.keys=v.state.keys||[]; v.state.fm=v.state.fm||'all'; v.state.fs=v.state.fs||'all';
-  v.refresh=function(){ return swDayLoad(v,v.state.date,true,true); };   // 당겨서 새로고침 = 오늘도 지금 바로 받음 (v10.32)
+  v.refresh=function(){ return Promise.race([swDayLoad(v,v.state.date,true,true),swWait(3000)]); };   // 당겨서 새로고침 = 오늘도 지금 바로 받음 (v10.32) · 당김 표시는 3초면 풂 (뒤에서 받는 중이면 몇 분 · v10.38)
   v.onResume=function(){ if(v.state.stale||!swDayMem[v.state.date]){ v.state.stale=false; swDayLoad(v,v.state.date,false); } else { v.state.res=swDayMem[v.state.date].res; swWorkDraw(v,true); } };
   swDayLoad(v,v.state.date,false);   // 작업자를 고르는 동안 뒤에서 미리 받아 둔다
   if(!v.state.picked){ v.state.picked=true; setTimeout(function(){ if(stack[stack.length-1]===v&&!(v.state.res&&v.state.res.noWorkers)) swPickOpen(v); },250); } }};
@@ -2132,15 +2136,15 @@ function swDayLoad(v,date,force,fresh){ v.state.date=date; var tok=v.state.tok=(
   if(!force&&c&&Date.now()-c.t<120000){ v.state.res=c.res; swDayDraw(v); return Promise.resolve(); }
   var keep=force&&v.state.drawn&&v.state.res&&v.state.res.date===date;   // 당겨서 새로고침: 지금 보이는 화면은 그대로 두고 뒤에서 받기 (로딩·오류 화면이면 keep 안 함)
   if(!keep){ swBubDrop(v); v.state.drawn=false; v.el.innerHTML=swDayHead(v)+spin('어드민 기록을 불러오는 중'); }
-  var fails=0, steps=0;
+  var fails=0, steps=0, qsteps=0, wsteps=0;
   function alive(){ return stack.indexOf(v)>=0&&v.state.tok===tok; }
   function fail(e){ if(!alive()) return; if(keep){ toast(e&&e.message||'불러오기 실패'); return; }
     swBubDrop(v); v.state.drawn=false; v.el.innerHTML=swDayHead(v)+errBox(e)+'<button class="btn line" onclick="swDayLoad(stack[stack.length-1],\''+date+'\',false)">다시 시도</button>'; }
-  function step(){ if(++steps>40) return fail(new Error('기록을 받는 데 너무 오래 걸려요. 잠시 뒤 다시 열어 주세요.'));
+  function step(){ if(steps>40||qsteps>80||wsteps>100) return fail(new Error('기록을 받는 데 너무 오래 걸려요. 잠시 뒤 다시 열어 주세요.'));
     var rq=Date.now();   // 이 요청을 보낸 시각 (그 뒤에 끝난 판정은 받은 목록에 다시 입힘)
     return run('swingWorkDay',date,[],!!fresh).then(function(res){ if(!alive()) return;
       if(!res||res.ok===false) return fail(new Error(res&&res.error||'서버 오류'));
-      if(res.pending){ fails=0; if(keep){ keep=false; swBubDrop(v); v.state.drawn=false; v.el.innerHTML=swDayHead(v)+spin('어드민 기록 받는 중'); } swWorkProg(v,res.progress); return step(); }   // 오래 걸리면 진행률이 보이게
+      if(res.pending){ fails=0; if(res.queued) qsteps++; else if(res.wait) wsteps++; else steps++; if(keep){ keep=false; swBubDrop(v); v.state.drawn=false; v.el.innerHTML=swDayHead(v)+spin('어드민 기록 받는 중'); } swWorkProg(v,res.progress,res.queued); var w=swPendWait(res); return w?swWait(w).then(function(){ if(alive()) return step(); }):step(); }   // 오래 걸리면 진행률이 보이게 · 지난 날짜는 서버가 뒤에서 받음 (v10.38)
       swOptReapply(date,res,rq);   // 저장 중인 판정·받는 사이에 끝난 판정은 새로 받은 목록에도 그대로 보이게 (v10.32)
       swDayMem[date]={t:Date.now(),res:res}; v.state.res=res; swDayDraw(v); })
     .catch(function(e){ if(!alive()) return; if(e&&e.auth===false) return; if(++fails<=2) return step(); return fail(e); }); }
@@ -2148,7 +2152,7 @@ function swDayLoad(v,date,force,fresh){ v.state.date=date; var tok=v.state.tok=(
 
 /* ---- 작업자 세부: 기종 탭(전체/S9/W9/I9) + 분류 탭 + 슬랙·복사(= 확인) ---- */
 VIEWS.sw_wd={ render:function(v){ reanim(v); v.state.date=v.params.date; v.state.key=v.params.key; v.state.model=v.state.model||v.params.model||'all'; v.state.note=v.state.note||'';
-  v.refresh=function(){ return swDayLoad(v,v.state.date,true,true); };   // 당겨서 새로고침 = 오늘도 지금 바로 받음 (v10.32)
+  v.refresh=function(){ return Promise.race([swDayLoad(v,v.state.date,true,true),swWait(3000)]); };   // 당겨서 새로고침 = 오늘도 지금 바로 받음 (v10.32) · 당김 표시는 3초면 풂 (v10.38)
   v.onResume=function(){ if(v.state.stale||!swDayMem[v.state.date]){ v.state.stale=false; swDayLoad(v,v.state.date,false); } };
   var c=swDayMem[v.state.date]; if(c){ v.state.res=c.res; swWdDraw(v); var dp=v.state.date.split('-'), liveEnd=new Date(+dp[0],+dp[1]-1,+dp[2]+1,8).getTime();
     if(Date.now()-c.t>120000&&c.t<liveEnd+120000) swDayLoad(v,v.state.date,true); }   // 그 작업일이 끝나기 전(다음 날 08시, 야간)에 받아 둔 목록이고 2분 넘었으면 뒤에서 새로
@@ -2761,8 +2765,8 @@ function reportPrune(){ try{ var lim=todayISO(-30); Object.keys(localStorage).fo
 function reportLoadAuto(v,n,quiet){ var st=v.state, d=st.date, sv=SERVER, endH=st.cfg?st.cfg.end:(reportNight()?32:24); n=n||0;
   if(!n){ st.autoLoading=true; st.autoErr=''; if(!quiet) reportAutoInfo(v); }
   return run('reportAuto',sv,d,endH,worker).then(function(r){ if(stack.indexOf(v)<0||st.date!==d||SERVER!==sv) return;
-      if(r&&r.pending&&n<15){ st.autoProg=r.progress||0; reportAutoInfo(v); return new Promise(function(res){ setTimeout(res,300); }).then(function(){ return reportLoadAuto(v,n+1,true); }); }   // SWING 이 그 날을 다 안 받았음 → 이어서
-      st.autoLoading=false; st.auto=r||{}; st.autoErr=r&&r.pending?'작업내역을 아직 다 못 받았어요 · 잠시 뒤 당겨서 새로고침':'';
+      if(r&&r.pending&&!r.queued&&n<15){ st.autoProg=r.progress||0; reportAutoInfo(v); return new Promise(function(res){ setTimeout(res,r.wait?Math.min(10000,r.wait):300); }).then(function(){ return reportLoadAuto(v,n+1,true); }); }   // SWING 이 그 날을 다 안 받았음 → 이어서 (지난 날짜는 서버가 뒤에서 받으니 안 기다림 · v10.38)
+      st.autoLoading=false; st.auto=r||{}; st.autoErr=r&&r.pending?(r.queued?'그 날 SWING 작업내역은 서버가 뒤에서 받는 중이에요 (보통 2~5분) · 잠시 뒤 당겨서 새로고침':'작업내역을 아직 다 못 받았어요 · 잠시 뒤 당겨서 새로고침'):'';
       if(reportTyping(v)) st.autoApplyLater=true; else reportApplyAuto(v);   // 글 쓰는 중이면 칸 추가(순서 바뀜)는 손을 뗀 뒤에 — 입력칸 번호가 어긋나지 않게
       reportRedraw(v); })
     .catch(function(e){ if(stack.indexOf(v)<0||st.date!==d) return; st.autoLoading=false; st.autoErr=(e&&e.message)||'자동 기록을 못 받았어요'; reportRedraw(v); }); }
@@ -3210,13 +3214,13 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
 /* ---- 속도 기록 (v10.37 · 이 폰에서 부른 서버 호출의 걸린 시간 — 함수 이름·시간만) ----
    서버 안 시간이 짧은데 전체가 길면 Google 쪽(웹앱 입구·실행 대기)에서 쓴 시간 · 서버 안 시간이 길면 우리 서버 작업(잠금 대기·시트·어드민) */
 var ICON_SPEED='<svg viewBox="0 0 24 24"><path d="M4.5 16.5a8 8 0 1 1 15 0"/><path d="M12 13l3.5-4"/><circle cx="12" cy="13.5" r="1.3" fill="currentColor" stroke="none"/></svg>';
-var SPD_R={ok:'정상',err:'서버 오류 문구',net:'연결 실패',bad:'Google 오류',timeout:'시간 초과'};
+var SPD_R={ok:'정상',err:'서버 오류 문구',net:'연결 실패',bad:'Google 오류',timeout:'시간 초과',lost:'겹쳐 보낸 것 (다른 쪽이 먼저 옴 · 무시)'};
 function spdSec(ms){ return ms===null||ms===undefined?'-':(ms/1000).toFixed(1)+'초'; }
 function spdTime(t){ var d=new Date(t); return (d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2); }
 function spdStats(){ var a=spdAll(), since=Date.now()-86400000, day=a.filter(function(x){ return x.t>=since; }), ds=day.map(function(x){ return x.d; }).sort(function(p,q){ return p-q; });
   var pct=function(p){ return ds.length?ds[Math.floor((ds.length-1)*p)]:null; };
-  return { n:day.length, slow:day.filter(function(x){ return x.d>=8000; }).length, fail:day.filter(function(x){ return x.r!=='ok'&&x.r!=='err'; }).length, p50:pct(.5), p90:pct(.9),
-    list:a.filter(function(x){ return x.d>=5000||(x.r!=='ok'&&x.r!=='err'); }).slice(-40).reverse() }; }
+  return { n:day.length, slow:day.filter(function(x){ return x.d>=8000; }).length, fail:day.filter(function(x){ return x.r!=='ok'&&x.r!=='err'&&x.r!=='lost'; }).length, p50:pct(.5), p90:pct(.9),
+    list:a.filter(function(x){ return x.r!=='lost'&&(x.d>=5000||(x.r!=='ok'&&x.r!=='err')); }).slice(-40).reverse() }; }   // 겹쳐 보낸 것 중 버려진 쪽은 목록·실패에서 뺌 (v10.38)
 function spdText(){ var s=spdStats(), lines=['[속도 기록 · v'+APP_VER+' · '+(SERVER||'').toUpperCase()+']','최근 24시간 '+s.n+'번 · 8초 넘음 '+s.slow+' · 실패 '+s.fail+' · 보통 '+spdSec(s.p50)+' · 느린 10% '+spdSec(s.p90)];
   s.list.forEach(function(x){ lines.push(spdTime(x.t)+' '+x.f+' 전체 '+spdSec(x.d)+' · 서버 '+spdSec(x.s)+' · '+(SPD_R[x.r]||x.r)+(x.s!==null&&x.d-x.s>=5000?' · Google 쪽 '+spdSec(x.d-x.s):'')); }); return lines.join('\n'); }
 VIEWS.speed={ render:function(v){ v.refresh=function(){ VIEWS.speed.render(v); return Promise.resolve(); };
@@ -3471,7 +3475,8 @@ function doLogin(){ if(la||$('lbtn').disabled) return; var code=($('lcode').valu
 /* 자동 로그인: 로그인 화면이 뜨고 곧바로 같은 접속 애니메이션(그동안 코드가 아직 유효한지 확인) → 들어감 */
 function autoLogin(){ showLogin('',AUTH.code); $('lbtn').disabled=true; $('glitch').classList.add('wild'); var sv=SERVER;
   var started=new Promise(function(r){ setTimeout(function(){ lanimStart(); r(); },250); });   // 카드가 나타난 다음
-  var check=run('login',AUTH.code,sv).then(function(a){ applyAuth(a,true); return true; }).catch(function(e){ if(e.auth===false) return e; return true; /* 네트워크 오류면 저장된 코드로 진행 */ });
+  // v10.38: 겹쳐 보내지 않음 (4초 뒤엔 이미 들어가 있어 7초 뒤 복제는 서버 잠금·접속 기록만 늘림) · 연결 실패만 한 번 더
+  var check=runOnce('login',[AUTH.code,sv]).catch(function(e){ if(e&&e.net) return runOnce('login',[AUTH.code,sv]); throw e; }).then(function(a){ applyAuth(a,true); return true; }).catch(function(e){ if(e.auth===false) return e; return true; /* 네트워크 오류면 저장된 코드로 진행 */ });
   // v10.37: 서버가 4초 안에 답을 안 주면 저장된 코드로 먼저 들어가고 확인은 뒤에서 (Google 쪽이 느릴 때 로그인 화면에서 25초씩 멈추지 않게) — 나중에 코드가 막혔다고 오면 그때 로그아웃
   var quick=Promise.race([check,new Promise(function(r){ setTimeout(function(){ r('slow'); },4000); })]).then(function(x){
     if(x!=='slow') return x;
