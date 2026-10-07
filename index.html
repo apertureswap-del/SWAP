@@ -779,7 +779,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.39';
+var APP_VER = '10.40';
 var libsReady=false; document.addEventListener('DOMContentLoaded',function(){ libsReady=true; });   // v10.34: defer 로 받는 QR 라이브러리(qrcode·jsQR)는 DOMContentLoaded 전에 다 받음(또는 실패) — 그 전엔 "받는 중"
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
@@ -851,7 +851,8 @@ function devAv(model,color){ var c=devColor(color); var t=devShort(model); var f
 /* 서버 호출: <script> 태그(JSONP) 방식 — 브라우저 CORS 제한을 받지 않아 Apps Script와 가장 잘 맞는다 */
 var _rid=0; var READ_FNS={getTag:1,listTags:1,homeTags:1,getWorkList:1,getTaskDevices:1,getConfig:1,getMyWork:1,search:1,searchAdmin:1};
 var SLOW_FNS={sendWorkReport:60000,   // 서버가 자동 기록을 다시 읽고(SWING 은 작업내역 받기) 슬랙까지 → 25초로 끊으면 슬랙엔 갔는데 실패로 보여 다시 보내게 됨
-  swingWorkSlack:60000,swingWorkRecheck:60000,swingWorkConfirm:45000,swingWorkJudge:45000,swingWorkProcSet:45000};   // v10.32: 작업자 작업내역 저장·보내기도 (서버는 저장했는데 25초에 끊겨 "실패"로 보이고 다시 누르는 일 방지)
+  swingWorkSlack:60000,swingWorkRecheck:60000,swingWorkConfirm:45000,swingWorkJudge:45000,swingWorkProcSet:45000,
+  stockPreview:45000,stockSetRow:45000,stockApply:60000};   // v10.40 재고 시트: 다른 파일(재고 테이블)을 열고 태그·이력을 비교해 10~25초 걸릴 때가 있음 (25초에 끊겨 화면이 안 열리던 것 · 반영은 끊겨도 서버는 씀)   // v10.32: 작업자 작업내역 저장·보내기도 (서버는 저장했는데 25초에 끊겨 "실패"로 보이고 다시 누르는 일 방지)
 /* 전산미완료: 재고/출고준비완료인데 어드민 고객요청이 완료가 아닌 기기 */
 function sysPending(t){ if(!t) return false; if(typeof t.sysPending==='boolean') return t.sysPending;
   var st=String(t['어드민상태']||'').trim(); return ['재고','출고준비완료','출고완료'].indexOf(t['상태'])>=0 && !!t['고객요청ID'] && (!st || /^(PENDING|IN_PROGRESS|WAITING|READY)$/i.test(st)); }
@@ -2973,7 +2974,24 @@ function reportSendGo(){ var v=stack[stack.length-1]; if(!v||v.name!=='report'||
       toast(e&&e.timeout?'응답이 늦어요 · 슬랙 업무보고방에 갔는지 먼저 확인하고 다시 보내 주세요':'전송 실패: '+(e&&e.message||e)); after(); }); }
 /* ================= 재고 시트 반영 ================= */
 VIEWS.stocksync={ render:function(v){ v.refresh=function(){ return loadStock(v); }; v.onResume=function(){ loadStock(v); };   /* 태그에서 고치고 돌아오면 새로 */ v.el.innerHTML=title('재고 시트 반영','')+spin('시트와 앱 재고를 비교하는 중'); loadStock(v); }};
-function loadStock(v){ return run('stockPreview').then(function(r){ if(stack.indexOf(v)<0) return; v.state.pv=r; drawStock(v); }).catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('재고 시트 반영','')+errBox(e); }); }
+/* v10.40 재고 시트 반영: 이 폰에 마지막 비교 결과를 저장해 두고 열자마자 그걸 먼저 보여줌 (서버 비교가 10~25초 걸려 시간 초과로 안 열리던 것) —
+   저장된 화면일 땐 반영·줄 고르기 잠금 (최신 결과가 오면 풀림) · 고객 이름은 저장 안 함 */
+function fmtAgo(t){ var m=Math.max(0,Math.round((Date.now()-t)/60000)); if(m<1) return '방금'; if(m<60) return m+'분 전'; var h=Math.floor(m/60); if(h<24) return h+'시간 전'; return Math.floor(h/24)+'일 전'; }
+function stockSnapSave(r){ try{ var c=JSON.parse(JSON.stringify(r)); delete c.finished; (c.left||[]).concat(c.passed||[]).forEach(function(d){ d.name=''; }); lsSet('stock_pv',{t:Date.now(),r:c}); }catch(e){} }   // 지난 반영 마무리 알림(finished)은 그 응답에서만 보여줌
+/* 연결 실패만 한 번 더 (시간 초과면 서버는 아직 비교하는 중 → 무거운 비교를 겹쳐 보내지 않음) */
+function stockPreviewRun(){ return run('stockPreview').catch(function(e){ if(e&&!e.timeout&&retryable(e)) return run('stockPreview'); throw e; }); }
+function loadStock(v){ if(v.state.ldp) return v.state.ldp;   // 이미 비교 중이면 그걸 같이 기다림 (돌아오기·당겨서 새로고침이 겹쳐도 하나만)
+  var seq=v.state.seq=(v.state.seq||0)+1, snap=null;   // seq = 이 화면의 마지막 요청 (반영·줄 고르기를 하면 올려서 그 전에 출발한 응답은 버림)
+  if(!v.state.pv){ snap=lsGet('stock_pv'); if(snap&&snap.r&&snap.r.items&&canServer('swap')&&can('swap.stocksync')){ v.state.pv=snap.r; v.state.stale=true; v.state.staleAt=snap.t; v.state.staleErr=''; drawStock(v); } }
+  else if(v.state.stale){ v.state.staleErr=''; drawStock(v); }
+  var p=stockPreviewRun().then(function(r){ if(stack.indexOf(v)<0||seq!==v.state.seq) return; v.state.pv=r; v.state.stale=false; v.state.staleErr=''; stockSnapSave(r); drawStock(v); })
+    .catch(function(e){ if(stack.indexOf(v)<0||seq!==v.state.seq) return;
+      if(v.state.stale&&retryable(e)){ v.state.staleErr=(e&&e.message)||'불러오기 실패'; drawStock(v); return; }
+      if(!retryable(e)){ try{ localStorage.removeItem('swapc:stock_pv'); }catch(x){} }   // 권한이 없어졌으면 저장 화면도 지움
+      v.state.pv=null; v.state.stale=false; v.el.innerHTML=title('재고 시트 반영','')+errBox(e)+'<button class="btn line" onclick="stockRetry()">다시 시도</button>'; })
+    .then(function(){ if(v.state.ldp===p) v.state.ldp=null; });
+  v.state.ldp=p; return p; }
+function stockRetry(){ var v=permView('stocksync'); if(!v) return; haptic(6); if(!v.state.stale) v.el.innerHTML=title('재고 시트 반영','')+spin('시트와 앱 재고를 비교하는 중'); loadStock(v); }
 /* 기기 단위로 들어오고 나간 게 있나 (같은 줄에서 +1·−1 상쇄돼 숫자가 안 바뀌어도 true → 반영 기록은 해야 "나간 기기" 카드가 정리됨).
    아직 재고인데 줄 못 찾은 기기는 반영해도 기록이 그대로라 셈하지 않음 */
 function stockDevChange(r){ return r.items.some(function(i){ return i.added.length||i.removed.length; })||!!(r.passed&&r.passed.length)||!!(r.gone&&r.gone.length); }
@@ -2981,15 +2999,16 @@ function stockDevChange(r){ return r.items.some(function(i){ return i.added.leng
 function stockZeroWhy(r){ var nz=r.items.filter(function(i){ return !i.changed&&!i.floor&&(i.added.length||i.removed.length); }).length, fl=r.items.filter(function(i){ return i.floor&&!i.changed; }).length, G=(r.gone||[]).length, P=(r.passed||[]).length;
   return [nz?'같은 줄에서 +1·−1이 상쇄된 줄 '+nz+'개':'', fl?'시트 값이 이미 0이라 못 뺀 줄 '+fl+'개':'', G?'시트 줄이 없는 기기 '+G+'대 (그대로)':'', P?'반영 전에 들어왔다 나간 기기 '+P+'대':''].filter(String).join(' · '); }
 function stockWhy(d){ return esc(d.why||'')+(d.name?' → '+esc(d.name):'')+(d.why==='재고 출고 매칭'&&d.status?' · '+esc(d.status):''); }
-function drawStock(v){ var r=v.state.pv; var changed=r.items.filter(function(i){ return i.changed; }), devCh=stockDevChange(r), L=r.left||[], P=r.passed||[];
+function drawStock(v){ var r=v.state.pv; var changed=r.items.filter(function(i){ return i.changed; }), devCh=stockDevChange(r), L=r.left||[], P=r.passed||[], lk=!!v.state.stale, dis=lk?' disabled':'';   // lk = 저장된 화면 (v10.40 · 반영·줄 고르기 잠금)
   var h=title('재고 시트 반영','<a href="'+esc(r.sheetUrl)+'" target="_blank" style="color:var(--p);font-weight:700">'+esc(r.tab)+' 열기 ›</a>');
+  if(lk) h+='<div class="card stkstale"><b>이 폰에 저장된 화면이에요</b>'+(v.state.staleAt?' ('+esc(fmtAgo(v.state.staleAt))+')':'')+'<br>'+(v.state.staleErr?'<span style="color:var(--danger)">최신 비교를 못 불러왔어요 · '+esc(v.state.staleErr)+'</span><button class="btn line sm" style="margin-top:10px" onclick="stockRetry()">다시 시도</button>':'<span class="muted">시트와 앱 재고를 다시 비교하는 중… 끝나면 바로 바뀌고 반영·줄 고르기를 할 수 있어요.</span>')+'</div>';
   h+='<div class="card sum"><div class="lb">앱에 재고로 있는 기기</div><div class="big">'+num(r.total,'st')+'<span>대</span></div>'+
      '<div class="muted" style="margin-top:6px">신품 '+num(r.newTotal,'sn')+'대 · 중고 '+num(r.total-r.newTotal,'su')+'대'+(r.updated?' · 시트 마지막 반영 '+esc(r.updated):'')+'</div>'+
      ((r.ambiguous.length+r.unmatched.length)?'<div style="margin-top:6px;color:var(--danger);font-weight:700;font-size:13.5px">이 중 '+(r.ambiguous.length+r.unmatched.length)+'대는 시트 줄을 못 찾아 시트에 안 들어가요 · 아래에서 줄 고르기</div>':'')+
      (r.finished?'<div class="muted" style="margin-top:4px;font-size:13px">지난 반영이 도중에 멈춰서 마저 마무리했어요.'+(r.finished.length?' <b style="color:var(--danger)">'+r.finished.map(esc).join(' / ')+'</b>':'')+'</div>':'')+'</div>';
   // 시트 줄을 못 찾은 재고 기기 → "줄 고르기"(넣을 줄: 앱 기종·색상 → 시트 줄 · 같은 이름 기기는 다음부터 그 줄로) → 반영
   var nMiss=r.ambiguous.length+r.unmatched.length;
-  var pickB=function(kind,i,d){ return String(d.model||'').trim()?'<button class="edit" onclick="stockPick(\''+kind+'\','+i+')">줄 고르기</button>':''; };
+  var pickB=function(kind,i,d){ return String(d.model||'').trim()?'<button class="edit"'+dis+' onclick="stockPick(\''+kind+'\','+i+')">줄 고르기</button>':''; };
   var tagB=function(d){ return '<button class="edit" onclick="push(\'tag\',{code:\''+jsa(d.code)+'\'})">태그</button>'; };
   var wasT=function(d){ return d.was?' · 지난번에 <b>'+esc(d.was.model)+' '+esc(d.was.color)+'</b> 줄에 셌음 (같은 줄을 고르면 숫자 그대로)':(d.counted?' · 지난번에 셌음':''); };
   if(nMiss){ h+='<div class="card"><h3 style="color:var(--danger)">시트 줄을 못 찾은 재고 기기 '+nMiss+'대</h3><p class="muted" style="margin:0 0 6px;font-size:13px">앱에선 재고인데 시트의 기종·색상 이름과 달라서 시트에 셀 줄을 못 찾았어요. <b>줄 고르기</b>로 시트의 어느 줄인지 정하면 아래 <b>시트에 반영</b> 때 그 줄로 셈해요(새 기기면 +1, 지난번에 같은 줄에 셌으면 그대로). 한 번 정하면 같은 기종·색상 기기는 계속 그 줄로 셈해요. 시트에 그 기종 줄이 아예 없으면 시트에 줄을 먼저 만든 뒤 새로고침하세요.</p>';
@@ -3014,11 +3033,11 @@ function drawStock(v){ var r=v.state.pv; var changed=r.items.filter(function(i){
     '<div class="sv">'+cell(i.sheetNew,i.newNew,i.dNew,'새제품')+cell(i.sheetUsed,i.newUsed,i.dUsed,'중')+'</div></div>'; });
   h+='</div>';
   // v10.28: "직접 정한 시트 줄" 카드 없앰 (정하고 반영했으면 끝 · 정한 줄은 계속 그 줄로 셈)
-  h+='<button class="btn" '+(changed.length||devCh?'':'disabled style="opacity:.5"')+' onclick="stockApplyAsk(\'\')">'+(changed.length||!devCh?'시트에 반영 ('+changed.length+'줄)':'반영 기록 남기기 (시트 숫자 그대로)')+'</button>';
-  if(r.first) h+='<button class="btn line" style="margin-top:8px" onclick="stockApplyAsk(\'baseline\')">시트에 이미 넣어둠 · 더하지 않고 기억만</button>';
+  h+='<button class="btn" '+(changed.length||devCh?dis:'disabled style="opacity:.5"')+' onclick="stockApplyAsk(\'\')">'+(changed.length||!devCh?'시트에 반영 ('+changed.length+'줄)':'반영 기록 남기기 (시트 숫자 그대로)')+'</button>';
+  if(r.first) h+='<button class="btn line" style="margin-top:8px"'+dis+' onclick="stockApplyAsk(\'baseline\')">시트에 이미 넣어둠 · 더하지 않고 기억만</button>';
   v.el.innerHTML=h; countUp(v.el);
   function cell(a,b,d,label){ var ch=a!==b; return '<em class="'+(ch?'ch':'')+'">'+label+' '+(ch?'<s>'+a+'</s>':'')+b+(d?' <small>('+(d>0?'+':'')+d+')</small>':'')+'</em>'; } }
-function stockApplyAsk(mode){ needWorker(function(){ var v=stack[stack.length-1]; var r=v.state.pv; var changed=r.items.filter(function(i){ return i.changed; }); var base=(mode==='baseline'); if(!base&&!changed.length&&!stockDevChange(r)) return;
+function stockApplyAsk(mode){ needWorker(function(){ var v=stack[stack.length-1]; if(v.state.stale){ toast('최신 비교를 불러온 뒤에 반영할 수 있어요'); return; } var r=v.state.pv; var changed=r.items.filter(function(i){ return i.changed; }); var base=(mode==='baseline'); if(!base&&!changed.length&&!stockDevChange(r)) return;
   var outN=(r.left||[]).filter(function(d){ return d.sheet; }).length, nMiss=r.ambiguous.length+r.unmatched.length;
   var msg=base ? '시트 숫자는 그대로 두고, 앱 재고 '+r.total+'대를 이미 시트에 넣은 것으로 기억만 해요.'+(nMiss?' 시트 줄을 못 찾은 '+nMiss+'대도 넣은 것으로 기억하고, 나중에 줄을 고를 때 더하지 않아요.':'')+' 다음부터 들어오고 빠지는 기기만 ±1 해요.'
                : (changed.length ? esc(r.tab)+' 탭의 '+changed.length+'줄에서 새제품·중고-중 칸에 더하고 빼요.'+(outN?' 재고에서 나간 기기 '+outN+'대(−1)도 들어 있어요.':'')+' 다른 칸은 그대로예요.'
@@ -3026,7 +3045,8 @@ function stockApplyAsk(mode){ needWorker(function(){ var v=stack[stack.length-1]
   openSheet('<h3>'+(base?'기억만 할까요?':'시트에 반영할까요?')+'</h3><p>'+msg+'</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ stockApplyGo(\''+(base?'baseline':'')+'\'); })">'+(base?'기억만':'반영')+'</button></div>'); }); }
 function stockApplyGo(mode){ var v=stack[stack.length-1]; var changed=v.state.pv.items.filter(function(i){ return i.changed; }).map(function(i){ return {row:i.row,model:i.model,dNew:i.dNew,dUsed:i.dUsed}; });
   v.el.innerHTML=title('재고 시트 반영','')+spin(mode==='baseline'?'기억하는 중':'시트에 쓰는 중');
-  run('stockApply',changed,worker,mode||'').then(function(res){ if(stack.indexOf(v)<0) return; var fin=res&&res.finished; if(res.ok){ haptic([12,40,18]); toast(res.baseline?'기억 완료 ('+res.tracked+'대)':(res.n?res.n+'줄 반영 완료':'반영 기록 완료 (시트 숫자 그대로)')); } else toast(res.error);
+  v.state.seq=(v.state.seq||0)+1; v.state.ldp=null;   // 반영 전에 출발한 미리보기 응답은 버림 (반영 전 화면으로 덮지 않게) · 반영하면 반영 전 저장 화면(stock_pv)도 지움
+  run('stockApply',changed,worker,mode||'').then(function(res){ if(stack.indexOf(v)<0) return; var fin=res&&res.finished; if(res.ok){ try{ localStorage.removeItem('swapc:stock_pv'); }catch(e){} haptic([12,40,18]); toast(res.baseline?'기억 완료 ('+res.tracked+'대)':(res.n?res.n+'줄 반영 완료':'반영 기록 완료 (시트 숫자 그대로)')); } else toast(res.error);
     var before=v.state.pv;
     return loadStock(v).then(function(){ if(stack.indexOf(v)>=0&&v.state.pv===before) return;   // 새로고침 실패 → 반영 전 미리보기를 다시 그리지 않음 (오류 화면 그대로)
       if(fin&&stack.indexOf(v)>=0&&v.state.pv){ v.state.pv.finished=(v.state.pv.finished||[]).concat(fin); drawStock(v); } }); /* 다른 사람의 멈춘 반영을 마무리했으면 그 알림(직접 확인) */ })
@@ -3034,7 +3054,7 @@ function stockApplyGo(mode){ var v=stack[stack.length-1]; var changed=v.state.pv
 /* ---- 줄 고르기 (넣을 줄) ---- kind 'u' = 줄 없음 · 'a' = 애매함 → 앱 기종·색상 → 시트 줄 (같은 이름 기기 모두) */
 function stockPickDev(kind,i){ var v=permView('stocksync'); if(!v||!v.state.pv) return null; var r=v.state.pv; return ((kind==='a'?r.ambiguous:r.unmatched)||[])[i]||null; }
 /* 고르는 동안 목록이 새로 그려져도(다른 지정 결과·당겨서 새로고침) 엉뚱한 기기에 저장되지 않게, 열 때 기기·줄 목록을 그대로 떠 둠 */
-function stockPick(kind,i){ var d0=stockPickDev(kind,i); if(!d0) return; needWorker(function(){ var v=permView('stocksync'), d=d0; if(!v) return;
+function stockPick(kind,i){ var d0=stockPickDev(kind,i); if(!d0) return; var vs=permView('stocksync'); if(vs&&vs.state.stale){ toast('최신 비교를 불러온 뒤에 고를 수 있어요'); return; } needWorker(function(){ var v=permView('stocksync'), d=d0; if(!v) return;
   v.state.pick={kind:kind, model:d.model, color:d.color, cands:(d.cands||[]).slice(), rows:(v.state.pv.sheetRows||[]).slice()};
   openSheet('<h3>'+esc(d.model)+' '+esc(d.color)+' → 시트 어느 줄?</h3><p>이 기기를 <b>셀</b> 줄을 골라요. 같은 기종·색상 기기는 다음부터 이 줄로 셈해요. 시트에 그 기종 줄이 없으면 시트에 줄을 먼저 만들어 주세요.</p>'+
     '<input class="input" id="spq" placeholder="기종·색상 검색 (예: P1 Black)" oninput="stockPickList()" autocomplete="off" style="margin-bottom:4px"><div id="spl"></div>');
@@ -3050,7 +3070,7 @@ function stockPickList(){ var v=permView('stocksync'), el=$('spl'); if(!v||!el||
     if(cs.length) h+='<div class="lb" style="margin-top:10px">먼저 볼 줄</div>'+cs.map(row).join('');
     h+='<div class="lb" style="margin-top:12px">시트 전체 줄 '+rows.length+'개</div>'+rows.map(row).join(''); }
   el.innerHTML=h; }
-function stockSetDone(v,pv,msg){ if(!pv||pv.ok===false){ toast((pv&&pv.error)||'정하기 실패'); return; } if(permView('stocksync')===v){ v.state.pv=pv; drawStock(v); } haptic([12,40,18]); toast(msg); }
+function stockSetDone(v,pv,msg){ if(!pv||pv.ok===false){ toast((pv&&pv.error)||'정하기 실패'); return; } if(permView('stocksync')===v){ v.state.seq=(v.state.seq||0)+1; v.state.ldp=null; v.state.pv=pv; v.state.stale=false; stockSnapSave(pv); drawStock(v); } haptic([12,40,18]); toast(msg); }   // 그 전에 출발한 미리보기가 덮지 않게 · 저장 화면도 새로
 function stockPickGo(row){ var v=permView('stocksync'); if(!v||!v.state.pick) return; var p=v.state.pick, x=(p.rows||[]).filter(function(y){ return y.row===row; })[0]; if(!x) return;
   haptic(8); closeSheet(function(){ toast('정하는 중…');   // 그 사이 시트 줄이 밀렸으면 서버가 "시트 줄이 바뀌었어요"로 거부
     run('stockSetRow',p.model,p.color,{row:x.row,model:x.model,color:x.color},worker).then(function(pv){ stockSetDone(v,pv,p.model+' '+p.color+' → 시트 '+x.model+' '+x.color+' · 아래 "바뀔 줄"에서 확인하세요'); })
