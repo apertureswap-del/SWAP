@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="S&amp;P 워크+">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"></noscript><!-- v10.41: 글꼴 파일이 늦어도 앱이 바로 뜨게 (글꼴은 오는 대로 바뀜) -->
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -779,7 +779,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.40';
+var APP_VER = '10.42';
 var libsReady=false; document.addEventListener('DOMContentLoaded',function(){ libsReady=true; });   // v10.34: defer 로 받는 QR 라이브러리(qrcode·jsQR)는 DOMContentLoaded 전에 다 받음(또는 실패) — 그 전엔 "받는 중"
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
@@ -859,8 +859,8 @@ function sysPending(t){ if(!t) return false; if(typeof t.sysPending==='boolean')
 function sysIssue(t){ return sysPending(t)||(!!t&&t.stockOut&&t.matchState==='no'); }   // 전산미완료 + 재고 출고 전산 매칭 안됨
 function sysBadge(t,small){ return sysPending(t) ? '<span class="pill sys'+(small?' sm':'')+'">⚠️전산미완료</span>' : ''; }
 var sysRefreshT=0;
-function refreshSysBg(){ if(Date.now()-sysRefreshT<600000) return; sysRefreshT=Date.now();   // v10.37: 1분 → 10분 (서버도 같은 기기는 1시간에 한 번만 다시 봄)
-  run('refreshSysStatus',4).then(function(r){ if(!(r&&r.n>0)) return; var v0=stack[stack.length-1];
+function refreshSysBg(){ sysRefreshT=Math.max(sysRefreshT,Number(lsGet('sysAt'))||0); if(Date.now()-sysRefreshT<600000) return; sysRefreshT=Date.now(); lsSet('sysAt',sysRefreshT);   // v10.37: 1분 → 10분 (서버도 같은 기기는 1시간에 한 번만 다시 봄) · v10.41 앱을 다시 켜도 10분 규칙 유지
+  run('refreshSysStatus',4).then(function(r){ if(!(r&&r.n>0)) return; DIRTY_AT=Date.now(); var v0=stack[stack.length-1];
     if(v0&&v0.name==='home'&&SERVER==='swap') homeLoad().then(function(d){ lsSet('home',d); var v=stack[stack.length-1];   // 홈은 홈 전용 건수로 (목록으로 세면 숫자가 달라짐)
       if(v===v0&&SERVER==='swap') drawHome(v,d); }).catch(function(){});
     else run('listTags',500).then(function(tags){ lsSet('tags2',tags); var v=stack[stack.length-1]; if(!v) return;
@@ -871,9 +871,19 @@ function refreshSysBg(){ if(Date.now()-sysRefreshT<600000) return; sysRefreshT=D
  * 다시 해도 소용없는 오류(접속 코드·권한·허용 안 된 요청)는 다시 안 보냄 */
 var HEDGE_FNS={homeTags:1,listTags:1,search:1,getWorkList:1,login:1}, HEDGE_MS=7000;   // login (v10.37): 두 번 가도 접속 횟수가 하나 더 느는 정도
 function retryable(e){ return !!e && e.auth!==false && !/서버 권한이 없어요|권한이 없어요\. 관리자에게|허용되지 않은 요청|마스터 계정만|관리자만 할 수/.test(String(e.message||'')); }   // 앱이 내는 권한 문구만 (Apps Script 자체의 일시적인 "…권한이 없습니다" 는 지금처럼 한 번 더)
+/* v10.41: 내가 서버에 무언가를 바꾼 시각 (읽기만 하는 호출은 빼고) → 돌아온 화면은 그 뒤에 받은 게 아니면 다시 받음 (1분 안에 돌아오면 다시 안 부름) */
+var DIRTY_AT=0, NODIRTY={stockPreview:1,refreshSysStatus:1,login:1,getMe:1,pushMine:1,pushKey:1,swingWorkHome:1,swingWorkDay:1,swingWorkRoster:1,swingWorkersList:1,swingSearch:1,reportAuto:1,listCodes:1,permInfo:1,pushPlanList:1,eggList:1,adminCustomerDevices:1,findMatchTasks:1,getVehicles:1,swingWorkMonthInfo:1};
 function run(fn){ var args=[].slice.call(arguments,1);
-  if(HEDGE_FNS[fn]) return runHedged(fn,args);
-  return runOnce(fn,args).catch(function(e){ if(READ_FNS[fn]&&retryable(e)) return runOnce(fn,args); throw e; }); }
+  var p=HEDGE_FNS[fn] ? runHedged(fn,args) : runOnce(fn,args).catch(function(e){ if(READ_FNS[fn]&&retryable(e)) return runOnce(fn,args); throw e; });
+  if(READ_FNS[fn]||NODIRTY[fn]) return p;
+  WR_PEND++; return p.then(function(r){ wrDone(); return r; },function(e){ wrDone(); throw e; }); }   // 실패해도 서버는 바꿨을 수 있음
+/* 쓰기가 끝남: 그 사이 홈·현황·검색으로 돌아와 있으면(저장 중에 뒤로) 그 화면을 새로 받음 */
+var WR_PEND=0;
+function wrDone(){ WR_PEND=Math.max(0,WR_PEND-1); DIRTY_AT=Date.now(); var t=stack[stack.length-1];
+  if(t&&t.state&&t.state.at&&t.state.at<DIRTY_AT&&t.refresh&&(t.name==='status'||t.name==='search'||(t.name==='home'&&SERVER==='swap'))){ try{ var r=t.refresh(t); if(r&&r.catch) r.catch(function(){}); }catch(e){} } }
+/* 돌아온 화면을 지금 다시 안 받아도 되나 (1분 안이고 그 사이 내 쓰기 없음 · 또는 쓰는 중) → 되면 멈춘 숫자 애니메이션을 끝값으로 */
+function resumeFresh(v){ if(!(v.state.at&&((Date.now()-v.state.at<60000&&DIRTY_AT<v.state.at)||WR_PEND))) return false;   // 쓰는 중이면 지금 받지 않고 쓰기가 끝날 때 wrDone 이 새로 받음 (두 번 안 받게)
+  [].forEach.call(v.el.querySelectorAll('[data-to]'),function(el){ el.textContent=el.getAttribute('data-to'); }); return true; }
 function runHedged(fn,args){
   return new Promise(function(res,rej){ var n=0, live=0, done=false, ht=null, metas=[];
     function fin(){ done=true; clearTimeout(ht); metas.forEach(function(m){ if(!m.end) m.lost=true; }); }   // 아직 안 온 복제는 버림 표시
@@ -891,9 +901,9 @@ function spdLog(fn,t0,sms,r,meta){ var a=spdAll(); a.push({t:t0,f:fn,d:Date.now(
   clearTimeout(spdSaveT); spdSaveT=setTimeout(function(){ lsSet('spd',SPD); },1500); }
 function runOnce(fn,args,meta){   // meta (v10.38): 겹쳐 보낸 복제면 {lost} 를 나중에 켬 → 속도 기록에서 실패로 안 셈
   return new Promise(function(res,rej){
-    var cb='swapcb_'+(++_rid)+'_'+Math.floor(Math.random()*1e6); var s=document.createElement('script'); var done=false, t, t0=Date.now();
+    var cb='swapcb_'+(++_rid)+'_'+Math.floor(Math.random()*1e6); var s=document.createElement('script'); var done=false, t, t0=Date.now(), ac=AUTH&&AUTH.code;   // ac = 보낸 코드 (v10.41: 그 사이 다른 코드로 들어왔으면 옛 응답의 막힘으로 로그아웃하지 않음)
     function cleanup(){ done=true; try{ delete window[cb]; }catch(e){ window[cb]=undefined; } if(s.parentNode) s.parentNode.removeChild(s); clearTimeout(t); }
-    window[cb]=function(j){ if(done) return; cleanup(); spdLog(fn,t0,j&&j.ms,(j&&j.ok)?'ok':'err',meta); if(!j||!j.ok){ var er=new Error((j&&j.error)||'서버 오류'); if(j&&j.auth===false){ er.auth=false; if(fn!=='login') logout(er.message); } rej(er); } else res(j.result); };
+    window[cb]=function(j){ if(done) return; cleanup(); spdLog(fn,t0,j&&j.ms,(j&&j.ok)?'ok':'err',meta); if(!j||!j.ok){ var er=new Error((j&&j.error)||'서버 오류'); if(j&&j.auth===false){ er.auth=false; if(fn!=='login'&&appStarted&&AUTH&&AUTH.code===ac) logout(er.message); } rej(er); } else res(j.result); };
     s.onerror=function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'net',meta); var er=new Error('서버 연결 실패(네트워크)'); er.net=true; rej(er); };
     // v10.37: 스크립트는 받았는데 답(콜백)이 없음 = Google 이 오류 페이지를 줌(실행이 죽었거나 막힘) → 25초 기다리지 않고 바로 실패 (읽기는 바로 다시)
     s.onload=function(){ setTimeout(function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'bad',meta); var er=new Error('서버 연결 실패(네트워크 · Google 오류)'); er.net=true; rej(er); },0); };
@@ -903,12 +913,41 @@ function runOnce(fn,args,meta){   // meta (v10.38): 겹쳐 보낸 복제면 {los
   }); }
 /* 화면 캐시: 마지막 데이터를 폰에 저장해 두고 먼저 그린 뒤 뒤에서 갱신 */
 function lsGet(k){ try{ var v=localStorage.getItem('swapc:'+k); return v?JSON.parse(v):null; }catch(e){ return null; } }
-function lsSet(k,v){ try{ localStorage.setItem('swapc:'+k,JSON.stringify(v)); }catch(e){} }
+/* v10.41: 공간이 모자라면 날짜별 저장본을 줄이고 다시 · 그래도 못 쓰면 옛 값도 지움 (옛 저장본이 최신처럼 남지 않게) */
+function lsSet(k,v){ var s; try{ s=JSON.stringify(v); }catch(e){ return; } lsSetStr(k,s); }
+var LS_CACHE_RE=/^(home|tags2|wl:|swday:|sw_home:|stock_pv|sw_roster|tagv:)/, lsFullT=0;   // 다시 받으면 되는 저장본 (못 쓰면 옛 값을 지움) · 그 밖(QR 기록·사진 목록·초안·설정)은 옛 값을 둠
+function lsSetStr(k,s){ var key='swapc:'+k; for(var i=0;i<3;i++){ try{ localStorage.setItem(key,s); return; }catch(e){ if(i===0) lsTrim(); else if(i===1) lsTrim(true); } }
+  if(LS_CACHE_RE.test(k)){ try{ localStorage.removeItem(key); }catch(e){} }   // 옛 저장본이 최신처럼 남지 않게
+  else if(Date.now()-lsFullT>60000){ lsFullT=Date.now(); try{ toast('폰 저장 공간이 부족해서 저장 못 했어요'); }catch(e){} } }
+function lsKeys(p){ try{ return Object.keys(localStorage).filter(function(k){ return k.indexOf('swapc:'+p)===0; }); }catch(e){ return []; } }
+function lsTrim(all){ try{ ['sw_home:','swday:','wl:','tagv:'].forEach(function(p){ lsKeys(p).sort().reverse().slice(all?0:(p==='tagv:'?10:1)).forEach(function(k){ localStorage.removeItem(k); }); });   // 날짜별은 가장 최근 것만 · 기기 상세는 10개만
+  if(all) ['tags2','stock_pv'].forEach(function(k){ localStorage.removeItem('swapc:'+k); }); }catch(e){} }   // all = 그래도 모자라면 다시 받으면 되는 큰 저장본까지
+/* 열 때 한 번: 오래된 날짜별 저장본 정리 (SWING 홈 8일 · 작업내역 3일 · 작업리스트 어제~내일) */
+function lsPrune(){ try{ var d8=todayISO(-8), d3=todayISO(-3), d1=todayISO(-1), n1=todayISO(1);
+  lsKeys('sw_home:').forEach(function(k){ if(k.slice(14)<d8) localStorage.removeItem(k); });
+  lsKeys('swday:').forEach(function(k){ if(k.slice(12)<d3) localStorage.removeItem(k); });
+  lsKeys('wl:').forEach(function(k){ var d=k.slice(9); if(d<d1||d>n1) localStorage.removeItem(k); }); }catch(e){} }
+/* v10.41 저장본 주인: 접속 코드 해시(원래 코드는 따로 안 남김). 다른 코드로 들어오면 사람마다 다른 저장본(홈·현황·작업내역·작업리스트·초안·알림 상태 등)을 지움
+   — 공유 폰에서 앞사람 화면·초안이 보이지 않게. 기기 설정·사진·QR 기록·속도 기록은 둠. adopt = 저장된 코드로 자동 접속 (주인 표시가 없던 예전 폰은 그대로 이어 씀) */
+var LS_USER_RE=/^swapc:(home|tags2|tagv:|sw_home:|sw_roster|report:|pushme|pushAt|stock_pv|wl:|swday:|sysAt|rosterAt|wdnote:)/;
+function lsCodeHash(c){ var s=String(c||''), h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return ('000'+(h&0xffff).toString(16)).slice(-4); }   // 16비트만 (접속 코드 수천만 개 중 하나로 되돌려 찾을 수 없게 · 같은 폰에서 두 코드가 겹칠 확률 1/65536)
+function lsOwner(code,adopt){ if(!code) return; var o=lsCodeHash(code), cur=null; try{ cur=localStorage.getItem('swapc:_owner'); }catch(e){}
+  if(cur===o) return;
+  if(cur!==null||!adopt){ try{ Object.keys(localStorage).forEach(function(k){ if(LS_USER_RE.test(k)) localStorage.removeItem(k); }); }catch(e){} wlCache={}; swDayMem={}; swDayRun={}; SWH_AT={}; BOOT_PRE=null; PUSHME=null;
+    if(cur!==null){ worker=''; try{ localStorage.removeItem('swapWorker'); }catch(e){} } }   // 앞사람 이름으로 기록이 남지 않게 (이름이 정해진 코드는 applyAuth 가 다시 채움)
+  try{ localStorage.setItem('swapc:_owner',o); }catch(e){} }
 try{ localStorage.removeItem('swapc:tags'); }catch(e){}   // v10.11 까지 홈(60개)·현황(500개)이 같이 쓰던 캐시 → 현황은 'tags2', 홈은 'home' 으로 나눔 (남은 60개 목록으로 "60대"가 한 번 뜨지 않게)
 var wlCache={};   // 작업리스트 메모리 캐시 {date:{t,items}}
 var devCache={};  // 어드민 기기 조회 {reqId:promise}
-function getWorkListCached(date,force){ var c=wlCache[date]; if(!force&&c&&Date.now()-c.t<120000) return Promise.resolve(c.res);
-  return run('getWorkList',date).then(function(res){ wlCache[date]={t:Date.now(),res:res}; return res; }); }
+function getWorkListCached(date,force){ var c=wlCache[date]; if(!force&&c&&c.res&&Date.now()-c.t<120000) return Promise.resolve(c.res);
+  if(!force&&c&&c.p) return c.p;   // v10.41 같은 날짜를 받는 중이면 그 호출을 같이 씀 (열 때 미리 받기와 화면이 겹쳐 두 번 가던 것)
+  var p=run('getWorkList',date).then(function(res){ wlCache[date]={t:Date.now(),res:res}; wlSnapPut(date,res); return res; },
+    function(e){ var x=wlCache[date]; if(x&&x.p===p) delete x.p; throw e; });
+  wlCache[date]=Object.assign({},c||{},{p:p}); return p; }
+/* v10.41 작업리스트 날짜별 폰 저장 (어제~내일 · 접속 코드가 바뀌면 지움): 고객 주소는 안 남기고 메모 속 전화번호는 가림 */
+var PHONE_RE=/(?:\+?82[\s.\-)]*)?\d(?:[\s.\-)]*\d){8,11}/g;   // 전화번호처럼 이어진 숫자 9~12개 (+82·띄어쓰기·하이픈·괄호 포함)
+function wlSnapPut(date,res){ try{ var items=((res&&res.items)||[]).map(function(it){ var o=Object.assign({},it); delete o.addr; ['note','name','type'].forEach(function(f){ if(o[f]) o[f]=String(o[f]).replace(PHONE_RE,'***'); }); return o; });
+  lsSet('wl:'+date,{t:Date.now(),items:items,error:(res&&res.error)||''}); }catch(e){} }
 function getDevCached(reqId){ if(!devCache[reqId]) devCache[reqId]=run('getTaskDevices',reqId).catch(function(){ return {ok:false}; }); return devCache[reqId]; }
 function prefetch(){ if(SERVER!=='swap'||!canServer('swap')) return; getWorkListCached(todayISO(0)).catch(function(){}); }   // SWAP 권한 없는 코드는 서버가 막음 → 안 부름 · SWING 에선 안 씀 (v10.38: 열 때마다 서버 실행 1~2개 낭비였음)
 function slimItem(it){ return { reqId:it.reqId||'', subId:it.subId||'', name:it.name||'', type:it.type||'', model:it.model||'', color:it.color||'', serial:it.serial||'', frame:it.frame||'',
@@ -1026,12 +1065,19 @@ function needWorker(then){ if(worker){ then(); return; } openNameSheet(then); }
 /* ================= 홈 ================= */
 /* 홈 건수는 서버가 태그 시트 전체로 셈(homeTags) · 목록은 최근 8개만 받음.
    예전엔 최근 60개만 받아 여기서 세서, 현황 화면(500개)과 캐시를 같이 쓰면 92대 ↔ 60대로 오락가락했음 */
+/* v10.41 자동 접속 중에 홈 데이터를 미리 출발시킴 (같은 호출을 앞당김 · 서버 실행 수는 그대로) → 홈 화면이 1분 안이면 가져다 씀 */
+var BOOT_PRE=null;
+function bootPre(){ BOOT_PRE=null; try{
+  if(SERVER==='swap'&&canServer('swap')) BOOT_PRE={k:'home',p:homeLoad(),t:Date.now(),c:AUTH.code};
+  else if(SERVER==='swing'&&canServer('swing')){ var d=todayISO(-1); BOOT_PRE={k:'swh:'+d,p:run('swingWorkHome',d,false),t:Date.now(),c:AUTH.code}; }
+  if(BOOT_PRE) BOOT_PRE.p.catch(function(){}); }catch(e){ BOOT_PRE=null; } }
+function bootTake(k){ var b=BOOT_PRE; if(b&&b.k===k&&AUTH&&b.c===AUTH.code&&Date.now()-b.t<60000){ BOOT_PRE=null; return b.p; } return null; }   // 같은 코드로 보낸 것만 (자동 접속이 막히고 다른 사람이 들어오면 안 씀)
 function homeLoad(){ return run('homeTags',8).catch(function(e){ if(/허용되지 않은 요청/.test(e&&e.message||'')) return run('listTags',500); throw e; }); }   // 서버(Code.gs)가 아직 예전 버전이면 목록으로 셈
 VIEWS.home={ render:function(v){
-  v.onResume=function(){ VIEWS.home.render(v); };
-  v.refresh=function(){ return homeLoad().then(function(d){ lsSet('home',d); if(stack.indexOf(v)>=0) drawHome(v,d); }); };
+  v.onResume=function(){ if(resumeFresh(v)) return; VIEWS.home.render(v); };   // v10.41: 1분 안에 돌아왔고 그 사이 내가 바꾼 게 없으면 다시 안 받음
+  v.refresh=function(){ var t0=Date.now(); return homeLoad().then(function(d){ lsSet('home',d); v.state.at=t0; if(stack.indexOf(v)>=0) drawHome(v,d); }); };
   var cached=lsGet('home'); if(cached) drawHome(v,cached);
-  homeLoad().then(function(d){ lsSet('home',d); if(stack.indexOf(v)>=0) drawHome(v,d); refreshSysBg(); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)+' — 이전 데이터 표시 중'); });
+  var t0=Date.now(); (bootTake('home')||homeLoad()).then(function(d){ lsSet('home',d); v.state.at=t0; if(stack.indexOf(v)>=0) drawHome(v,d); refreshSysBg(); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)+' — 이전 데이터 표시 중'); });
 }};
 /* 태그 목록만 있을 때(예전 서버) 여기서 셈 */
 function homeCounts(tags){ var c={inside:0,shipped:0,sys:0,by:{}}; STATUSES.forEach(function(s){ c.by[s]=0; });
@@ -1221,10 +1267,10 @@ function handleScanned(text){
 function matchQR(item){ needWorker(function(){ push('scan',{match:item}); }); }
 
 /* ================= 현황 ================= */
-VIEWS.status={ render:function(v){ v.state.filter=v.state.filter||v.params.filter||'전체'; v.onResume=function(){ VIEWS.status.render(v); };
-  v.refresh=function(){ return run('listTags',500).then(function(tags){ lsSet('tags2',tags); if(stack.indexOf(v)>=0){ v.state.tags=tags; drawStatus(v); } }); };
+VIEWS.status={ render:function(v){ v.state.filter=v.state.filter||v.params.filter||'전체'; v.onResume=function(){ if(resumeFresh(v)) return; VIEWS.status.render(v); };   // v10.41 1분 안 · 내가 안 바꿨으면 다시 안 받음 (500대 목록)
+  v.refresh=function(){ var t0=Date.now(); return run('listTags',500).then(function(tags){ lsSet('tags2',tags); v.state.at=t0; if(stack.indexOf(v)>=0){ v.state.tags=tags; drawStatus(v); } }); };
   var cached=lsGet('tags2'); if(cached){ v.state.tags=cached; drawStatus(v); }
-  run('listTags',500).then(function(tags){ lsSet('tags2',tags); if(stack.indexOf(v)<0) return; v.state.tags=tags; drawStatus(v); refreshSysBg(); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)); }); }};
+  var t0=Date.now(); run('listTags',500).then(function(tags){ lsSet('tags2',tags); v.state.at=t0; if(stack.indexOf(v)<0) return; v.state.tags=tags; drawStatus(v); refreshSysBg(); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)); }); }};
 function drawStatus(v){ var f=v.state.filter; var tags=v.state.tags||[]; tags.forEach(normStatus);
   var inside=tags.filter(function(t){ return !shipped(t); });   // 출고완료(배송내역)는 공장 안에 없는 기기 → 전체에서 뺌
   var list=tags.filter(function(t){ if(f==='배송내역') return shipped(t); if(shipped(t)) return false; if(f==='전체') return true; if(f==='전산미완료') return sysIssue(t); return t['상태']===f; });
@@ -1243,7 +1289,7 @@ function drawStatus(v){ var f=v.state.filter; var tags=v.state.tags||[]; tags.fo
 function setFilter(s){ var v=stack[stack.length-1]; v.state.filter=s; drawStatus(v); }
 
 /* ================= 검색 ================= */
-VIEWS.search={ render:function(v){ v.state.q=v.state.q||''; v.onResume=function(){ if(v.state.q) doSearch(v,v.state.q,true); };
+VIEWS.search={ render:function(v){ v.state.q=v.state.q||''; v.onResume=function(){ if(v.state.q&&!(v.state.res&&resumeFresh(v))) doSearch(v,v.state.q,true); };   // v10.41 1분 안 · 내가 안 바꿨으면 다시 안 찾음 (서버 2개)
   v.refresh=function(){ return v.state.q ? doSearch(v,v.state.q,true) : Promise.resolve(); };
   drawSearch(v); if(!v.state.q) setTimeout(function(){ var i=$('sq'); if(i&&stack.indexOf(v)>=0) i.focus(); },450); }};
 function drawSearch(v){ reanim(v); var q=v.state.q;
@@ -1259,12 +1305,25 @@ function searchTyped(val){ var v=stack[stack.length-1]; v.state.q=val; clearTime
   if(!clr){ var b=document.createElement('button'); b.className='clr'; b.textContent='×'; b.onclick=clearSearch; v.el.querySelector('.srch').appendChild(b); }
   searchT=setTimeout(function(){ doSearch(v,val); },450); }
 function clearSearch(){ var v=stack[stack.length-1]; v.state.q=''; v.state.res=null; v.state.adm=null; drawSearch(v); $('sq').focus(); }
-function doSearch(v,q,silent){ q=String(q||'').trim(); v.state.q=q; if(!q) return Promise.resolve(); var seq=v.state.seq=(v.state.seq||0)+1;
-  if(!silent||!v.state.res){ $('sres').innerHTML=spin('찾는 중'); }
+/* v10.42 검색: 이 폰에 저장된 목록(현황·홈·최근 연 기기·작업리스트 어제~내일)에서 서버와 같은 칸으로 먼저 찾아 바로 보여줌 → 서버 결과가 오면 바꿈.
+   저장된 작업리스트 건은 보기만 (누르면 서버 결과를 기다림 · 등록은 서버 목록으로) · 어드민 결과는 저장 안 함 */
+function searchLocal(q){ var ql=String(q||'').trim().toLowerCase(); if(!ql) return null; var hit=function(fs){ return fs.some(function(f){ return String(f||'').toLowerCase().indexOf(ql)>=0; }); };
+  var by={}; [(lsGet('home')||{}).tags,lsGet('tags2')].concat(lsKeys('tagv:').map(function(k){ var x=null; try{ x=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){} return x&&x.tag?[x.tag]:[]; }))
+    .forEach(function(a){ (Array.isArray(a)?a:[]).forEach(function(t){ var c=String((t&&t['코드'])||'').toUpperCase(); if(!c) return; if(!by[c]||String(t['최종변경시각']||'')>String(by[c]['최종변경시각']||'')) by[c]=t; }); });
+  var tags=Object.keys(by).map(function(c){ return by[c]; }).filter(function(t){ return hit([t['고객명'],t['일련번호'],t['코드'],t['출고일련번호'],t['수거일련번호'],t['차대번호']]); })
+    .sort(function(a,b){ return String(b['최종변경시각']||'').localeCompare(String(a['최종변경시각']||'')); }).slice(0,20).map(function(t){ var o=JSON.parse(JSON.stringify(t)); delete o.history; return o; });
+  var wl=[], seen={}; lsKeys('wl:').sort().reverse().forEach(function(k){ var x=null; try{ x=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){} ((x&&x.items)||[]).forEach(function(it){ var id=(it.reqId||'')+'|'+(it.subId||''); if(seen[id]||!hit([it.name,it.serial,it.frame,it.reqId,it.subId])) return; seen[id]=1; wl.push(it); }); });
+  return {q:q,tags:tags,worklist:wl.slice(0,30),local:true}; }
+function doSearch(v,q,silent){ q=String(q||'').trim(); v.state.q=q; if(!q) return Promise.resolve(); var seq=v.state.seq=(v.state.seq||0)+1, t0=Date.now();
+  if(!silent||!v.state.res){ var lr=canServer('swap')?searchLocal(q):null;
+    if(lr&&(lr.tags.length||lr.worklist.length)){ v.state.res=lr; v.state.adm={loading:true}; drawSearchRes(v); } else { v.state.res=null; v.state.adm=null; $('sres').innerHTML=spin('찾는 중'); } }
   v.state.adm={loading:true}; var admP=(q.length>=2)? run('searchAdmin',q).catch(function(e){ return {ok:false,error:e.message,items:[]}; }) : Promise.resolve({ok:false,error:'2글자 이상',items:[]});
-  return run('search',q).then(function(res){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.res=res; drawSearchRes(v);
+  return run('search',q).then(function(res){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.res=res; v.state.at=t0; drawSearchRes(v);
     return admP.then(function(a){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.adm=a; drawSearchRes(v); }); })
-    .catch(function(e){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; $('sres').innerHTML=errBox(e); }); }
+    .catch(function(e){ if(stack.indexOf(v)<0||v.state.seq!==seq) return;
+      if(v.state.res&&v.state.res.local&&v.state.res.q===q){ v.state.res.localErr=(e&&e.message)||'검색 실패'; drawSearchRes(v);
+        admP.then(function(a){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.adm=a; drawSearchRes(v); }); return; }   // 어드민 칸은 따로 받은 대로
+      $('sres').innerHTML=errBox(e); }); }
 function dispName(it){ return it.name || (it.stock?'재고 기기':'') || [it.model,it.serial].filter(Boolean).join(' ') || '기기'; }
 function itemWork(it,idxKey){ var kinds=it.registeredKinds||[]; var isAdm=it.source==='admin';
   return '<button class="item" onclick="pickSearch(\''+idxKey+'\')">'+devAv(it.model||it.changeModel,it.color||it.changeColor)+'<div class="bd">'+
@@ -1273,6 +1332,7 @@ function itemWork(it,idxKey){ var kinds=it.registeredKinds||[]; var isAdm=it.sou
     '<div class="sub">'+esc([it.model,it.color].filter(Boolean).join(' '))+(it.changeModel?' → '+esc(it.changeModel)+' '+esc(it.changeColor||''):'')+(it.serial?' · <span class="sn">'+esc(it.serial)+'</span>':'')+'</div></div>'+
     '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>'; }
 function drawSearchRes(v){ var r=v.state.res||{tags:[],worklist:[]}; var a=v.state.adm||{}; var q=v.state.q; var h='';
+  if(r.local) h+='<div class="card stkstale"><b>이 폰에 저장된 목록에서 먼저 찾았어요</b><br>'+(r.localErr?'<span style="color:var(--danger)">서버 검색 실패 · '+esc(r.localErr)+'</span><button class="btn line sm" style="margin-top:10px" onclick="doSearch(stack[stack.length-1],stack[stack.length-1].state.q)">다시 찾기</button>':'<span class="muted">서버에서 확인하는 중… 작업리스트 건은 확인이 끝나면 고를 수 있어요.</span>')+'</div>';   // v10.42
   h+='<div class="sec"><span>등록된 QR</span><span>'+r.tags.length+'건</span></div>';
   h+=r.tags.length?'<div class="list">'+r.tags.map(itemTag).join('')+'</div>':'<div class="card" style="padding:16px 20px"><p class="muted" style="margin:0">등록된 QR 중에는 없어요.</p></div>';
   h+='<div class="sec"><span>작업리스트</span><span>'+r.worklist.length+'건</span></div>';
@@ -1285,7 +1345,8 @@ function drawSearchRes(v){ var r=v.state.res||{tags:[],worklist:[]}; var a=v.sta
   else h+='<div class="card" style="padding:16px 20px"><p class="muted" style="margin:0">'+(a.ok?('어드민에도 없어요.'+(a.note?' ('+esc(a.note)+')':'')):'어드민 검색 불가 — '+esc(a.error||''))+'</p></div>';
   h+='<button class="btn line" style="margin-top:16px" onclick="manualStock(\''+jsa(q)+'\')">🏷️ 재고 기기 직접 입력해서 등록</button>';
   var box=$('sres'); if(box){ box.innerHTML=h; } }
-function pickSearch(key){ var v=stack[stack.length-1]; var it=key[0]==='w' ? v.state.res.worklist[+key.slice(1)] : v.state.adm.items[+key.slice(1)]; if(!it) return;
+function pickSearch(key){ var v=stack[stack.length-1]; if(key[0]==='w'&&v.state.res&&v.state.res.local){ toast(v.state.res.localErr?'서버 검색이 안 됐어요 · 위의 다시 찾기를 눌러 주세요':'서버에서 확인하는 중이에요 · 잠시 뒤 다시 눌러 주세요'); return; }   // v10.42 저장된 작업리스트 건은 보기만
+  var it=key[0]==='w' ? v.state.res.worklist[+key.slice(1)] : v.state.adm.items[+key.slice(1)]; if(!it) return;
   var kinds=it.registeredKinds||[];
   openSheet('<h3>'+esc(dispName(it))+' <span class="muted" style="font-size:14px;font-weight:600">'+esc(it.type||'')+'</span></h3>'+
     '<p>'+esc([it.model,it.color].filter(Boolean).join(' '))+(it.serial?' · '+esc(it.serial):'')+(it.date?'<br>작업 예정 '+esc(it.date):'')+(it.reqId?'<br>고객요청 '+esc(it.reqId):'')+'</p>'+
@@ -1313,11 +1374,29 @@ function fallbackCopy(t){ var ta=document.createElement('textarea'); ta.value=t;
 function tagSnap(code){ code=String(code||'').toUpperCase(); var best=null;
   [(lsGet('home')||{}).tags,lsGet('tags2')].forEach(function(a){ if(!Array.isArray(a)) return;
     a.forEach(function(t){ if(t&&String(t['코드']||'').toUpperCase()===code&&(!best||String(t['최종변경시각']||'')>String(best['최종변경시각']||''))) best=t; }); });
+  var tv=lsGet('tagv:'+code), vt=tv&&tv.tag;   // v10.42 최근에 연 기기는 이력까지 저장돼 있음 → 목록 것보다 새것이거나 같으면 그걸로
+  if(vt&&String(vt['코드']||'').toUpperCase()===code&&(!best||String(vt['최종변경시각']||'')>=String(best['최종변경시각']||''))){ try{ return JSON.parse(JSON.stringify(vt)); }catch(e){} }
   if(!best) return null; try{ best=JSON.parse(JSON.stringify(best)); }catch(e){ return null; } delete best.history; return best; }
+/* v10.42 기기(QR)별 최근 상세를 이력까지 이 폰에 저장 (30대 · 접속 코드가 바뀌면 지움) — 같은 기기를 다시 찍으면 이력까지 바로 (버튼은 최신이 올 때까지 잠금 그대로) */
+var TAGV_MAX=30;
+function tagvPut(tag){ if(!tag||!tag['코드']) return; var code=String(tag['코드']).toUpperCase();
+  lsSet('tagv:'+code,{t:Date.now(),tag:tag});
+  var ks=lsKeys('tagv:'); if(ks.length<=TAGV_MAX) return;
+  ks.map(function(k){ var x=null; try{ x=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){} return {k:k,t:(x&&x.t)||0}; }).sort(function(a,b){ return a.t-b.t; })
+    .slice(0,ks.length-TAGV_MAX).forEach(function(x){ try{ localStorage.removeItem(x.k); }catch(e){} }); }
 /* 비우거나 교체한 QR 은 저장된 목록에서 뺌 (다시 찍었을 때 예전 기기 화면이 잠깐 뜨지 않게) */
+/* v10.41 방금 등록·변경한 기기를 저장된 홈·현황 목록 맨 앞에 고쳐 넣음 (이력은 빼고) */
+function tagSnapPut(tag){ if(!tag||!tag['코드']) return; var code=String(tag['코드']).toUpperCase(), t; try{ t=JSON.parse(JSON.stringify(tag)); }catch(e){ return; } delete t.history;
+  var put=function(a){ a=a.filter(function(x){ return !(x&&String(x['코드']||'').toUpperCase()===code); }); a.unshift(t); return a; };
+  var h=lsGet('home'); if(h&&Array.isArray(h.tags)){ h.tags=put(h.tags).slice(0,Math.max(8,h.tags.length)); lsSet('home',h); } var a=lsGet('tags2'); if(Array.isArray(a)) lsSet('tags2',put(a)); }
 function tagSnapDrop(code){ code=String(code||'').toUpperCase(); var keep=function(t){ return !(t&&String(t['코드']||'').toUpperCase()===code); };
+  try{ localStorage.removeItem('swapc:tagv:'+code); }catch(e){}
   var h=lsGet('home'); if(h&&Array.isArray(h.tags)){ h.tags=h.tags.filter(keep); lsSet('home',h); } var a=lsGet('tags2'); if(Array.isArray(a)) lsSet('tags2',a.filter(keep)); }
-function tagGot(v,code,tag){ if(stack.indexOf(v)<0) return;
+/* v10.41 getTag 이 서버에서 바꾼 기기(자동 출고준비완료·전산 상태 등)면 저장된 목록도 고치고 돌아갈 화면은 새로 받게 */
+function tagChanged(a,b){ return ['상태','어드민상태','최종변경시각','전산매칭','sysPending','신품'].some(function(k){ return String(a[k]==null?'':a[k])!==String(b[k]==null?'':b[k]); }); }
+function tagGot(v,code,tag){ if(tag){ var sn=tagSnap(code); if(sn&&tagChanged(sn,tag)){ DIRTY_AT=Date.now(); tagSnapPut(tag); } }
+  if(!tag) tagSnapDrop(code);   // v10.42 다른 사람이 비운 QR → 저장된 상세·목록에서도 뺌 (다시 찍었을 때 예전 기기 화면이 안 뜨게)
+  if(stack.indexOf(v)<0) return;
   if(tag){ if(v.state.stale) v.state.unlocked=undefined;   // 저장 화면 → 최신으로 바꿀 땐 잠금 풀림 애니메이션·진동 없이
     v.state.stale=false; v.state.staleErr=''; v.state.tag=tag; drawTag(v); return; }
   if(stack[stack.length-1]===v){ replace('register',{code:code}); return; }
@@ -1336,6 +1415,7 @@ VIEWS.tag={ render:function(v){ var code=v.params.code;
   tagLoad(v); }};
 function accList(str){ return String(str||'').split(/[,、\n]/).map(function(x){return x.trim();}).filter(Boolean); }
 function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=normStatus(v.state.tag); var out=isOut(t);
+  if(!v.state.stale&&t&&t['코드']&&canServer('swap')){ var sig=String(t['최종변경시각']||'')+'|'+((t.history||[]).length)+'|'+String(t['상태']||''); if(v._tagvSig!==sig){ v._tagvSig=sig; tagvPut(t); } }   // v10.42 최신 상세를 이 폰에 (바뀌었을 때만)
   var pair = out ? (t['수거일련번호']||'') : (t['출고일련번호']||''); if(pair&&pair===t['일련번호']) pair='';   // 자기 자신은 짝 기기가 아님
   var h=title('<span class="code-badge">'+esc(t['코드'])+'</span>','');
   var stale=!!v.state.stale; v.el.classList.toggle('tagstale',stale);   // v10.34 저장된 화면 → 버튼 잠금
@@ -1591,7 +1671,7 @@ function drawKindFirst(v){ reanim(v); v.state.step=0; var k=v.state.kind;
 function kindFirst(k){ var v=regView(); if(!v) return; haptic(8); v.state.kind=k; v.state.serial=''; v.state.frame=''; v.state.dev=null; v.state.selected=null;
   if(k==='재고') drawStockFind(v); else loadList(v,v.state.date); }
 /* 목록에서 작업을 고른 뒤: 출고/수거를 이미 골랐으면 바로 일련번호, 아니면(예전 흐름) 출고/수거 고르기 */
-function goFromList(){ var v=regView(); if(!v) return; if(v.state.kind&&!v.params.item) toStep3(); else toStep2(); }
+function goFromList(){ var v=regView(); if(!v) return; if(v.state.wlSnap){ toast('최신 목록을 받은 뒤에 갈 수 있어요'); return; } if(v.state.kind&&!v.params.item) toStep3(); else toStep2(); }
 function step3Back(){ var v=regView(); if(!v) return; var f=$('f_serial'); if(f) v.state.serial=f.value;
   if(v.params.item) drawStep2(v); else if(v.state.kind==='재고') drawStockFind(v); else drawStep1(v); }
 /* 작업이 고른 구분과 안 맞아 보이면 알려줌 (예: 해지 건인데 출고) */
@@ -1661,16 +1741,25 @@ function cdDraw(v){ v.el.innerHTML=title('고객 기기',esc(v.params.q)+' · �
   '<div class="tipb">창고에 들어온 <b>반납</b> 기기를 누르면 QR을 찍어 재고로 등록해요. 이미 QR이 있는 기기는 그 QR로 가요.</div>'+cdHtml(v.state.r); }
 function stepsBar(n){ var h='<div class="steps">'; for(var i=1;i<=5;i++) h+='<i class="'+(i<=n?'on':'')+'"></i>'; return h+'</div>'; }
 function loadList(v,date,force){ v.state.date=date; v.state.selected=null; v.state.step=1; var c=wlCache[date], seq=v.state.lseq=(v.state.lseq||0)+1;
-  if(force||!c||Date.now()-c.t>=120000) v.el.innerHTML=spin('작업리스트 불러오는 중');   // 새로 받는 중이면 로딩 표시 (예전 목록은 안 보임)
+  var fresh=!force&&c&&c.res&&Date.now()-c.t<120000, snap=(!fresh&&!force)?lsGet('wl:'+date):null;
+  v.state.wlSnap=0; v.state.wlSnapErr='';
+  if(snap&&Array.isArray(snap.items)){ v.state.list=snap.items; v.state.err=snap.error||''; v.state.wlSnap=snap.t||1; drawStep1(v); }   // v10.41 이 폰에 저장된 목록을 먼저 ('다음'은 최신이 올 때까지 잠금)
+  else if(!fresh) v.el.innerHTML=spin('작업리스트 불러오는 중');   // 새로 받는 중이면 로딩 표시
   var live=function(){ return stack.indexOf(v)>=0&&v.state.step===1&&v.state.date===date&&v.state.lseq===seq; };   // 그 사이 다른 단계로 갔으면 늦게 온 결과로 덮지 않음
-  return getWorkListCached(date,force).then(function(res){ if(!live()) return; v.state.list=res.items||[]; v.state.err=res.error; drawStep1(v); })
-    .catch(function(e){ if(!live()) return; v.el.innerHTML=errBox(e)+(v.state.kind&&!v.params.item?'<button class="btn line" onclick="drawKindFirst(regView())">‹ 출고/수거/재고 다시 고르기</button>':''); }); }
+  return getWorkListCached(date,force).then(function(res){ if(!live()) return;
+      var sel=v.state.selected!==null&&v.state.list?v.state.list[v.state.selected]:null;   // 저장된 목록에서 골라 둔 건은 새 목록에서 같은 건으로 (없으면 고르기 풂)
+      v.state.list=res.items||[]; v.state.err=res.error; v.state.wlSnap=0; v.state.wlSnapErr='';
+      if(sel){ var ni=-1; v.state.list.forEach(function(it,i){ if(ni<0&&it.reqId===sel.reqId&&String(it.subId||'')===String(sel.subId||'')) ni=i; }); v.state.selected=ni>=0?ni:null; if(ni<0){ v.state.dev=null; v.state.serial=''; v.state.frame=''; } }
+      drawStep1(v); })
+    .catch(function(e){ if(!live()) return; if(v.state.wlSnap){ v.state.wlSnapErr=(e&&e.message)||'불러오기 실패'; drawStep1(v); return; }
+      v.el.innerHTML=errBox(e)+(v.state.kind&&!v.params.item?'<button class="btn line" onclick="drawKindFirst(regView())">‹ 출고/수거/재고 다시 고르기</button>':''); }); }
 function drawStep1(v){ reanim(v); v.state.step=1; var d=v.state.date;
   var kf=v.state.kind&&!v.params.item;   // 출고/수거를 먼저 고른 흐름
   var h=title('<span class="code-badge">'+esc(v.params.code)+'</span>',kf?('2/5 · '+kindName(v.state.kind)+' 기기 · 어떤 작업인가요?'):'1/5 · 어떤 작업의 기기인가요?')+stepsBar(kf?2:1);
   if(kf) h+='<button class="btn line sm" style="margin:0 0 12px;width:auto;padding:0 14px" onclick="drawKindFirst(regView())">‹ 출고/수거/재고 다시 고르기</button>';
   h+='<div class="seg">'+[['어제',-1],['오늘',0],['내일',1]].map(function(x){ var iso=todayISO(x[1]); return '<button class="'+(d===iso?'on':'')+'" onclick="loadList(stack[stack.length-1],\''+iso+'\')">'+x[0]+'</button>'; }).join('')+'</div>';
   h+='<div class="row" style="margin:0 0 10px"><input type="date" class="input" style="flex:1" value="'+esc(d)+'" onchange="loadList(stack[stack.length-1],this.value)"><input class="input" style="flex:1.4" id="q" placeholder="이름·모델·일련번호" oninput="drawItems()"><button class="btn line sm" style="flex:0 0 auto;padding:0 14px" onclick="loadList(stack[stack.length-1],stack[stack.length-1].state.date,true)" title="새로고침">↻</button></div>';
+  if(v.state.wlSnap) h+='<div class="card stkstale"><b>이 폰에 저장된 목록이에요</b> ('+esc(fmtAgo(v.state.wlSnap))+')<br>'+(v.state.wlSnapErr?'<span style="color:var(--danger)">최신 목록을 못 불러왔어요 · '+esc(v.state.wlSnapErr)+'</span><button class="btn line sm" style="margin-top:10px" onclick="loadList(stack[stack.length-1],stack[stack.length-1].state.date,true)">다시 시도</button>':'<span class="muted">최신 목록을 받는 중… 미리 골라 둘 수 있고, 다 받으면 다음으로 갈 수 있어요.</span>')+'</div>';   // v10.41
   if(v.state.err) h+='<div class="note">'+esc(v.state.err)+'</div>';
   h+='<div id="items"></div><div id="confirm"></div>'; v.el.innerHTML=h; drawItems(); }
 function drawItems(){ var v=stack[stack.length-1]; var q=(($('q')||{}).value||'').trim().toLowerCase();
@@ -1690,7 +1779,7 @@ function pick(i){ var v=stack[stack.length-1]; v.state.selected=(v.state.selecte
 function drawConfirm(){ var v=stack[stack.length-1]; var box=$('confirm'); if(!box) return; if(v.state.selected===null){ box.innerHTML=''; return; } var it=v.state.list[v.state.selected];
   box.innerHTML='<div class="stickybar"><div class="card" style="margin:0;box-shadow:0 10px 36px rgba(25,31,40,.16)"><div style="font-weight:800;font-size:17px;letter-spacing:-.3px">'+esc(it.name)+' <span class="muted" style="font-weight:600">'+esc(it.type)+'</span></div>'+
     (v.state.kind&&!v.params.item?kindHint(it,v.state.kind):'')+
-    '<button class="btn" style="margin-top:12px" onclick="goFromList()">'+(v.state.kind&&!v.params.item?'다음 · 일련번호':'다음 · 출고/수거 선택')+'</button></div></div>'; box.scrollIntoView({behavior:'smooth',block:'end'}); }
+    '<button class="btn" style="margin-top:12px" onclick="goFromList()"'+(v.state.wlSnap?' disabled':'')+'>'+(v.state.kind&&!v.params.item?'다음 · 일련번호':'다음 · 출고/수거 선택')+'</button></div></div>'; box.scrollIntoView({behavior:'smooth',block:'end'}); }
 function toStep2(){ var v=stack[stack.length-1]; var it=v.state.list[v.state.selected];
   if(!v.state.kind) v.state.kind = it.stock ? '재고' : (/주문|재배송/.test(it.type) ? '출고' : (/해지|철회|대차 진행 X/.test(it.type) ? '입고' : null));
   drawStep2(v); }
@@ -1742,7 +1831,7 @@ function drawStep5(v){ reanim(v); v.state.step=5; var it=v.state.list[v.state.se
 function doRegister(force){ needWorker(function(){ var v=stack[stack.length-1]; var it=v.state.list[v.state.selected]; if(!it) return;
   if($('f_note')) v.state.note=$('f_note').value; v.el.innerHTML=spin('등록 중');
   run('register',{code:v.params.code,worker:worker,item:slimItem(it),kind:v.state.kind,serial:v.state.serial,frame:v.state.frame,accessories:String(v.state.acc||'').slice(0,300),note:String(v.state.note||'').slice(0,500),force:!!force}).then(function(res){
-    if(res.ok){ toast('등록 완료'); try{ localStorage.removeItem('swapc:tags2'); localStorage.removeItem('swapc:home'); }catch(e){} replace('tag',{code:v.params.code,tag:res.tag}); return; }
+    if(res.ok){ toast('등록 완료'); tagSnapPut(res.tag); replace('tag',{code:v.params.code,tag:res.tag}); return; }   // v10.41: 저장된 목록을 지우지 않고 이 기기만 고쳐 넣음 (바로 열기가 등록 직후에도 · 홈·현황은 돌아오면 새로 받음)
     drawStep5(v);
     if(res.needConfirm){ openSheet('<h3>이미 등록된 기기</h3><p>'+esc(res.error)+'</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet();doRegister(true)">그래도 등록</button></div>'); } else toast(res.error);
   }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
@@ -1875,9 +1964,10 @@ function swSearchTyped(val){ var v=stack[stack.length-1]; v.state.q=val; v.state
 function swSearchScan(){ haptic(8); push('scan',{swingq:true}); }   // 찍으면 handleScanned 가 QR 값을 검색창에 넣고 검색
 function swSearchRun(v){ v=v||stack[stack.length-1]; var q=String(v.state.q||'').trim().toUpperCase(); if(!q){ toast('QR 또는 IMEI 를 입력해 주세요'); return; }
   var box=$('swres'); if(!box) return; v.state.res={loading:true}; v.state.open=false;
-  box.innerHTML='<div class="card"><div class="loadlogo" style="padding:18px 0 10px">'+curLogo()+'<span>향남 → 수원 순서로 찾는 중</span><span class="muted" style="font-size:12px;margin-top:4px">어드민 서버에서 바로 찾아요 · 새 검색이 안 되면 기기 목록을 새로 받느라 20~30초 걸릴 수 있어요</span></div></div>';
+  var mh=swQrMapGet(q);   // v10.42 전에 찾아본 기기면 어드민 접속 링크를 바로 (배터리·상태·위치는 어드민에서 받는 중 · 상태 변경은 받은 뒤에)
+  box.innerHTML=(mh?swSearchSkel(mh):'')+'<div class="card"><div class="loadlogo" style="padding:18px 0 10px">'+curLogo()+'<span>'+(mh?'배터리·상태 확인 중':'향남 → 수원 순서로 찾는 중')+'</span><span class="muted" style="font-size:12px;margin-top:4px">어드민 서버에서 바로 찾아요 · 새 검색이 안 되면 기기 목록을 새로 받느라 20~30초 걸릴 수 있어요</span></div></div>';
   var seq=v.state.seq=(v.state.seq||0)+1;
-  run('swingSearch',q).then(function(r){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.res=r; swSearchDrawCard(v); if(r.found) haptic([10,30,10]); })
+  run('swingSearch',q).then(function(r){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.res=r; if(r&&r.found&&r.card) swQrMapPut(r.card); swSearchDrawCard(v); if(r.found) haptic([10,30,10]); })
     .catch(function(e){ if(stack.indexOf(v)<0||v.state.seq!==seq) return; v.state.res={ok:false,error:e.message}; swSearchDrawCard(v); }); }
 function swBattClass(b){ return b===null?'':(b>=60?'ok':(b>=30?'mid':'low')); }
 /* SWING 기기 아바타: 어드민 지도 마커와 같은 킥보드/자전거/모페드 아이콘 (S* 킥보드 · W* 자전거 · I* 모페드, 모르면 킥보드) */
@@ -1913,7 +2003,18 @@ function swStatusGo(type){ var v=stack[stack.length-1]; var c=v.state.res&&v.sta
   needWorker(function(){ closeSheet(function(){ var box=$('swres'); if(box) box.innerHTML='<div class="card"><div class="loadlogo" style="padding:18px 0 10px">'+curLogo()+'<span>어드민에 반영하는 중</span></div></div>';
     run('swingSetStatus',c.imei,type,reason,worker,{account:c.account||c.band||'',qr:c.qr||'',model:c.model||''}).then(function(r){ if(stack.indexOf(v)<0) return; if(!r.ok){ toast(r.error); swSearchDrawCard(v); return; } haptic([12,40,18]); if(r.card){ v.state.res.card=r.card; } else { c.status=type; c.statusLabel=r.label||type; if(type==='Broken') c.broken=true; if(type==='Fixed') c.broken=false; } v.state.open=true; swSearchDrawCard(v); toast(r.label+' 처리 완료'+(r.logged===false?' · 이력 기록은 잠시 뒤 자동 저장':'')); })
       .catch(function(e){ if(stack.indexOf(v)<0) return; toast('실패: '+(e&&e.message||e)); swSearchDrawCard(v); }); }); }); }
-function swCardToggle(){ haptic(8); var v=stack[stack.length-1]; v.state.open=!v.state.open; var c=$('devcard'); if(c) c.classList.toggle('open',v.state.open); var p=$('swstat'); if(p){ p.style.display=v.state.open?'':'none'; if(v.state.open){ p.classList.remove('anim'); p.querySelector('.card').style.animation='rise .42s var(--spring) both'; } } }
+/* v10.42 SWING 기기 QR→IMEI 지도 (이 폰 · 200대): QR·IMEI·기종·계정·지역·어드민 주소만 — 위치·배터리·상태는 안 남김 (라이딩 중 위치는 고객 위치) */
+function swQrMapGet(q){ q=String(q||'').trim().toUpperCase(); var m=lsGet('sw_qrmap')||{}; return m[q]||null; }
+function swQrMapPut(c){ if(!c||!c.imei) return; var m=lsGet('sw_qrmap')||{}, e={qr:String(c.qr||'').toUpperCase(),imei:String(c.imei),model:c.model||'',account:c.account||'',band:c.band||'',adminUrl:c.adminUrl||'',at:Date.now()};
+  if(e.qr) m[e.qr]=e; m[e.imei.toUpperCase()]=e;
+  var ks=Object.keys(m); if(ks.length>400) ks.sort(function(a,b){ return (m[a].at||0)-(m[b].at||0); }).slice(0,ks.length-400).forEach(function(k){ delete m[k]; });
+  lsSet('sw_qrmap',m); }
+function swSearchSkel(e){ return '<div class="devcard" id="devcard"><button class="main" onclick="toast(\'배터리·상태를 확인하는 중이에요\')">'+swVehAv(e.model)+
+    '<div class="bd"><div class="nm"><b class="mono">'+esc(e.qr||e.imei)+'</b>'+(e.model?'<span class="pill" style="background:var(--fill);color:var(--ink2);font-size:11px;padding:3px 8px">'+esc(e.model)+'</span>':'')+'</div>'+
+    '<div class="chips2"><span class="ch band">'+esc(e.band||'-')+'</span><span class="ch"><i></i>확인 중</span></div></div></button>'+
+    (e.adminUrl?'<a class="go" href="'+esc(e.adminUrl)+'" target="_blank" rel="noopener" onclick="haptic(10)"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>어드민<br>접속</a>':'')+'</div>'+
+    '<p class="muted" style="margin:8px 6px 10px;font-size:12px">이 폰에 저장된 기기 정보예요 · IMEI '+esc(e.imei)+(e.account?' · '+esc(e.account)+' 계정':'')+'</p>'; }
+function swCardToggle(){ haptic(8); var v=stack[stack.length-1]; if(v.state.res&&v.state.res.loading){ toast('배터리·상태를 확인하는 중이에요'); return; } v.state.open=!v.state.open; var c=$('devcard'); if(c) c.classList.toggle('open',v.state.open); var p=$('swstat'); if(p){ p.style.display=v.state.open?'':'none'; if(v.state.open){ p.classList.remove('anim'); p.querySelector('.card').style.animation='rise .42s var(--spring) both'; } } }
 function swSearchDrawLocal(v){ var q=String(v.state.q||'').trim().toLowerCase(); var box=$('swres'); if(!box) return;
   if(!q){ box.innerHTML='<div class="card"><div class="empty">QR을 찍거나 QR 코드·IMEI 를 입력하고<br>엔터를 누르면 향남·수원 어드민에서 찾아요.</div></div>'; return; }
   var qr=can('swing.sw_qr')?swQrList().filter(function(r){ return r.serial.toLowerCase().indexOf(q)>=0; }):[];   // QR 스캔·사진모음 권한이 꺼져 있으면 검색에도 안 보임
@@ -1961,7 +2062,7 @@ var swDayMem={};   // {date:{t,res}} 작업자 작업내역·세부가 같이 �
 function swWorkMin(){ return todayISO(-365); }
 function swIsDayView(v){ return v&&(v.name==='sw_work'||v.name==='sw_wd'); }
 /* 작업자가 바뀌면 캐시를 비우고, 열려 있는 작업내역·세부는 맨 위면 바로, 아래 깔려 있으면 돌아올 때 다시 불러오게 */
-function swWorkInvalidate(){ swDayMem={}; var top=stack[stack.length-1];
+function swWorkInvalidate(){ swDayMem={}; SWH_AT={}; lsSet('rosterAt',0); var top=stack[stack.length-1];
   stack.forEach(function(v){ if(swIsDayView(v)){ if(v===top) swDayLoad(v,v.state.date,true); else v.state.stale=true; } else if(v.name==='home'&&SERVER==='swing') v.state.stale=true; }); }
 function swWorkProg(v,p,q){ var s=v.el.querySelector('.loadlogo > span:not(.slogo)'); if(s) s.textContent=(q?'처음 보는 지난 날짜라 서버가 뒤에서 받는 중 · ':'어드민 기록 받는 중 · ')+Math.max(1,Math.min(99,Math.round((p||0)*100)))+'%';
   var m=v.el.querySelector('.loadlogo'); if(m&&q&&!m.querySelector('.bfq')){ var e=document.createElement('span'); e.className='muted bfq'; e.style.cssText='font-size:12px;margin-top:4px'; e.textContent='보통 2~5분 (앞에 받을 날짜가 있으면 더) · 다른 화면을 써도 돼요 (다 받으면 바로 열려요)'; m.appendChild(e); } }   // v10.38 지난 날짜 백그라운드 받기
@@ -1985,18 +2086,22 @@ function swHomeDays(v){ var d=v.state.date, h='<div class="days">';
 function swHomeGo(date){ var v=stack[stack.length-1]; if(!v||v.name!=='home'||SERVER!=='swing'||v.state.date===date) return; haptic(6); v.state.date=date; v.state.auto=(date===todayISO(-1)); resetCount(v); swHomeLoad(v,false); }
 function swHomeHead(v){ return '<div class="hello"><div class="date"><span class="hlogo">'+LOGO_SWING+'</span> 스윙과사람들 작업</div><h1 class="swt">작업내역 간단 보고</h1></div>'+swHomeDays(v); }
 /* 폰에 저장해 둔 마지막 결과를 먼저 그리고(바로 뜸), 뒤에서 서버 결과로 바꾼다 */
-function swHomeLoad(v,quiet,fresh){ var date=v.state.date, tok=v.state.tok=(v.state.tok||0)+1, cached=lsGet('sw_home:'+date), steps=0, fails=0, later=0;   // fresh = 당겨서 새로고침 (그냥 열면 오늘도 15분 자동 수집 기록으로 바로 · v10.32)
+var SWH_AT={};
+function swHomeLoad(v,quiet,fresh){ var date=v.state.date, tok=v.state.tok=(v.state.tok||0)+1, cached=lsGet('sw_home:'+date), steps=0, fails=0, later=0, t0=Date.now();   // fresh = 당겨서 새로고침 (그냥 열면 오늘도 15분 자동 수집 기록으로 바로 · v10.32)
   if(cached&&cached.date===date){ v.state.res=cached; swHomeDraw(v); }
   else if(!quiet||!v.state.res||v.state.res.date!==date){ v.state.res=null; v.el.innerHTML=swHomeHead(v)+spin('작업내역을 불러오는 중'); }
+  if(!fresh&&cached&&cached.date===date&&SWH_AT[date]&&Date.now()-SWH_AT[date]<120000&&DIRTY_AT<SWH_AT[date]) return Promise.resolve();   // v10.41 2분 안에 받았고 그 사이 내가 바꾼 게 없으면 저장본 그대로 (홈 탭을 다시 눌러도 서버 안 부름)
   function alive(){ return stack.indexOf(v)>=0&&v.state.tok===tok; }
   function fail(e){ if(!alive()) return; if(v.state.res){ toast('새로고침 실패: '+(e&&e.message||e)); return; }
     v.el.innerHTML=swHomeHead(v)+errBox(e)+'<button class="btn line" onclick="swHomeLoad(stack[stack.length-1],false)">다시 시도</button>'; }
   var qsteps=0, wsteps=0;   // queued = 뒤에서 받는 중 확인(15초) · wait = 다른 쪽이 받는 중(3초) — 직접 받는 40번과 따로 셈 (v10.38)
   function step(){ if(steps>40||qsteps>80||wsteps>100) return fail(new Error('기록을 받는 데 너무 오래 걸려요. 잠시 뒤 다시 열어 주세요.'));
-    return run('swingWorkHome',date,!!fresh).then(function(res){ if(!alive()) return;
+    var pre=(!fresh&&!steps&&!qsteps&&!wsteps&&!later)?bootTake('swh:'+date):null;   // v10.41 자동 접속 때 미리 출발한 호출
+    return (pre||run('swingWorkHome',date,!!fresh)).then(function(res){ if(!alive()) return;
       if(!res||res.ok===false) return fail(new Error(res&&res.error||'서버 오류'));
       if(res.pending){ fails=0; if(res.queued) qsteps++; else if(res.wait) wsteps++; else steps++; if(!v.state.res){ swWorkProg(v,res.progress,res.queued); } var w=swPendWait(res); return w?swWait(w).then(function(){ if(alive()) return step(); }):step(); }   // v10.38
       lsSet('sw_home:'+date,res); var same=v.state.res&&JSON.stringify(v.state.res)===JSON.stringify(res); v.state.res=res; if(!same) swHomeDraw(v,!!cached||later>0);
+      if(!(res.week||[]).some(function(x){ return x.later; })) SWH_AT[date]=t0;   // v10.41 다 받은 시각 (2분 안에 홈 탭을 다시 누르면 다시 안 받음)
       if((res.week||[]).some(function(x){ return x.later; })&&++later<=3){ steps++; return step(); } })   // 서버가 시간이 모자라 못 묶은 날 → 한 번 더 (이미 묶은 날은 캐시라 금방)
     .catch(function(e){ if(!alive()) return; if(e&&e.auth===false) return; if(++fails<=2) return step(); return fail(e); }); }
   return step(); }
@@ -2043,7 +2148,7 @@ function swWeekTap(i){ var x=(window._swWeek||[])[i], el=$('wktip'); if(!x||!el)
 /* ---- 추가기능 → 작업자 작업내역: 들어오면 작업자 고르기 → 필터(작업자·기종·확인 상태) + 날짜 → 작업자 세부 ---- */
 VIEWS.sw_work={ render:function(v){ reanim(v); v.state.date=v.state.date||v.params.date||todayISO(-1); v.state.keys=v.state.keys||[]; v.state.fm=v.state.fm||'all'; v.state.fs=v.state.fs||'all';
   v.refresh=function(){ return Promise.race([swDayLoad(v,v.state.date,true,true),swWait(3000)]); };   // 당겨서 새로고침 = 오늘도 지금 바로 받음 (v10.32) · 당김 표시는 3초면 풂 (뒤에서 받는 중이면 몇 분 · v10.38)
-  v.onResume=function(){ if(v.state.stale||!swDayMem[v.state.date]){ v.state.stale=false; swDayLoad(v,v.state.date,false); } else { v.state.res=swDayMem[v.state.date].res; swWorkDraw(v,true); } };
+  v.onResume=function(){ if(v.state.stale||!swDayMem[v.state.date]){ v.state.stale=false; swDayLoad(v,v.state.date,false); } else { v.state.snap=0; v.state.snapErr=''; v.state.res=swDayMem[v.state.date].res; swWorkDraw(v,true); } };
   swDayLoad(v,v.state.date,false);   // 작업자를 고르는 동안 뒤에서 미리 받아 둔다
   if(!v.state.picked){ v.state.picked=true; setTimeout(function(){ if(stack[stack.length-1]===v&&!(v.state.res&&v.state.res.noWorkers)) swPickOpen(v); },250); } }};
 function swWorkHead(v){ return title('작업자 작업내역',fmtDateK(v.state.date))+swWorkFilters(v); }
@@ -2070,7 +2175,7 @@ function swWorkRows(v){ var ws=(v.state.res&&v.state.res.workers)||[], ks=v.stat
     ts.forEach(function(t){ c[t.c]++; if(t.low&&!t.j) c.check++; }); return {w:w,count:ts.length,cats:c}; })
     .filter(function(r){ return fs==='all'||(fs==='un'?!r.w.confirmed:!!r.w.confirmed); }); }
 function swWorkDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res||{}, d=v.state.date, admin=!!(AUTH&&AUTH.admin);
-  var h=swWorkHead(v);
+  var h=swWorkHead(v)+swSnapBar(v);
   if(res.noWorkers){ v.el.innerHTML=h+'<div class="card"><div class="empty">아직 등록된 작업자가 없어요.<br>'+(admin?'작업자 관리에서 컬렉터 아이디를 넣어 주세요.':'관리자에게 작업자 등록을 요청해 주세요.')+'</div>'+
     (admin?'<button class="btn" onclick="push(\'sw_workers\',{})">작업자 관리</button>':'')+'</div>'; v.state.drawn=true; return; }
   var rows=swWorkRows(v), ld=rows.filter(function(r){ return r.w.loading; }), busy=rows.filter(function(r){ return r.count&&!r.w.loading; }), idle=rows.filter(function(r){ return !r.count&&!r.w.loading; });   // ld = 새로 추가한 작업자 (서버가 뒤에서 받는 중 · v10.39) — 합계·미확인에서 뺌
@@ -2106,8 +2211,9 @@ function swPickOpen(v){ if(!v||v.name!=='sw_work'||sheetOpen) return; v.state.pi
     '<div class="pklist" id="pk_list"></div><div class="row"><button class="btn line sm" onclick="swPickAll()">전체 해제</button><button class="btn sm" style="flex:2" id="pk_ok" onclick="swPickOk()">확인</button></div>');
   swPickRoster(v); }
 function swPickRoster(v){ v.state.roSt=lsGet('sw_roster')?'ok':'load'; swPickDraw(v);
+  if(lsGet('sw_roster')&&Date.now()-(Number(lsGet('rosterAt'))||0)<1800000) return;   // v10.41 30분 안에 받은 명단이면 다시 안 받음 (작업자를 바꾸면 swWorkInvalidate 가 지움)
   var live=function(){ return sheetOpen&&$('pk_list')&&swWorkView()===v; };   // 예전 화면에서 늦게 온 응답이 새 시트를 덮지 않게
-  run('swingWorkRoster').then(function(ro){ lsSet('sw_roster',ro||[]); v.state.roSt='ok'; if(live()) swPickDraw(v); })
+  run('swingWorkRoster').then(function(ro){ lsSet('sw_roster',ro||[]); lsSet('rosterAt',Date.now()); v.state.roSt='ok'; if(live()) swPickDraw(v); })
     .catch(function(){ if(!lsGet('sw_roster')) v.state.roSt='err'; if(live()) swPickDraw(v); }); }
 function swPickRetry(){ var v=swWorkView(); if(v) swPickRoster(v); }
 function swPickBr(r){ return r.branch||SW_BRANCHES[0]; }
@@ -2139,26 +2245,41 @@ function swPickOk(){ var v=swWorkView(); if(!v) return; var keys=v.state.pick.sl
 function swDayHead(v){ return v.name==='sw_wd' ? title('작업자',fmtDateK(v.state.date)) : swWorkHead(v); }
 function swDayDraw(v,quiet){ if(v.name==='sw_wd') swWdDraw(v,quiet); else swWorkDraw(v,quiet); }
 function swDayLoad(v,date,force,fresh,quiet){ v.state.date=date; var tok=v.state.tok=(v.state.tok||0)+1; var c=swDayMem[date];   // fresh = 당겨서 새로고침 (서버가 오늘도 지금 바로 받음 · 아니면 15분 자동 수집 기록으로 바로 보여 줌 · v10.32)
-  if(!force&&c&&Date.now()-c.t<120000){ v.state.res=c.res; swDayDraw(v); return Promise.resolve(); }
+  if(!force&&c&&Date.now()-c.t<120000){ v.state.snap=0; v.state.res=c.res; swDayDraw(v); return Promise.resolve(); }
   if(!quiet){ clearTimeout(v.state.ldT); v.state.ldT=0; } v.state.ldBusy=tok;   // v10.39 불러오는 동안은 받는 중 확인(20초)이 끼어들어 끊지 않게 (끝나고 그릴 때 다시 걺)
-  var keep=force&&v.state.drawn&&v.state.res&&v.state.res.date===date;   // 당겨서 새로고침: 지금 보이는 화면은 그대로 두고 뒤에서 받기 (로딩·오류 화면이면 keep 안 함)
+  var snap=null; if(!force){ snap=lsGet('swday:'+date); if(snap&&snap.r&&snap.r.date===date&&Array.isArray(snap.r.workers)){ v.state.res=snap.r; v.state.snap=snap.t||1; v.state.snapErr=''; swDayDraw(v); } else { snap=null; v.state.snap=0; } }   // v10.41 이 폰에 저장된 작업내역을 먼저 (판정·보내기·복사는 최신이 올 때까지 잠금)
+  var keep=(force&&v.state.drawn&&v.state.res&&v.state.res.date===date)||!!snap;   // 당겨서 새로고침: 지금 보이는 화면은 그대로 두고 뒤에서 받기 (로딩·오류 화면이면 keep 안 함) · 저장된 화면도
   if(!keep){ swBubDrop(v); v.state.drawn=false; v.el.innerHTML=swDayHead(v)+spin('어드민 기록을 불러오는 중'); }
   var fails=0, steps=0, qsteps=0, wsteps=0;
   function alive(){ return stack.indexOf(v)>=0&&v.state.tok===tok; }
-  function fail(e){ if(!alive()) return; v.state.ldBusy=0; if(keep){ if(quiet){ swDayPoll(v,date,v.state.res); return; } toast(e&&e.message||'불러오기 실패'); return; }   // quiet(받는 중 확인)은 알림 없이 다음 차례에
+  function fail(e){ if(!alive()) return; v.state.ldBusy=0; if(keep){ if(quiet){ swDayPoll(v,date,v.state.res); return; } if(v.state.snap){ v.state.snapErr=(e&&e.message)||'불러오기 실패'; swDayDraw(v,true); return; } toast(e&&e.message||'불러오기 실패'); return; }   // quiet(받는 중 확인)은 알림 없이 다음 차례에 · 저장된 화면이면 그대로 두고 띠에 오류 (v10.41)
     swBubDrop(v); v.state.drawn=false; v.el.innerHTML=swDayHead(v)+errBox(e)+'<button class="btn line" onclick="swDayLoad(stack[stack.length-1],\''+date+'\',false)">다시 시도</button>'; }
   function step(){ if(steps>40||qsteps>80||wsteps>100) return fail(new Error('기록을 받는 데 너무 오래 걸려요. 잠시 뒤 다시 열어 주세요.'));
     var rq=Date.now();   // 이 요청을 보낸 시각 (그 뒤에 끝난 판정은 받은 목록에 다시 입힘)
-    return run('swingWorkDay',date,[],!!fresh).then(function(res){ if(!alive()) return;
+    var f=swDayFetch(date,!!fresh); rq=Math.min(rq,f.at);
+    return f.p.then(function(res){ if(!alive()) return;
       if(!res||res.ok===false) return fail(new Error(res&&res.error||'서버 오류'));
       if(res.pending&&quiet&&keep){ v.state.ldBusy=0; swDayPoll(v,date,v.state.res); return; }   // 받는 중 확인인데 오늘 기록을 받는 중 → 화면은 그대로 두고 다음 차례에 (v10.39)
-      if(res.pending){ fails=0; if(res.queued) qsteps++; else if(res.wait) wsteps++; else steps++; if(keep){ keep=false; swBubDrop(v); v.state.drawn=false; v.el.innerHTML=swDayHead(v)+spin('어드민 기록 받는 중'); } swWorkProg(v,res.progress,res.queued); var w=swPendWait(res); return w?swWait(w).then(function(){ if(alive()) return step(); }):step(); }   // 오래 걸리면 진행률이 보이게 · 지난 날짜는 서버가 뒤에서 받음 (v10.38)
+      if(res.pending){ fails=0; if(res.queued) qsteps++; else if(res.wait) wsteps++; else steps++; if(v.state.snap){ swSnapProg(v,res.progress); } else if(keep){ keep=false; swBubDrop(v); v.state.drawn=false; v.el.innerHTML=swDayHead(v)+spin('어드민 기록 받는 중'); } swWorkProg(v,res.progress,res.queued); var w=swPendWait(res); return w?swWait(w).then(function(){ if(alive()) return step(); }):step(); }   // 오래 걸리면 진행률이 보이게 · 지난 날짜는 서버가 뒤에서 받음 (v10.38)
+      swSnapPut(date,res);   // v10.41 이 폰에 저장 (서버가 준 그대로 — 아래에서 입히는 '저장 중' 판정은 안 넣음)
       swOptReapply(date,res,rq);   // 저장 중인 판정·받는 사이에 끝난 판정은 새로 받은 목록에도 그대로 보이게 (v10.32)
       var same=!!quiet&&keep&&JSON.stringify(v.state.res)===JSON.stringify(res);   // quiet = 받는 중 확인(v10.39) — 그대로면 다시 안 그림 · 바뀌면 애니메이션 없이
-      swDayMem[date]={t:Date.now(),res:res}; v.state.res=res; v.state.ldBusy=0; if(same) swDayPoll(v,date,res); else swDayDraw(v,!!quiet&&keep); })
+      var wasSnap=!!v.state.snap; v.state.snap=0; v.state.snapErr=''; if(wasSnap) v.state.ex=null;   // v10.41 최신 → 저장된 화면 표시·잠금을 풂 · 저장 화면 기준으로 건드린 추가작업 숫자는 버림
+      swDayMem[date]={t:Date.now(),res:res}; v.state.res=res; v.state.ldBusy=0; if(same&&!wasSnap) swDayPoll(v,date,res); else swDayDraw(v,(!!quiet&&keep)||wasSnap); })
     .catch(function(e){ if(!alive()) return; if(e&&e.auth===false) return; if(++fails<=2) return step(); return fail(e); }); }
   return step(); }
 
+/* v10.41 같은 날짜를 받는 중인 swingWorkDay 는 작업내역·세부가 같이 씀 (저장 화면에서 작업자를 바로 열 수 있게 되면서 같은 날짜가 두 번 가던 것) · 받는 쪽마다 복사본 */
+var swDayRun={};
+function swDayFetch(date,fresh){ var x=fresh?null:swDayRun[date];   // → {p, at: 실제로 보낸 시각 (같이 쓰면 앞서 보낸 시각 — 그 뒤 끝난 판정을 다시 입히게)}
+  if(!x){ x={p:run('swingWorkDay',date,[],!!fresh),at:Date.now()}; if(!fresh){ swDayRun[date]=x; var clr=function(){ if(swDayRun[date]===x) delete swDayRun[date]; }; x.p.then(clr,clr); } }
+  return {at:x.at,p:x.p.then(function(r){ return (r&&r.workers)?JSON.parse(JSON.stringify(r)):r; })}; }
+/* v10.41 작업내역 날짜별 폰 저장 (앱이 꺼져도 남음 · 3일 · 600KB 넘는 날은 안 함 · 접속 코드가 바뀌면 지움 lsOwner) — 다시 열면 그걸 먼저 보여주고 뒤에서 최신으로 */
+function swSnapPut(date,res){ try{ var s=JSON.stringify({t:Date.now(),r:res}); if(s.length<600000) lsSetStr('swday:'+date,s); else localStorage.removeItem('swapc:swday:'+date); }catch(e){} }
+function swSnapBar(v){ if(!v.state.snap) return ''; return '<div class="card stkstale swsnap"><b>이 폰에 저장된 화면이에요</b> ('+esc(fmtAgo(v.state.snap))+')<br>'+(v.state.snapErr?'<span style="color:var(--danger)">최신 기록을 못 불러왔어요 · '+esc(v.state.snapErr)+'</span><button class="btn line sm" style="margin-top:10px" onclick="swSnapRetry()">다시 시도</button>':'<span class="muted">최신 기록을 불러오는 중<span class="sp"></span>… 끝나면 바로 바뀌고 판정·보내기·복사를 할 수 있어요.</span>')+'</div>'; }
+function swSnapProg(v,p){ var e=v.el.querySelector('.swsnap .sp'); if(e) e.textContent=' · '+Math.max(1,Math.min(99,Math.round((p||0)*100)))+'%'; }
+function swSnapRetry(){ var v=stack[stack.length-1]; if(!swIsDayView(v)) return; haptic(6); v.state.snapErr=''; swDayDraw(v,true); swDayLoad(v,v.state.date,true); }
+function swSnapStop(v){ if(v&&v.state.snap){ toast('최신 기록을 불러온 뒤에 할 수 있어요'); return true; } return false; }
 /* v10.39 새로 추가한 작업자를 서버가 뒤에서 받는 중(w.loading)이면 20초마다(늦어지는 중이면 1분) 조용히 다시 불러옴 — 다 받으면 그 작업자 목록이 바로 보임.
    작업자 세부는 그 작업자가 받는 중일 때만 · 맨 위 화면·앱이 보일 때·입력 중·말풍선·보내는 중이 아닐 때만 (아니면 다음 차례로 미룸) */
 function swDayPollMs(v,res){ var ws=((res&&res.workers)||[]).filter(function(w){ return w.loading&&(v.name!=='sw_wd'||w.key===v.state.key); });
@@ -2190,6 +2311,7 @@ function swWdDraw(v,quiet){ if(!quiet) reanim(v); var d=v.state.date, w=swWdWork
   var ts=swWdTasks(v,w), L=swWdLists(ts), cnt={}; SW_CATS.forEach(function(c){ cnt[c[0]]=L[c[0]].length; });
   var cat=v.state.cat; if(!cat||!L[cat]||(v.state.cat0&&ts.length&&!cnt[cat]&&!(L[cat]||[]).length)){ v.state.cat0=!ts.length; cat=(SW_CATS.filter(function(c){ return cnt[c[0]]; })[0]||[['check','off','r_broken','r_mistake'].filter(function(k){ return L[k].length; })[0]||'swap'])[0]; v.state.cat=cat; } if(ts.length) v.state.cat0=false;   // 처음에만 고름 (판정해서 빈 탭이 돼도 그 탭에 머묾) · cat0 = 기록이 없을 때 고른 탭 → 새 작업자 기록이 들어오면 한 번만 다시 고름 (v10.39)
   var h=title(esc(w.name),fmtDateK(d)+(w.branch?' · '+esc(w.branch):'')+(w.night?' · '+esc(swNightTxt(w)):''),swWdSearchBox(v));
+  h+=swSnapBar(v);
   h+=w.loading?'<div class="wdst ld">⏳ 작업내역 받는 중… (새로 추가한 작업자 · 서버가 어제부터 뒤에서 받아요 · 다 받으면 자동으로 보여요)'+(w.ldslow?'<br>어드민 오류나 오늘 받기 한도 때문에 늦어지고 있어요 — 서버가 계속 다시 시도해요.':'')+'</div>':w.confirmed?'<div class="wdst ok">✓ '+esc(w.confirmed.by||'')+' · '+esc(String(w.confirmed.at||'').slice(5))+' '+({'슬랙':'슬랙 전송으로','복사':'내용 복사로'}[w.confirmed.method]||esc(w.confirmed.method||''))+' 확인함</div>'
                 :'<div class="wdst un">⚠️ 미확인 · 슬랙 전송이나 내용 복사를 하면 확인돼요</div>';
   h+='<div class="seg mseg">'+['all'].concat(models).map(function(m){ var n=m==='all'?(w.tasks||[]).length:((w.models||{})[m]||0);
@@ -2199,7 +2321,7 @@ function swWdDraw(v,quiet){ if(!quiet) reanim(v); var d=v.state.date, w=swWdWork
     '<div class="catbar res"><span class="rl">판정한 기기</span>'+tb('r_broken',SW_JUDGE.broken,L.r_broken.length,'rb')+tb('r_mistake',SW_JUDGE.mistake,L.r_mistake.length,'rm')+'</div>';
   h+='<div id="wd_listc">'+swWdCard(v,w,ts,L,cat)+'</div>';   // QR 검색은 이 칸만 다시 그림 (입력칸은 그대로)
   h+=swWdExHtml(v,w);   // 추가작업 I9·타리요 (슬랙으로 보내기 위)
-  var pend=swWdPending(w), sav=swSaving(v), jf=swJFail[swDK(v)]||[], off=(w.loading||!ts.length||v.state.sending||pend.n||sav||jf.length)?' disabled':'';   // v10.39 받는 중인 새 작업자도 잠금   // 판정 안 한 게 남아 있거나 저장 중·저장 못 한 판정이 있으면 슬랙·복사 잠금 (기종 탭과 상관없이 그 작업자 전체)
+  var pend=swWdPending(w), sav=swSaving(v), jf=swJFail[swDK(v)]||[], off=(w.loading||v.state.snap||!ts.length||v.state.sending||pend.n||sav||jf.length)?' disabled':'';   // v10.39 받는 중인 새 작업자도 잠금   // 판정 안 한 게 남아 있거나 저장 중·저장 못 한 판정이 있으면 슬랙·복사 잠금 (기종 탭과 상관없이 그 작업자 전체)
   h+='<div class="card wdsend"><h3>슬랙으로 보내기</h3>'+(jf.length?swJudgeFailHtml(jf):'')+(pend.n?swWdPendHtml(pend):'')+(sav&&!pend.n?'<div class="muted" style="margin:0 0 10px;font-size:13px">판정 '+sav+'건 저장하는 중… 끝나면 보낼 수 있어요</div>':'')+
     '<textarea class="input" id="wd_note" placeholder="특이사항 (없으면 비워두세요)" oninput="swWdNote(this.value)">'+esc(keepNote)+'</textarea>'+
     '<button class="btn" style="margin-top:12px" onclick="swWdSendAsk()"'+off+'><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>슬랙으로 보내기</button>'+
@@ -2305,9 +2427,9 @@ function swWdExRedraw(v){ var el=v.el.querySelector('#wd_i9'), w=swWdWorker(v); 
   var a=document.activeElement, f=(a&&el.contains(a)&&a.getAttribute('data-f'))||'';   // 누르던 칸에 포커스를 다시 (키보드·화면 읽기)
   el.outerHTML=swWdExHtml(v,w);
   if(f){ var n=v.el.querySelector('#wd_i9 [data-f="'+f+'"]'); if(n&&n.disabled) n=v.el.querySelector('#wd_i9 [data-f="'+f.slice(0,-1)+(f.slice(-1)==='-'?'+':'-')+'"]'); if(n) n.focus(); } }
-function swWdExOpen(){ var v=swWdView(); if(!v) return; haptic(6); var st=swWdExState(v,swWdWorker(v)); st.open=!st.open; swWdExRedraw(v); }
+function swWdExOpen(){ var v=swWdView(); if(!v||swSnapStop(v)) return; haptic(6); var st=swWdExState(v,swWdWorker(v)); st.open=!st.open; swWdExRedraw(v); }
 function swWdExTab(gk){ var v=swWdView(); if(!v||!SW_EX[gk]) return; haptic(4); swWdExState(v,swWdWorker(v)).tab=gk; swWdExRedraw(v); }
-function swWdExStep(k,d){ var v=swWdView(); if(!v) return; var st=swWdExState(v,swWdWorker(v)), g=st.g[st.tab]; g[k]=Math.max(0,Math.min(99,(g[k]||0)+d)); g.dirty=true; haptic(4); swWdExRedraw(v); }
+function swWdExStep(k,d){ var v=swWdView(); if(!v||swSnapStop(v)) return; var st=swWdExState(v,swWdWorker(v)), g=st.g[st.tab]; g[k]=Math.max(0,Math.min(99,(g[k]||0)+d)); g.dirty=true; haptic(4); swWdExRedraw(v); }
 /* 보내기·복사가 끝나면 저장된 값으로 다시 (다음 화면 갱신 때 서버 값으로) */
 function swWdExClean(v){ var st=v.state.ex; if(st) Object.keys(st.g).forEach(function(gk){ st.g[gk].dirty=false; }); }
 /* 복사·슬랙에 들어갈 추가작업 줄 (m = 기종 탭: I9 는 전체·I9 탭, 타리요는 전체 탭에서만 — 서버와 같게) */
@@ -2365,11 +2487,12 @@ function swQrTap(el){ var v=swWdView(); if(!v) return; var id=el.getAttribute('d
 function swQrAdmin(){ haptic(10); setTimeout(function(){ accBubClose(); },0); }   // 새 탭은 그대로 열리고 말풍선만 닫음
 function swJudgeTap(k){ var s=accBub; if(!s||!s.sw) return; var v=s.sw.v, id=s.sw.id, cat=s.sw.cat||'', t=swTaskOf(v,id);
   if(!t||swWdView()!==v){ accBubClose(); return; }
+  if(swSnapStop(v)){ accBubClose(); return; }   // v10.41 저장된 화면에선 판정 안 함 (기기이상 확인 창도)
   if(swJudging[swDK(v)+'|'+id]){ accBubClose(); toast('이 기기 판정을 저장하는 중이에요'); return; }
   if(k&&t.j===k&&!(k==='ok'&&cat==='off'&&!t.jo)){ accBubClose(); toast('이미 '+SW_JUDGE_RO[k]+' 처리했어요'); return; }   // 확인필요에서 고른 정상 → 오프라인 확인 탭에서 다시 정상 = 오프라인 확인도 풂
   if(k==='device'){ haptic(8); accBubClose(false,false,function(){ swJudgeAsk(v,id,cat); }); return; }   // 어드민 상태를 바꾸니 한 번 더 물어봄
   haptic(8); accBubClose(); swJudgeGo(v,id,k,cat); }
-function swJudgeAsk(v,id,cat){ var t=swTaskOf(v,id); if(!t||swWdView()!==v) return;
+function swJudgeAsk(v,id,cat){ var t=swTaskOf(v,id); if(!t||swWdView()!==v||swSnapStop(v)) return;
   openSheet('<h3>기기이상 수거해야함으로 처리할까요?</h3><p><b>'+esc(t.q)+'</b>'+(t.m?' · '+esc(t.m):'')+' · <b>고장수거 탭</b>으로 옮기고, <b>정산은 교체로만</b> 들어가요(수거 +1 아님).<br>스윙 어드민 기기 상태를 <b>미수거</b>로 바꿔요 → 처리예정 (창고가 되면 처리완료).</p>'+
     '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="flex:2" onclick="closeSheet(function(){ swJudgeGo(swWdView(),\''+jsa(id)+'\',\'device\',\''+jsa(cat||'')+'\'); })">미수거로 바꾸기</button></div>'); }
 /* 판정 바로 반영 (v10.32): 누르면 서버 규칙(swwJudgeApply_)대로 이 화면에서 먼저 옮기고 '저장 중' 딱지 → 서버가 돌려준 작업으로 덮음 (저장·정산은 서버가 정함).
@@ -2405,7 +2528,9 @@ function swJudgeFail(d,k,id,opt,t0,msg,mode){
   toast((t0.q?t0.q+' ':'')+'판정 저장 실패: '+msg);
   if(here) swWdDraw(here,true); }
 function swJudgeFailOk(){ var v=swWdView(); if(!v) return; haptic(6); delete swJFail[swDK(v)]; swWdDraw(v,true); }
-function swJudgeGo(v,id,k,cat){ if(!v) return; var t=swTaskOf(v,id); if(!t) return; var d=v.state.date, key=v.state.key, jk=d+'|'+key+'|'+id;   // 기기마다 따로 (여러 QR 을 이어서 판정해도 화면은 바로 · 서버엔 작업자별 차례로 하나씩 — v10.37)
+function swJudgeGo(v,id,k,cat){ if(!v||swSnapStop(v)) return; var t=swTaskOf(v,id); if(!t) return;
+  if(k&&swJudgeOpts(t,cat||'').indexOf(k)<0&&!(t.j===k&&k==='ok'&&cat==='off')){ toast('그 사이 목록이 바뀌었어요 · 다시 골라 주세요'); swWdDraw(v,true); return; }   // v10.41 확인 창이 떠 있는 동안 최신으로 바뀌었으면 다시 고르게
+  var d=v.state.date, key=v.state.key, jk=d+'|'+key+'|'+id;   // 기기마다 따로 (여러 QR 을 이어서 판정해도 화면은 바로 · 서버엔 작업자별 차례로 하나씩 — v10.37)
   if(swJudging[jk]){ toast('이 기기 판정을 저장하는 중이에요'); return; }
   var t0=t, c0=swDayMem[d], res0=c0?c0.res:v.state.res, opt=swJudgeLocal(t,k,cat); swJudging[jk]=opt; swJudgeSetDK(d,key,opt);   // 화면엔 바로 (v10.32)
   if(k==='device') toast('어드민 상태 바꾸는 중…');
@@ -2435,7 +2560,7 @@ function swJudgeSetDK(d,k,nt){ if(!nt) return; swTasksMap(d,k,function(t){ retur
 /* 판정·다시 확인으로 홈의 작업 불량_확인필요 개수가 바뀔 수 있으니 홈은 돌아갈 때 다시 받음 */
 function swHomeStale(){ stack.forEach(function(x){ if(x.name==='home'&&SERVER==='swing') x.state.stale=true; }); }
 /* 고장수거 탭: [고장]·[미수거] → 한 번 물어보고 어드민 상태 변경 → 처리예정 (고장은 사유 필수) */
-function swProcTap(type){ var s=accBub; if(!s||!s.sw) return; var v=s.sw.v, id=s.sw.id, t=swTaskOf(v,id);
+function swProcTap(type){ var s=accBub; if(!s||!s.sw) return; var v=s.sw.v, id=s.sw.id, t=swTaskOf(v,id); if(swSnapStop(v)) return;
   if(!t||swWdView()!==v){ accBubClose(); return; }
   haptic(8); accBubClose(false,false,function(){ swProcAsk(v,id,type); }); }
 function swProcAsk(v,id,type){ var t=swTaskOf(v,id); if(!t||swWdView()!==v) return;
@@ -2457,7 +2582,7 @@ function swProcGo(v,id,type,reason){ if(!v) return; var t=swTaskOf(v,id); if(!t)
   .catch(function(e){ delete swJudging[jk]; toast((t.q||'')+' 바꾸기 실패: '+((e&&e.message)||e)); var here=swWdTopDK(d,key); if(here) swWdDraw(here,true); }); }
 /* 오프라인 확인·고장수거 탭 "다시 확인": 어드민을 지금 다시 봄 → 온라인이면 오프라인 확인에서 빠짐 · 창고면 처리완료
    배터리 교체·교체 후 재배치·확인필요 탭 "다시 확인": 지금 온라인·배터리·어드민 상태를 칸에 보여주기만 (swingWorkLive · 기록·정산은 그대로) */
-function swRecheck(){ var v=swWdView(); if(!v||v.state.rechecking) return; var cat=v.state.cat;
+function swRecheck(){ var v=swWdView(); if(!v||v.state.rechecking||swSnapStop(v)) return; var cat=v.state.cat;
   if(cat==='swap'||cat==='swapRe'||cat==='check') return swLiveCheck(v);
   var key=v.state.key, date=v.state.date, what=cat==='off'?'off':(cat==='r_broken'?'proc':''); haptic(8);   // 탭에 맞는 것만 (오프라인 탭 = 온라인·오프라인, 고장수거 탭 = 처리 상태)
   v.state.rechecking=true; swWdDraw(v,true); toast('어드민 다시 보는 중…');
@@ -2505,7 +2630,7 @@ function swWdBusy(v,on){ v.state.sending=on; [].forEach.call(v.el.querySelectorA
 function swWdPendStop(v){ var s=swSaving(v); if(s){ toast('판정 '+s+'건 저장하는 중이에요 · 끝나면 보낼 수 있어요'); return true; }   // 서버가 아직 모르는 판정으로 보내지 않게 (v10.32)
   if((swJFail[swDK(v)]||[]).length){ toast('저장 못 한 판정이 있어요 · 안내를 확인하고 다시 판정해 주세요'); return true; }
   var p=swWdPending(swWdWorker(v)); if(!p.n) return false; toast('판정 안 한 기기 '+p.n+'대가 있어요 · 먼저 판정해 주세요'); return true; }   // 판정 끝낼 때까지 슬랙·복사 못 함
-function swWdCopy(){ var v=swWdView(); if(!v||v.state.sending||swWdPendStop(v)) return; var t=swWdText(v); if(!t) return; var w=swWdWorker(v), all=(w&&w.tasks||[]).length, i9=swWdExPayload(v,'i9'), tr=swWdExPayload(v,'tr');
+function swWdCopy(){ var v=swWdView(); if(!v||v.state.sending||swSnapStop(v)||swWdPendStop(v)) return; var t=swWdText(v); if(!t) return; var w=swWdWorker(v), all=(w&&w.tasks||[]).length, i9=swWdExPayload(v,'i9'), tr=swWdExPayload(v,'tr');
   var done=function(){ swWdBusy(v,true); toast('복사했어요 · 확인 표시하는 중…');
     run('swingWorkConfirm',v.state.date,v.state.key,'복사',worker,i9,tr,swTaskSig(w&&w.tasks)).then(function(res){ swWdBusy(v,false);   // 복사한 목록 표시 → 서버 목록과 다르면(건수가 같아도) 다시 불러와 한 번 더 복사 (v10.32)
       if(!res||!res.ok){ toast((res&&res.error)||'확인 표시 실패'); if(res&&res.stale&&stack.indexOf(v)>=0) swDayLoad(v,v.state.date,true); return; }   // 서버에서 본 판정 안 한 기기 → 화면을 새로 받아 보여줌
@@ -2514,12 +2639,12 @@ function swWdCopy(){ var v=swWdView(); if(!v||v.state.sending||swWdPendStop(v)) 
       toast(res.sheetError?'복사·확인했어요 (현황정리 시트 오류: '+res.sheetError+')':'복사했어요 · '+(w?w.name:'')+' 확인 표시'); })
       .catch(function(e){ swWdBusy(v,false); toast('복사는 됐는데 확인 표시 실패: '+e.message); }); };
   if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done,function(){ fallbackCopy(t); done(); }); else { fallbackCopy(t); done(); } }
-function swWdSendAsk(){ var v=swWdView(); if(!v||v.state.sending||swWdPendStop(v)) return; var w=swWdWorker(v); if(!w) return; var ts=swWdTasks(v,w); if(!ts.length){ toast('보낼 작업이 없어요'); return; }
+function swWdSendAsk(){ var v=swWdView(); if(!v||v.state.sending||swSnapStop(v)||swWdPendStop(v)) return; var w=swWdWorker(v); if(!w) return; var ts=swWdTasks(v,w); if(!ts.length){ toast('보낼 작업이 없어요'); return; }
   var ta=v.el.querySelector('#wd_note'); v.state.note=ta?ta.value:v.state.note;
   var l9=[].concat.apply([],swWdExTextLines(v,v.state.model).map(function(l){ return l.slice(1); }));   // 슬랙 메시지에 들어가는 추가작업 (I9 는 전체·I9 탭, 타리요는 전체 탭 · 다른 탭이어도 작업현황엔 들어감)
   openSheet('<h3>슬랙으로 보낼까요?</h3><p>'+esc(fmtDateK(v.state.date))+' · '+esc(w.name)+(v.state.model!=='all'?' · '+esc(v.state.model):'')+' · '+ts.length+'건'+(l9.length?' + '+esc(l9.join('·')):'')+(String(v.state.note||'').trim()?' + 특이사항':'')+'<br>보내면 확인 표시돼요.</p>'+
     '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="flex:2" onclick="closeSheet(function(){ swWdSendGo(); })">보내기</button></div>'); }
-function swWdSendGo(){ var v=swWdView(); if(!v||v.state.sending||swWdPendStop(v)) return; var note=String(v.state.note||'').trim(); haptic(12); swWdBusy(v,true); toast('보내는 중…');
+function swWdSendGo(){ var v=swWdView(); if(!v||v.state.sending||swSnapStop(v)||swWdPendStop(v)) return; var note=String(v.state.note||'').trim(); haptic(12); swWdBusy(v,true); toast('보내는 중…');
   run('swingWorkSlack',v.state.date,v.state.key,note,v.state.model,worker,swWdExPayload(v,'i9'),swWdExPayload(v,'tr')).then(function(res){ swWdBusy(v,false); $('toast').classList.remove('on');
     if(res&&res.ok){ haptic([12,40,18]); v.state.note=''; var ta=v.el.querySelector('#wd_note'); if(ta) ta.value='';   // 이 화면의 칸만 비움 (다른 작업자 화면 칸은 건드리지 않게)
       if(res.confirmed) swWdExClean(v); swWdMark(v,res.confirmed);
@@ -2772,25 +2897,33 @@ function reportNight(){ var pl=PUSHME&&PUSHME.plan; return !!(pl&&pl.sh==='night
 /* 날짜 열기: 그 날짜 초안(서버별) → 업무시간이 있으면 시간표, 없으면 업무시간 설정 · 자동 기록은 뒤에서 받음.
    pin = 사람이 고른 날짜 (날짜 칩 · 알림) → 알림 상태가 늦게 와도 기본 날짜로 안 바꿈 */
 function reportOpen(v,d,pin){ var st=v.state; if(st.date&&st.cfg) reportSave(v);
-  st.date=d; st.pinned=!!pin; st.cfg=null; st.ranges=[]; st.note=''; st.sentAt=''; st.noAuto={}; st.auto=null; st.autoErr=''; st.autoProg=0; st.sel=null; st.focus=undefined; st.redrawLater=false; st.setupTouched=false;
+  st.date=d; st.sv=SERVER; st.pinned=!!pin; st.cfg=null; st.ranges=[]; st.note=''; st.sentAt=''; st.noAuto={}; st.auto=null; st.autoAt=0; st.autoSnap=false; st.autoSaved=false; st.autoLoading=false; st.autoApplyLater=false; st.autoErr=''; st.autoProg=0; st.sel=null; st.focus=undefined; st.redrawLater=false; st.setupTouched=false;
   var dr=lsGet(reportKey(d))||(SERVER==='swing'?lsGet('report:'+d):null);   // v10.30 까지 SWING 은 'report:날짜'
   if(dr&&dr.cfg){ st.cfg=dr.cfg; st.ranges=(dr.ranges||[]).filter(function(r){ return r&&r.e>r.s; }); st.note=dr.note||''; st.sentAt=dr.sentAt||''; st.noAuto=dr.noAuto||{}; }
+  // v10.42 SWING: 지난번 받은 자동 기록(내 작업내역 QR)을 초안에 같이 저장해 두고 바로 보여줌 → 뒤에서 최신으로 (SWAP 자동 기록은 고객 이름이 있어 안 남김)
+  if(SERVER==='swing'&&dr&&dr.auto&&dr.auto.hours&&dr.auto.matched){ st.auto=dr.auto; st.autoAt=dr.autoAt||0; st.autoSnap=true; reportApplyAuto(v); }
   reportPrune();
   if(st.cfg) drawReport(v); else drawReportSetup(v);
-  reportLoadAuto(v,0); }
+  // 그저께 이전 날짜이고 그 다음 날 08:20 뒤에 받아 둔 자동 기록이면 다 끝난 날 → 다시 안 받음 (당겨서 새로고침은 받음)
+  var fin=Date.parse(d+'T08:20:00+09:00')+86400000;
+  var me=(AUTH&&!AUTH.master&&AUTH.name)||worker||'';
+  if(st.autoSnap&&d<=todayISO(-2)&&st.autoAt>fin&&st.auto.name&&st.auto.name===me){ st.autoSnap=false; st.autoSaved=true; reportRedraw(v); return; }   // 같은 이름으로 받아 둔 것만 · '저장된 것' 안내는 남김 (판정이 그 뒤 바뀌었을 수 있음 — 보낼 땐 서버가 다시 읽음)
+  reportLoadAuto(v,0,st.autoSnap); if(st.autoSnap) reportAutoInfo(v); }   // 저장된 자동 기록이면 '저장된 것 · 받는 중' 안내
 function reportSave(v){ var st=v.state; if(!st.cfg||!st.date) return;
-  lsSet(reportKey(st.date),{cfg:st.cfg,ranges:(st.ranges||[]).map(function(r){ return {s:r.s,e:r.e,text:r.text||''}; }),note:st.note||'',sentAt:st.sentAt||'',noAuto:st.noAuto||{}}); }
+  var sv=st.sv||SERVER, a=(sv==='swing'&&st.auto&&st.auto.hours&&!st.auto.pending&&st.auto.matched&&!st.auto.noName&&st.auto.name)?{hours:st.auto.hours,name:st.auto.name||'',matched:true,total:st.auto.total||0}:null;   // v10.42 SWING 자동 기록만 (내 QR 줄 · 이름이 맞은 것만) · 서버는 연 때 기준 (중간에 서버를 바꿔도 다른 서버 초안에 안 씀)
+  lsSet('report:'+sv+':'+st.date,{cfg:st.cfg,ranges:(st.ranges||[]).map(function(r){ return {s:r.s,e:r.e,text:r.text||''}; }),note:st.note||'',sentAt:st.sentAt||'',noAuto:st.noAuto||{},auto:a,autoAt:a?(st.autoAt||0):0}); }
 /* 30일 지난 초안 지우기 */
 function reportPrune(){ try{ var lim=todayISO(-30); Object.keys(localStorage).forEach(function(k){ var m=/^swapc:report:(?:\w+:)?(\d{4}-\d{2}-\d{2})$/.exec(k); if(m&&m[1]<lim) localStorage.removeItem(k); }); }catch(e){} }
 /* ---- 자동 기록 ---- */
 function reportLoadAuto(v,n,quiet){ var st=v.state, d=st.date, sv=SERVER, endH=st.cfg?st.cfg.end:(reportNight()?32:24); n=n||0;
-  if(!n){ st.autoLoading=true; st.autoErr=''; if(!quiet) reportAutoInfo(v); }
+  if(!n){ st.autoLoading=true; st.autoErr=''; st.autoSaved=false; if(!quiet) reportAutoInfo(v); }
   return run('reportAuto',sv,d,endH,worker).then(function(r){ if(stack.indexOf(v)<0||st.date!==d||SERVER!==sv) return;
       if(r&&r.pending&&!r.queued&&n<15){ st.autoProg=r.progress||0; reportAutoInfo(v); return new Promise(function(res){ setTimeout(res,r.wait?Math.min(10000,r.wait):300); }).then(function(){ return reportLoadAuto(v,n+1,true); }); }   // SWING 이 그 날을 다 안 받았음 → 이어서 (지난 날짜는 서버가 뒤에서 받으니 안 기다림 · v10.38)
-      st.autoLoading=false; st.auto=r||{}; st.autoErr=r&&r.pending?(r.queued?'그 날 SWING 작업내역은 서버가 뒤에서 받는 중이에요 (보통 2~5분) · 잠시 뒤 당겨서 새로고침':'작업내역을 아직 다 못 받았어요 · 잠시 뒤 당겨서 새로고침'):'';
+      if(r&&r.pending&&st.autoSnap&&st.auto){ st.autoLoading=false; st.autoErr='저장된 자동 기록이에요 · 최신은 서버가 아직 받는 중 (잠시 뒤 당겨서 새로고침)'; reportRedraw(v); return; }   // 다 못 받았으면 저장된 자동 기록은 그대로 둠
+      st.autoLoading=false; st.auto=r||{}; st.autoSnap=false; if(!(r&&r.pending)){ st.autoAt=Date.now(); if(st.cfg) reportSave(v); } st.autoErr=r&&r.pending?(r.queued?'그 날 SWING 작업내역은 서버가 뒤에서 받는 중이에요 (보통 2~5분) · 잠시 뒤 당겨서 새로고침':'작업내역을 아직 다 못 받았어요 · 잠시 뒤 당겨서 새로고침'):'';
       if(reportTyping(v)) st.autoApplyLater=true; else reportApplyAuto(v);   // 글 쓰는 중이면 칸 추가(순서 바뀜)는 손을 뗀 뒤에 — 입력칸 번호가 어긋나지 않게
       reportRedraw(v); })
-    .catch(function(e){ if(stack.indexOf(v)<0||st.date!==d) return; st.autoLoading=false; st.autoErr=(e&&e.message)||'자동 기록을 못 받았어요'; reportRedraw(v); }); }
+    .catch(function(e){ if(stack.indexOf(v)<0||st.date!==d) return; st.autoLoading=false; st.autoErr=(st.autoSnap?'저장된 자동 기록이에요 · 최신을 못 받았어요 (':'')+((e&&e.message)||'자동 기록을 못 받았어요')+(st.autoSnap?')':''); reportRedraw(v); }); }
 function reportAutoHours(v){ var a=v.state.auto; return (a&&a.hours)?Object.keys(a.hours).map(Number).filter(function(h){ return (a.hours[h]||[]).length; }).sort(function(x,y){ return x-y; }):[]; }
 function reportAutoIn(v,s,e){ var a=v.state.auto, out=[]; if(!a||!a.hours) return out; for(var h=s;h<e;h++){ (a.hours[h]||[]).forEach(function(x){ out.push(x); }); } return out; }
 /* 업무시간 밖 자동 기록 (슬랙엔 "업무시간 밖 기록"으로) */
@@ -2808,7 +2941,8 @@ function reportRedraw(v){ if(stack[stack.length-1]!==v) return; var st=v.state;
 function reportBlur(){ var v=stack[stack.length-1]; if(!v||v.name!=='report'||!v.state.redrawLater) return; var d0=v.state.date;
   setTimeout(function(){ if(v.state.date===d0&&v.state.redrawLater) reportRedraw(v); },120); }   // 그 사이 다시 그렸으면(drawReport 가 redrawLater 를 끔) 안 그림 · 다른 칸·업무시간 창·누르는 중이면 reportRedraw 가 다시 미룸
 function reportAutoInfoHtml(v){ var st=v.state, a=st.auto, sv=SERVER, nm=esc((a&&a.name)||worker||'');
-  if(st.autoLoading) return '<div class="rainfo">'+(sv==='swing'?'작업내역 받는 중'+(st.autoProg?' '+Math.round(st.autoProg*100)+'%':'')+'…':'그 날 처리한 기기 불러오는 중…')+'</div>';
+  if(st.autoSaved&&a&&!st.autoLoading&&!st.autoErr&&a.matched) return '<div class="rainfo">저장된 자동 기록이에요'+(st.autoAt?' ('+esc(fmtAgo(st.autoAt))+')':'')+' · 다 끝난 날이라 다시 안 받았어요 · <b>'+nm+'</b> '+(a.total||0)+'대 · 보내면 서버가 최신으로 다시 읽어 붙여요 <button type="button" onclick="reportLoadAuto(stack[stack.length-1],0)">새로 받기</button></div>';   // v10.42
+  if(st.autoLoading) return '<div class="rainfo">'+(st.autoSnap&&a?'저장된 자동 기록이에요'+(st.autoAt?' ('+esc(fmtAgo(st.autoAt))+')':'')+' · 최신 작업내역 받는 중'+(st.autoProg?' '+Math.round(st.autoProg*100)+'%':'')+'… (보내면 서버가 최신으로 붙여요)':(sv==='swing'?'작업내역 받는 중'+(st.autoProg?' '+Math.round(st.autoProg*100)+'%':'')+'…':'그 날 처리한 기기 불러오는 중…'))+'</div>';
   if(st.autoErr) return '<div class="rainfo warn">'+esc(st.autoErr)+' <button type="button" onclick="reportLoadAuto(stack[stack.length-1],0)">다시</button></div>';
   if(!a) return '';
   if(!a.name) return '<div class="rainfo">이름이 없어 자동 기록을 못 붙여요 · 환경설정에서 이름을 넣어 주세요</div>';
@@ -2951,9 +3085,9 @@ function reportPayload(v){ var st=v.state;
     note:(st.note||'').trim()}; }
 function reportSendAsk(){ needWorker(function(){ var v=stack[stack.length-1]; if(!v||v.name!=='report'||!v.state.cfg) return; var st=v.state;
   if(st.sending){ toast('앞의 업무보고를 보내는 중이에요'); return; }
-  if(st.autoLoading){ toast('자동 기록을 불러오는 중이에요 · 잠깐 뒤 다시 눌러 주세요'); return; }
+  if(st.autoLoading&&!st.autoSnap){ toast('자동 기록을 불러오는 중이에요 · 잠깐 뒤 다시 눌러 주세요'); return; }   // v10.42 저장된 자동 기록이 있으면 받는 중에도 보냄 (서버가 보낼 때 최신으로 다시 읽어 붙임)
   var p=reportPayload(v), outA=reportAutoOut(v), shown=st.auto?p.ranges.filter(function(r){ return reportHasBody(v,r); }):p.ranges; if(st.auto&&!shown.length&&!p.note&&!outA.length) return;
-  var body=(st.auto?'':'<div class="muted" style="margin:0 0 8px;font-size:13px">자동 기록을 못 불러왔어요 · 보내면 서버가 다시 읽어 붙여요</div>')+shown.map(function(r){ var ra=reportAutoIn(v,r.s,r.e), au=ra.length?'<div class="muted" style="font-size:12.5px;margin-top:2px">자동 '+ra.length+'줄 · '+esc(ra.slice(0,2).join(' / '))+(ra.length>2?' …':'')+'</div>':'';
+  var body=(st.auto?((st.autoSnap||st.autoSaved)?'<div class="muted" style="margin:0 0 8px;font-size:13px">아래 자동 기록은 저장된 것이에요 · 보내면 서버가 최신으로 다시 읽어 붙여요</div>':''):'<div class="muted" style="margin:0 0 8px;font-size:13px">자동 기록을 못 불러왔어요 · 보내면 서버가 다시 읽어 붙여요</div>')+shown.map(function(r){ var ra=reportAutoIn(v,r.s,r.e), au=ra.length?'<div class="muted" style="font-size:12.5px;margin-top:2px">자동 '+ra.length+'줄 · '+esc(ra.slice(0,2).join(' / '))+(ra.length>2?' …':'')+'</div>':'';
     return '<div style="display:flex;gap:10px;margin:0 0 8px;font-size:14px"><b style="flex:0 0 96px;color:var(--p)">'+reportHl(r.s)+'~<br>'+reportHl(r.e)+'</b><span style="min-width:0">'+(r.text?esc(r.text).replace(/\n/g,'<br>'):'<span class="muted">추가 업무 없음</span>')+au+'</span></div>'; }).join('');
   if(outA.length) body+='<div class="muted" style="margin:6px 0 0;font-size:13px">업무시간 밖 자동 기록 '+outA.reduce(function(s,o){ return s+o.lines.length; },0)+'줄도 같이 가요</div>';
   if(p.note) body+='<div style="margin:6px 0 0;font-size:14px"><b>특이사항 및 보고사항</b><br>'+esc(p.note).replace(/\n/g,'<br>')+'</div>';
@@ -3081,7 +3215,7 @@ function stockPickGo(row){ var v=permView('stocksync'); if(!v||!v.state.pick) re
    첫 알림 주간 = 그 날 저녁 7시 · 야간 = 다음 날 아침 7시 → 그 날짜 보고를 할 때까지 8시간마다 (3일까지). 받는 사람은 환경설정 → 작업보고 알림 → [이 폰에서 알림 켜기] 한 번 (아이폰은 홈 화면 앱에서만).
    알림 문구("M월 D일 작업보고를…")는 서버가 암호화해 보냄 (sw.js 는 없을 때 기본 문구), 누르면 ?go=report&d=날짜 → 그 날짜 업무보고 화면 */
 /* PUSHME = 지난번 받은 내 알림 상태 (알림을 눌러 바로 열 때도 야간·미보고를 알게) · ?go=report&d=날짜 = 알림을 눌러 엶 */
-var PUSHME=(function(){ var p=lsGet('pushme'); return (p&&AUTH&&p.c===AUTH.code)?p.me:null; })(), PUSH_WD='일월화수목금토',
+var PUSHME=(function(){ var p=lsGet('pushme'); return (p&&AUTH&&p.c===lsCodeHash(AUTH.code))?p.me:null; })(), PUSH_WD='일월화수목금토',
     GO_PARAM=(new URLSearchParams(location.search).get('go')||''), GO_D=(new URLSearchParams(location.search).get('d')||'');
 function pushOk(){ return 'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window; }
 function pushIos(){ return /iPhone|iPad|iPod/.test(navigator.userAgent); }
@@ -3099,7 +3233,7 @@ function pushReady(){ return Promise.race([navigator.serviceWorker.ready,new Pro
 function pushSub(){ if(!pushOk()) return Promise.resolve(null); return pushReady().then(function(reg){ return reg.pushManager.getSubscription(); }).catch(function(){ return null; }); }
 /* 앱을 열 때: 내 알림 상태를 받고, 이 폰이 알림을 허용했는데 서버에 없거나 서버 키가 바뀌었으면 조용히 다시 등록 */
 function pushSync(){ if(!AUTH) return Promise.resolve();
-  return pushSub().then(function(s){ return run('pushMine',s?s.endpoint:'').then(function(me){ pushMeSet(me);
+  return pushSub().then(function(s){ return run('pushMine',s?s.endpoint:'').then(function(me){ pushMeSet(me); lsSet('pushAt',Date.now());
       if(!pushOk()||Notification.permission!=='granted') return;
       if(s&&me.here&&(!me.key||pushSameKey(s,me.key))) return;
       if(!s&&(!me.plan||lsGet('pushoff'))) return;   // 지정 안 됐고 이 폰도 안 켰음 · 이 폰에서 직접 끔 → 그대로 (다시 켜기는 버튼으로만)
@@ -3132,7 +3266,7 @@ function pushCardHtml(){ var me=PUSHME||{}, pl=me.plan, ok=pushOk(), perm=ok?Not
     ((me.pend||[]).length?'<div class="muted" style="margin:8px 0 0;font-size:13.5px;color:#e5484d"><b>'+me.pend.map(function(x){ return pushMD(x); }).join(', ')+' 작업보고를 아직 안 했어요</b> · 추가기능 → 업무보고</div>':'')+
     '<div class="muted" style="margin:8px 0 0;font-size:13.5px">이 폰: <b>'+(!ok?'알림 못 받음'+(pushIos()?' (홈 화면 앱에서만)':''):(on?'알림 켜짐':(perm==='denied'?'알림 막힘 · 폰 설정에서 허용':'알림 꺼짐')))+'</b>'+(me.devices?' · 알림 켠 폰 '+me.devices+'대':'')+'</div>'+
     '<div class="row" style="margin-top:12px;gap:8px">'+(on?'<button class="btn line sm" onclick="pushDisable()">이 폰 알림 끄기</button><button class="btn sm" onclick="pushTestSelf()">테스트 알림</button>':'<button class="btn sm" onclick="pushEnable()">이 폰에서 알림 켜기</button>')+'</div>'; }
-function pushMeSet(me){ if(!me||me.ok===false) return; PUSHME=me; lsSet('pushme',{c:AUTH&&AUTH.code,me:me}); }
+function pushMeSet(me){ if(!me||me.ok===false) return; PUSHME=me; lsSet('pushme',{c:AUTH?lsCodeHash(AUTH.code):'',me:me}); }   // v10.41 코드 원문 대신 짧은 해시
 function pushRedraw(){ var v=stack[stack.length-1]; if(!v) return; if(v.name==='me'){ var c=$('pushcard'); if(c&&pushCardShow()) c.innerHTML=pushCardHtml(); else if(pushCardShow()!==!!c) viewOf('me').render(v); }
   if(v.name==='report'){ var st=v.state;   // 업무보고: 알림 상태(야간·미보고 날짜)가 늦게 왔으면 기본값·날짜 칩 다시
     if(!st.cfg&&!st.setupTouched){ if(!st.pinned&&reportDefDate()!==st.date){ reportOpen(v,reportDefDate()); return; }
@@ -3474,7 +3608,7 @@ function showLogin(msg,prefill){ var l=$('login'); if(!$('glitch').innerHTML) $(
   $('lauto').checked=!!prefill;
   if(!prefill) setTimeout(function(){ try{ $('lcode').focus(); }catch(e){} },500); }
 function hideLogin(){ var l=$('login'); l.classList.add('out'); setTimeout(function(){ l.style.display='none'; swingStop(); },480); }
-function loginFail(msg){ lanimReset(true); var card=$('lcard'); $('glitch').classList.remove('wild'); $('lbtn').disabled=false; $('lbtn').textContent='접속'; setLoginErr(msg||'접속 실패'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); }
+function loginFail(msg){ BOOT_PRE=null; lanimReset(true); var card=$('lcard'); $('glitch').classList.remove('wild'); $('lbtn').disabled=false; $('lbtn').textContent='접속'; setLoginErr(msg||'접속 실패'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); }
 /* ---- 접속 애니메이션 (1.3초) ----
    0초: 접속 코드 칸과 접속 버튼이 밑줄로 합쳐져 선 하나 → 0.3초: 선이 "- - - -"로 바뀌어 왼쪽→오른쪽으로 흐르고, 바로 밑에 로딩바.
    0.3~1.3초: 1→100% + 옆에 단계 글 (접속코드 확인중 → 코드 권한 확인중 → 작업내역·재고 확인중 → 접속 승인).
@@ -3514,9 +3648,10 @@ function doLogin(){ if(la||$('lbtn').disabled) return; var code=($('lcode').valu
     .catch(function(e){ loginFail(e.message); }); }
 /* 자동 로그인: 로그인 화면이 뜨고 곧바로 같은 접속 애니메이션(그동안 코드가 아직 유효한지 확인) → 들어감 */
 function autoLogin(){ showLogin('',AUTH.code); $('lbtn').disabled=true; $('glitch').classList.add('wild'); var sv=SERVER;
+  lsOwner(AUTH.code,true); bootPre();   // v10.41: 저장본 주인 확인 · 홈 데이터를 접속 확인과 같이 출발 (예전엔 접속 확인이 끝난 뒤에야 출발)
   var started=new Promise(function(r){ setTimeout(function(){ lanimStart(); r(); },250); });   // 카드가 나타난 다음
   // v10.38: 겹쳐 보내지 않음 (4초 뒤엔 이미 들어가 있어 7초 뒤 복제는 서버 잠금·접속 기록만 늘림) · 연결 실패만 한 번 더
-  var check=runOnce('login',[AUTH.code,sv]).catch(function(e){ if(e&&e.net) return runOnce('login',[AUTH.code,sv]); throw e; }).then(function(a){ applyAuth(a,true); return true; }).catch(function(e){ if(e.auth===false) return e; return true; /* 네트워크 오류면 저장된 코드로 진행 */ });
+  var check=runOnce('login',[AUTH.code,sv]).catch(function(e){ if(e&&e.net) return runOnce('login',[AUTH.code,sv]); throw e; }).then(function(a){ applyAuth(a,true,true); return true; }).catch(function(e){ if(e.auth===false) return e; return true; /* 네트워크 오류면 저장된 코드로 진행 */ });
   // v10.37: 서버가 4초 안에 답을 안 주면 저장된 코드로 먼저 들어가고 확인은 뒤에서 (Google 쪽이 느릴 때 로그인 화면에서 25초씩 멈추지 않게) — 나중에 코드가 막혔다고 오면 그때 로그아웃
   var quick=Promise.race([check,new Promise(function(r){ setTimeout(function(){ r('slow'); },4000); })]).then(function(x){
     if(x!=='slow') return x;
@@ -3525,16 +3660,17 @@ function autoLogin(){ showLogin('',AUTH.code); $('lbtn').disabled=true; $('glitc
     if(r[1]!==true){ if(AUTH){ AUTH.auto=false; try{ localStorage.setItem('swapAuth',JSON.stringify(AUTH)); }catch(e){} }   // 코드가 막힘 → 다음부턴 자동 로그인 안 함
       $('lauto').checked=false; loginFail(r[1].message); return; }
     lanimDone(function(){ if(SERVER!==sv) setServer(sv); $('glitch').classList.remove('wild'); hideLogin(); startApp(); }); }); }
-function applyAuth(a,auto){ var legacy=(a.role===undefined&&a.master===undefined);   // 서버(Code.gs)가 아직 v10.5 → 관리자 = 마스터 하나뿐
+function applyAuth(a,auto,saved){ var legacy=(a.role===undefined&&a.master===undefined);   // 서버(Code.gs)가 아직 v10.5 → 관리자 = 마스터 하나뿐 · saved = 이 폰에 저장된 코드로 다시 확인한 것
+  lsOwner(a.code,!!saved);   // v10.41 다른 코드면 앞사람 저장본 지움
   AUTH={code:a.code,name:a.name||'',admin:!!a.admin,master:legacy?!!a.admin:!!a.master,role:a.role||(a.admin?(legacy?'master':'admin'):'worker'),auto:!!auto,
     servers:(a.servers&&a.servers.length)?a.servers:['swap','swing'],perms:a.perms||{}}; try{ localStorage.setItem('swapAuth',JSON.stringify(AUTH)); }catch(e){}
   if(a.vehicles!==undefined) vehSet(a.vehicles);   // 공용 차량 목록 (null = 아직 없음 → 폰 목록)
   if(a.name&&!a.master&&worker!==a.name){ worker=a.name; localStorage.setItem('swapWorker',a.name); } }
 /* 앱으로 돌아올 때(1분 넘게 지났으면) 권한·차량 목록을 다시 받아 추가기능 화면에 바로 반영 */
 var meAt=Date.now();
-document.addEventListener('visibilitychange',function(){ if(document.hidden||!AUTH||!appStarted||Date.now()-meAt<60000) return; meAt=Date.now();
+document.addEventListener('visibilitychange',function(){ if(document.hidden||!AUTH||!appStarted||Date.now()-meAt<600000) return; meAt=Date.now();   // v10.41: 1분 → 10분 (돌아올 때마다 서버 2개 · 권한은 서버가 호출마다 다시 봄)
   pushSync().then(function(){ if(!sheetOpen&&stack.length===1) pushPrompt(); });   // 작업보고 알림 상태도 새로 (그 사이 마스터가 지정했을 수 있음 · v10.30)
-  run('getMe').then(function(a){ if(!a||!AUTH) return; var before=JSON.stringify([AUTH.perms,AUTH.role]); applyAuth(a,AUTH.auto);
+  run('getMe').then(function(a){ if(!a||!AUTH) return; var before=JSON.stringify([AUTH.perms,AUTH.role]); applyAuth(a,AUTH.auto,true);
     if(JSON.stringify([AUTH.perms,AUTH.role])===before) return;
     var v=stack[0]; if(!v) return;   // 권한이 바뀜 → 맨 아래 탭 화면(추가기능·환경설정·홈)을 새 권한으로 다시 그림
     if(v.name==='extras'||v.name==='me') viewOf(v.name).render(v);
@@ -3543,7 +3679,7 @@ function canServer(sv){ return !AUTH||!AUTH.servers||AUTH.servers.indexOf(sv)>=0
 function switchServer(sv){ if(sv===SERVER) return; if(!canServer(sv)){ toast('이 코드는 '+sv.toUpperCase()+' 서버 권한이 없어요'); return; } haptic([10,30,10]); setServer(sv); toast((sv==='swing'?'SWING':'SWAP')+' 서버로 전환'); goTab('home'); }
 var loggingOut=false;
 function logout(msg){ if(loggingOut) return; loggingOut=true; AUTH=null; try{ localStorage.removeItem('swapAuth'); }catch(e){}
-  try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('swapc:')===0) localStorage.removeItem(k); }); }catch(e){}
+  try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('swapc:')===0&&k!=='swapc:_owner') localStorage.removeItem(k); }); }catch(e){}   // 주인 표시는 둠 (다음에 다른 사람이 들어오면 lsOwner 가 앞사람 작업자 이름도 비우게)
   var u=location.pathname+(msg?'?bye='+encodeURIComponent(msg):''); location.replace(u); }
 function logoutAsk(){ openSheet('<h3>로그아웃</h3><p>다시 들어오려면 접속 코드를 입력해야 해요.</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#d6336c" onclick="logout()">로그아웃</button></div>'); }
 var appStarted=false;
@@ -3552,7 +3688,8 @@ function startApp(){ if(appStarted) return; appStarted=true;
   if(CODE) push('tag',{code:CODE});
   setTimeout(prefetch, 800);
   if(GO_PARAM==='report'){ var gd=GO_D; GO_PARAM=''; GO_D=''; try{ history.replaceState(history.state,'',location.pathname); }catch(e){} setTimeout(function(){ pushGoReport(gd); },400); }   // 작업보고 알림을 눌러 열었음 (그 날짜)
-  setTimeout(function(){ pushSync().then(function(){ if(!sheetOpen&&stack.length===1) pushPrompt(); }); },1500); }   // 작업보고 알림 상태 · 지정됐는데 이 폰이 안 켰으면 물어봄 (v10.30)
+  setTimeout(function(){ if(Date.now()-(Number(lsGet('pushAt'))||0)<1800000) return; pushSync().then(function(){ if(!sheetOpen&&stack.length===1) pushPrompt(); }); },1500);   // v10.41: 30분 안에 확인했으면 열 때마다 다시 안 물음
+  setTimeout(lsPrune,3000); }   // 작업보고 알림 상태 · 지정됐는데 이 폰이 안 켰으면 물어봄 (v10.30)
 function boot(){ try{ history.replaceState({d:0},''); }catch(e){}
   var bye=new URLSearchParams(location.search).get('bye');
   if(bye){ try{ history.replaceState({d:0},'',location.pathname); }catch(e){} }
