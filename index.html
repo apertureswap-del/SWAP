@@ -310,6 +310,7 @@
   .btn.fin .lk{position:absolute;left:14px;top:50%;width:20px;height:20px;margin-top:-10px;display:none;opacity:.75}
   .btn.fin .lk svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;overflow:visible;display:block}
   .btn.fin .lk .sh{transform-origin:16px 11px}
+  .btn.fin .lb{font-size:inherit;font-weight:inherit;color:inherit;margin:0}   /* v10.46 입력칸 이름표 .lb(회색 13px)가 버튼 글씨에도 먹어서 풀린 버튼 글씨가 흐렸음 */
   .btn.fin.lock{background:var(--fill);color:var(--muted2);padding-left:34px} .btn.fin.lock .lk{display:block} .btn.fin.lock .lb{opacity:.75}
   .btn.fin.unlocking,.btn.fin.locking{pointer-events:none}
   .btn.fin.unlocking{animation:btnun 1.6s ease both} .btn.fin.unlocking .lk{display:block;animation:lkun 1.6s cubic-bezier(.3,1.2,.5,1) both}
@@ -780,7 +781,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.45';
+var APP_VER = '10.46';
 var libsReady=false; document.addEventListener('DOMContentLoaded',function(){ libsReady=true; });   // v10.34: defer 로 받는 QR 라이브러리(qrcode·jsQR)는 DOMContentLoaded 전에 다 받음(또는 실패) — 그 전엔 "받는 중"
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
@@ -1644,7 +1645,7 @@ function smView(){ var v=stack[stack.length-1]; return (v&&v.name==='stockmatch'
 function smDraw(v){ var t=v.state.t||{};
   var h=title('고객 매칭','<span class="code-badge" style="font-size:13px">'+esc(v.params.code)+'</span> 재고 기기를 다른 고객에게 출고');
   h+='<div class="card"><div class="lb">이 기기</div><div style="display:flex;align-items:center;gap:12px;margin-top:6px">'+devAv(t['모델'],t['색상'])+'<div><b class="mono" style="font-size:17px">'+esc(t['일련번호']||'일련번호 없음')+'</b><div class="muted" style="font-size:13px">'+esc([t['모델'],t['색상']].filter(Boolean).join(' '))+' · 지금 '+esc(t['고객명']||'재고')+(t['작업타입']?' · '+esc(t['작업타입']):'')+'</div></div></div></div>';
-  h+='<div class="card"><div class="lb">매칭할 고객 이름 또는 고객요청ID</div><div class="row" style="margin:6px 0 0"><input class="input" id="sm_q" value="'+esc(v.state.q||'')+'" placeholder="예: 최성은, 0230269-T1" autocomplete="off" style="flex:1">'+
+  h+='<div class="card"><div class="lb">매칭할 고객 이름 또는 고객요청ID</div><div class="row" style="margin:6px 0 0"><input class="input" id="sm_q" value="'+esc(v.state.q||'')+'" placeholder="예: 홍길동, 0000000-T1" autocomplete="off" style="flex:1">'+
     '<button class="btn sm" style="flex:0 0 auto;padding:0 18px" onclick="smSearch()">찾기</button></div>'+
     '<p class="muted" style="margin:10px 0 0;font-size:13px">고르면 이 기기가 그 고객요청의 <b>출고 기기</b>로 바뀌고 <b>출고준비완료</b>로 넘어가요. 예전 이용자 정보는 기록으로 남아요.</p></div><div id="sm_res"></div>';
   v.el.innerHTML=h; $('sm_q').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.target.blur(); smSearch(); } });
@@ -1956,6 +1957,21 @@ function swIDB(){ return new Promise(function(res,rej){ if(swDB) return res(swDB
 function swPut(k,v){ return swIDB().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction('photos','readwrite'); t.objectStore('photos').put(v,k); t.oncomplete=function(){ res(); }; t.onerror=function(){ rej(t.error); }; }); }); }
 function swGet(k){ return swIDB().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction('photos','readonly'); var q=t.objectStore('photos').get(k); q.onsuccess=function(){ res(q.result||null); }; q.onerror=function(){ rej(q.error); }; }); }); }
 function swDel(k){ return swIDB().then(function(db){ return new Promise(function(res){ var t=db.transaction('photos','readwrite'); t.objectStore('photos').delete(k); t.objectStore('photos').delete('thumb_'+k); t.oncomplete=function(){ res(); }; t.onerror=function(){ res(); }; }); }); }
+/* v10.46 v10.45 까지는 로그아웃하면 사진 목록만 지워져서, 원본·썸네일이 사진모음에 안 보이고 지울 수도 없이 남았음 → 목록에 없는 사진을 목록에 다시 넣음 (앱 열 때 한 번 · 아무것도 안 지움).
+   저장 중인 사진은 건드리지 않게 10분 지난 것만 · 최대 장수(SW_MAX_PHOTOS)를 넘지 않는 만큼만 (최근 것부터) · 목록 저장이 실패하면 그냥 둠 → 다음에 다시 */
+function swPhotoRevive(){ var L0;
+  try{ var raw=localStorage.getItem('swapc:sw_photos'); L0=raw?JSON.parse(raw):[]; }catch(e){ return Promise.resolve(-1); }
+  if(!Array.isArray(L0)||L0.length>=SW_MAX_PHOTOS) return Promise.resolve(0);
+  var have={}, old=Date.now()-600000, found=[]; L0.forEach(function(p){ if(p&&p.id) have[p.id]=1; });
+  return swIDB().then(function(db){ return new Promise(function(res){ var t=db.transaction('photos','readonly'), s=t.objectStore('photos'), q=s.openKeyCursor?s.openKeyCursor():s.openCursor();
+    q.onsuccess=function(){ var c=q.result; if(!c) return; var k=String(c.key), m=/^p(\d+)_/.exec(k); if(m&&!have[k]&&Number(m[1])<old) found.push({id:k,ts:Number(m[1])}); c.continue(); };
+    t.oncomplete=function(){ res(found); }; t.onerror=function(){ res([]); }; t.onabort=function(){ res([]); }; }); }).then(function(f){
+    if(!f.length) return 0;
+    var L=swPhotos(), in2={}; L.forEach(function(p){ if(p&&p.id) in2[p.id]=1; });   // 그사이 바뀌었을 수 있어 다시 읽음
+    var add=f.filter(function(x){ return !in2[x.id]; }).sort(function(a,b){ return b.ts-a.ts; }).slice(0,Math.max(0,SW_MAX_PHOTOS-L.length));
+    if(!add.length) return 0;
+    add.forEach(function(x){ L.push({id:x.id,kind:'',summary:'',ts:x.ts,name:swFileName(x.ts)}); });
+    L.sort(function(a,b){ return (b.ts||0)-(a.ts||0); }); swPhotosSave(L); return add.length; }).catch(function(){ return -1; }); }
 
 /* ---- SerialExtractor (원본 규칙 그대로) ---- */
 var SW_SERIAL_KEYS=['code','serial','sn','qrcode','qr','deviceid','imei'], SW_WRAP_KEYS=['link','url','target','redirect'];
@@ -3820,7 +3836,8 @@ function swIxGet(q){ if(!SWIX){ var t=lsGet('swix'); if(typeof t!=='string'||!t)
   var x=SWIX[q]; if(!x||!x[2]) return null; return {qr:x[1]||'',imei:x[2],model:x[3]||'',account:({HN:'향남',SW:'수원'})[x[0]]||'',band:'',adminUrl:SW_ADMIN+x[2]}; }
 var loggingOut=false;
 function logout(msg){ if(loggingOut) return; loggingOut=true; AUTH=null; try{ localStorage.removeItem('swapAuth'); }catch(e){}
-  try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('swapc:')===0&&k!=='swapc:_owner') localStorage.removeItem(k); }); }catch(e){}   // 주인 표시는 둠 (다음에 다른 사람이 들어오면 lsOwner 가 앞사람 작업자 이름도 비우게)
+  try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('swapc:')===0&&k!=='swapc:_owner'&&k!=='swapc:sw_photos') localStorage.removeItem(k); }); }catch(e){}   // 주인 표시는 둠 (다음에 다른 사람이 들어오면 lsOwner 가 앞사람 작업자 이름도 비우게)
+  // v10.46 사진 목록도 둠 — 사진 원본(IndexedDB swing-photos)은 남는데 목록만 지워져서, 사진모음에서 안 보이고 지울 수도 없게 쌓였음 (다른 코드로 들어올 때 lsOwner 도 사진은 남김)
   var u=location.pathname+(msg?'?bye='+encodeURIComponent(msg):''); kvClear().then(function(){ location.replace(u); }); }   // IndexedDB 를 다 지운 뒤에 다시 염 (지우는 중에 떠나면 남을 수 있어서)
 function logoutAsk(){ openSheet('<h3>로그아웃</h3><p>다시 들어오려면 접속 코드를 입력해야 해요.</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#d6336c" onclick="logout()">로그아웃</button></div>'); }
 var appStarted=false;
@@ -3831,6 +3848,7 @@ function startApp(){ if(appStarted) return; appStarted=true;
   if(GO_PARAM==='report'){ var gd=GO_D; GO_PARAM=''; GO_D=''; try{ history.replaceState(history.state,'',location.pathname); }catch(e){} setTimeout(function(){ pushGoReport(gd); },400); }   // 작업보고 알림을 눌러 열었음 (그 날짜)
   setTimeout(function(){ if(Date.now()-(Number(lsGet('pushAt'))||0)<1800000) return; pushSync().then(function(){ if(!sheetOpen&&stack.length===1) pushPrompt(); }); },1500);   // v10.41: 30분 안에 확인했으면 열 때마다 다시 안 물음
   setTimeout(function(){ (KV_BIGP||Promise.resolve()).then(lsPrune); },3000);   // 작업보고 알림 상태 · 지정됐는데 이 폰이 안 켰으면 물어봄 (v10.30) · 정리는 큰 저장본을 다 읽은 뒤 (v10.43)
+  if(window.indexedDB&&AUTH&&(AUTH.servers||[]).indexOf('swing')>=0) setTimeout(swPhotoRevive,6000);   // v10.46 숨어 버린 사진을 사진모음에 다시 (SWING 쓰는 사람만 · 사진 DB 를 괜히 만들지 않게)
   setTimeout(function(){ var m=lsGet('sync:'+SERVER)||{}; if(Date.now()-(m.at||0)>60000) syncRun(); },4000); }   // v10.43 열 때 미리 받기 (홈이 먼저 받고 나서 · 1분 안에 받았으면 안 함)
 function boot(){ document.body.classList.remove('booting'); try{ history.replaceState({d:0},''); }catch(e){}
   var bye=new URLSearchParams(location.search).get('bye');
