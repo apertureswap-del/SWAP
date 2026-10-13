@@ -516,6 +516,17 @@
   .lki{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px}
   .mitem.lock{opacity:.5} .mitem.lock .mi.em svg{filter:grayscale(1)} .mitem.lock .ar{display:flex}
   .btn.lockb{color:var(--muted);gap:6px}
+  /* v10.51 홈 현황 권한 없음: 틀(카드·제목·칸 이름)은 그대로 · 숫자·내용 자리만 흐리게 (서버가 숫자를 안 보냄 → 흐린 자리표시) + 위에 선 자물쇠 */
+  .hlkz{position:relative}
+  .hph{display:inline-block;width:2.2em;height:.62em;border-radius:6px;background:currentColor;opacity:.28;vertical-align:.1em;filter:blur(3.5px);-webkit-filter:blur(3.5px)}
+  .hbl{pointer-events:none;user-select:none;-webkit-user-select:none}
+  .hbl .hsk{filter:blur(5px);-webkit-filter:blur(5px)}
+  .hlkm{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;justify-content:center;pointer-events:none;z-index:1}
+  .hlkm span{display:inline-flex;align-items:center;gap:7px;max-width:92%;padding:9px 15px;border-radius:999px;background:var(--card);color:var(--muted);font-size:13.5px;font-weight:700;letter-spacing:-.2px;box-shadow:0 2px 12px rgba(25,31,40,.08),0 0 0 1px var(--line)}
+  .hlkm .lki{flex:0 0 auto} .hlkm.top{position:static;transform:none;margin:8px 0 2px}   /* 합계 카드: 큰 숫자 아래 한 줄 (단위 '대'·'건'·칸 이름을 안 가림) */
+  .hdim{opacity:.4}   /* 잠긴 홈의 "전체 보기" (현황 목록 = 잠김) — 누르면 안내 글 */
+  .hsk .row1,.hsk .row2{display:block;height:13px;border-radius:7px;background:var(--line2)} .hsk .row1{width:58%} .hsk .row2{width:82%;height:11px;margin-top:8px;opacity:.7}
+  .wk7 .ph{fill:var(--line2)}
   .melb{font-size:13px;font-weight:700;color:var(--muted);margin:6px 6px 10px}
   /* 권한 설정 */
   .prow{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--line)} .prow:last-child{border-bottom:0}
@@ -794,7 +805,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.49';
+var APP_VER = '10.51';
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -927,6 +938,7 @@ function spdLog(fn,t0,sms,r,meta,via){ var a=spdAll(), o={t:t0,f:fn,d:Date.now()
    v10.49 cx.w = 이 새 서버 주소로 (브레이커 안 봄 · 상태 변경을 같은 rid 로 다시 보낼 때 · stSend) */
 function runOnce(fn,args,meta,cx){ cx=cx||runCx(); var w=cx.j?'':(cx.w||api2Url()); return w?runFetch(fn,args,meta,cx,w):runJsonp(fn,args,meta,cx); }
 function runJsonp(fn,args,meta,cx){   // meta (v10.38): 겹쳐 보낸 복제면 {lost} 를 나중에 켬 → 속도 기록에서 실패로 안 셈 · v10.47 예전 runOnce 그대로 (답 처리만 runEnv 로 뺌)
+  var hsv=homeLkSv(fn,args); if(hsv&&homeLockOf(hsv)) return homeLkSkip(fn,args);   // v10.51 홈 현황이 잠긴 사람의 홈 숫자 읽기는 Google 로 안 보냄 (Google 은 이 권한을 몰라 숫자를 줌)
   return new Promise(function(res,rej){
     var cb='swapcb_'+(++_rid)+'_'+Math.floor(Math.random()*1e6); var s=document.createElement('script'); var done=false, t, t0=Date.now(), ac=AUTH&&AUTH.code;   // ac = 보낸 코드 (v10.41: 그 사이 다른 코드로 들어왔으면 옛 응답의 막힘으로 로그아웃하지 않음)
     function cleanup(){ done=true; try{ delete window[cb]; }catch(e){ window[cb]=undefined; } if(s.parentNode) s.parentNode.removeChild(s); clearTimeout(t); }
@@ -943,7 +955,7 @@ function runJsonp(fn,args,meta,cx){   // meta (v10.38): 겹쳐 보낸 복제면 
    새 서버 답에만 있는 것: net = 새 서버가 Google 오류 페이지를 받음 → JSONP 의 'bad' 처럼 연결 실패 (읽기는 바로 다시) · timeout = 새 서버가 Google 을 기다리다 끊음 → JSONP 시간 초과와 같게 (업무보고·재고 미리보기 다시 안 보냄).
    guard 'moved' (Google 답 · 이 영역은 새 서버로 옮겼음 · 함수는 안 돌았음) → 브레이커를 풀고 같은 rid 로 새 서버에 한 번 (주소가 없거나 ?api2=off · 서버 '' 면 그 문구 그대로) */
 function runEnv(fn,args,t0,j,meta,ac,via,cx,res,rej){ spdLog(fn,t0,j&&j.ms,(j&&j.ok)?'ok':((j&&j.timeout)?'timeout':((j&&j.net)?'bad':'err')),meta,via);
-  if(j&&j.ok){ res(j.result); return; }
+  if(j&&j.ok){ res(homeLkSeen(fn,args,j.result,via)); return; }   // v10.51 홈 숫자 읽기 답 → 잠김 기억 · Google 답인데 잠겼으면 숫자를 버림
   var er=new Error((j&&j.error)||'서버 오류'); if(j&&j.net) er.net=true; if(j&&j.timeout) er.timeout=true; if(j&&j.guard) er.guard=j.guard;   // v10.49 guard = 지킴이가 막음 (함수 안 돎)
   if(via==='w'&&j&&(j.net||j.timeout)) er.gw=true;   // v10.49 새 서버가 Google 로 넘겼는데 답을 못 받음 (Google 에서 늦게 돌 수 있음 · 같은 rid 는 계속 이 답 = idem unk)
   if(j&&j.auth===false){ er.auth=false; if(fn!=='login'&&appStarted&&AUTH&&AUTH.code===ac) logout(er.message); }
@@ -1011,6 +1023,38 @@ document.addEventListener('visibilitychange',function(){ if(!document.hidden&&MI
 (function(){ var q=''; try{ q=String(new URLSearchParams(location.search).get('api2')||'').toLowerCase(); }catch(e){}   // ?api2=on|off|auto → 이 폰에 저장 (켜고 끌 때 브레이커도 풂)
   if(q==='on'||q==='off'){ api2Put('swapApi2',q); api2Put('swapApi2Brk',null); A2B=null; } else if(q==='auto') api2Put('swapApi2',null); })();
 api2Pre();
+/* ================= v10.51 홈 현황 잠김 기억 (검증 뒤 고침) =================
+   홈 숫자가 나가는 읽기(homeTags · listTags 현황 목록 · swingWorkHome · syncPull)는 새 서버만 이 권한을 봄 (src/domains/auth/homeLock.js).
+   Google(JSONP — 브레이커가 열림 · ?api2=off · fetch 없는 폰 · 새 서버가 403·413·503 으로 거절해 한 번 더)은 이 권한을 몰라 숫자를 그대로 줌 →
+   이 폰이 "잠김"을 기억해 두고 (접속 코드마다 'hlock' · 다른 코드로 들어오면 lsOwner 가 지움)
+   ① 잠긴 서버의 그 읽기는 Google 로 아예 안 보냄 (홈 = 잠긴 답 · 현황 목록 = 빈 목록을 바로 · 미리받기는 이번엔 쉼 = 새 서버가 돌아오면 받음)
+   ② Google 이 숫자를 줘도(기억하기 전에 보낸 것) 버림 (그리지도 저장하지도 않음).
+   기억 켬 = 서버가 잠긴 답을 줌(어느 길이든 · Google 은 잠긴 답을 못 만듦) · getMe·login perms 에 false · 기억 끔 = 새 서버(fetch)가 숫자를 줌 · perms 에 true.
+   기억이 없으면(처음) getMe·login perms 로 · 그것도 없으면 안 잠김 (예전처럼 = 스위치가 꺼져 있을 때). 관리자·마스터는 늘 안 잠김.
+   남는 길: 처음부터 Google 로만 가는 폰(fetch 없음 · 새 서버에 한 번도 못 닿음)은 기억이 안 생김 · 사람이 Google 주소를 직접 부르는 것 → 서버(Code.gs)만 막을 수 있음 (CHANGES.md) */
+var HOME_LK_FNS={homeTags:'swap',listTags:'swap',swingWorkHome:'swing',syncPull:'?'}, HOME_LK_SYNC='홈 현황 권한이 없어 새 서버 연결이 돌아오면 미리 받아요';
+function homeLkGet(){ var m=lsGet('hlock'); return (m&&typeof m==='object'&&!Array.isArray(m))?m:{}; }
+function homeLkSet(sv,on){ var m=homeLkGet(); if(m[sv]===!!on) return; m[sv]=!!on; lsSet('hlock',m); }
+/* 이 폰의 접속 코드가 그 서버 홈 현황을 못 보나 — 기억 > getMe/login perms (서버가 false 를 줬을 때) > 안 잠김 · 그리기는 서버 답(locked)을 따름 */
+function homeLockOf(sv){ if(!AUTH||AUTH.admin||AUTH.master) return false; var m=homeLkGet(); if(typeof m[sv]==='boolean') return m[sv]; return !!(AUTH.perms&&AUTH.perms[sv+'.home']===false); }
+function homeLkMe(a){ if(!a||!a.perms||typeof a.perms!=='object') return; ['swap','swing'].forEach(function(sv){ var p=a.perms[sv+'.home']; if(typeof p==='boolean') homeLkSet(sv,!a.admin&&!a.master&&p===false); }); }   // 키가 없으면(Google·스위치 꺼짐) 기억 그대로
+function homeLkSv(fn,args){ var sv=HOME_LK_FNS[fn]; if(!sv) return ''; if(sv==='?'){ var st=args&&args[0]; sv=(st&&st.sv==='swing')?'swing':'swap'; } return sv; }
+/* 잠긴 서버의 답에서 홈 숫자 빼기 (= 새 서버가 잠긴 사람에게 주는 답) — syncPull 은 그 서버 홈 묶음(SWAP home·tags · SWING sh)만 · 나머지(작업리스트·업무보고·작업내역 등)는 그대로 */
+function homeLkStrip(fn,args,r){ var sv=homeLkSv(fn,args), o;
+  if(fn==='homeTags') return (r&&r.locked)?r:{locked:true,tags:[]};
+  if(fn==='listTags') return [];
+  if(fn==='swingWorkHome') return (r&&(r.ok===false||r.locked))?r:{ok:true,date:String((args&&args[0])||''),locked:true};
+  o=Object.assign({},r);
+  if(sv==='swap'){ delete o.tags; if(o.home&&!(o.home.d&&o.home.d.locked)) delete o.home; } else if(o.sh&&!(o.sh.d&&o.sh.d.locked)) delete o.sh;
+  return o; }
+function homeLkSkip(fn,args){ if(fn==='syncPull') return Promise.reject(new Error(HOME_LK_SYNC)); return Promise.resolve(homeLkStrip(fn,args,null)); }
+/* 받은 답 (runEnv · via 'w' = 새 서버 · 'j' = Google): 잠긴 답이면 기억 켬 · 새 서버가 숫자를 주면 기억 끔 · Google 답인데 잠겼으면 숫자를 버림 */
+function homeLkSeen(fn,args,r,via){ var sv=homeLkSv(fn,args); if(!sv||!r||typeof r!=='object') return r;
+  try{ var d=fn==='syncPull'?(sv==='swap'?(r.home&&r.home.d):(r.sh&&r.sh.d)):(fn==='listTags'?null:r);
+    if(d&&typeof d==='object'&&!Array.isArray(d)&&d.ok!==false&&!d.pending){ if(d.locked) homeLkSet(sv,true); else if(via==='w') homeLkSet(sv,false); }
+    if(via!=='w'&&homeLockOf(sv)) return homeLkStrip(fn,args,r);
+  }catch(e){}
+  return r; }
 /* 화면 캐시: 마지막 데이터를 폰에 저장해 두고 먼저 그린 뒤 뒤에서 갱신
    v10.43: 큰 저장본(홈·현황·작업내역·작업리스트·기기 상세·SWING 기기 목록·미리받기 기록)은 IndexedDB(폰 저장소 · 수백 MB)에 — 열 때 한 번 메모리로 읽어 두고 lsGet/lsSet 은 그대로 씀.
    아주 큰 것(작업내역 날짜별·SWING 기기 목록)은 따로('big') 담아 두고 앱이 뜬 뒤 뒤에서 읽음 (열 때 안 기다림 · 다 읽기 전엔 저장본 없이 지금처럼 받음).
@@ -1072,7 +1116,7 @@ function lsPrune(){ try{ var d8=todayISO(-8), d1=todayISO(-1), n1=todayISO(1);
   reportPrune(); }catch(e){} }   // v10.43 업무보고 초안 30일 정리도 (미리받기가 화면을 안 연 날에도 자동 기록 초안을 만들어서)
 /* v10.41 저장본 주인: 접속 코드 해시(원래 코드는 따로 안 남김). 다른 코드로 들어오면 사람마다 다른 저장본(홈·현황·작업내역·작업리스트·초안·알림 상태 등)을 지움
    — 공유 폰에서 앞사람 화면·초안이 보이지 않게. 기기 설정·사진·QR 기록·속도 기록은 둠. adopt = 저장된 코드로 자동 접속 (주인 표시가 없던 예전 폰은 그대로 이어 씀) */
-var LS_USER_RE=/^swapc:(home|tags2|tagv:|sw_home:|sw_roster|report:|pushme|pushAt|stock_pv|wl:|swday:|sysAt|rosterAt|wdnote:|sw_qrmap|swix|sync:|stpend)/;   // v10.49 stpend = 결과를 못 본 상태 변경 (다른 코드면 앞사람 것 지움)
+var LS_USER_RE=/^swapc:(home|tags2|tagv:|sw_home:|sw_roster|report:|pushme|pushAt|stock_pv|wl:|swday:|sysAt|rosterAt|wdnote:|sw_qrmap|swix|sync:|stpend|hlock)/;   // v10.49 stpend = 결과를 못 본 상태 변경 (다른 코드면 앞사람 것 지움) · v10.51 hlock = 홈 현황 잠김 기억
 function lsCodeHash(c){ var s=String(c||''), h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return ('000'+(h&0xffff).toString(16)).slice(-4); }   // 16비트만 (접속 코드 수천만 개 중 하나로 되돌려 찾을 수 없게 · 같은 폰에서 두 코드가 겹칠 확률 1/65536)
 function lsOwner(code,adopt){ if(!code) return; var o=lsCodeHash(code), cur=null; try{ cur=localStorage.getItem('swapc:_owner'); }catch(e){}
   if(cur===o){ if(KVDB&&KV._owner!==o){ KV._owner=o; kvPut('_owner',o); } return; }
@@ -1221,13 +1265,15 @@ function homeLoad(){ return run('homeTags',8).catch(function(e){ if(/허용되�
 VIEWS.home={ render:function(v){
   v.onResume=function(){ if(resumeFresh(v)) return; VIEWS.home.render(v); };   // v10.41: 1분 안에 돌아왔고 그 사이 내가 바꾼 게 없으면 다시 안 받음
   v.refresh=function(){ var t0=Date.now(); return homeLoad().then(function(d){ lsSet('home',d); v.state.at=t0; if(stack.indexOf(v)>=0) drawHome(v,d); }); };
-  var cached=lsGet('home'); if(cached) drawHome(v,cached);
+  var cached=lsGet('home'); if(cached&&!cached.locked&&homeLockOf('swap')){ lsDelKey('swapc:home'); cached=null; }   // v10.51 홈 현황 권한 없음 → 예전 숫자 저장본은 그리지 않고 지움
+  if(cached) drawHome(v,cached); else if(homeLockOf('swap')) drawHome(v,{locked:true,tags:[]});   // 받기 전에도 틀 + 자물쇠 (서버 답이 오면 그걸로)
   var t0=Date.now(); (bootTake('home')||homeLoad()).then(function(d){ lsSet('home',d); v.state.at=t0; if(stack.indexOf(v)>=0) drawHome(v,d); refreshSysBg(); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)+' — 이전 데이터 표시 중'); });
 }};
 /* 태그 목록만 있을 때(예전 서버) 여기서 셈 */
 function homeCounts(tags){ var c={inside:0,shipped:0,sys:0,by:{}}; STATUSES.forEach(function(s){ c.by[s]=0; });
   tags.forEach(function(t){ normStatus(t); if(c.by[t['상태']]!==undefined) c.by[t['상태']]++; if(shipped(t)) c.shipped++; else { c.inside++; if(sysIssue(t)) c.sys++; } }); return c; }   // 전산미완료는 공장 안 기기만 (누르면 여는 목록과 같은 수)
-function drawHome(v,d){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true; reanim(v); }
+function drawHome(v,d){ if(d&&!Array.isArray(d)&&d.locked){ drawHomeLock(v,d); return; }   // v10.51 서버가 숫자를 안 보냄 (홈 현황 권한 없음)
+  var first=!v._homeDrawn; if(first){ v._homeDrawn=true; reanim(v); }
   v.state.d=d; d=stOverHome(d);   // v10.49 받은 데이터는 그대로 두고(다시 그릴 때·서버 답으로 고칠 때 씀) 전산 변경 중인 기기만 바꿔서 셈·그림
   var tags=Array.isArray(d)?d:((d&&d.tags)||[]), c=Array.isArray(d)?homeCounts(d):((d&&d.counts)||homeCounts([])); tags.forEach(normStatus);
   var shipN=c.shipped||0, sum=c.by||{}, sysN=c.sys||0;
@@ -1247,6 +1293,38 @@ function drawHome(v,d){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true; r
   var keep=(document.activeElement&&document.activeElement.id==='manual')?$('manual').value:null;
   v.el.innerHTML=h; $('manual').addEventListener('keydown',function(e){ if(e.key==='Enter') openManual(); }); if(keep!==null){ $('manual').value=keep; $('manual').focus(); }
   countUp(v.el); }
+/* ================= v10.51 홈 현황 권한 없음 =================
+   일반 작업자(관리자·마스터 아님)에게 관리자가 'SWAP 홈 현황 보기'·'SWING 홈 현황 보기'를 안 켜 주면 서버(새 서버)가 숫자·내용 대신 {locked:true} 를 보냄
+   (src/domains/auth/homeLock.js) → 홈 틀(인사·카드·칸 이름·QR 열기·날짜·버튼)은 그대로, 숫자·내용 자리만 흐린 자리표시 + 선 자물쇠(LOCK_I) "권한없음으로 확인 불가합니다".
+   받은 숫자가 없으니 흐리게 그릴 숫자도 없음 (자리표시) · 폰 저장본에 남은 예전 숫자는 지움 (homeLockPurge) · 권한은 getMe/login perms (서버가 줄 때만 · 없으면 예전처럼) */
+var HOME_LOCK_TXT='권한없음으로 확인 불가합니다';
+/* homeLockOf (이 폰의 접속 코드가 그 서버 홈 현황을 못 보나) = 위 "v10.51 홈 현황 잠김 기억" */
+function hph(w){ return '<i class="hph"'+(w?' style="width:'+w+'"':'')+'></i>'; }   // 흐린 숫자 자리표시
+function hlockMark(top){ return '<div class="hlkm'+(top?' top':'')+'" role="note"><span>'+LOCK_I+HOME_LOCK_TXT+'</span></div>'; }   // top = 합계 카드 (큰 숫자 아래 한 줄 · 단위·칸 이름을 안 가림)
+function homeLockTap(){ haptic(6); toast(HOME_LOCK_TXT); }   // 잠긴 칸·흐린 "전체 보기"를 누르면 (고장 난 버튼처럼 보이지 않게)
+/* 폰 저장본에 남은 예전 숫자(홈·현황 목록·SWING 홈 날짜별) 지우기 — 잠긴 답 저장본은 그대로 · sv 없으면 잠김 기억·권한으로 둘 다 봄
+   현황 목록(tags2)은 빈 목록으로 (서버도 잠긴 사람에겐 빈 목록 · 미리받기 지문이 같아져 다시 안 받음) */
+function homeLockPurge(sv){ try{
+  if(sv==='swap'||(!sv&&homeLockOf('swap'))){ var h=lsGet('home'); if(h&&!h.locked) lsDelKey('swapc:home'); var tg=lsGet('tags2'); if(Array.isArray(tg)&&tg.length) lsSet('tags2',[]); }
+  if(sv==='swing'||(!sv&&homeLockOf('swing'))) lsKeys('sw_home:').forEach(function(k){ var x=lsGetKey(k); if(x&&!x.locked) lsDelKey(k); });
+}catch(e){} }
+function drawHomeLock(v,d){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true; reanim(v); }
+  v.state.d=d;
+  var n='<b>'+hph()+'</b>';
+  var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span class="hlogo">'+LOGO+'</span>경기남부점 입출고</h1></div>';
+  h+='<div class="card sum hlk"><div class="lb">관리 중인 기기</div><div class="hlkz" onclick="homeLockTap()"><div class="hbl" aria-hidden="true"><div class="big">'+n+'<span>대</span></div></div>'+hlockMark(true)+
+    '<div class="hbl" aria-hidden="true"><div class="stats">'+[['입고','입고'],['수리대기','수리대기'],['수리가능','수리가능'],['재고','재고'],['출고대기중','출고 대기중'],['출고준비완료','출고 준비완료']].map(function(x){
+      return '<button tabindex="-1"><span><i class="dot s-'+x[0]+'"></i>'+x[1]+'</span>'+n+'</button>'; }).join('')+
+    '<button tabindex="-1"><span><i class="dot s-출고완료"></i>배송내역</span>'+n+'</button>'+
+    '<button tabindex="-1" class="hdim"><span>전체 보기</span><b style="font-size:18px;color:var(--muted)">›</b></button></div></div></div></div>';   // 전체 보기 = 현황 목록 (잠긴 사람은 서버도 빈 목록) → 흐린 칸으로
+  h+='<div class="card"><h3>QR 열기</h3>'+
+     '<button class="btn" onclick="startScan()"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.2"/></svg>카메라로 QR 찍기</button>'+
+     '<div class="row" style="margin-top:10px"><input class="input code" id="manual" maxlength="8" placeholder="코드 입력" autocapitalize="characters" autocomplete="off" style="flex:1"><button class="btn line sm" style="flex:0 0 auto;padding:0 20px" onclick="openManual()">열기</button></div></div>';
+  h+='<div class="card hlk" style="padding:14px 12px 10px"><h3 style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px 0">최근 등록<button class="more hdim" aria-disabled="true" onclick="homeLockTap()">전체 보기 ›</button></h3><div class="hlkz" onclick="homeLockTap()"><div class="hbl" aria-hidden="true">'+
+    [0,1,2].map(function(){ return '<div class="item"><div class="av gray hsk"></div><div class="bd hsk"><i class="row1"></i><i class="row2"></i></div></div>'; }).join('')+'</div>'+hlockMark()+'</div></div>';
+  var keep=(document.activeElement&&document.activeElement.id==='manual')?$('manual').value:null;
+  v.el.innerHTML=h; $('manual').addEventListener('keydown',function(e){ if(e.key==='Enter') openManual(); }); if(keep!==null){ $('manual').value=keep; $('manual').focus(); }
+  homeLockPurge('swap'); }
 function openManual(){ var c=($('manual').value||'').trim().toUpperCase(); if(!c){ toast('코드를 입력해 주세요'); return; } openCode(c); }
 function openCode(code){ push('tag',{code:code}); }
 function itemTag(t){ var sp=stOver(t['코드']), st=sp?sp.s:t['상태'];   // v10.49 전산 변경 중 → 바꿀 상태 + "변경 중"
@@ -1534,7 +1612,7 @@ function tagvPut(tag){ if(!tag||!tag['코드']) return; var code=String(tag['코
 /* v10.41 방금 등록·변경한 기기를 저장된 홈·현황 목록 맨 앞에 고쳐 넣음 (이력은 빼고) */
 function tagSnapPut(tag){ if(!tag||!tag['코드']) return; var code=String(tag['코드']).toUpperCase(), t; try{ t=JSON.parse(JSON.stringify(tag)); }catch(e){ return; } delete t.history;
   var put=function(a){ a=a.filter(function(x){ return !(x&&String(x['코드']||'').toUpperCase()===code); }); a.unshift(t); return a; };
-  var h=lsGet('home'); if(h&&Array.isArray(h.tags)){ h.tags=put(h.tags).slice(0,Math.max(8,h.tags.length)); lsSet('home',h); } var a=lsGet('tags2'); if(Array.isArray(a)) lsSet('tags2',put(a)); }
+  var h=lsGet('home'); if(h&&Array.isArray(h.tags)&&!h.locked){ h.tags=put(h.tags).slice(0,Math.max(8,h.tags.length)); lsSet('home',h); } var a=lsGet('tags2'); if(Array.isArray(a)) lsSet('tags2',put(a)); }   // v10.51 잠긴 홈 저장본엔 안 넣음
 function tagSnapDrop(code){ code=String(code||'').toUpperCase(); var keep=function(t){ return !(t&&String(t['코드']||'').toUpperCase()===code); };
   lsDelKey('swapc:tagv:'+code);
   var h=lsGet('home'); if(h&&Array.isArray(h.tags)){ h.tags=h.tags.filter(keep); lsSet('home',h); } var a=lsGet('tags2'); if(Array.isArray(a)) lsSet('tags2',a.filter(keep)); }
@@ -2402,7 +2480,9 @@ function swHomeHead(v){ return '<div class="hello"><div class="date"><span class
 /* 폰에 저장해 둔 마지막 결과를 먼저 그리고(바로 뜸), 뒤에서 서버 결과로 바꾼다 */
 var SWH_AT={};
 function swHomeLoad(v,quiet,fresh){ var date=v.state.date, tok=v.state.tok=(v.state.tok||0)+1, cached=lsGet('sw_home:'+date), steps=0, fails=0, later=0, t0=Date.now();   // fresh = 당겨서 새로고침 (그냥 열면 오늘도 15분 자동 수집 기록으로 바로 · v10.32)
-  if(cached&&cached.date===date){ v.state.res=cached; swHomeDraw(v); }
+  if(cached&&!cached.locked&&homeLockOf('swing')){ homeLockPurge('swing'); cached=null; }   // v10.51 홈 현황 권한 없음 → 예전 숫자 저장본은 그리지 않고 지움
+  if(!cached&&homeLockOf('swing')&&!(v.state.res&&v.state.res.date===date)){ v.state.res={ok:true,date:date,locked:true}; swHomeDraw(v); }   // 받기 전에도 틀 + 자물쇠 (서버 답이 오면 그걸로)
+  else if(cached&&cached.date===date){ v.state.res=cached; swHomeDraw(v); }
   else if(!quiet||!v.state.res||v.state.res.date!==date){ v.state.res=null; v.el.innerHTML=swHomeHead(v)+spin('작업내역을 불러오는 중'); }
   if(!fresh&&cached&&cached.date===date&&SWH_AT[date]&&Date.now()-SWH_AT[date]<120000&&DIRTY_AT<SWH_AT[date]) return Promise.resolve();   // v10.41 2분 안에 받았고 그 사이 내가 바꾼 게 없으면 저장본 그대로 (홈 탭을 다시 눌러도 서버 안 부름)
   function alive(){ return stack.indexOf(v)>=0&&v.state.tok===tok; }
@@ -2420,6 +2500,7 @@ function swHomeLoad(v,quiet,fresh){ var date=v.state.date, tok=v.state.tok=(v.st
     .catch(function(e){ if(!alive()) return; if(e&&e.auth===false) return; if(++fails<=2) return step(); return fail(e); }); }
   return step(); }
 function swHomeDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res; if(!res){ return; } var d=v.state.date, admin=!!(AUTH&&AUTH.admin), h=swHomeHead(v);
+  if(res.locked){ v.el.innerHTML=h+swHomeLockHtml(d); homeLockPurge('swing'); return; }   // v10.51 서버가 숫자를 안 보냄 (홈 현황 권한 없음)
   if(res.noWorkers){ v.el.innerHTML=h+'<div class="card"><div class="empty">아직 등록된 작업자가 없어요.<br>'+(admin?'추가기능 → 작업자 관리에서 컬렉터 아이디를 넣어 주세요.':'관리자에게 작업자 등록을 요청해 주세요.')+'</div>'+
     (admin?'<button class="btn" onclick="push(\'sw_workers\',{})">작업자 관리</button>':'')+'</div>'; return; }
   var day=res.day||{}, c=day.cats||{};
@@ -2431,6 +2512,20 @@ function swHomeDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res; if(!res
       :'<button class="btn line lockb" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">'+LOCK_I+' 작업자별 자세히 보기</button>')+'</div>';   // 작업자 작업내역 권한이 없으면 push 가 막고 안내
   h+=swWeekCard(res.week||[]);
   v.el.innerHTML=h; if(!quiet) countUp(v.el); }
+/* v10.51 SWING 홈 현황 권한 없음: 합계 카드·최근 7일 카드 틀(제목·분류 이름·날짜·범례)은 그대로 · 숫자·막대 자리만 흐리게 + 선 자물쇠 · "작업자별 자세히 보기"는 따로 (작업자 작업내역 권한) */
+function swHomeLockHtml(d){ var n='<b>'+hph()+'</b>';
+  var h='<div class="card sum hlk"><div class="lb">'+swDayLabel(d)+' 작업 합계</div><div class="hlkz" onclick="homeLockTap()"><div class="hbl" aria-hidden="true"><div class="big">'+n+'<span>건</span></div></div>'+hlockMark(true)+
+    '<div class="hbl" aria-hidden="true"><div class="brk">'+SW_CATS.map(function(c){ return '<span>'+c[1]+'<b>'+hph('1.4em')+'</b></span>'; }).join('')+'</div></div></div>'+
+    (can('swing.sw_work')?'<button class="btn line" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">작업자별 자세히 보기 ›</button>'
+      :'<button class="btn line lockb" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">'+LOCK_I+' 작업자별 자세히 보기</button>')+'</div>';
+  var W=340,H=190,top=22,bot=28,pl=4,pr=4,slot=(W-pl-pr)/7,bw=Math.min(30,slot*0.56),ph=H-top-bot, hs=[.55,.8,.45,.7,.95,.6,.75];   // 막대 높이는 모양만 (숫자 아님)
+  var svg='<svg class="wk7" viewBox="0 0 '+W+' '+H+'" aria-hidden="true"><defs><filter id="hlkblur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5"/></filter></defs>'+
+    '<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+(top+ph)+'" y2="'+(top+ph)+'" class="ax"/><g filter="url(#hlkblur)">';
+  hs.forEach(function(f,i){ var cx=pl+slot*i+slot/2, hh=Math.round(ph*f); svg+='<rect x="'+(cx-bw/2)+'" y="'+(top+ph-hh)+'" width="'+bw+'" height="'+hh+'" rx="4" class="ph"/>'; });
+  svg+='</g>'; for(var i=0;i<7;i++){ svg+='<text x="'+(pl+slot*i+slot/2)+'" y="'+(H-8)+'" class="dl">'+swDayLabel(todayISO(i-7))+'</text>'; } svg+='</svg>';
+  h+='<div class="card hlk"><h3>최근 7일</h3><div class="hlkz" onclick="homeLockTap()"><div class="hbl" aria-hidden="true"><div class="wkst">'+['7일 합계','하루 평균','최고일'].map(function(x){ return '<div><span>'+x+'</span>'+n+'</div>'; }).join('')+'</div>'+svg+'</div>'+hlockMark()+'</div>'+
+    '<div class="wklg">'+SW_CATS.map(function(c){ return '<span><i style="background:'+SW_CAT_COLOR[c[0]]+'"></i>'+c[1]+'</span>'; }).join('')+'</div></div>';
+  return h; }
 /* 7일 요약 그래프: 날짜별 쌓은 막대(분류 5개), 위에 합계, 아래 날짜. 막대를 누르면 그 날 내역 */
 function swWeekCard(week){ if(!week.length) return '';
   var done=week.filter(function(x){ return x.done; }), tot=done.reduce(function(s,x){ return s+(x.total||0); },0);
@@ -3771,6 +3866,7 @@ var permMem=null;   // 마지막으로 받은 permInfo (권한 설정 → 사람
 function permLoad(v,draw){ return run('permInfo').then(function(r){ permMem=r; if(stack.indexOf(v)>=0) draw(v); })
   .catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title(v.name==='perms'?'권한 설정':'사람별 권한','')+errBox(e); }); }
 function permGroups(fs,servers){ return ['swap','swing'].filter(function(sv){ return !servers||servers.indexOf(sv)>=0; }).map(function(sv){ return {sv:sv,list:fs.filter(function(f){ return f.server===sv; })}; }); }
+function permGroupLb(g){ return g.sv.toUpperCase()+(g.list.some(function(f){ return /\.home$/.test(f.k); })?' 홈·추가기능':' 추가기능'); }   // v10.51 서버가 '홈 현황 보기' 줄을 주면 (새 서버 · 켠 서버만)
 function permRow(f,on,onclick,badge){ return '<div class="prow"><div class="pl"><b>'+esc(f.label)+(badge||'')+'</b>'+(f.note?'<span>'+esc(f.note)+'</span>':'')+'</div><button class="sw'+(on?' on':'')+'" aria-label="'+esc(f.label)+'" onclick="'+onclick+'"></button></div>'; }
 VIEWS.perms={ render:function(v){ v.refresh=function(){ return permLoad(v,permDraw); };
   if(!isAdminUp()){ v.el.innerHTML=title('권한 설정','')+'<div class="card"><div class="empty">관리자만 쓸 수 있어요.</div></div>'; return; }
@@ -3779,8 +3875,9 @@ VIEWS.perms={ render:function(v){ v.refresh=function(){ return permLoad(v,permDr
 function permView(n){ var v=stack[stack.length-1]; return (v&&v.name===n)?v:null; }
 function permDraw(v){ var r=permMem||{}, fs=r.features||[], d=r.defaults||{}, ppl=r.people||[];
   var h=title('권한 설정','일반 작업자')+
-    '<div class="tipb">관리자·마스터는 모든 기능을 써요. 여기서 끈 기능은 일반 작업자 추가기능에 <b>자물쇠</b>로 보이고 못 들어가요. 바꾸면 작업자가 앱을 다시 열 때 적용돼요.</div>';
-  h+='<div class="card"><h3>기본값 · 일반 작업자 전체</h3>'+permGroups(fs).map(function(g){ return '<div class="lb" style="margin-top:12px">'+g.sv.toUpperCase()+' 추가기능</div>'+
+    '<div class="tipb">관리자·마스터는 모든 기능을 써요. 여기서 끈 기능은 일반 작업자 추가기능에 <b>자물쇠</b>로 보이고 못 들어가요.'+
+    (fs.some(function(f){ return /\.home$/.test(f.k); })?' <b>홈 현황 보기</b>를 끄면 홈 화면 숫자가 흐리게 + 자물쇠로 보여요 (서버도 숫자를 안 보냄).':'')+' 바꾸면 작업자가 앱을 다시 열 때 적용돼요.</div>';
+  h+='<div class="card"><h3>기본값 · 일반 작업자 전체</h3>'+permGroups(fs).map(function(g){ return '<div class="lb" style="margin-top:12px">'+permGroupLb(g)+'</div>'+
     g.list.map(function(f){ return permRow(f,d[f.k]!==false,'permSetDefault(\''+f.k+'\','+(d[f.k]!==false?'false':'true')+',this)'); }).join(''); }).join('')+'</div>';
   h+='<div class="card"><h3>사람별 예외</h3><p class="muted" style="margin:0 0 6px;font-size:13px">한 사람만 기본값과 다르게 하고 싶을 때. 누르면 그 사람 기능을 따로 켜고 꺼요.</p>'+
     (!ppl.length?'<div class="empty" style="padding:14px 0">일반 작업자 코드가 없어요.</div>':'<div class="plist">'+ppl.map(function(p){ var n=Object.keys(p.perms||{}).length;
@@ -3800,7 +3897,7 @@ function permPersonDraw(v){ var r=permMem||{}, fs=r.features||[], d=r.defaults||
   var ov=p.perms||{}, n=Object.keys(ov).length;
   var h=title(esc(p.name||'이름 없음'),'사람별 권한'+(p.active?'':' · 사용 중지된 코드'))+
     '<div class="tipb">켜고 끄면 이 사람만 기본값과 다르게 돼요(<b>예외</b> 표시). 기본값과 같게 돌리면 예외가 없어져요.</div>'+
-    '<div class="card">'+permGroups(fs,p.servers).map(function(g){ return '<div class="lb" style="margin-top:4px">'+g.sv.toUpperCase()+' 추가기능</div>'+
+    '<div class="card">'+permGroups(fs,p.servers).map(function(g){ return '<div class="lb" style="margin-top:4px">'+permGroupLb(g)+'</div>'+
       g.list.map(function(f){ var has=typeof ov[f.k]==='boolean', on=has?ov[f.k]:(d[f.k]!==false);
         return permRow(f,on,'permSetPerson(\''+esc(p.key)+'\',\''+f.k+'\','+(on?'false':'true')+',this)',has?'<em class="exc">예외</em>':''); }).join(''); }).join('')+
     (n?'<button class="btn line" style="margin-top:14px" onclick="permSetPerson(\''+esc(p.key)+'\',\'*\',null,this)">예외 모두 지우기 (기본값 따르기)</button>':'')+'</div>';
@@ -3992,6 +4089,7 @@ function applyAuth(a,auto,saved){ var legacy=(a.role===undefined&&a.master===und
     servers:(a.servers&&a.servers.length)?a.servers:['swap','swing'],perms:a.perms||{}}; try{ localStorage.setItem('swapAuth',JSON.stringify(AUTH)); }catch(e){}
   if(a.vehicles!==undefined) vehSet(a.vehicles);   // 공용 차량 목록 (null = 아직 없음 → 폰 목록)
   if(a.name&&!a.master&&worker!==a.name){ worker=a.name; localStorage.setItem('swapWorker',a.name); }
+  homeLkMe(a); homeLockPurge();   // v10.51 perms 에 홈 현황 키가 있으면 잠김 기억 · 권한이 없으면 폰에 남은 예전 홈 숫자 저장본을 지움
   api2Me(a); }   // v10.47 새 서버 주소(api2)·최소 버전(minVer) — 지금 서버는 안 보냄 (그대로)
 /* 앱으로 돌아올 때(1분 넘게 지났으면) 권한·차량 목록을 다시 받아 추가기능 화면에 바로 반영 */
 var meAt=Date.now();
@@ -4001,7 +4099,8 @@ document.addEventListener('visibilitychange',function(){ if(document.hidden||!AU
     if(JSON.stringify([AUTH.perms,AUTH.role])===before) return;
     var v=stack[0]; if(!v) return;   // 권한이 바뀜 → 맨 아래 탭 화면(추가기능·환경설정·홈)을 새 권한으로 다시 그림
     if(v.name==='extras'||v.name==='me') viewOf(v.name).render(v);
-    else if(v.name==='home'&&SERVER==='swing'&&v.state.res) swHomeDraw(v,true); }).catch(function(){}); });
+    else if(v.name==='home'&&SERVER==='swing'&&v.state.res){ SWH_AT={}; swHomeLoad(v,true); }   // v10.51 홈 현황 권한이 바뀌었을 수 있음 → 다시 받음 (2분 안 받음 표시도 지움 · 예전: 버튼만 다시 그림)
+    else if(v.name==='home'&&SERVER==='swap') VIEWS.home.render(v); }).catch(function(){}); });
 function canServer(sv){ return !AUTH||!AUTH.servers||AUTH.servers.indexOf(sv)>=0; }
 function switchServer(sv){ if(sv===SERVER) return; if(!canServer(sv)){ toast('이 코드는 '+sv.toUpperCase()+' 서버 권한이 없어요'); return; } haptic([10,30,10]); setServer(sv); toast((sv==='swing'?'SWING':'SWAP')+' 서버로 전환'); goTab('home'); setTimeout(syncKick,3000); }   // v10.43 그 서버 것을 15분 넘게 안 받았으면 미리 받기
 /* ================= v10.43 묶음 미리받기 =================
@@ -4056,6 +4155,7 @@ function syncApply(sv,st,r,t0){ var m=lsGet('sync:'+sv)||{}, now=Date.now(), fre
       var all=[].concat.apply([],b).sort(function(x,y){ var a=String(x['최종변경시각']||''), c=String(y['최종변경시각']||''); return a<c?1:(a>c?-1:0); });   // 서버 listTags 와 같은 순서 (최근 변경 먼저)
       lsSet('tags2',all); }
     if(r.home&&r.home.d&&fresh('home')) lsSet('home',r.home.d);
+    if(r.sh&&r.sh.d&&r.sh.d.locked) homeLockPurge('swing');   // v10.51 잠긴 SWING 홈 → 다른 날짜의 예전 숫자 저장본도 지움 (SWAP 홈은 'home' 하나라 위에서 덮음)
     if(r.wl) Object.keys(r.wl).forEach(function(d){ var x=r.wl[d]; if(x&&fresh('wl:'+d)) lsSet('wl:'+d,{t:now,items:x.items||[],error:x.error||''}); });
     if(r.sh&&r.sh.d&&r.sh.d.date&&fresh('sw_home:'+r.sh.d.date)) lsSet('sw_home:'+r.sh.d.date,r.sh.d);
     if(r.ro&&Array.isArray(r.ro.d)&&fresh('sw_roster')){ lsSet('sw_roster',r.ro.d); lsSet('rosterAt',now); }
