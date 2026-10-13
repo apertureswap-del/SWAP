@@ -741,7 +741,17 @@
   .catbar button.ck{color:var(--danger)} .catbar button.ck b{color:var(--danger)} .catbar button.ck.on{background:var(--danger);color:#fff} .catbar button.ck.on b{color:#fff}
   .catbar button.of{color:#b45309} .catbar button.of b{color:#b45309} .catbar button.of.on{background:#b45309;color:#fff} .catbar button.of.on b{color:#fff}
   /* ---- v10.52 SWING 수리 ERP (지금 카드·버튼·선 아이콘 그대로) ---- */
-  .rphome{position:sticky;bottom:10px;z-index:3;margin:4px 0 0} .rphome:empty{display:none}
+  /* v10.53 아래 고정 자리 #rpdock: 뷰(스크롤 상자) 밖 · #stage 안 · 탭바 바로 위(bottom 10px) — 스크롤해도 늘 그 자리 (v10.52 는 뷰 안 sticky 라 탭바와 ~100px 떨어지고 내용이 짧으면 내용 밑에 붙어 같이 움직였음)
+     맨 위 화면 것만: SWING 홈 [수리기기 입력]+못 보낸 기록 줄 · 수리 내역 입력 [입력 완료] · 부품 재고 저장 막대 (rpDockSync) · 그 화면 뷰 아래 여백 = 이 높이 + 16px (JS) · 토스트·알림 막대는 그 위로 */
+  .rpdock{position:absolute;left:0;right:0;bottom:0;z-index:4;display:none;padding:18px 20px 10px;pointer-events:none;background:linear-gradient(to top,var(--bg) 62%,rgba(242,244,246,0))}
+  .rpdock.on{display:block;animation:rpdkin .28s var(--spring) both} .rpdock button,.rpdock input{pointer-events:auto}
+  @keyframes rpdkin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .rpdock>.btn{box-shadow:0 10px 26px rgba(0,0,0,.22)} .rpdock>.row .btn{box-shadow:0 8px 22px rgba(0,0,0,.16)}
+  .rpdock.out{animation:rpdkout var(--dur) var(--ease) both} .rpdock.out button,.rpdock.out input{pointer-events:none}   /* 뒤로 가는 0.38초: 떠나는 화면 버튼은 그 화면과 같이 옆으로 (rpDockLeave) */
+  @keyframes rpdkout{from{opacity:1;transform:none}to{opacity:.85;transform:translateX(100%)}}
+  body.camfull .rpdock{display:none}
+  body.rpdk .toast{bottom:calc(var(--tab-h) + 20px + var(--rpdock-h,0px))} body.rpdk .stbar{bottom:calc(var(--tab-h) + 12px + var(--rpdock-h,0px))}
+  .rphome{margin:0} .rphome:empty{display:none}
   .rphome .rpgo{font-size:17px;padding:17px;box-shadow:0 10px 26px rgba(0,0,0,.22)}
   .rpq{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:8px;padding:9px 12px;border-radius:12px;background:var(--card);color:var(--muted);font-size:13px;font-weight:700;box-shadow:0 1px 3px rgba(25,31,40,.08)}
   .rpq i,.rpoj .st i{flex:0 0 auto;width:11px;height:11px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--p);animation:rot .8s linear infinite}
@@ -882,6 +892,7 @@
     <button class="fback" id="back" onclick="pop()" aria-label="뒤로">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#17141f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
+    <div class="rpdock" id="rpdock"></div>
   </div>
   <nav class="tabbar" id="tabs">
     <button data-tab="home" onclick="goTab('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>홈</button>
@@ -901,7 +912,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.52';
+var APP_VER = '10.53';
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -1270,7 +1281,7 @@ function makeView(name,params){ var el=document.createElement('div'); el.classNa
 function reanim(v){ if(!v||!v.el) return; v.el.classList.remove('anim'); void v.el.offsetWidth; v.el.classList.add('anim'); clearTimeout(v._at); v._at=setTimeout(function(){ v.el.classList.remove('anim'); },900); }
 function mount(v){ $('stage').insertBefore(v.el,$('back')); reanim(v); try{ viewOf(v.name).render(v); }catch(e){ v.el.innerHTML=errBox(e); } }
 function syncChrome(){ var v=stack[stack.length-1]; if(!v) return; $('back').classList.toggle('on',stack.length>1);
-  var tab=curTab(); [].forEach.call($('tabs').children,function(b){ b.classList.toggle('on',b.dataset.tab===tab); }); stBar(); }   // v10.49 전산 변경 중 알림 (그 기기 화면에선 화면 안 표시로)
+  var tab=curTab(); [].forEach.call($('tabs').children,function(b){ b.classList.toggle('on',b.dataset.tab===tab); }); stBar(); rpDockSync(); }   // v10.49 전산 변경 중 알림 (그 기기 화면에선 화면 안 표시로) · v10.53 아래 고정 자리 = 맨 위 화면 것으로 바꿔 끼움
 /* 브라우저/폰 뒤로가기와 동기화: 화면을 열 때마다 history 항목을 하나 쌓고, 뒤로가기(popstate)가 오면 그 항목만큼 닫는다.
    순서: 시트 → 이전 화면 → 홈 탭 → (홈에서 한 번 더) 앱 종료 */
 var hDepth=0, ignorePop=0;
@@ -1295,7 +1306,8 @@ function pushView(name,params){ haptic(6); var v=makeView(name,params); var prev
   animating=true; requestAnimationFrame(function(){ requestAnimationFrame(function(){ v.el.classList.remove('enter'); if(prev) prev.el.classList.add('under'); setTimeout(function(){animating=false;},380); }); }); syncChrome(); }
 function pop(){ if(animating||stack.length<2) return; popView(); hBack(1); }
 function popView(){ if(stack.length<2) return; haptic(6); var v=stack.pop(); var prev=stack[stack.length-1]; clearInline(v); clearInline(prev); if(v.onLeave) v.onLeave(v);
-  animating=true; v.el.classList.add('enter'); prev.el.classList.remove('under'); setTimeout(function(){ v.el.remove(); animating=false; if(prev.onResume){ resetCount(prev); prev.onResume(prev); } },380); syncChrome(); }
+  if(v.el.classList.contains('fade-in')){ v.el.classList.remove('fade-in'); void v.el.offsetWidth; }   // v10.53 바꿔 끼운 화면(replace · 예: QR → 수리 내역 입력)은 fade-in 이 자리를 붙잡아 0.38초 제자리에 있다 사라졌음 → 다른 화면처럼 옆으로 밀려남
+  animating=true; v.el.classList.add('enter'); prev.el.classList.remove('under'); setTimeout(function(){ v.el.remove(); animating=false; if(prev.onResume){ resetCount(prev); prev.onResume(prev); } },380); rpDockLeave(v); syncChrome(); }
 function replace(name,params){ var cur=stack.pop(); if(cur){ if(cur.onLeave) cur.onLeave(cur); cur.el.remove(); } var v=makeView(name,params); stack.push(v); v.el.classList.add('fade-in'); mount(v); syncChrome(); }
 function haptic(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||8); }catch(e){} }
 function goTab(name){ var cur=stack[stack.length-1]; if(cur&&cur.name===name&&stack.length===1){ cur.el.scrollTo({top:0,behavior:'smooth'}); return; }
@@ -2569,6 +2581,7 @@ function swCatBrk(c){ var h=SW_CATS.filter(function(x){ return c[x[0]]; }).map(f
 VIEWS.sw_home={ render:function(v){ reanim(v); if(!v.state.date){ v.state.date=todayISO(-1); v.state.auto=true; }   // 어제 기준 (auto = 사용자가 날짜를 안 고름)
   v.refresh=function(){ if(swHomeRoll(v)) return Promise.resolve(); return swHomeLoad(v,true,true); };   // 당겨서 새로고침 = 오늘도 지금 바로 받음 (v10.32)
   v.onResume=function(){ rpHomeKick(); if(swHomeRoll(v)) return; if(v.state.stale){ v.state.stale=false; swHomeLoad(v,true); } else swHomeDraw(v); };
+  v.dock='home';   // v10.53 [수리기기 입력]·못 보낸 기록 줄 = 뷰 밖 아래 고정 자리(#rpdock · rpDockSync) — 어떤 홈 모양(내용 긴 날·짧은 날·잠김·작업자 없음·오류)이든 같은 자리
   swHomeLoad(v,false); rpHomeKick(); }};   // v10.52 수리 ERP: 내 권한(rpMe)·못 보낸 수리 기록 보내기
 /* 앱을 켜 둔 채 자정이 지나면 "어제"를 새 어제로 (사용자가 다른 날짜를 골랐으면 그대로) */
 function swHomeRoll(v){ if(!v.state.auto||v.state.date===todayISO(-1)) return false; v.state.date=todayISO(-1); resetCount(v); swHomeLoad(v,false); return true; }
@@ -2584,11 +2597,11 @@ function swHomeLoad(v,quiet,fresh){ var date=v.state.date, tok=v.state.tok=(v.st
   if(cached&&!cached.locked&&homeLockOf('swing')){ homeLockPurge('swing'); cached=null; }   // v10.51 홈 현황 권한 없음 → 예전 숫자 저장본은 그리지 않고 지움
   if(!cached&&homeLockOf('swing')&&!(v.state.res&&v.state.res.date===date)){ v.state.res={ok:true,date:date,locked:true}; swHomeDraw(v); }   // 받기 전에도 틀 + 자물쇠 (서버 답이 오면 그걸로)
   else if(cached&&cached.date===date){ v.state.res=cached; swHomeDraw(v); }
-  else if(!quiet||!v.state.res||v.state.res.date!==date){ v.state.res=null; v.el.innerHTML=swHomeHead(v)+spin('작업내역을 불러오는 중')+rpHomeBtn(); }
+  else if(!quiet||!v.state.res||v.state.res.date!==date){ v.state.res=null; v.el.innerHTML=swHomeHead(v)+spin('작업내역을 불러오는 중'); }
   if(!fresh&&cached&&cached.date===date&&SWH_AT[date]&&Date.now()-SWH_AT[date]<120000&&DIRTY_AT<SWH_AT[date]) return Promise.resolve();   // v10.41 2분 안에 받았고 그 사이 내가 바꾼 게 없으면 저장본 그대로 (홈 탭을 다시 눌러도 서버 안 부름)
   function alive(){ return stack.indexOf(v)>=0&&v.state.tok===tok; }
   function fail(e){ if(!alive()) return; if(v.state.res){ toast('새로고침 실패: '+(e&&e.message||e)); return; }
-    v.el.innerHTML=swHomeHead(v)+errBox(e)+'<button class="btn line" onclick="swHomeLoad(stack[stack.length-1],false)">다시 시도</button>'+rpHomeBtn(); }
+    v.el.innerHTML=swHomeHead(v)+errBox(e)+'<button class="btn line" onclick="swHomeLoad(stack[stack.length-1],false)">다시 시도</button>'; }
   var qsteps=0, wsteps=0;   // queued = 뒤에서 받는 중 확인(15초) · wait = 다른 쪽이 받는 중(3초) — 직접 받는 40번과 따로 셈 (v10.38)
   function step(){ if(steps>40||qsteps>80||wsteps>100) return fail(new Error('기록을 받는 데 너무 오래 걸려요. 잠시 뒤 다시 열어 주세요.'));
     var pre=(!fresh&&!steps&&!qsteps&&!wsteps&&!later)?bootTake('swh:'+date):null;   // v10.41 자동 접속 때 미리 출발한 호출
@@ -2601,9 +2614,9 @@ function swHomeLoad(v,quiet,fresh){ var date=v.state.date, tok=v.state.tok=(v.st
     .catch(function(e){ if(!alive()) return; if(e&&e.auth===false) return; if(++fails<=2) return step(); return fail(e); }); }
   return step(); }
 function swHomeDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res; if(!res){ return; } var d=v.state.date, admin=!!(AUTH&&AUTH.admin), h=swHomeHead(v);
-  if(res.locked){ v.el.innerHTML=h+swHomeLockHtml(d)+rpHomeBtn(); homeLockPurge('swing'); return; }   // v10.51 서버가 숫자를 안 보냄 (홈 현황 권한 없음) · v10.52 아래 [수리기기 입력]
+  if(res.locked){ v.el.innerHTML=h+swHomeLockHtml(d); homeLockPurge('swing'); return; }   // v10.51 서버가 숫자를 안 보냄 (홈 현황 권한 없음) · [수리기기 입력]은 아래 고정 자리 (v10.53)
   if(res.noWorkers){ v.el.innerHTML=h+'<div class="card"><div class="empty">아직 등록된 작업자가 없어요.<br>'+(admin?'추가기능 → 작업자 관리에서 컬렉터 아이디를 넣어 주세요.':'관리자에게 작업자 등록을 요청해 주세요.')+'</div>'+
-    (admin?'<button class="btn" onclick="push(\'sw_workers\',{})">작업자 관리</button>':'')+'</div>'+rpHomeBtn(); return; }
+    (admin?'<button class="btn" onclick="push(\'sw_workers\',{})">작업자 관리</button>':'')+'</div>'; return; }
   var day=res.day||{}, c=day.cats||{};
   h+='<div class="card sum"><div class="lb">'+swDayLabel(d)+' 작업 합계'+(day.updated?' · '+esc(day.updated)+' 기준':'')+'</div>'+
     '<div class="big">'+num(day.total||0,'swh')+'<span>건</span></div>'+swCatBrk(c)+
@@ -2612,7 +2625,7 @@ function swHomeDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res; if(!res
     (can('swing.sw_work')?'<button class="btn line" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">작업자별 자세히 보기 ›</button>'
       :'<button class="btn line lockb" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">'+LOCK_I+' 작업자별 자세히 보기</button>')+'</div>';   // 작업자 작업내역 권한이 없으면 push 가 막고 안내
   h+=swWeekCard(res.week||[]);
-  v.el.innerHTML=h+rpHomeBtn(); if(!quiet) countUp(v.el); }   // v10.52 홈 하단 [수리기기 입력] (수리 기록 권한)
+  v.el.innerHTML=h; if(!quiet) countUp(v.el); }   // 홈 하단 [수리기기 입력] (수리 기록 권한) = 아래 고정 자리 (v10.53 · rpDockSync)
 /* v10.51 SWING 홈 현황 권한 없음: 합계 카드·최근 7일 카드 틀(제목·분류 이름·날짜·범례)은 그대로 · 숫자·막대 자리만 흐리게 + 선 자물쇠 · "작업자별 자세히 보기"는 따로 (작업자 작업내역 권한) */
 function swHomeLockHtml(d){ var n='<b>'+hph()+'</b>';
   var h='<div class="card sum hlk"><div class="lb">'+swDayLabel(d)+' 작업 합계</div><div class="hlkz" onclick="homeLockTap()"><div class="hbl" aria-hidden="true"><div class="big">'+n+'<span>건</span></div></div>'+hlockMark(true)+
@@ -3286,13 +3299,45 @@ function rpMeLoad(force){ if(!AUTH||!canServer('swing')) return Promise.resolve(
 function rpMeChanged(){ rpHomeSync(); var ex=$('rpext'); if(ex) ex.innerHTML=rpExtrasRows(); }
 function rpHomeKick(){ if(!AUTH||!appStarted) return; rpMeLoad().catch(function(){}); rpFlush(); }
 
-/* ---- SWING 홈 하단 [수리기기 입력] · 못 보낸 기록 줄 ---- */
-function rpHomeBtn(){ return '<div class="rphome" id="rphome">'+rpHomeInner()+'</div>'; }
+/* ---- SWING 홈 하단 [수리기기 입력] · 못 보낸 기록 줄 (v10.53 = 아래 고정 자리 #rpdock 의 #rphome) ---- */
 function rpHomeInner(){ var can=rpCan('repair'), o=rpOut(); if(!can&&!o.length) return '';   // 권한이 꺼져도 못 보낸 기록 줄은 보임 (보고·버릴 수 있게)
   var e=o.filter(function(j){ return j.st==='err'; }).length, s=o.length-e;
   return (can?'<button class="btn rpgo" onclick="rpStart()">'+RP_I.qr+'수리기기 입력</button>':'')+
     (o.length?'<button class="rpq'+(e||RP_OUT_MEM?' err':'')+'" onclick="push(\'rp_mine\',{})">'+(s?'<i></i>저장 중 '+s+'건':'')+(s&&e?' · ':'')+(e?'저장 못 한 수리 기록 '+e+'건 · 눌러서 확인':'')+(RP_OUT_MEM?' · 폰 저장 안 됨 (앱을 닫지 마세요)':'')+'</button>':''); }
-function rpHomeSync(){ var el=$('rphome'); if(el) el.innerHTML=rpHomeInner(); }
+function rpHomeSync(){ var v=stack[stack.length-1]; if(v&&v.dock==='home') rpDockSync(); }   // v10.53 홈이 맨 위일 때만 (다른 화면 버튼은 그대로 · 홈으로 돌아오면 syncChrome 이 다시 그림)
+/* ---- v10.53 아래 고정 자리 #rpdock (뷰 밖 · #stage 안 · 탭바 바로 위) ----
+   예전(v10.52): 버튼이 뷰(스크롤 상자 · 아래 여백 92px · will-change:transform) 안 position:sticky → 탭바보다 ~100px 위에 뜨고, 내용이 짧으면 내용 밑에 붙어 스크롤 따라 움직임
+                 (뷰 안에선 position:fixed 도 안 됨 — will-change:transform 이 기준을 뷰로 바꿈)
+   지금: 맨 위 화면의 v.dock ('home' · 'rp_new' · 'rp_stock') 대로 그 버튼만 여기에 그림 — syncChrome(쌓기·뒤로·탭) 과 그 화면이 다시 그릴 때(rpDockSet) 바꿔 끼움
+         id 는 그대로 (rphome · rpgo · rpstsave) · 그 화면 뷰 아래 여백 = 이 자리 높이 + 16px (마지막 내용이 버튼 뒤에 안 숨게) · 다른 화면·카메라 전체화면엔 없음 */
+function rpDockSync(){ var d=$('rpdock'); if(!d||rpDkT) return; var v=stack[stack.length-1], k=(v&&v.dock)||'', s=(v&&v.state)||{}, h='', e0;   // rpDkT = 뒤로 가는 중 (끝나면 다시 부름)
+  if(k==='home'&&d.getAttribute('data-k')==='home'&&(e0=$('rphome'))){ var h0=rpHomeInner(); e0.innerHTML=h0; rpDockOn(!!h0); return; }   // 이미 홈 것 = 안쪽만 (못 보낸 기록 줄이 바뀔 때)
+  d.setAttribute('data-k',k);
+  if(k==='home') h='<div class="rphome" id="rphome"></div>';
+  else if(k==='rp_new'&&s.dk) h='<button class="btn" id="rpgo" onclick="rpSubmit()"'+(s.busy?' disabled':'')+'>'+(s.busy?'저장 중…':rpGoLabel(v))+'</button>';   // 고치기 저장 중이면 그대로 막음
+  else if(k==='rp_stock'&&s.dk) h=rpStockBar(v);
+  d.innerHTML=h;
+  if(k==='home'){ var hi=rpHomeInner(), e=$('rphome'); if(e) e.innerHTML=hi; rpDockOn(!!hi); } else rpDockOn(!!h); }   // 홈: 권한이 없고 못 보낸 기록도 없으면 안 보임
+function rpDockOn(on){ var d=$('rpdock'), v=stack[stack.length-1]; if(!d) return; on=!!on;
+  d.classList.toggle('on',on); try{ document.body.classList.toggle('rpdk',on); }catch(e){}   // rpdk = 토스트·알림 막대를 이 자리 위로
+  var hh=on?(d.offsetHeight||0):0;
+  if(v&&v.el&&v.dock){ v.el.style.paddingBottom=hh?(hh+16)+'px':''; v.el.style.scrollPaddingBottom=hh?(hh+16)+'px':''; }   // 그 화면만 (밑에 깔린 화면은 그대로 → 돌아와도 스크롤 자리가 안 튐) · scroll-padding = 키보드 '다음'·focus() 가 칸을 버튼 위로 올림
+  try{ document.documentElement.style.setProperty('--rpdock-h',hh+'px'); }catch(e){} }
+/* 그 화면이 다시 그릴 때: 버튼을 보일지 (입력 화면 = 기기·항목을 받아 그린 뒤 · 부품 재고 = 수량을 받은 "부품 재고" 탭) */
+function rpDockSet(v,on){ v.state.dk=!!on; if(stack[stack.length-1]===v) rpDockSync(); }
+/* 뒤로 갈 때 (popView): 떠나는 화면 버튼은 그 화면과 같이 옆으로 밀려나고 (그동안 눌러도 안 됨 · .out) 새 맨 위 화면 버튼은 화면이 다 빠진 뒤(0.38초) 나타남
+   (고치기 전: 뒤로·[입력 완료]를 누르자마자 아래 버튼만 홈 것으로 바뀌어, 0.35초 동안 입력 화면 위에 [수리기기 입력]이 보였음) */
+var rpDkT=0;
+function rpDockLeave(v){ var d=$('rpdock'); if(!d) return; clearTimeout(rpDkT);
+  if(v&&v.dock&&d.getAttribute('data-k')===v.dock&&d.classList.contains('on')) d.classList.add('out');
+  rpDkT=setTimeout(function(){ rpDkT=0; d.classList.remove('out'); rpDockSync(); },380); }
+function rpDockFit(){ var d=$('rpdock'); if(!rpDkT&&d&&d.classList&&d.classList.contains('on')){ rpDockOn(true); var a=document.activeElement; setTimeout(function(){ rpDockReveal(a); },0); } }   // 화면 크기·글꼴이 바뀌면 높이 다시 (못 보낸 기록 줄이 두 줄이 될 수 있음) · 키보드로 화면이 줄면 칸을 다시 버튼 위로
+/* 버튼 뒤에 (반쯤) 숨은 입력 칸을 누르면 버튼 위로 올림 — 눌러서 들어온 칸은 브라우저가 안 올림 (키보드 '다음'·focus() 는 scroll-padding 으로 브라우저가 올림 · 이미 보이면 그대로) */
+function rpDockReveal(el){ var d=$('rpdock'), v=stack[stack.length-1]; if(!el||!d||rpDkT||!v||!v.dock||!v.el||!d.classList.contains('on')||el===v.el||!v.el.contains||!v.el.contains(el)) return;
+  try{ if(el.getBoundingClientRect().bottom>d.getBoundingClientRect().top+0.5) el.scrollIntoView({block:'nearest'}); }catch(e){} }
+document.addEventListener('focusin',function(e){ var t=e&&e.target; setTimeout(function(){ rpDockReveal(t); },0); });
+window.addEventListener('resize',rpDockFit);
+try{ if(document.fonts&&document.fonts.ready) document.fonts.ready.then(rpDockFit); }catch(e){}
 function rpStart(){ if(!rpCan('repair')){ lockToast(); return; } haptic(8); push('scan',{rp:1}); }
 /* 추가기능 (SWING) 줄 — 권한 있는 것만 */
 function rpExtrasRows(){ var r=function(view,svg,b,s){ return '<button class="mitem" onclick="push(\''+view+'\',{})"><span class="mi">'+svg+'</span><span class="mt"><b>'+b+'</b><span>'+s+'</span></span><span class="ar">›</span></button>'; };
@@ -3327,6 +3372,7 @@ function rpItemsSet(r){ if(r&&r.groups){ RP_ITEMS={t:Date.now(),r:r}; lsSet('rp_
 
 /* ---- 수리 내역 입력 (새 기록 {q} · 고치기 {edit:id} · 못 보낸 기록 고치기 {out:rid}) ---- */
 VIEWS.rp_new={ render:function(v){ reanim(v); var p=v.params, s=v.state;
+  v.dock='rp_new'; s.dk=false;   // v10.53 [입력 완료]·[고친 내용 저장] = 아래 고정 자리 (기기·항목을 받아 그린 뒤에만 · rpNewDraw)
   s.sel=s.sel||[]; s.tab=s.tab||'S9'; s.q=s.q||''; s.memo=s.memo||''; s.names=s.names||{};
   var ci=rpItemsCached(); if(ci&&!s.items) s.items=ci;
   rpItemsLoad().then(function(r){ if(stack.indexOf(v)<0) return; var hadTop=!!(s.items&&s.items.top&&s.items.top.length), first=!s.items||s.itemsErr||hadTop!==!!(r.top&&r.top.length);
@@ -3358,7 +3404,8 @@ function rpClientChangeable(v){ var s=v.state, d=s.dev||{}, c=s.client;
   if(v.params.edit) return rpCan('admin')||!!(c&&c.kind==='vendor');   // 수리팀원은 외주끼리만 · 관리자·마스터는 아무 곳
   return !d.found&&!s.acct; }
 function rpNewDraw(v){ var s=v.state, d=s.dev||{}, ed=!!v.params.edit;
-  v.el.innerHTML=title(ed?'수리 기록 고치기':'수리 내역 입력',esc(d.qr||'')+(d.model?' · '+esc(d.model):''))+rpDevCard(v)+'<div id="rpbody">'+rpBodyHtml(v)+'</div>'; }
+  v.el.innerHTML=title(ed?'수리 기록 고치기':'수리 내역 입력',esc(d.qr||'')+(d.model?' · '+esc(d.model):''))+rpDevCard(v)+'<div id="rpbody">'+rpBodyHtml(v)+'</div>';
+  rpDockSet(v,!!s.items); }   // v10.53 항목을 받았으면 아래 고정 자리에 [입력 완료] (못 받음·받는 중 = 없음)
 function rpDevCard(v){ var s=v.state, d=s.dev||{}, c=s.client, k=c?c.kind:'', inn=(k==='HN'||k==='SW'), ed=!!v.params.edit;
   var h='<div class="card rpdev"><div class="rpdh">'+swVehAv(d.model)+'<div class="bd"><b class="mono">'+esc(d.qr||'')+'</b>'+(d.model?'<span class="pill rpm">'+esc(d.model)+'</span>':'')+
     '<div class="rpcl"><span class="rpk '+(inn?'in':(c?'out':'none'))+'">'+(inn?(k==='HN'?'향남':'수원'):(c?'외주':'거래처 고르기 전'))+'</span>'+(c?'<b>'+esc(c.name)+'</b>':'')+'</div></div></div>';
@@ -3378,7 +3425,7 @@ function rpBodyHtml(v){ var s=v.state, it=s.items;
     '<div class="seg rpseg'+(s.q?' q':'')+'" id="rpseg">'+rpSegHtml(v)+'</div><div class="rplist" id="rplist">'+rpListHtml(v)+'</div></div>';
   h+='<div class="card"><h3 id="rpselh">'+rpSelHead(v)+'</h3><div id="rpsel">'+rpSelHtml(v)+'</div></div>';
   h+='<div class="card"><h3>특이사항</h3><textarea class="input" id="rpmemo" maxlength="500" placeholder="예: 레버 헐거움 · 다음에 다시 봄" oninput="rpMemoIn(this.value)">'+esc(s.memo)+'</textarea></div>';
-  return h+'<div class="stickybar"><button class="btn" id="rpgo" onclick="rpSubmit()">'+rpGoLabel(v)+'</button></div>'; }
+  return h; }   // [입력 완료] (id rpgo) = 아래 고정 자리 (v10.53 · rpDockSync)
 function rpItemsRetry(){ var v=rpTop('rp_new'); if(!v) return; v.state.itemsErr=null; var b=$('rpbody'); if(b) b.innerHTML=spin('수리 항목을 불러오는 중');
   rpItemsLoad(true).then(function(r){ if(stack.indexOf(v)<0) return; v.state.items=r; rpNewDraw(v); }).catch(function(e){ if(stack.indexOf(v)<0) return; v.state.itemsErr=e; rpNewDraw(v); }); }
 function rpAllItems(v){ var g=(v.state.items&&v.state.items.groups)||[]; return [].concat.apply([],g.map(function(x){ return x.items||[]; })); }
@@ -3476,7 +3523,7 @@ function rpEditGo(v){ var s=v.state; if(s.busy||s.sent) return; var x=s.rec; if(
   var cx=s.cx=s.cx||runCx();
   rpWrite('rpEdit',[x.id,x.ver,patch],cx).then(function(r){ s.busy=false; s.cx=null; s.sent=true; RP_RECS[r.rec.id]=r.rec; RP_DIRTY=Date.now(); haptic([12,40,18]); toast('고쳤어요 · '+r.rec.qr); rpLowToast(r.low);
       rpBack(v); },
-    function(e){ s.busy=false; if(b){ b.disabled=false; b.textContent=rpGoLabel(v); } toast('고치기 실패: '+e.message); }); }
+    function(e){ s.busy=false; if(rpTop('rp_new')===v) b=$('rpgo')||b; if(b){ b.disabled=false; b.textContent=rpGoLabel(v); } toast('고치기 실패: '+e.message); }); }   // v10.53 아래 고정 자리가 그 사이 다시 그려졌으면 지금 단추
 
 /* ---- 보낼 목록 rp_out (이 폰 · 다른 코드면 지움) — {rid, at, st:'send'|'err', err, rec, view} ---- */
 /*     폰 저장이 안 되면 (공간이 꽉 참·저장소 막힘) 메모리 RP_OUT_MEM 에 둠 → 보내기는 그대로 · 앱을 닫으면 사라지니 화면에 알림 · 다시 저장되면 폰으로 */
@@ -3739,7 +3786,7 @@ function rpStmtPrint(){ var v=rpTop('rp_stmt'), d=v&&v.state.d; if(!d||!d.stmt||
   try{ if(typeof window.print==='function') window.print(); else { toast('이 브라우저는 인쇄를 못 해요'); done(); } }catch(e){ toast('인쇄를 열 수 없어요: '+e.message); done(); } }
 
 /* ---- 부품 재고 (관리자·마스터): 수량 · 안전재고(마지막 입력의 20%) · 입력 · 부족 빨강 · 여러 개 항목 · 알림 받을 사람 ---- */
-VIEWS.rp_stock={ render:function(v){ reanim(v); var s=v.state; s.f=s.f||'all'; s.tab=s.tab||'stock'; s.inp=s.inp||{};
+VIEWS.rp_stock={ render:function(v){ reanim(v); var s=v.state; s.f=s.f||'all'; s.tab=s.tab||'stock'; s.inp=s.inp||{}; v.dock='rp_stock';   // v10.53 저장 막대 = 아래 고정 자리
   v.refresh=function(){ return rpStockLoad(v); }; rpStockDraw(v); rpStockLoad(v); }};
 function rpStockLoad(v){ var s=v.state, t0=Date.now();
   if(s.tab==='items') return rpItemsLoad(true).then(function(r){ if(stack.indexOf(v)<0) return; s.items=r; rpStockDraw(v); }).catch(function(e){ if(stack.indexOf(v)<0) return; s.err=e; rpStockDraw(v); });
@@ -3767,16 +3814,17 @@ function rpStockDirty(v){ var s=v.state, m={}; ((s.st&&s.st.items)||[]).forEach(
   return Object.keys(s.inp).filter(function(k){ var x=m[k], val=String(s.inp[k]).trim(); return x&&val!==''&&val!==rpStockBase(x); }); }
 function rpStockDraw(v){ var s=v.state, r=s.st;
   var h=title('부품 재고','관리자 · 마스터')+'<div class="seg">'+[['stock','부품 재고'],['items','품목 여러 개']].map(function(x){ return '<button class="'+(s.tab===x[0]?'on':'')+'" onclick="rpStockTab(\''+x[0]+'\')">'+x[1]+'</button>'; }).join('')+'</div>';
-  if(s.tab==='items'){ v.el.innerHTML=h+rpMultiHtml(v); return; }
-  if(!r){ v.el.innerHTML=h+(s.err?errBox(s.err):spin('부품 재고를 불러오는 중')); return; }
+  if(s.tab==='items'){ v.el.innerHTML=h+rpMultiHtml(v); rpDockSet(v,false); return; }
+  if(!r){ v.el.innerHTML=h+(s.err?errBox(s.err):spin('부품 재고를 불러오는 중')); rpDockSet(v,false); return; }
   h+='<div class="card sum"><div class="lb">부품 (원가가 있는 수리 항목 1개 = 부품 1개)</div><div class="big"><b>'+r.n+'</b><span>개</span></div><div class="brk"><span'+(r.low?' class="rplow"':'')+'>안전재고 아래<b>'+r.low+'</b></span><span>입력 전<b>'+r.unset+'</b></span></div></div>'+
     '<div class="tipb">안전재고 = 마지막으로 입력한 수량의 20% · 그 아래로 떨어지면 <b>앱 알림 + 슬랙</b> 한 번 · 다시 입력하면 알림이 다시 가능해요. 수리에 그 항목이 들어가면 줄마다 1개씩 자동으로 빠지고, 고치거나 지우면 되돌려요.</div>'+
     '<div class="rpchips" style="margin-bottom:10px">'+[['all','전체 '+r.n],['low','부족 '+r.low],['unset','입력 전 '+r.unset]].map(function(x){ return '<button class="rpchip'+(s.f===x[0]?' on':'')+'" onclick="rpStockF(\''+x[0]+'\')">'+x[1]+'</button>'; }).join('')+'</div>'+
     '<div class="srch rpsrch">'+RP_I.srch+'<input class="input" id="rpsq" placeholder="부품 이름" value="'+esc(s.q||'')+'" oninput="rpStockQ(this.value)" autocomplete="off"></div>'+
-    '<div id="rpstl">'+rpStockList(v)+'</div>'+rpCfgHtml(v)+
-    (s.edit?'<div class="stickybar"><div class="row" style="margin:0"><button class="btn line sm" onclick="rpStockEdit(false)">그만</button><button class="btn sm" id="rpstsave" onclick="rpStockSave()">'+rpStockSaveLb(v)+'</button></div></div>'
-      :'<div class="stickybar"><button class="btn" onclick="rpStockEdit(true)">'+RP_I.box+'재고 입력 (지금 선반에 있는 수)</button></div>');
-  v.el.innerHTML=h; }
+    '<div id="rpstl">'+rpStockList(v)+'</div>'+rpCfgHtml(v);
+  v.el.innerHTML=h; rpDockSet(v,true); }   // v10.53 [재고 입력]·[그만][저장] = 아래 고정 자리
+function rpStockBar(v){ var s=v.state;
+  return s.edit?'<div class="row" style="margin:0"><button class="btn line sm" onclick="rpStockEdit(false)">그만</button><button class="btn sm" id="rpstsave" onclick="rpStockSave()"'+(s.saving?' disabled':'')+'>'+(s.saving?'저장 중…':rpStockSaveLb(v))+'</button></div>'
+    :'<button class="btn" onclick="rpStockEdit(true)">'+RP_I.box+'재고 입력 (지금 선반에 있는 수)</button>'; }
 function rpStockSaveLb(v){ var n=rpStockDirty(v).length; return n?'저장 · '+n+'개':'바꾼 것 없음'; }
 function rpStockF(f){ var v=rpTop('rp_stock'); if(!v) return; haptic(6); v.state.f=f; rpStockDraw(v); }
 function rpStockQ(q){ var v=rpTop('rp_stock'); if(!v) return; v.state.q=String(q||''); var el=$('rpstl'); if(el) el.innerHTML=rpStockList(v); }
@@ -3786,10 +3834,10 @@ function rpStockSave(){ var v=rpTop('rp_stock'); if(!v) return; var s=v.state, k
   if(!ks.length){ toast('바꾼 수량이 없어요'); return; }
   var bad=ks.filter(function(k){ return !/^\d{1,5}$/.test(String(s.inp[k]).trim()); }); if(bad.length){ toast('재고 수량은 0~99999 사이 숫자로 적어 주세요.'); return; }
   var rows=ks.map(function(k){ return {code:k,qty:Number(String(s.inp[k]).trim())}; }), parts=[]; for(var i=0;i<rows.length;i+=200) parts.push(rows.slice(i,i+200));
-  var b=$('rpstsave'); if(b){ b.disabled=true; b.textContent='저장 중…'; } s.scx=s.scx||[];
+  var b=$('rpstsave'); if(b){ b.disabled=true; b.textContent='저장 중…'; } s.scx=s.scx||[]; s.saving=true;   // saving = 아래 고정 자리를 다시 그려도 막힌 채 (v10.53)
   var k=0, last=null, next=function(){ if(k>=parts.length) return Promise.resolve(last); var cx=s.scx[k]=s.scx[k]||runCx(); return rpWrite('rpStockSet',[parts[k]],cx).then(function(r){ last=r; k++; return next(); }); };
-  next().then(function(r){ s.scx=null; s.st=r; s.inp={}; s.edit=false; haptic([12,40,18]); toast('재고 '+rows.length+'개 저장했어요 · 안전재고 = 그 20%'); if(stack.indexOf(v)>=0) rpStockDraw(v); },
-    function(e){ if(b){ b.disabled=false; b.textContent=rpStockSaveLb(v); } toast('재고 저장 실패: '+e.message); }); }
+  next().then(function(r){ s.saving=false; s.scx=null; s.st=r; s.inp={}; s.edit=false; haptic([12,40,18]); toast('재고 '+rows.length+'개 저장했어요 · 안전재고 = 그 20%'); if(stack.indexOf(v)>=0) rpStockDraw(v); },
+    function(e){ s.saving=false; b=$('rpstsave')||b; if(b){ b.disabled=false; b.textContent=rpStockSaveLb(v); } toast('재고 저장 실패: '+e.message); }); }
 function rpStockInfo(code){ var v=rpTop('rp_stock'); if(!v||!v.state.st) return; var x=v.state.st.items.filter(function(i){ return i.code===code; })[0]; if(!x) return; haptic(6);
   openSheet('<h3>'+esc(x.name)+'</h3><p>'+esc(x.code)+' · '+(rpStockUnset(x)?rpStockSub(x):'지금 '+x.qty+'개 · 안전재고 '+x.safety+' (마지막 입력 '+x.lastIn+'의 20%)')+(x.inBy?' · '+esc(x.inBy)+' 입력':'')+'</p>'+
     permRow({label:'여러 개 쓸 수 있는 항목',note:'켜면 한 기록에 두 번 이상 넣을 수 있고 이름 뒤에 " 1EA"'},x.multi,'rpMultiSet(\''+jsa(code)+'\','+(x.multi?'false':'true')+',this)')+
