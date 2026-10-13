@@ -420,6 +420,19 @@
   .stalebar.err{background:var(--danger-soft);color:var(--danger)} .stalebar span{flex:1}
   .stalebar button{flex:0 0 auto;border:0;border-radius:999px;padding:6px 12px;background:var(--card);color:var(--ink2);font:inherit;font-size:13px;cursor:pointer}
   .tagstale button:not(.stb),.tagstale label.chk{opacity:.45;pointer-events:none}
+  /* v10.49 상태 변경을 기다리지 않음: 바로 바꿔 그리고 "전산 변경 중…" 만 작게 (그 기기 상태 칸 · 목록 · 아래 알림) */
+  .stp{display:inline-flex;align-items:center;gap:6px;margin-left:8px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--fill);color:var(--muted);font-size:12px;font-weight:700;letter-spacing:-.1px;vertical-align:middle;white-space:nowrap}
+  .stp i{flex:0 0 auto;width:11px;height:11px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--p);animation:rot .8s linear infinite}
+  .stp.sm{margin-left:6px;padding:2px 7px 2px 6px;font-size:10.5px;gap:4px} .stp.sm i{width:9px;height:9px}
+  .stp.err{background:var(--danger-soft);color:var(--danger)} .stp.err i{display:none}
+  .stbusy .btn{opacity:.5;pointer-events:none}
+  .hist li.stph{color:var(--muted2)}
+  .stbar{position:fixed;left:50%;bottom:calc(var(--tab-h) + 12px);transform:translateX(-50%) translateY(8px);opacity:0;pointer-events:none;z-index:6;display:flex;align-items:center;gap:8px;
+         max-width:88%;padding:9px 15px 9px 12px;border-radius:999px;background:rgba(25,31,40,.86);color:#fff;font-size:13px;font-weight:600;white-space:nowrap;
+         transition:opacity .2s,transform .35s var(--spring);backdrop-filter:blur(8px)}
+  .stbar.on{opacity:1;transform:translateX(-50%);pointer-events:auto}
+  .stbar i{flex:0 0 auto;width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:rot .8s linear infinite}
+  .stbar span{overflow:hidden;text-overflow:ellipsis} .stbar.err{background:var(--danger)} .stbar.err i{display:none}
   .toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + 20px);transform:translateX(-50%) translateY(10px);opacity:0;background:rgba(25,31,40,.92);color:#fff;
          padding:13px 20px;border-radius:16px;font-size:14.5px;font-weight:600;z-index:99;max-width:88%;text-align:center;pointer-events:none;
          transition:transform .45s var(--spring),opacity .25s;backdrop-filter:blur(8px)}
@@ -781,7 +794,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.47';
+var APP_VER = '10.49';
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -824,6 +837,7 @@ var LOGO_SWING='<span class="slogo" style="aspect-ratio:2.575"><img class="l" al
 function curLogo(){ return SERVER==='swing'?LOGO_SWING:LOGO; }
 var LOGO='<svg class="logo" viewBox="0 0 56.3 15.5"><path class="l" d="M 0.234,11.775 L 0.15,9.755 C 2.889,10.029 5.176,10.149 7.28,10.217 C 8.416,10.251 9.518,10.269 10.72,10.235 L 10.72,7.29 L 3.474,6.708 C 0.968,6.504 0.0,5.596 0.0,3.475 C 0.0,0.975 1.369,0.0 4.993,0.0 C 7.647,0.0 9.718,0.069 12.223,0.24 L 12.29,2.26 A 75.0,75.0 0.0 0,0 5.21,1.815 A 56.0,56.0 0.0 0,0 2.254,1.815 L 2.254,4.725 L 9.084,5.272 C 11.888,5.494 12.974,6.402 12.974,8.592 C 12.974,11.107 11.638,12.049 7.664,12.049 C 5.076,12.049 2.771,11.946 0.234,11.775"/><path class="l" d="M 17.218,11.844 L 14.163,3.372 L 14.163,3.287 L 16.167,3.287 L 18.722,10.595 L 18.772,10.595 L 20.876,4.588 L 23.164,4.588 L 25.217,10.595 L 25.284,10.595 L 27.856,3.287 L 29.81,3.287 L 29.81,3.372 L 26.654,11.844 L 23.932,11.844 L 22.012,6.367 L 21.962,6.367 L 20.024,11.844 L 17.22,11.844 L 17.218,11.844"/><path class="l" d="M 38.439,3.08 C 37.069,3.08 35.499,3.165 32.093,3.353 L 32.026,5.151 C 34.765,4.86 38.138,4.689 40.291,4.689 L 40.291,6.008 C 40.291,6.008 35.625,6.751 33.796,7.128 C 31.966,7.507 30.774,8.087 30.774,9.678 C 30.774,11.561 31.488,12.166 33.292,12.166 C 34.782,12.166 38.308,11.211 40.46,10.586 L 40.876,11.638 L 42.228,11.638 L 42.228,5.922 C 42.228,3.8 41.394,3.081 38.438,3.081 L 38.439,3.08 M 40.292,9.238 L 32.879,10.871 L 32.712,8.755 L 40.292,7.309 L 40.292,9.238"/><path class="l" d="M 56.269,7.334 C 56.159,10.577 55.653,11.217 52.527,11.069 L 46.918,10.753 L 46.918,15.479 L 44.964,15.479 L 44.964,3.158 L 46.333,3.158 L 46.883,4.133 C 49.222,3.398 51.559,2.953 53.245,2.953 C 55.583,2.953 56.267,3.928 56.267,7.333 L 56.269,7.333 L 56.269,7.334 M 54.148,9.464 L 54.148,4.63 C 51.744,4.63 49.356,5.006 46.918,5.794 L 46.918,9.076 L 54.148,9.464"/></svg>';
 /* 숫자 카운트업 (토스 느낌) */
+var CU_NOW=false;   // v10.49 전산 변경 표시·되돌림으로 다시 그리는 중 (stRedraw) → 숫자가 바뀌어도 0부터 다시 세지 않고 바로 끝값
 function countUp(root,force){ root=root||document; var t0=null;
   var items=[].map.call(root.querySelectorAll('[data-to]'),function(el){ return {el:el,to:parseInt(el.getAttribute('data-to'),10)||0}; }).filter(function(i){ return i.to>0; });
   if(!items.length){ root._cu=null; return; }
@@ -831,6 +845,7 @@ function countUp(root,force){ root=root||document; var t0=null;
   var prev=root._cu;
   if(!force&&prev&&prev.sig===sig){ // 같은 숫자를 다시 그린 경우(캐시→서버응답, 백그라운드 갱신): 0부터 다시 세지 않고 진행 중인 애니메이션을 이어감
     prev.items=items; items.forEach(function(i){ i.el.textContent=prev.done?String(i.to):String(Math.round(i.to*prev.e)); }); return; }
+  if(CU_NOW&&!force){ root._cu={sig:sig,items:items,done:true,e:1}; items.forEach(function(i){ i.el.textContent=String(i.to); }); return; }   // v10.49 조용한 화면 (깜빡임 없이 끝값 · 진행 중이던 애니메이션도 멈춤)
   var maxv=Math.max.apply(null,items.map(function(i){return i.to;}));
   var dur=Math.max(600,Math.min(1300,300+maxv*90)); // 작은 수는 1,2,3… 한 칸씩 보이게 천천히
   var cu={sig:sig,items:items,done:false,e:0}; root._cu=cu;
@@ -879,7 +894,9 @@ var HEDGE_FNS={homeTags:1,listTags:1,search:1,getWorkList:1,login:1}, HEDGE_MS=7
 function retryable(e){ return !!e && e.auth!==false && !/서버 권한이 없어요|권한이 없어요\. 관리자에게|허용되지 않은 요청|마스터 계정만|관리자만 할 수/.test(String(e.message||'')); }   // 앱이 내는 권한 문구만 (Apps Script 자체의 일시적인 "…권한이 없습니다" 는 지금처럼 한 번 더)
 /* v10.41: 내가 서버에 무언가를 바꾼 시각 (읽기만 하는 호출은 빼고) → 돌아온 화면은 그 뒤에 받은 게 아니면 다시 받음 (1분 안에 돌아오면 다시 안 부름) */
 var DIRTY_AT=0, NODIRTY={syncPull:1,stockPreview:1,refreshSysStatus:1,login:1,getMe:1,pushMine:1,pushKey:1,swingWorkHome:1,swingWorkDay:1,swingWorkRoster:1,swingWorkersList:1,swingSearch:1,reportAuto:1,listCodes:1,permInfo:1,pushPlanList:1,eggList:1,adminCustomerDevices:1,findMatchTasks:1,getVehicles:1,swingWorkMonthInfo:1};
-function run(fn){ var args=[].slice.call(arguments,1), cx=runCx();   // v10.47 cx = 이 호출 하나의 {rid, j…} — 겹쳐 보내기·한 번 더 보내기도 같은 rid
+function run(fn){ return runIn(runCx(),fn,[].slice.call(arguments,1)); }   // v10.47 cx = 이 호출 하나의 {rid, j…} — 겹쳐 보내기·한 번 더 보내기도 같은 rid
+/* v10.49 run 과 같은데 cx 를 받음 — 상태 변경을 뒤에서 다시 보낼 때 처음과 같은 rid (cx.rid 를 미리 넣어 둠 · 새 서버 idem 이 두 번 적지 않게) */
+function runIn(cx,fn,args){
   var p=HEDGE_FNS[fn] ? runHedged(fn,args,cx) : runOnce(fn,args,null,cx).catch(function(e){ if(READ_FNS[fn]&&retryable(e)) return runOnce(fn,args,null,cx); throw e; });
   if(READ_FNS[fn]||NODIRTY[fn]) return p;
   WR_PEND++; return p.then(function(r){ wrDone(); return r; },function(e){ wrDone(); throw e; }); }   // 실패해도 서버는 바꿨을 수 있음
@@ -906,8 +923,9 @@ function spdAll(){ if(!SPD){ SPD=lsGet('spd'); if(!Array.isArray(SPD)) SPD=[]; }
 function spdLog(fn,t0,sms,r,meta,via){ var a=spdAll(), o={t:t0,f:fn,d:Date.now()-t0,s:(typeof sms==='number')?sms:null,r:(meta&&meta.lost)?'lost':r}; if(via==='w') o.v='w'; a.push(o); if(a.length>300) a.splice(0,a.length-300);   // v10.47 v:'w' = 새 서버로 감 (없으면 Google 직접 · 예전 기록과 같은 모양)
   clearTimeout(spdSaveT); spdSaveT=setTimeout(function(){ lsSet('spd',SPD); },1500); }
 /* v10.47 서버 호출 한 번 = 새 서버(POST · runFetch) 또는 지금처럼 Google JSONP(runJsonp). 새 서버가 꺼져 있으면(기본) 항상 JSONP.
-   cx = run 하나: rid (새 서버로 처음 보낼 때 만듦) · j (새 서버 연결이 실패함 → 다시 보낼 땐 Google 로) · fb·mv (아래 다시 보내기 한 번씩) — cx 없이 부르면 새로 만듦 */
-function runOnce(fn,args,meta,cx){ cx=cx||runCx(); var w=cx.j?'':api2Url(); return w?runFetch(fn,args,meta,cx,w):runJsonp(fn,args,meta,cx); }
+   cx = run 하나: rid (새 서버로 처음 보낼 때 만듦) · j (새 서버 연결이 실패함 → 다시 보낼 땐 Google 로) · fb·mv (아래 다시 보내기 한 번씩) — cx 없이 부르면 새로 만듦
+   v10.49 cx.w = 이 새 서버 주소로 (브레이커 안 봄 · 상태 변경을 같은 rid 로 다시 보낼 때 · stSend) */
+function runOnce(fn,args,meta,cx){ cx=cx||runCx(); var w=cx.j?'':(cx.w||api2Url()); return w?runFetch(fn,args,meta,cx,w):runJsonp(fn,args,meta,cx); }
 function runJsonp(fn,args,meta,cx){   // meta (v10.38): 겹쳐 보낸 복제면 {lost} 를 나중에 켬 → 속도 기록에서 실패로 안 셈 · v10.47 예전 runOnce 그대로 (답 처리만 runEnv 로 뺌)
   return new Promise(function(res,rej){
     var cb='swapcb_'+(++_rid)+'_'+Math.floor(Math.random()*1e6); var s=document.createElement('script'); var done=false, t, t0=Date.now(), ac=AUTH&&AUTH.code;   // ac = 보낸 코드 (v10.41: 그 사이 다른 코드로 들어왔으면 옛 응답의 막힘으로 로그아웃하지 않음)
@@ -918,6 +936,7 @@ function runJsonp(fn,args,meta,cx){   // meta (v10.38): 겹쳐 보낸 복제면 
     s.onload=function(){ setTimeout(function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'bad',meta); var er=new Error('서버 연결 실패(네트워크 · Google 오류)'); er.net=true; rej(er); },0); };
     var ms=SLOW_FNS[fn]||25000; t=setTimeout(function(){ if(done) return; cleanup(); spdLog(fn,t0,null,'timeout',meta); var er=new Error('서버 응답 없음('+(ms/1000)+'초)'); er.timeout=true; rej(er); },ms);
     s.src=API+'?api=1&callback='+cb+'&fn='+encodeURIComponent(fn)+'&args='+encodeURIComponent(JSON.stringify(args))+'&auth='+encodeURIComponent(AUTH&&AUTH.code||'')+'&_='+Date.now();
+    if(cx&&cx.onj) cx.onj(true);   // v10.49 rid 없이 Google 로 감 (상태 변경이 그 시각을 적어 둠 · stSend)
     document.head.appendChild(s);
   }); }
 /* v10.47 받은 답 처리 (JSONP·새 서버 같은 모양 {ok,result,error,auth,ms}) — 막힌 코드면 로그아웃 (ac = 보낸 코드 · 그 사이 다른 코드로 들어왔으면 안 함).
@@ -925,16 +944,18 @@ function runJsonp(fn,args,meta,cx){   // meta (v10.38): 겹쳐 보낸 복제면 
    guard 'moved' (Google 답 · 이 영역은 새 서버로 옮겼음 · 함수는 안 돌았음) → 브레이커를 풀고 같은 rid 로 새 서버에 한 번 (주소가 없거나 ?api2=off · 서버 '' 면 그 문구 그대로) */
 function runEnv(fn,args,t0,j,meta,ac,via,cx,res,rej){ spdLog(fn,t0,j&&j.ms,(j&&j.ok)?'ok':((j&&j.timeout)?'timeout':((j&&j.net)?'bad':'err')),meta,via);
   if(j&&j.ok){ res(j.result); return; }
-  var er=new Error((j&&j.error)||'서버 오류'); if(j&&j.net) er.net=true; if(j&&j.timeout) er.timeout=true;
+  var er=new Error((j&&j.error)||'서버 오류'); if(j&&j.net) er.net=true; if(j&&j.timeout) er.timeout=true; if(j&&j.guard) er.guard=j.guard;   // v10.49 guard = 지킴이가 막음 (함수 안 돎)
+  if(via==='w'&&j&&(j.net||j.timeout)) er.gw=true;   // v10.49 새 서버가 Google 로 넘겼는데 답을 못 받음 (Google 에서 늦게 돌 수 있음 · 같은 rid 는 계속 이 답 = idem unk)
   if(j&&j.auth===false){ er.auth=false; if(fn!=='login'&&appStarted&&AUTH&&AUTH.code===ac) logout(er.message); }
-  if(via==='j'&&j&&j.guard==='moved'&&cx&&!cx.mv){ cx.mv=true; api2Put('swapApi2Brk',null); A2B=null; var w=api2Url(); if(w){ runFetch(fn,args,meta,cx,w).then(res,rej); return; } }
+  if(via==='j'&&j&&j.guard==='moved'&&cx){ if(cx.onj) cx.onj(false);   // v10.49 Google 에선 안 돎 → 상태 변경의 j(Google 직접으로 보낸 시각) 지움
+    if(!cx.mv){ cx.mv=true; api2Put('swapApi2Brk',null); A2B=null; var w=api2Url(); if(w){ runFetch(fn,args,meta,cx,w).then(res,rej); return; } } }
   rej(er); }
 /* v10.47 새 서버로 POST — 본문이 글자(text/plain)라 브라우저가 미리 묻지(CORS preflight) 않음 · 접속 코드는 본문에만 (주소·서버 기록에 안 남음).
    새 서버는 앱 오류(코드·권한 포함)도 HTTP 200 + 같은 모양으로 줌 → 그 밖(연결 실패·HTTP 오류·JSON 아님·시간 초과)은 새 서버 연결 실패:
    브레이커에 하나 (겹쳐 보낸 것 중 버려진 쪽은 안 셈) · 이번 run 의 다시 보내기는 Google 로 (쓰기는 지금처럼 자동으로 다시 안 보냄 — 서버가 했는지 모름).
    예외 A2NF: 새 서버가 Google 로 넘기기 전에 스스로 거절한 답 (403 허용 안 된 곳 · 413 너무 큼 · 503 준비 중 · 본문 {ok:false}) = 아무 일도 안 일어남 → 쓰기도 같은 인자로 Google 에 바로 한 번 */
 var A2NF={403:1,413:1,503:1};
-function runFetch(fn,args,meta,cx,w){ if(!cx.rid) cx.rid=ridNew();
+function runFetch(fn,args,meta,cx,w){ if(!cx.rid) cx.rid=ridNew(); if(cx.onw) cx.onw();   // v10.49 onw = 이 rid 를 새 서버로 보냄 (stSend)
   return new Promise(function(res,rej){ var done=false, t, t0=Date.now(), ac=AUTH&&AUTH.code, ctl=null; try{ ctl=new AbortController(); }catch(e){}   // 옛 폰(AbortController 없음)은 시간 초과 때 끊지만 않음
     function stop(r){ done=true; clearTimeout(t); try{ if(ctl) ctl.abort(); }catch(e){} spdLog(fn,t0,null,r,meta,'w'); cx.j=true; if(!(meta&&meta.lost)) api2Fail(); }
     function fail(r,msg,k){ if(done) return; stop(r); var er=new Error(msg); er[k]=true; rej(er); }
@@ -953,8 +974,8 @@ function runFetch(fn,args,meta,cx,w){ if(!cx.rid) cx.rid=ridNew();
 var API2_RE=/^(https:\/\/[a-z0-9.-]+|http:\/\/(localhost|127\.0\.0\.1))(:\d{1,5})?$/i, A2B=null, A2P='', MINV='';   // api2 주소는 https 주소만 (경로 없이) · 로컬 시험만 http
 function api2Get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 function api2Put(k,v){ try{ if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){} }
-function api2Url(){ if(!window.fetch) return ''; var o=api2Get('swapApi2'), s=api2Get('swapApi2Srv');
-  if(o==='off'||api2Open()) return '';
+function api2Url(nb){ if(!window.fetch) return ''; var o=api2Get('swapApi2'), s=api2Get('swapApi2Srv');   // v10.49 nb = 브레이커는 안 봄 (상태 변경을 같은 rid 로 다시 보낼 때 · 꺼짐 스위치는 봄)
+  if(o==='off'||(!nb&&api2Open())) return '';
   var w=(s!==null)?s:(o==='on'?(WORKER_URL||API2_ON):WORKER_URL);   // 서버가 말함(주소 = 켬 · '' = 끔) > 이 폰만 켬 > 앱에 적힌 주소
   return String(w||'').replace(/\/+$/,''); }
 function a2b(){ if(!A2B){ try{ A2B=JSON.parse(api2Get('swapApi2Brk')||'null'); }catch(e){} if(!A2B||!Array.isArray(A2B.f)) A2B={f:[],u:0}; } return A2B; }   // {f 실패 시각들, u 이 시각까지 JSONP}
@@ -1051,7 +1072,7 @@ function lsPrune(){ try{ var d8=todayISO(-8), d1=todayISO(-1), n1=todayISO(1);
   reportPrune(); }catch(e){} }   // v10.43 업무보고 초안 30일 정리도 (미리받기가 화면을 안 연 날에도 자동 기록 초안을 만들어서)
 /* v10.41 저장본 주인: 접속 코드 해시(원래 코드는 따로 안 남김). 다른 코드로 들어오면 사람마다 다른 저장본(홈·현황·작업내역·작업리스트·초안·알림 상태 등)을 지움
    — 공유 폰에서 앞사람 화면·초안이 보이지 않게. 기기 설정·사진·QR 기록·속도 기록은 둠. adopt = 저장된 코드로 자동 접속 (주인 표시가 없던 예전 폰은 그대로 이어 씀) */
-var LS_USER_RE=/^swapc:(home|tags2|tagv:|sw_home:|sw_roster|report:|pushme|pushAt|stock_pv|wl:|swday:|sysAt|rosterAt|wdnote:|sw_qrmap|swix|sync:)/;
+var LS_USER_RE=/^swapc:(home|tags2|tagv:|sw_home:|sw_roster|report:|pushme|pushAt|stock_pv|wl:|swday:|sysAt|rosterAt|wdnote:|sw_qrmap|swix|sync:|stpend)/;   // v10.49 stpend = 결과를 못 본 상태 변경 (다른 코드면 앞사람 것 지움)
 function lsCodeHash(c){ var s=String(c||''), h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return ('000'+(h&0xffff).toString(16)).slice(-4); }   // 16비트만 (접속 코드 수천만 개 중 하나로 되돌려 찾을 수 없게 · 같은 폰에서 두 코드가 겹칠 확률 1/65536)
 function lsOwner(code,adopt){ if(!code) return; var o=lsCodeHash(code), cur=null; try{ cur=localStorage.getItem('swapc:_owner'); }catch(e){}
   if(cur===o){ if(KVDB&&KV._owner!==o){ KV._owner=o; kvPut('_owner',o); } return; }
@@ -1107,7 +1128,7 @@ function makeView(name,params){ var el=document.createElement('div'); el.classNa
 function reanim(v){ if(!v||!v.el) return; v.el.classList.remove('anim'); void v.el.offsetWidth; v.el.classList.add('anim'); clearTimeout(v._at); v._at=setTimeout(function(){ v.el.classList.remove('anim'); },900); }
 function mount(v){ $('stage').insertBefore(v.el,$('back')); reanim(v); try{ viewOf(v.name).render(v); }catch(e){ v.el.innerHTML=errBox(e); } }
 function syncChrome(){ var v=stack[stack.length-1]; if(!v) return; $('back').classList.toggle('on',stack.length>1);
-  var tab=TAB_OF[v.name]||'home'; [].forEach.call($('tabs').children,function(b){ b.classList.toggle('on',b.dataset.tab===tab); }); }
+  var tab=TAB_OF[v.name]||'home'; [].forEach.call($('tabs').children,function(b){ b.classList.toggle('on',b.dataset.tab===tab); }); stBar(); }   // v10.49 전산 변경 중 알림 (그 기기 화면에선 화면 안 표시로)
 /* 브라우저/폰 뒤로가기와 동기화: 화면을 열 때마다 history 항목을 하나 쌓고, 뒤로가기(popstate)가 오면 그 항목만큼 닫는다.
    순서: 시트 → 이전 화면 → 홈 탭 → (홈에서 한 번 더) 앱 종료 */
 var hDepth=0, ignorePop=0;
@@ -1207,6 +1228,7 @@ VIEWS.home={ render:function(v){
 function homeCounts(tags){ var c={inside:0,shipped:0,sys:0,by:{}}; STATUSES.forEach(function(s){ c.by[s]=0; });
   tags.forEach(function(t){ normStatus(t); if(c.by[t['상태']]!==undefined) c.by[t['상태']]++; if(shipped(t)) c.shipped++; else { c.inside++; if(sysIssue(t)) c.sys++; } }); return c; }   // 전산미완료는 공장 안 기기만 (누르면 여는 목록과 같은 수)
 function drawHome(v,d){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true; reanim(v); }
+  v.state.d=d; d=stOverHome(d);   // v10.49 받은 데이터는 그대로 두고(다시 그릴 때·서버 답으로 고칠 때 씀) 전산 변경 중인 기기만 바꿔서 셈·그림
   var tags=Array.isArray(d)?d:((d&&d.tags)||[]), c=Array.isArray(d)?homeCounts(d):((d&&d.counts)||homeCounts([])); tags.forEach(normStatus);
   var shipN=c.shipped||0, sum=c.by||{}, sysN=c.sys||0;
   var n=function(x,k){ return num(x||0,k); };
@@ -1227,9 +1249,9 @@ function drawHome(v,d){ var first=!v._homeDrawn; if(first){ v._homeDrawn=true; r
   countUp(v.el); }
 function openManual(){ var c=($('manual').value||'').trim().toUpperCase(); if(!c){ toast('코드를 입력해 주세요'); return; } openCode(c); }
 function openCode(code){ push('tag',{code:code}); }
-function itemTag(t){
+function itemTag(t){ var sp=stOver(t['코드']), st=sp?sp.s:t['상태'];   // v10.49 전산 변경 중 → 바꿀 상태 + "변경 중"
   return '<button class="item" onclick="openCode(\''+jsa(t['코드'])+'\')">'+devAv(t['모델'],t['색상'])+
-    '<div class="bd"><div class="nm">'+esc(t['고객명'])+' <span class="pill s-'+esc(t['상태'])+'" style="font-size:11px;padding:3px 8px">'+esc(t['상태'])+'</span>'+sysBadge(t,true)+matchBadge(t,true)+'</div>'+
+    '<div class="bd"><div class="nm">'+esc(t['고객명'])+' <span class="pill s-'+esc(st)+'" style="font-size:11px;padding:3px 8px">'+esc(st)+'</span>'+(sp?stChip(sp,true):'')+sysBadge(t,true)+matchBadge(t,true)+'</div>'+
     '<div class="sub">'+kindName(t['구분'])+' · '+esc(t['모델'])+' '+esc(t['색상'])+' · <span class="sn">'+esc(t['일련번호']||t['코드'])+'</span></div></div>'+
     '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>';
 }
@@ -1395,7 +1417,7 @@ VIEWS.status={ render:function(v){ v.state.filter=v.state.filter||v.params.filte
   v.refresh=function(){ var t0=Date.now(); return run('listTags',500).then(function(tags){ lsSet('tags2',tags); v.state.at=t0; if(stack.indexOf(v)>=0){ v.state.tags=tags; drawStatus(v); } }); };
   var cached=lsGet('tags2'); if(cached){ v.state.tags=cached; drawStatus(v); }
   var t0=Date.now(); run('listTags',500).then(function(tags){ lsSet('tags2',tags); v.state.at=t0; if(stack.indexOf(v)<0) return; v.state.tags=tags; drawStatus(v); refreshSysBg(); }).catch(function(e){ if(stack.indexOf(v)<0) return; if(!cached) v.el.innerHTML=errBox(e); else toast('새로고침 실패: '+(e&&e.message||e)); }); }};
-function drawStatus(v){ var f=v.state.filter; var tags=v.state.tags||[]; tags.forEach(normStatus);
+function drawStatus(v){ var f=v.state.filter; var tags=stOverList(v.state.tags||[]); tags.forEach(normStatus);   // v10.49 전산 변경 중인 기기는 바꿀 상태로 (칸·숫자)
   var inside=tags.filter(function(t){ return !shipped(t); });   // 출고완료(배송내역)는 공장 안에 없는 기기 → 전체에서 뺌
   var list=tags.filter(function(t){ if(f==='배송내역') return shipped(t); if(shipped(t)) return false; if(f==='전체') return true; if(f==='전산미완료') return sysIssue(t); return t['상태']===f; });
   var mk=function(x){ return String(x||'').toLowerCase().replace(/\s+/g,''); };   // 같은 기종끼리, 그 안에서 같은 색끼리, 그 안에서는 최근 순 (배송내역은 최근 순만)
@@ -1518,7 +1540,8 @@ function tagSnapDrop(code){ code=String(code||'').toUpperCase(); var keep=functi
   var h=lsGet('home'); if(h&&Array.isArray(h.tags)){ h.tags=h.tags.filter(keep); lsSet('home',h); } var a=lsGet('tags2'); if(Array.isArray(a)) lsSet('tags2',a.filter(keep)); }
 /* v10.41 getTag 이 서버에서 바꾼 기기(자동 출고준비완료·전산 상태 등)면 저장된 목록도 고치고 돌아갈 화면은 새로 받게 */
 function tagChanged(a,b){ return ['상태','어드민상태','최종변경시각','전산매칭','sysPending','신품'].some(function(k){ return String(a[k]==null?'':a[k])!==String(b[k]==null?'':b[k]); }); }
-function tagGot(v,code,tag){ if(tag){ var sn=tagSnap(code); if(sn&&tagChanged(sn,tag)){ DIRTY_AT=Date.now(); tagSnapPut(tag); } }
+function tagGot(v,code,tag){ var sp=stOver(code); if(sp&&(sp.ph==='wait'||sp.ph==='unk')) stJudge(sp,tag);   // v10.49 결과를 기다리던 상태 변경이면 이 getTag 로 판단 (보내는 중이면 그 답을 기다림)
+  if(tag){ var sn=tagSnap(code); if(sn&&tagChanged(sn,tag)){ DIRTY_AT=Date.now(); tagSnapPut(tag); } }
   if(!tag) tagSnapDrop(code);   // v10.42 다른 사람이 비운 QR → 저장된 상세·목록에서도 뺌 (다시 찍었을 때 예전 기기 화면이 안 뜨게)
   if(stack.indexOf(v)<0) return;
   if(tag){ if(v.state.stale) v.state.unlocked=undefined;   // 저장 화면 → 최신으로 바꿀 땐 잠금 풀림 애니메이션·진동 없이
@@ -1531,7 +1554,9 @@ function tagLoad(v){ var code=v.params.code;
     else { v.state.stale=false; v.el.classList.remove('tagstale'); v.el.innerHTML=errBox(e); } }); }
 function tagRetry(){ var v=tagView(); if(!v||!v.state.stale) return; haptic(8); v.state.staleErr=''; drawTag(v); tagLoad(v); }
 /* 저장된 화면을 보여주는 중이면 버튼 동작을 막음 (오래된 상태로 바꾸지 않게) */
-function tagStale(){ var v=tagView(); if(v&&v.state.stale){ toast(v.state.staleErr?'최신 정보를 못 불러왔어요. 위의 "다시 시도"를 눌러 주세요':'최신 정보를 불러오는 중이에요. 잠시 뒤 다시 눌러 주세요'); return true; } return false; }
+function tagStale(){ var v=tagView(); if(v&&v.state.stale){ toast(v.state.staleErr?'최신 정보를 못 불러왔어요. 위의 "다시 시도"를 눌러 주세요':'최신 정보를 불러오는 중이에요. 잠시 뒤 다시 눌러 주세요'); return true; }
+  var p=v&&stOver(v.params.code); if(p){ toast(p.ph==='unk'?'전산 변경 결과를 아직 확인 못 했어요 · 위의 "다시 확인"을 눌러 주세요':'전산 변경 중이에요 · 끝나면 다시 눌러 주세요'); return true; }   // v10.49 이 기기 상태 변경이 서버에 가는 중 → 이 기기의 다른 버튼도 잠깐 막음 (두 번 보내기·엇갈린 쓰기 방지)
+  return false; }
 VIEWS.tag={ render:function(v){ var code=v.params.code;
   v.refresh=function(){ return run('getTag',code).then(function(tag){ tagGot(v,code,tag); }); };
   if(v.params.tag){ v.state.tag=v.params.tag; drawTag(v); return; }
@@ -1540,11 +1565,13 @@ VIEWS.tag={ render:function(v){ var code=v.params.code;
 function accList(str){ return String(str||'').split(/[,、\n]/).map(function(x){return x.trim();}).filter(Boolean); }
 function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=normStatus(v.state.tag); var out=isOut(t);
   if(!v.state.stale&&t&&t['코드']&&canServer('swap')){ var sig=String(t['최종변경시각']||'')+'|'+((t.history||[]).length)+'|'+String(t['상태']||''); if(v._tagvSig!==sig){ v._tagvSig=sig; tagvPut(t); } }   // v10.42 최신 상세를 이 폰에 (바뀌었을 때만)
+  var sp=stOver(t['코드']||v.params.code); if(sp) t=stTagOver(t,sp);   // v10.49 전산 변경 중 → 바꿀 상태로 그림 (v.state.tag·저장본은 서버 것 그대로)
   var pair = out ? (t['수거일련번호']||'') : (t['출고일련번호']||''); if(pair&&pair===t['일련번호']) pair='';   // 자기 자신은 짝 기기가 아님
   var h=title('<span class="code-badge">'+esc(t['코드'])+'</span>','');
   var stale=!!v.state.stale; v.el.classList.toggle('tagstale',stale);   // v10.34 저장된 화면 → 버튼 잠금
   if(stale) h+=v.state.staleErr?'<div class="stalebar err"><span>'+esc(v.state.staleErr)+'</span><button class="stb" onclick="tagRetry()">다시 시도</button></div>'
     :'<div class="stalebar"><i></i><span>저장된 화면이에요 · 최신 정보 불러오는 중 (잠시 버튼 잠김)</span></div>';
+  if(sp&&sp.ph==='unk') h+='<div class="stalebar err"><span>'+esc(sp.s)+(sp.u?'(으)로 바꾼 게 아직 서버에 안 보여요 · 늦게 반영될 수 있어 1분쯤 뒤 다시 확인해요':'(으)로 바꾼 게 서버에 반영됐는지 아직 확인 못 했어요 · 연결되면 자동으로 다시 확인해요')+'</span><button class="stb" onclick="stKick(true)">다시 확인</button></div>';   // v10.49 · u = Google 직접으로 보낸 게 아직 안 보임 (stJudge)
   h+='<div class="card">'+
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'+
       '<div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:26px;font-weight:800;letter-spacing:-.8px;line-height:1.2">'+esc(t['고객명'])+'</span>'+kindBadge(t['구분'])+
@@ -1568,7 +1595,7 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
     '<p class="muted" style="margin:10px 0 0;font-size:12px">등록 '+esc(t['등록자'])+' · '+esc(t['등록시각'])+(t['어드민동기화']?' · 어드민 동기화 '+esc(t['어드민동기화']):'')+' <button class="edit" style="font-size:12px" onclick="syncAdmin()">어드민 새로고침</button></p>'+
     '</div>';
   // 상태 변경
-  h+='<div class="card"><h3>상태 변경</h3>';
+  h+='<div class="card'+(sp?' stbusy':'')+'"><h3>상태 변경'+(sp?stChip(sp):'')+'</h3>';   // v10.49 전산 변경 중이면 이 칸 버튼만 흐리게 (다른 화면·다른 기기는 그대로 쓸 수 있음)
   var shipStage = out || STATUS_OUT.indexOf(t['상태'])>=0;   // 출고 기기이거나, 수거·재고 기기가 출고 단계(출고준비완료/출고완료)에 들어온 경우
   if(shipStage){
     var pre = out ? '' : '<span class="done">출고대기중</span><i>›</i>';
@@ -1609,7 +1636,7 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
   }
   h+='</div>';
   h+='<div class="card"><h3>이력</h3><ul class="hist">';
-  (t.history||[]).forEach(function(x){ h+='<li><span><b>'+esc(x['동작'])+'</b> · '+esc(x['상태'])+' · '+esc(x['처리자'])+(x['메모']?' <span style="color:var(--muted2)">'+esc(x['메모'])+'</span>':'')+'</span><span style="white-space:nowrap">'+esc(String(x['시각']).slice(5,16))+'</span></li>'; });
+  (t.history||[]).forEach(function(x){ h+='<li'+(x._stp?' class="stph"':'')+'><span><b>'+esc(x['동작'])+'</b> · '+esc(x['상태'])+' · '+esc(x['처리자'])+(x['메모']?' <span style="color:var(--muted2)">'+esc(x['메모'])+'</span>':'')+'</span><span style="white-space:nowrap">'+(x._stp&&sp?stChip(sp,true):esc(String(x['시각']).slice(5,16)))+'</span></li>'; });   // v10.49 맨 위 줄 = 보내는 중인 상태 변경
   if(!(t.history||[]).length) h+=(stale&&!t.history)?'<li class="muted">'+(v.state.staleErr?'이력을 못 불러왔어요':'불러오는 중…')+'</li>':'<li>이력이 없습니다.</li>'; h+='</ul></div>';
   h+='<button class="btn line" style="margin-bottom:10px" onclick="rematchAsk()"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 12h8M12 8v8"/></svg>QR 교체 (라벨이 찢어졌을 때)</button>'+
      '<button class="btn danger" onclick="doRelease()">태그 비우기</button><p class="muted" style="text-align:center;margin:10px 0 0">기기가 나간 뒤 용지를 다른 기기에 다시 쓸 때 누르세요. 이력은 남습니다.</p>';
@@ -1618,15 +1645,163 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
 function checkRedeliveryNow(){ if(tagStale()) return; haptic(12); needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('어드민에서 재배송 요청 확인 중');
   run('checkRedelivery',code,worker).then(function(res){ if(stack.indexOf(v)<0) return; if(res.tag) v.state.tag=res.tag; drawTag(v);
     if(!res.ok) toast(res.error); else if(res.moved) { haptic([12,40,18]); toast('출고 예정 '+res.task.date+' · 출고준비완료로 넘김'); } else if(res.found) toast('최근 요청이 재배송인데 작업예정일자가 아직 없어요'); else toast(res.latest?'최근 고객요청이 재배송이 아니에요':'고객요청이 없어요'); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
-function setStatus(s,sure){ if(tagStale()) return; var v0=stack[stack.length-1], t0=v0&&v0.state.tag;
+function setStatus(s,sure,force){ if(tagStale()) return; var v0=stack[stack.length-1], t0=v0&&v0.state.tag;   // v10.49 force = 서버가 needConfirm 으로 물어 "그래도 변경"을 누름 (아래 stConfirm)
   if(s==='출고완료'&&!sure&&t0&&t0.stockOut&&t0.matchState!=='ok'&&!v0.state.rechecked){   // 재고 출고인데 전산 매칭이 안 됨 → 어드민을 지금 다시 보고(1번), 그래도 안 되면 아래 창으로 묻는다
     v0.state.rechecked=true; verifyMatchNow(true,v0.params.code).then(function(r){ if(stack[stack.length-1]!==v0){ v0.state.rechecked=false; return; }
       if(r&&r.ok&&r.match){ v0.state.rechecked=false; closeSheet(); setStatus('출고완료',true); } else closeSheet(function(){ setStatus('출고완료'); }); }); return; }
   if(s==='출고완료'&&!sure&&t0&&t0.stockOut&&t0.matchState!=='ok'){ v0.state.rechecked=false;
     openSheet('<h3>전산 매칭이 안 된 기기예요</h3><p>어드민 고객요청 '+esc(t0['고객요청ID'])+'의 출고 기기가 이 기기('+esc(t0['일련번호'])+')로 '+(t0.matchState==='no'?'잡혀 있지 않아요'+(t0.adminOut&&t0.adminOut!=='없음'?' (어드민: '+esc(t0.adminOut)+')':''):'아직 확인되지 않았어요')+'. 어드민에서 기기를 배정한 뒤 출고완료하는 게 안전해요.</p>'+
       '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--green)" onclick="closeSheet(function(){ setStatus(\'출고완료\',true); })">그래도 출고완료</button></div>'); return; }
-  haptic(12); needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('저장 중');
-  run('updateStatus',code,s,worker,'').then(function(res){ if(res.ok){ v.state.tag=res.tag; drawTag(v); toast(s+' 처리 완료'); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
+  haptic(12); needWorker(function(){ var v=tagView(); if(!v||tagStale()) return; stGo(v,s,!!force); }); }   // v10.49 화면을 "저장 중"으로 덮지 않음 → 바로 바뀐 상태로 그리고 서버는 뒤에서 (아래 stGo)
+/* ================= v10.49 상태 변경: 기다리지 않음 (낙관적 반영) =================
+   누르면 기기 화면·현황 목록·홈 숫자를 바로 바꾸고 "전산 변경 중…" 만 작게 띄움 → updateStatus 는 뒤에서. 그동안 다른 화면·다른 기기를 계속 써도 됨 (SWING 기기 상태 변경처럼).
+   - v.state.tag·저장본은 서버 것 그대로 두고 그릴 때만 바꿔 보여 줌(stOver…) → 되돌릴 땐 그 표시만 빼면 됨.
+   - 같은 기기는 끝날 때까지 다른 버튼을 막음 (tagStale) = 두 번 보내기·엇갈린 쓰기 없음. 다른 기기는 따로따로 동시에.
+   - 성공 → 서버가 준 태그로 맞춤 (기기 화면·홈·현황·검색 · 저장된 홈 숫자·목록) · 거절(ok:false) → 되돌리고 서버 문구 · needConfirm → 그 기기 화면이면 확인 창 (아니면 토스트)
+   - 됐는지 모름 (연결 실패·시간 초과·알 수 없는 서버 오류) → getTag 로 확인: 바뀌어 있으면 성공 · 다른 상태면 서버 태그로 맞추고 알림 (출고대기중 → 바로 출고준비완료 = 재배송 자동 넘김은 성공).
+     그대로면: 새 서버(같은 rid)만 다시 (3번까지 · 누른 지 10분 안 · 브레이커가 열려 있어도 새 서버로) · Google 직접(JSONP · rid 없음)은 다시 안 보냄 = 보낸 지 1분 안이면 "확인 안 됨"으로 두고 1분 뒤 다시 확인 → 그래도 그대로면 되돌리고 "다시 눌러 주세요"
+     (늦게 돈 첫 요청이 그 뒤의 새 변경을 덮지 않게 · 새 서버 길이 시간 초과였거나 새 서버가 Google 답을 못 받았어도(g) 같은 1분 · 알 수 없는 서버 오류는 어느 쪽이든 다시 안 보내고 그 문구로 되돌림).
+     "같은 요청 처리 중"(새 서버 idem)·잠금(Lock timeout = 안 적음) → 1.5~30초 뒤 같은 rid 로 다시 (보낸 횟수에 안 셈 · 새 서버로 보낸 적이 있으면 새 서버로만).
+     확인도 안 되면 1.5~30초 간격으로 다시 → 그래도 안 되면 "확인 안 됨"으로 남겨 두고 앱으로 돌아올 때·연결될 때·다음에 열 때 다시 확인 (말없이 버리지 않음).
+   - 이 폰 localStorage 'swapc:stpend' 에 {코드·바꿀 상태·원래 상태·rid·누른 시각·작업자·보낸 횟수·늦게 돌 수 있는 요청을 보낸 시각(j·g)}만 (고객 정보 없음 · 로그아웃·다른 코드면 지움) → 앱이 중간에 닫혀도 다음에 열면 getTag 로 결과를 알려 줌.
+   - 새 서버(POST · rid · idem)는 같은 rid 를 다시 보내도 한 번만 적힘. Google 직접(JSONP)은 rid 를 안 보내서 저절로 다시 보내지 않음 (위) · 숫자는 다시 세지 않고 바로 끝값 (CU_NOW) */
+var STP={}, ST_SEND_MAX=3, ST_RESEND_MS=600000, ST_WAIT=[1500,3000,6000,12000,20000,30000], ST_BUSY_RE=/다른 작업 중|Lock timeout/;
+var ST_SAFE_MS=60000;   // Google 에 간 요청이 늦게 돌 수 있는 시간 (입구 대기 10~25초 + 잠금 대기 20초 + 여유 · 직접이든 새 서버를 거쳤든)
+function stList(){ return Object.keys(STP).map(function(k){ return STP[k]; }); }
+function stOver(code){ return STP[String(code==null?'':code).trim().toUpperCase()]||null; }   // 이 기기가 전산 변경 중이면 그 기록
+function stHere(code){ var v=tagView(); return !!(v&&String(v.params.code||'').trim().toUpperCase()===code); }
+/* 서버(Code.gs updateStatus C:752-767 · D1 write.js 같은 규칙)와 같은 거절을 먼저 — 잠긴 버튼을 눌렀을 때 바뀌었다 되돌아가는 깜빡임 없이 같은 문구 (최종 판단은 서버) */
+function stRule(t,s){ var o=(t['구분']==='출고'), cur=t['상태'];
+  if((o?STATUS_OUT:STATUS_IN.concat(STATUS_OUT)).indexOf(s)<0) return '이 기기에는 쓸 수 없는 상태입니다.';
+  if(!o&&STATUS_OUT.indexOf(s)>=0){ var from=(s==='출고준비완료')?['출고대기중','출고완료']:['출고준비완료']; if(from.indexOf(cur)<0) return '먼저 "'+from[0]+'"이어야 '+s+'(으)로 넘길 수 있어요.'; }
+  if(!o&&STATUS_OUT.indexOf(cur)>=0&&STATUS_IN.indexOf(s)>=0&&s!=='출고대기중') return '출고 단계의 기기는 "출고대기중"으로만 되돌릴 수 있어요.';
+  if(!o&&STATUS_FINAL.indexOf(s)>=0&&cur!==STATUS_READY&&STATUS_FINAL.indexOf(cur)<0) return '먼저 "수리가능"으로 바꿔야 '+s+'(으)로 넘길 수 있어요.';
+  return ''; }
+function stGo(v,s,force){ var t=v.state.tag||{}, code=String(v.params.code||t['코드']||'').trim().toUpperCase(); if(!code) return;
+  if(STP[code]){ toast('전산 변경 중이에요 · 끝나면 다시 눌러 주세요'); return; }
+  if(s===t['상태']) return;
+  var e=stRule(t,s); if(e){ toast(e); return; }
+  var p={c:code,s:s,f:String(t['상태']||''),rid:ridNew(),t:Date.now(),w:worker,n:0,fz:!!force,ph:'send',k:0,tm:0,due:0};
+  STP[code]=p; stSave(); stRedraw(); stSend(p); }
+/* 보내기 — 몇 번째든 같은 rid (cx 를 새로 만들어도 rid 는 그대로 · 새 서버 idem: 이미 했으면 저장된 답 · 하는 중이면 "다른 작업 중")
+   다시 보낼 때(re)는 새 서버로만: 브레이커가 열려 있어도 · 503 등이어도 Google 로 안 넘김 (Google 직접은 rid 가 없어 아직 도는 첫 요청과 겹침) */
+function stSend(p,free){ if(STP[p.c]!==p) return; clearTimeout(p.tm);
+  var re=!!free||p.n>0, w=re?api2Url(true):'';
+  if(re&&!w&&p.r){ p.g=Math.max(p.g||0,Date.now()); stLater(p); return; }   // 새 서버로 보낸 게 아직 돌 수 있는데 새 서버가 꺼짐 → 안 보내고 확인만 (그대로면 1분 뒤 되돌림)
+  p.ph='send'; if(!free) p.n++; stSave(); stBar();   // free = "하는 중"이라 다시 묻는 것 (보낸 횟수에 안 셈)
+  var cx=runCx(), t0=Date.now(); cx.rid=p.rid; if(w){ cx.w=w; cx.fb=true; }
+  cx.onj=function(on){ if(STP[p.c]===p){ p.j=on?Date.now():0; stSave(); } };   // j = Google 직접(rid 없음)으로 보낸 시각 → 답이 안 오면 늦게 돌 수 있음 (stJudge) · 지킴이 moved = 안 돎 → 지움
+  cx.onw=function(){ p.r=1; };   // 이 rid 를 새 서버로 보냄
+  runIn(cx,'updateStatus',p.fz?[p.c,p.s,p.w,'','',true]:[p.c,p.s,p.w,'']).then(function(res){ if(STP[p.c]===p) p.j=0; stAns(p,res); },
+    function(e){ if(STP[p.c]===p){ if(!(e&&(e.net||e.timeout))) p.j=0;   // fz: 6번째 인자 true = 확인하고 그래도 (지금 서버는 안 읽음) · 답이 옴 = 그 요청은 끝남 (j 지움)
+      if(e&&(e.gw||(e.timeout&&!p.j))) p.g=Math.max(p.g||0,t0);   // g = 새 서버 길이 시간 초과·새 서버가 Google 답을 못 받음 → Google 에서 늦게 돌 수 있음 (stJudge 1분)
+      if(e&&e.gw) p.n=ST_SEND_MAX; }   // 같은 rid 는 계속 그 답(idem unk) → 다시 보내도 소용없음
+    stErr(p,e); }); }
+function stAns(p,res){ if(STP[p.c]!==p) return;
+  if(res&&res.ok){ if(res.tag) stOk(p,res.tag); else stLater(p); return; }   // ok 인데 태그 없음 → getTag 로 확인
+  var msg=String((res&&res.error)||'서버 오류');
+  if(ST_BUSY_RE.test(msg)){ stBusy(p); return; }   // 새 서버 idem "같은 요청 처리 중" · 잠금 → 조금 뒤 같은 rid 로 다시
+  stEnd(p); if(res&&res.needConfirm){ stConfirm(p,msg); return; } stFailToast(p,msg); }
+function stErr(p,e){ if(STP[p.c]!==p) return; var msg=String((e&&e.message)||e||'서버 오류');
+  if(e&&e.auth===false){ stEnd(p); return; }   // 접속 코드가 막힘 → run 이 로그아웃함
+  if(e&&(e.net||e.timeout)){ stLater(p); return; }   // 서버가 했는지 모름 → getTag 로 확인
+  if(ST_BUSY_RE.test(msg)){ stBusy(p); return; }   // 'Lock timeout' (잠금 20초 · 함수 몸통은 안 돎 = 안 적음) → 같은 rid 로 다시
+  if(!retryable(e)||(e&&e.guard)){ stEnd(p); stFailToast(p,msg); return; }   // 앱 권한·허용 안 됨·정리 중·옮김 = 함수가 안 돎 → 바로 되돌림
+  p.n=ST_SEND_MAX; p.em=msg; stLater(p); }   // 그 밖(Google 일시 오류 등)은 칸을 적은 뒤에 났을 수도 (Code.gs C:768-782) → 다시 안 보내고 getTag 로 확인만 (그대로면 이 문구로 되돌림)
+function stLater(p){ if(STP[p.c]!==p) return; clearTimeout(p.tm); p.ph='wait'; var ms=ST_WAIT[Math.min(p.k,ST_WAIT.length-1)]; p.due=Date.now()+ms;
+  p.tm=setTimeout(function(){ stCheck(p); },ms); stSave(); stBar(); }
+/* "하는 중"·잠금 → 1.5~30초 뒤 같은 rid 로 다시 (새 서버면 끝났을 때 저장된 답이 옴) · 그래도 계속이면 "확인 안 됨" */
+function stBusy(p){ if(STP[p.c]!==p) return; clearTimeout(p.tm); if(p.k>=ST_WAIT.length){ p.ph='unk'; stSave(); stRedraw(); return; }
+  p.ph='wait'; var ms=ST_WAIT[p.k++]; p.due=Date.now()+ms;
+  p.tm=setTimeout(function(){ if(STP[p.c]===p&&p.ph==='wait') stSend(p,true); },ms); stSave(); stBar(); }
+/* getTag 로 확인 (실패하면 점점 길게 · 끝내 안 되면 "확인 안 됨") */
+function stCheck(p){ if(STP[p.c]!==p||p.ph==='send'||p.ph==='check') return; clearTimeout(p.tm); p.ph='check'; p.u=0; stBar();
+  run('getTag',p.c).then(function(tag){ if(STP[p.c]!==p) return; p.k=0; stJudge(p,tag); },
+    function(e){ if(STP[p.c]!==p) return; if(e&&e.auth===false){ stEnd(p); return; }
+      p.k++; if(p.k>=ST_WAIT.length){ p.ph='unk'; stSave(); stRedraw(); return; }
+      stLater(p); }); }
+function stJudge(p,tag){ if(STP[p.c]!==p) return;
+  if(!tag){ stEnd(p); tagSnapDrop(p.c); stFailToast(p,'등록되지 않은 QR입니다.'); return; }   // 그 사이 다른 사람이 비움
+  var cur=normStatus(tag)['상태'];
+  if(cur===p.s||stAuto(p,tag)){ stOk(p,tag); return; }   // 서버에 이미 반영됨 (답만 못 받음) · 출고대기중은 서버가 바로 출고준비완료로 넘겼어도
+  if(cur===p.f){
+    if(p.n<ST_SEND_MAX&&Date.now()-p.t<ST_RESEND_MS&&!p.j&&api2Url(true)){ stSend(p); return; }   // 안 바뀜 → 새 서버로만 같은 rid 로 다시 (idem · 브레이커가 열려 있어도)
+    var n=Date.now(); if(p.j>n) p.j=n; if(p.g>n) p.g=n;   // 폰 시계가 뒤로 감 → 지금부터 1분 (끝없이 잠기지 않게)
+    var l=Math.max(p.j||0,p.g||0), w=l?l+ST_SAFE_MS-n:0;   // Google 에서 아직 기다리는 요청이 있을 수 있음 (Google 직접 · 새 서버가 Google 을 끊음) → 지금 되돌리면 다시 누른 새 변경을 늦게 돈 첫 요청이 덮을 수 있음
+    if(w>0){ clearTimeout(p.tm); p.ph='unk'; p.u=1; p.due=Date.now()+w; p.tm=setTimeout(function(){ stCheck(p); },w); stSave(); stRedraw(); return; }   // "확인 안 됨"으로 두고 1분 뒤 다시 확인
+    stEnd(p,tag); stFailToast(p,p.em||(p.re?'서버에 반영 안 됐어요 · 다시 해 주세요':'전산 변경이 안 됐어요 (연결이 불안정해요) · 다시 눌러 주세요')); return; }
+  stFix(p,tag); stEnd(p,tag); stFailToast(p,'그 사이 다른 곳에서 '+cur+'(으)로 바뀌었어요 · 확인해 주세요'); }   // 숫자·저장본도 서버 태그대로
+/* 출고대기중을 적은 뒤 getTag 가 재배송 요청을 보고 바로 출고준비완료로 넘김 (Code.gs getTag C:371-374 · 새 서버 tagCheck 도) = 이력 맨 위 '자동' 출고준비완료 줄 바로 아래가 그 출고대기중 */
+function stAuto(p,tag){ var h=(tag&&tag.history)||[], a=h[0], b=h[1];
+  return p.s==='출고대기중'&&!!tag&&tag['상태']===STATUS_OUT[0]&&!!a&&!!b&&a['동작']==='상태변경'&&a['상태']===STATUS_OUT[0]&&String(a['처리자']||'')==='자동'&&b['동작']==='상태변경'&&b['상태']===p.s; }
+/* 끝 (성공·실패 공통): 기록 지우고 · tag 가 있으면 열린 기기 화면을 서버 태그로 · 화면 다시 그림 → 그 기기 화면을 보고 있는지 */
+function stEnd(p,tag){ clearTimeout(p.tm); if(STP[p.c]===p) delete STP[p.c]; stSave();
+  if(tag) stack.forEach(function(x){ if(x.name==='tag'&&String(x.params.code||'').trim().toUpperCase()===p.c){ x.state.tag=tag; x.state.stale=false; x.state.staleErr=''; } });
+  stRedraw(); return stHere(p.c); }
+function stOk(p,tag){ stFix(p,tag); var here=stEnd(p,tag), nt=stAuto(p,tag)?' · 재배송 요청이 있어 '+STATUS_OUT[0]+'로 넘어갔어요':'';   // 받은 답·getTag 확인 어느 쪽이든 같은 알림
+  toast((p.re?p.c+' '+p.s+' — 지난번 변경이 반영됐어요':(here?p.s+' 처리 완료':p.c+' '+p.s+' 처리 완료'))+nt); }
+function stFailToast(p,msg){ haptic([10,40,10]); toast(p.re?'지난번 '+p.c+' '+p.s+' 변경 못 함 · '+msg:(stHere(p.c)?msg:p.c+' '+p.s+' 못 함 · '+msg)); }
+function stConfirm(p,msg){ if(!stHere(p.c)||sheetOpen){ stFailToast(p,'확인이 필요해요 · 기기 화면에서 다시 눌러 주세요'); return; }
+  openSheet('<h3>확인이 필요해요</h3><p>'+esc(msg).replace(/\n/g,'<br>')+'</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ setStatus(\''+jsa(p.s)+'\',true,true); })">그래도 '+esc(p.s)+'</button></div>'); }
+/* 성공: 저장된 홈(숫자·최근 목록)·현황 목록과 열린 홈·현황·검색 화면의 받은 데이터를 서버 태그로 고침 (다시 받기 전에 그려도 맞게) */
+function stFix(p,tag){ var to=normStatus(tag)['상태'];
+  var h=lsGet('home'); if(h&&!Array.isArray(h)&&h.counts){ stCount(h.counts,stBase(h.tags,p.c,p.f),to); lsSet('home',h); }
+  tagSnapPut(tag); if(Array.isArray(tag.history)&&canServer('swap')) tagvPut(tag);   // 그 기기 상세 저장본도 (화면을 떠났어도 · 다시 열면 이력까지 바로)
+  if(SERVER!=='swap') return;
+  stack.forEach(function(v){ var d=v.state.d;
+    if(v.name==='home'&&d&&!Array.isArray(d)&&d.counts){ stCount(d.counts,stBase(d.tags,p.c,p.f),to); d.tags=stPut(d.tags,tag,true); }
+    else if(v.name==='home'&&Array.isArray(d)) v.state.d=stPut(d,tag,true);
+    else if(v.name==='status'&&Array.isArray(v.state.tags)) v.state.tags=stPut(v.state.tags,tag,true);
+    else if(v.name==='search'&&v.state.res&&Array.isArray(v.state.res.tags)) v.state.res.tags=stPut(v.state.res.tags,tag,false); }); }
+function stSame(t,code){ return !!t&&String(t['코드']||'').trim().toUpperCase()===code; }
+function stBase(tags,code,f){ var b=f; (Array.isArray(tags)?tags:[]).some(function(t){ if(stSame(t,code)){ b=normStatus(t)['상태']; return true; } return false; }); return b; }   // 받은 목록에 그 기기가 있으면 그 상태 (없으면 누르기 전 상태)
+/* 숫자 한 대 옮기기: by[b] → by[s] (+ 출고완료를 넘나들면 공장 안·배송내역) */
+function stCount(c,b,s){ if(!c||b===s) return; var by=c.by=c.by||{}; if(by[b]>0) by[b]--; by[s]=(by[s]||0)+1;
+  var a=(b===STATUS_SHIPPED), z=(s===STATUS_SHIPPED); if(a===z) return;
+  c.shipped=Math.max(0,(c.shipped||0)+(z?1:-1)); c.inside=Math.max(0,(c.inside||0)+(z?-1:1)); }
+function stPut(a,tag,front){ var t; try{ t=JSON.parse(JSON.stringify(tag)); }catch(e){ return a; } delete t.history; var code=String(t['코드']||'').trim().toUpperCase();   // front = 맨 앞으로 (최근 변경 순 목록) · 아니면 그 자리만 바꿈 (검색)
+  a=(a||[]).map(function(x){ return stSame(x,code)?t:x; });
+  if(front){ a=a.filter(function(x){ return x!==t; }); a.unshift(t); }
+  return a; }
+/* 그릴 때만: 전산 변경 중인 기기는 바꿀 상태로 */
+function stOverList(tags){ if(!Array.isArray(tags)||!stList().length) return tags;
+  return tags.map(function(t){ var p=t&&stOver(t['코드']); if(!p||t['상태']===p.s) return t; var o=Object.assign({},t); o['상태']=p.s; return o; }); }
+function stOverHome(d){ var ps=stList(); if(!ps.length||!d) return d; if(Array.isArray(d)) return stOverList(d);
+  var o=Object.assign({},d), c; try{ c=JSON.parse(JSON.stringify(d.counts||{})); }catch(e){ return d; }
+  ps.forEach(function(p){ stCount(c,stBase(d.tags,p.c,p.f),p.s); });
+  o.counts=c; o.tags=stOverList(d.tags||[]); return o; }
+function stTagOver(t,p){ var o=Object.assign({},t); o['상태']=p.s; o['최종변경자']=p.w||o['최종변경자'];
+  if(Array.isArray(t.history)) o.history=[{'시각':'','동작':'상태변경','상태':p.s,'처리자':p.w||'','메모':'',_stp:1}].concat(t.history);
+  return o; }
+function stChip(p,sm){ var u=p.ph==='unk'; return '<span class="stp'+(sm?' sm':'')+(u?' err':'')+'"><i></i>'+(u?'확인 안 됨':(sm?'변경 중':'전산 변경 중…'))+'</span>'; }
+/* 열린 SWAP 화면을 지금 데이터로 다시 그림 (스크롤·로딩 화면 없이) */
+function stRedraw(){ if(SERVER==='swap'){ CU_NOW=true; stack.forEach(function(v){ try{   // 숫자는 0부터 다시 세지 않고 바로 끝값 (되돌림·표시만 바뀜)
+    if(v.name==='tag'&&v.state.tag) drawTag(v);
+    else if(v.name==='home'&&v.state.d) drawHome(v,v.state.d);
+    else if(v.name==='status'&&v.state.tags) drawStatus(v);
+    else if(v.name==='search'&&v.state.res&&$('sres')) drawSearchRes(v); }catch(e){} }); CU_NOW=false; }
+  stBar(); }
+/* 아래 작은 알림 (그 기기 화면 밖에서): "전산 변경 중… A1B2 → 수리가능" · 확인 안 됨이면 빨강 + 누르면 다시 확인 */
+function stBar(){ var cur=tagView(), here=cur?String(cur.params.code||'').trim().toUpperCase():'';
+  var o=stList().filter(function(p){ return p.c!==here; }), unk=o.filter(function(p){ return p.ph==='unk'; }).length, b=$('stbar');
+  if(!b){ if(!o.length) return; b=document.createElement('div'); b.id='stbar'; b.className='stbar'; b.setAttribute('role','status'); b.onclick=stBarTap; document.body.appendChild(b); }
+  if(!o.length){ b.classList.remove('on'); return; }
+  b.classList.toggle('err',!!unk);
+  b.innerHTML='<i></i><span>'+(unk?'전산 변경 확인 안 됨 '+unk+'건 · 누르면 다시 확인':(o.length===1?'전산 변경 중… '+esc(o[0].c)+' → '+esc(o[0].s):'전산 변경 중… '+o.length+'대'))+'</span>';
+  b.classList.add('on'); }
+function stBarTap(){ haptic(8); if(stList().some(function(p){ return p.ph==='unk'; })){ toast('다시 확인하는 중…'); stKick(true); } }
+/* 확인 안 됨·기다리는 중 → 지금 확인 (앱으로 돌아옴 · 연결됨 · "다시 확인") */
+function stKick(force){ if(!AUTH) return; var n=Date.now(); stList().forEach(function(p){
+  if(p.ph==='unk'||(p.ph==='wait'&&(force||!(p.due>n)))){ if(p.ph==='unk') p.k=0; stCheck(p); } }); }
+function stSave(){ if(loggingOut) return; var a=stList().map(function(p){ return {c:p.c,s:p.s,f:p.f,rid:p.rid,t:p.t,w:p.w,n:p.n,fz:p.fz?1:0,j:p.j||0,g:p.g||0}; });
+  try{ if(a.length) localStorage.setItem('swapc:stpend',JSON.stringify(a)); else localStorage.removeItem('swapc:stpend'); }catch(e){} }   // 못 쓰는 폰은 이 화면에서만 (조용히)
+/* 열 때 (startApp): 지난번에 끝을 못 본 상태 변경 → getTag 로 결과 확인 (그대로면 stJudge 대로: 새 서버 길이고 누른 지 10분 안이면 같은 rid 로 다시 · Google 직접으로 보냈으면 다시 안 보냄 · j·g 1분 안이면 "확인 안 됨" 뒤) */
+function stResume(){ if(!AUTH||!canServer('swap')) return; var a=null; try{ a=JSON.parse(localStorage.getItem('swapc:stpend')||'null'); }catch(e){} if(!Array.isArray(a)) return;
+  a.forEach(function(x){ var c=x&&String(x.c||'').trim().toUpperCase(); if(!c||!x.s||STP[c]) return;
+    STP[c]={c:c,s:String(x.s),f:String(x.f||''),rid:String(x.rid||'')||ridNew(),t:Number(x.t)||0,w:String(x.w||worker||''),n:Number(x.n)||0,fz:!!x.fz,j:Number(x.j)||0,g:Number(x.g)||0,ph:'wait',k:0,tm:0,due:0,re:1}; });
+  stList().forEach(function(p){ if(p.re) p.tm=setTimeout(function(){ stCheck(p); },300); }); stBar(); }
+document.addEventListener('visibilitychange',function(){ if(!document.hidden) stKick(false); });
+window.addEventListener('online',function(){ stKick(false); });
 function saveFields(fields,msg){ if(tagStale()){ var vs=tagView(); if(vs) drawTag(vs); return; } needWorker(function(){ var v=stack[stack.length-1]; closeSheet(); v.el.innerHTML=spin('저장 중');
   run('updateFields',v.params.code,fields,worker).then(function(res){ if(res.ok){ v.state.tag=res.tag; drawTag(v);
       toast(fields.serial!==undefined&&res.tag.stockOut&&res.tag.matchState==='no'?'⚠️ 바꾼 일련번호는 어드민 고객요청 출고 기기와 달라요':(msg||'저장 완료')); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
@@ -3923,6 +4098,7 @@ function logout(msg){ if(loggingOut) return; loggingOut=true; AUTH=null; try{ lo
 function logoutAsk(){ openSheet('<h3>로그아웃</h3><p>다시 들어오려면 접속 코드를 입력해야 해요.</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#d6336c" onclick="logout()">로그아웃</button></div>'); }
 var appStarted=false;
 function startApp(){ if(appStarted) return; appStarted=true;
+  stResume();   // v10.49 지난번에 끝을 못 본 상태 변경 → 홈을 그리기 전에 넣어 두고 getTag 로 확인
   tabTo('home');
   if(CODE) push('tag',{code:CODE});
   setTimeout(prefetch, 800);
