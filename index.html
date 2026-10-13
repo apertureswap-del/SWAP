@@ -740,6 +740,99 @@
   .catbar button b{margin-left:5px;color:var(--muted)} .catbar button.on{background:var(--ink);color:#fff} .catbar button.on b{color:rgba(255,255,255,.75)}
   .catbar button.ck{color:var(--danger)} .catbar button.ck b{color:var(--danger)} .catbar button.ck.on{background:var(--danger);color:#fff} .catbar button.ck.on b{color:#fff}
   .catbar button.of{color:#b45309} .catbar button.of b{color:#b45309} .catbar button.of.on{background:#b45309;color:#fff} .catbar button.of.on b{color:#fff}
+  /* ---- v10.52 SWING 수리 ERP (지금 카드·버튼·선 아이콘 그대로) ---- */
+  .rphome{position:sticky;bottom:10px;z-index:3;margin:4px 0 0} .rphome:empty{display:none}
+  .rphome .rpgo{font-size:17px;padding:17px;box-shadow:0 10px 26px rgba(0,0,0,.22)}
+  .rpq{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:8px;padding:9px 12px;border-radius:12px;background:var(--card);color:var(--muted);font-size:13px;font-weight:700;box-shadow:0 1px 3px rgba(25,31,40,.08)}
+  .rpq i,.rpoj .st i{flex:0 0 auto;width:11px;height:11px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--p);animation:rot .8s linear infinite}
+  .rpq.err{background:var(--danger-soft);color:var(--danger)}
+  .rpdev .rpdh{display:flex;align-items:center;gap:12px} .rpdev .bd{flex:1;min-width:0} .rpdev .bd>b{font-size:20px;font-weight:800;letter-spacing:.3px}
+  .rpdev .av.veh{flex:0 0 48px;width:48px;height:48px;border-radius:50%;overflow:hidden;background:#000;box-shadow:0 2px 8px rgba(0,0,0,.18)} .rpdev .av.veh svg{display:block;width:100%;height:100%}
+  .rpm{margin-left:8px;background:var(--fill);color:var(--ink2);font-size:11px;padding:3px 8px;vertical-align:3px}
+  .rpcl{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:4px;font-size:15px} .rpcl b{font-weight:700}
+  .rpk{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap;vertical-align:1px}
+  .rpk.in{background:var(--p);color:#fff} .rpk.out{background:var(--amber);color:var(--amber-ink)} .rpk.none{background:var(--danger-soft);color:var(--danger)}
+  .rpnote{font-size:13px;margin:10px 2px 0;line-height:1.5}
+  .rprecent{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--fill2);font-size:13px;color:var(--ink2);line-height:1.5} .rprecent .lb{margin-bottom:2px} .rprecent span{color:var(--muted);margin-right:6px}
+  .rptop,.rpchips{display:flex;flex-wrap:wrap;gap:7px}
+  .rpchip{padding:9px 13px;border-radius:999px;background:var(--fill);font-weight:700;font-size:13.5px;color:var(--ink2);transition:transform .15s}
+  .rpchip.on{background:var(--ink);color:#fff} .rpchip b{margin-left:5px;font-weight:800} .rpchip:active{transform:scale(.94)}
+  .rpsrch{margin-bottom:10px} .rpsrch .input{font-size:16px}
+  .rpseg{margin-bottom:8px} .rpseg button b{margin-left:4px;font-weight:800;color:var(--muted2)} .rpseg.q button{opacity:.45}
+  .rplist{max-height:52vh;max-height:min(50vh,430px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin:0 -6px;padding:0 6px}
+  .rpit{display:flex;align-items:center;gap:8px;width:100%;min-height:48px;padding:10px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:15px;font-weight:600;color:var(--ink)}
+  .rpit:last-child{border-bottom:0} .rpit .nm{flex:1;min-width:0} .rpit .nm small{display:inline-block;margin-right:6px;font-size:11px;font-weight:800;color:var(--muted2)}
+  .rpit .bg{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;max-width:48%}
+  .rpit .ck{flex:0 0 26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;background:var(--fill);color:transparent}
+  .rpit .ck svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+  .rpit.on{background:var(--p-soft);border-radius:12px} .rpit.on .ck{background:var(--p);color:#fff} .rpit:active{background:var(--fill)}
+  .rpb{font-style:normal;display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap;background:var(--fill);color:var(--muted)}
+  .rpb.multi{background:var(--blue-soft);color:var(--blue-ink)} .rpb.warn{background:var(--danger-soft);color:var(--danger)} .rpb.won{color:var(--ink2)}
+  .rpsr{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line)} .rpsr:last-child{border-bottom:0}
+  .rpsr .nm{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:15px}
+  .rpqty{display:flex;align-items:center;gap:4px} .rpqty button{width:36px;height:36px;border-radius:10px;background:var(--fill);font-size:20px;font-weight:700;color:var(--ink2)} .rpqty b{min-width:26px;text-align:center;font-size:16px}
+  .rpx{flex:0 0 auto;width:36px;height:36px;border-radius:10px;background:var(--fill);color:var(--muted);display:flex;align-items:center;justify-content:center}
+  .rpx svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .rpvl{max-height:56vh;overflow-y:auto;margin:0 -4px} .rpvr{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:14px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:16px}
+  .rpvr span{font-size:12.5px;color:var(--muted);white-space:nowrap} .rpvr:active{background:var(--fill)}
+  .rpvfind{margin:0 0 12px;padding:10px;border-radius:14px;background:var(--fill2)} .rpvfind .btn{width:100%;background:var(--card)} .rpvfind span{display:block;margin-top:7px;font-size:12.5px;color:var(--muted);text-align:center;line-height:1.45}
+  .rprecs{margin-bottom:6px}
+  .rprec{background:var(--card);border-radius:16px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(25,31,40,.03)}
+  .rprec .rph{display:flex;align-items:center;gap:8px;width:100%;text-align:left} .rprec .tm{font-size:13px;font-weight:700;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  .rprec .rph b{font-size:16.5px;font-weight:800;flex:1;min-width:0}
+  .rprec .cl{font-size:13px;color:var(--muted);margin-top:4px} .rprec .ln{font-size:14.5px;font-weight:600;color:var(--ink2);margin-top:2px;line-height:1.45} .rprec .ln b{color:var(--p-ink)}
+  .rprec .memo{margin-top:6px;padding:7px 10px;border-radius:10px;background:var(--fill2);font-size:13px;color:var(--ink2);white-space:pre-wrap;word-break:break-all}
+  .rprec .mn{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:6px;font-size:15px} .rprec .vd{margin-top:6px;font-size:12.5px;color:var(--danger)}
+  .rprec.void{opacity:.62} .rprec.void .ln{text-decoration:line-through} .rprec .rpact{margin-top:10px}
+  .pill.rpst{background:var(--blue-soft);color:var(--blue-ink)}
+  .rpout .rpoj{padding:10px 0;border-top:1px solid var(--line)} .rpout h3+.rpoj{border-top:0;padding-top:0}
+  .rpoj .hd{display:flex;justify-content:space-between;align-items:baseline;font-size:15px} .rpoj .hd span{font-size:12.5px;color:var(--muted)}
+  .rpoj .ln{font-size:13.5px;color:var(--ink2);margin-top:2px} .rpoj .st{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;font-weight:700;color:var(--muted)}
+  .rpoj.err .st{color:var(--danger)} .rpoj .row{margin-top:8px}
+  .rplines .rpl{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px} .rplines .rpl:last-child{border-bottom:0}
+  .rpl .n{flex:0 0 22px;color:var(--muted2);font-size:12.5px;font-weight:700} .rpl .nm{flex:1;min-width:0} .rpl .won{font-weight:700;font-variant-numeric:tabular-nums}
+  .rpsetp{flex:0 0 auto;padding:6px 10px;border-radius:999px;background:var(--danger);color:#fff;font-size:12px;font-weight:800}
+  .rptot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:14px;color:var(--muted)} .rptot b{font-size:19px;color:var(--ink)}
+  .rplink{color:var(--blue-ink);font-weight:700}
+  .rpnote2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:10px 13px;border-radius:14px;background:var(--amber);color:var(--amber-ink);font-size:13.5px;font-weight:700;line-height:1.45}
+  .rpnote2.err{background:var(--danger-soft);color:var(--danger)} .rpnote2 button{padding:4px 11px;border-radius:999px;background:#fff;font-size:12.5px;font-weight:800;color:inherit}
+  .rpper{display:flex;align-items:center;gap:8px;padding:8px 0;font-size:14px} .rpper .nm{flex:0 0 30%;min-width:0;display:flex;align-items:center;gap:6px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .rpper .nm i{flex:0 0 10px;width:10px;height:10px;border-radius:3px} .rpper .bar{flex:1;height:10px;border-radius:5px;background:var(--fill);overflow:hidden} .rpper .bar i{display:block;height:100%;border-radius:5px}
+  .rpper b{flex:0 0 auto;font-weight:800} .rpper small{flex:0 0 38px;text-align:right;color:var(--muted);font-size:12px}
+  .rpsl{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:11px 2px;border-bottom:1px solid var(--line);text-align:left} .rpsl:last-child{border-bottom:0}
+  .rpsl div{min-width:0} .rpsl div b{font-size:15px;margin-right:6px} .rpsl div span{display:block;font-size:12.5px;color:var(--muted);margin-top:1px} .rpsl>b{white-space:nowrap} .rpsl.void{opacity:.55}
+  .rpstk{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--line)} .rpstk:last-child{border-bottom:0}
+  .rpstk .nm{flex:1;min-width:0;font-size:14.5px;font-weight:600} .rpstk .nm span{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:1px}
+  .rpstk .q{flex:0 0 auto;text-align:right} .rpstk .q b{font-size:19px;font-weight:800} .rpstk .q span{font-size:12px;color:var(--muted);margin-left:2px}
+  .rpstk.low{background:var(--danger-soft);border-radius:12px;border-bottom-color:transparent} .rpstk.low .nm,.rpstk.low .q b,.rpstk.low .nm span{color:var(--danger)}
+  .rpstk .qi{flex:0 0 84px;width:84px;padding:10px;text-align:right;font-size:17px;font-weight:700}
+  .brk span.rplow{background:var(--danger-soft);color:var(--danger)} .brk span.rplow b{color:var(--danger)}
+  .rpcrow{display:flex;align-items:center;gap:10px;padding:12px 2px;border-bottom:1px solid var(--line)} .rpcrow:last-child{border-bottom:0}
+  .rpcrow .nm{flex:1;min-width:0} .rpcrow .nm b{font-size:15.5px;margin-right:6px} .rpcrow .sub{font-size:12.5px;color:var(--muted);margin-top:2px;word-break:break-all}
+  /* 거래명세서 (양식 그대로 · A4 세로 · mm) — 화면은 줄여서 미리보기 · 인쇄는 #printarea */
+  .stview{margin-top:14px} .stsc{position:relative;overflow:hidden;margin:0 auto 12px;border-radius:6px;background:#fff;box-shadow:0 1px 3px rgba(25,31,40,.08),0 8px 24px rgba(25,31,40,.08)}
+  .stz{width:210mm;transform-origin:0 0}
+  .stpg{position:relative;width:210mm;height:296mm;background:#fff;color:#000;overflow:hidden;box-sizing:border-box;font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;font-size:9pt;line-height:1.25;letter-spacing:0;font-feature-settings:normal}
+  .stpg .sttl{position:absolute;left:11.5mm;top:15.5mm;width:86mm;text-align:center;font-size:20pt;font-weight:800;letter-spacing:1px}
+  .stpg .stto{position:absolute;left:11.5mm;top:30mm;width:86mm;height:23.3mm;border:1px solid #000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6mm;text-align:center;font-size:9.5pt;box-sizing:border-box}
+  .stpg .stto b{font-weight:800}
+  .stpg .stsup{position:absolute;left:103mm;top:12.8mm;width:97mm;border-collapse:collapse;table-layout:fixed;font-size:9pt}
+  .stsup th,.stsup td{border:1px solid #000;padding:0 1.6mm;vertical-align:middle;text-align:left;font-weight:400}
+  .stsup th{font-weight:700;text-align:center;font-size:9.5pt;line-height:1.15} .stsup .vt{text-align:center;padding:0;font-weight:700;line-height:2}
+  .stsup tr>*:last-child{border-right:0} .stsup .bk b{font-size:11pt;font-weight:800;margin-right:5mm}
+  .stpg .strule{position:absolute;left:11.5mm;top:54.6mm;width:188.5mm;border-top:2.2px solid #000}
+  .stpg .sttb{position:absolute;left:11.5mm;top:63.3mm;width:187.7mm;border-collapse:collapse;table-layout:fixed;font-size:9pt}
+  .sttb th,.sttb td{border:1px solid #b5b5b5;padding:0 1.4mm;height:8.4mm;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400}
+  .sttb thead th{height:7.2mm;background:#f5f5f5;font-weight:700;font-size:9.5pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sttb td.w{text-align:right} .sttb td.qr{font-size:9.5pt} .sttb .np{color:#e5484d;font-weight:700} .sttb small{color:#666;font-size:7.5pt}
+  /* 긴 QR(IMEI 15자리 등)·긴 품목명은 자르지 않고 글자를 줄여 두 줄까지 (줄 높이 8.4mm 그대로 · 22줄이 한 쪽에) · 지난 기간 추가분 표시는 늘 보임 */
+  .sttb td.qr.l,.sttb td.qr.s{white-space:normal;word-break:break-all;text-overflow:clip;line-height:1.08;font-size:7.5pt} .sttb td.qr.s{font-size:6.3pt}
+  .sttb td.nm.l{white-space:normal;text-overflow:clip;font-size:8.3pt}
+  .sttb .nw{display:flex;align-items:center;justify-content:center;gap:1.2mm;max-height:8.2mm;overflow:hidden;white-space:normal}
+  .sttb .nw span{min-width:0;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.12;word-break:keep-all;overflow-wrap:anywhere}
+  .sttb .nw small{flex:0 0 auto;white-space:nowrap}
+  .sttb tr.tot td{background:#f5f5f5;font-weight:800;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .stpg .stft{position:absolute;left:11.5mm;top:268.5mm;width:145mm} .stpg .stft i{display:block;border-top:1px solid #000} .stpg .stft span{display:block;margin-top:1.2mm}
   @media print{
     @page{size:A4 portrait;margin:0} html,body{overflow:visible;height:auto;background:#fff}
     .app,.toast,.dim,.sheet,.login{display:none !important} #printarea{display:block}
@@ -761,6 +854,9 @@
     .sz8 .qr img,.sz8 .qr canvas{width:40mm;height:40mm} .sz8 .code{font-size:18pt} .sz8 .box{height:12mm;margin-top:2mm} .sz8 .box b{font-size:7pt} .sz8 .brand{font-size:9pt;margin-top:2mm}
     .sz12 .qr img,.sz12 .qr canvas{width:26mm;height:26mm} .sz12 .code{font-size:12pt} .sz12 .box{height:9mm;margin-top:1.5mm} .sz12 .box b{font-size:6.5pt} .sz12 .brand{font-size:7.5pt;margin-top:1.5mm}
     .sz12 .plabel{padding:3mm 3.5mm;gap:2.5mm}
+    /* v10.52 거래명세서: 쪽마다 A4 한 장 (머리·[n/N] 은 쪽 안에 · 마지막 쪽 총합계) */
+    #printarea .stpg{page-break-after:always;break-after:page} #printarea .stpg:last-child{page-break-after:auto;break-after:auto}
+    #printarea .stpg,#printarea .stpg *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   }
 </style>
 </head>
@@ -805,7 +901,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.51';
+var APP_VER = '10.52';
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -1116,12 +1212,12 @@ function lsPrune(){ try{ var d8=todayISO(-8), d1=todayISO(-1), n1=todayISO(1);
   reportPrune(); }catch(e){} }   // v10.43 업무보고 초안 30일 정리도 (미리받기가 화면을 안 연 날에도 자동 기록 초안을 만들어서)
 /* v10.41 저장본 주인: 접속 코드 해시(원래 코드는 따로 안 남김). 다른 코드로 들어오면 사람마다 다른 저장본(홈·현황·작업내역·작업리스트·초안·알림 상태 등)을 지움
    — 공유 폰에서 앞사람 화면·초안이 보이지 않게. 기기 설정·사진·QR 기록·속도 기록은 둠. adopt = 저장된 코드로 자동 접속 (주인 표시가 없던 예전 폰은 그대로 이어 씀) */
-var LS_USER_RE=/^swapc:(home|tags2|tagv:|sw_home:|sw_roster|report:|pushme|pushAt|stock_pv|wl:|swday:|sysAt|rosterAt|wdnote:|sw_qrmap|swix|sync:|stpend|hlock)/;   // v10.49 stpend = 결과를 못 본 상태 변경 (다른 코드면 앞사람 것 지움) · v10.51 hlock = 홈 현황 잠김 기억
+var LS_USER_RE=/^swapc:(home|tags2|tagv:|sw_home:|sw_roster|report:|pushme|pushAt|stock_pv|wl:|swday:|sysAt|rosterAt|wdnote:|sw_qrmap|swix|sync:|stpend|hlock|rp_)/;   // v10.49 stpend = 결과를 못 본 상태 변경 (다른 코드면 앞사람 것 지움) · v10.51 hlock = 홈 현황 잠김 기억 · v10.52 rp_ = 수리 ERP (권한·품목·못 보낸 기록 — 다른 코드면 지움)
 function lsCodeHash(c){ var s=String(c||''), h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return ('000'+(h&0xffff).toString(16)).slice(-4); }   // 16비트만 (접속 코드 수천만 개 중 하나로 되돌려 찾을 수 없게 · 같은 폰에서 두 코드가 겹칠 확률 1/65536)
 function lsOwner(code,adopt){ if(!code) return; var o=lsCodeHash(code), cur=null; try{ cur=localStorage.getItem('swapc:_owner'); }catch(e){}
   if(cur===o){ if(KVDB&&KV._owner!==o){ KV._owner=o; kvPut('_owner',o); } return; }
   if(cur!==null||!adopt){ try{ Object.keys(localStorage).forEach(function(k){ if(LS_USER_RE.test(k)) localStorage.removeItem(k); }); }catch(e){} kvClear();   // IndexedDB 저장본은 전부 사람마다 다른 것
-    wlCache={}; swDayMem={}; swDayRun={}; SWH_AT={}; BOOT_PRE=null; PUSHME=null; SWIX=null;
+    wlCache={}; swDayMem={}; swDayRun={}; SWH_AT={}; BOOT_PRE=null; PUSHME=null; SWIX=null; RP_ME=null; RP_ITEMS=null; RP_RECS={}; RP_OUT_MEM=null;   // v10.52 수리 ERP 메모리 값도 (폰 저장이 안 돼 메모리에 둔 보낼 목록까지)
     if(cur!==null){ worker=''; try{ localStorage.removeItem('swapWorker'); }catch(e){} } }   // 앞사람 이름으로 기록이 남지 않게 (이름이 정해진 코드는 applyAuth 가 다시 채움)
   try{ localStorage.setItem('swapc:_owner',o); }catch(e){} if(KVDB){ KV._owner=o; kvPut('_owner',o); } }
 try{ localStorage.removeItem('swapc:tags'); }catch(e){}   // v10.11 까지 홈(60개)·현황(500개)이 같이 쓰던 캐시 → 현황은 'tags2', 홈은 'home' 으로 나눔 (남은 60개 목록으로 "60대"가 한 번 뜨지 않게)
@@ -1153,7 +1249,9 @@ function isOut(t){ return t['구분']==='출고'; }
 
 /* ================= 네비게이션 ================= */
 var stack=[]; var animating=false; var VIEWS={};
-var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',pushadmin:'extras',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',eggs:'me',speed:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',search:'search'};
+var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',pushadmin:'extras',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',eggs:'me',speed:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',search:'search',
+  rp_new:'',rp_mine:'',rp_rec:'',rp_stmt:'',rp_office:'extras',rp_stock:'extras',rp_clients:'extras'};   // v10.52 수리 ERP 화면 · '' = 홈·추가기능 둘 다에서 열림 → 연 자리 탭을 따름
+function curTab(){ for(var i=stack.length-1;i>=0;i--){ var t=TAB_OF[stack[i].name]; if(t!=='') return t||'home'; } return 'home'; }   // 아래 탭 불: 맨 위 화면 ('' 면 그 밑 화면 · 표에 없으면 예전처럼 홈)
 /* ---- 권한: 마스터(모든 기능 · 접속 코드 관리) / 관리자(접속 코드 관리 빼고 전부) / 일반(추가기능은 관리자가 켜고 끔 → 꺼진 건 자물쇠) ---- */
 function isMaster(){ return !!(AUTH&&AUTH.master); }
 function isAdminUp(){ return !!(AUTH&&AUTH.admin); }
@@ -1172,7 +1270,7 @@ function makeView(name,params){ var el=document.createElement('div'); el.classNa
 function reanim(v){ if(!v||!v.el) return; v.el.classList.remove('anim'); void v.el.offsetWidth; v.el.classList.add('anim'); clearTimeout(v._at); v._at=setTimeout(function(){ v.el.classList.remove('anim'); },900); }
 function mount(v){ $('stage').insertBefore(v.el,$('back')); reanim(v); try{ viewOf(v.name).render(v); }catch(e){ v.el.innerHTML=errBox(e); } }
 function syncChrome(){ var v=stack[stack.length-1]; if(!v) return; $('back').classList.toggle('on',stack.length>1);
-  var tab=TAB_OF[v.name]||'home'; [].forEach.call($('tabs').children,function(b){ b.classList.toggle('on',b.dataset.tab===tab); }); stBar(); }   // v10.49 전산 변경 중 알림 (그 기기 화면에선 화면 안 표시로)
+  var tab=curTab(); [].forEach.call($('tabs').children,function(b){ b.classList.toggle('on',b.dataset.tab===tab); }); stBar(); }   // v10.49 전산 변경 중 알림 (그 기기 화면에선 화면 안 표시로)
 /* 브라우저/폰 뒤로가기와 동기화: 화면을 열 때마다 history 항목을 하나 쌓고, 뒤로가기(popstate)가 오면 그 항목만큼 닫는다.
    순서: 시트 → 이전 화면 → 홈 탭 → (홈에서 한 번 더) 앱 종료 */
 var hDepth=0, ignorePop=0;
@@ -1336,7 +1434,8 @@ function itemTag(t){ var sp=stOver(t['코드']), st=sp?sp.s:t['상태'];   // v1
 
 /* ================= 카메라 스캔 ================= */
 function startScan(){ push('scan',{}); }
-VIEWS.scan={ render:function(v){ var m=v.params.match; var rm=v.params.rematch; if(rm) m={name:v.params.name};
+VIEWS.scan={ render:function(v){ if(v.params.rp){ rpScanRender(v); return; }   // v10.52 수리기기 QR (아래 수리 ERP)
+  var m=v.params.match; var rm=v.params.rematch; if(rm) m={name:v.params.name};
   v.el.innerHTML=title(rm?'QR 교체':(m?'QR 매칭':'QR 스캔'), rm?('<b>'+esc(v.params.name||'기기')+'</b> ('+esc(rm)+') 에 새로 붙일 QR을 찍으세요'):(m?('<b>'+esc(m.name||m.serial||'기기')+'</b>'+(m.serial?' · '+esc(m.serial):'')+' 에 붙일 QR을 찍으세요'):'라벨의 QR을 화면 가운데에 맞추세요'),
     '<button class="hbtn" id="scantorch" style="display:none" onclick="swTorch(this,\'🔦 플래시\',\'🔦 플래시 끄기\')">🔦 플래시</button>')+
     '<div class="scan" id="scanbox"><video id="vid" playsinline muted></video><div class="frame"></div></div>'+
@@ -1467,6 +1566,7 @@ function serialScanPhoto(){ if(!ss) return; var tg=ss.target; camTarget=tg; camP
 function handleScanned(text){
   if(camTarget){ var el=$(camTarget); camTarget=null; if(el){ el.value=String(text).trim(); toast('읽었어요'); } return; }
   var top=stack[stack.length-1]; if(top&&top.name==='sw_qr'){ swQrDetected(text); return; }   // SWING QR 스캔: 시리얼 기록
+  if(top&&top.name==='scan'&&top.params.rp){ rpScanned(text); return; }   // v10.52 수리기기 QR → 기기 판단·수리 내역 입력
   if(top&&top.name==='scan'&&top.params.swingq){ var sq=swExtract(text)||String(text).trim().toUpperCase(); stopScan(); var prev=stack[stack.length-2]; if(prev&&(prev.name==='search'||prev.name==='sw_search')){ prev.state.pendingQ=sq; } haptic([10,30,10]); pop(); return; }   // SWING 검색: 찍은 QR 로 어드민 검색
   var code=null; var m=String(text).match(/[?&]q=([A-Za-z0-9]+)/); if(m) code=m[1].toUpperCase(); else if(/^[A-Za-z0-9]{4,10}$/.test(text.trim())) code=text.trim().toUpperCase();
   if(!code){ toast('입출고 QR이 아닙니다'); return; }
@@ -2429,7 +2529,8 @@ VIEWS.sw_extras={ render:function(v){ reanim(v);
     mi('sw_qr','{}','#e6f4ea','#2e7d32','<svg viewBox="0 0 24 24" class="em"><g fill="#111"><path d="M3 3h8v8H3zm2 2v4h4V5zm1 1h2v2H6z"/><path d="M13 3h8v8h-8zm2 2v4h4V5zm1 1h2v2h-2z"/><path d="M3 13h8v8H3zm2 2v4h4v-4zm1 1h2v2H6z"/><path d="M13 13h2v2h-2zm4 0h4v2h-4zm-4 4h2v4h-2zm4 0h2v2h-2zm2 2h2v2h-2zm-6-2h2v2h-2z"/></g></svg>','QR 스캔','기기 QR에서 시리얼번호 수집·복사')+
     mi('sw_gallery','{}','#efe7e3','#5d4037','<svg viewBox="0 0 24 24" class="em"><rect x="2.5" y="4" width="19" height="16" rx="2.5" fill="#7ec8ff" stroke="#111" stroke-width="1.5"/><circle cx="16.5" cy="9" r="2" fill="#ffd54f"/><path d="M4 18.5l5-6 3.5 4 2.5-2.5 5 4.5z" fill="#2e9e4f"/><path d="M4 18.5l5-6 3.5 4 1.5-1.6" fill="#1e7d3a"/></svg>','사진모음','찍은 사진 보기 · Slack 공유 · 삭제')+
     (AUTH&&AUTH.admin?mi('sw_workers','{}','','','<svg viewBox="0 0 24 24" class="em"><circle cx="9" cy="8" r="3.6" fill="#ffcc80" stroke="#111" stroke-width="1.5"/><path d="M2.8 20c.4-3.6 3-5.8 6.2-5.8s5.8 2.2 6.2 5.8z" fill="#5c6bc0" stroke="#111" stroke-width="1.5" stroke-linejoin="round"/><circle cx="17" cy="8.8" r="2.8" fill="#ffe0b2" stroke="#111" stroke-width="1.4"/><path d="M15.6 13.5c.4-.1.9-.1 1.4-.1 2.6 0 4.6 1.8 4.9 4.6h-4.4" fill="#9fa8da" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>','작업자 관리','관리자 전용 · 작업내역에 모을 컬렉터 아이디'):'')+
-    pushAdminRow(); }};   // 작업보고 알림 (마스터만 · v10.30)
+    '<div id="rpext">'+rpExtrasRows()+'</div>'+   // v10.52 수리 ERP (내 수리 내역 · 수리 전산 · 부품 재고 · 거래처 관리 — 권한 있는 것만)
+    pushAdminRow(); rpMeLoad().catch(function(){}); }};   // 작업보고 알림 (마스터만 · v10.30)
 
 /* ================= 작업내역 (SWING 홈 간단 보고 · 작업자 작업내역 · 작업자 세부 · 작업 현황정리) ================= */
 /* 서버(Swing.gs)가 어드민 "킥보드 전체 기록"에서 관리자가 등록한 작업자의 기록만 모아, 작업자·기기마다 분류해서 준다:
@@ -2467,8 +2568,8 @@ function swCatBrk(c){ var h=SW_CATS.filter(function(x){ return c[x[0]]; }).map(f
 /* ---- 홈: 작업내역 간단 보고 (어제 기본 · 오늘~7일 전 · 7일 그래프) ---- */
 VIEWS.sw_home={ render:function(v){ reanim(v); if(!v.state.date){ v.state.date=todayISO(-1); v.state.auto=true; }   // 어제 기준 (auto = 사용자가 날짜를 안 고름)
   v.refresh=function(){ if(swHomeRoll(v)) return Promise.resolve(); return swHomeLoad(v,true,true); };   // 당겨서 새로고침 = 오늘도 지금 바로 받음 (v10.32)
-  v.onResume=function(){ if(swHomeRoll(v)) return; if(v.state.stale){ v.state.stale=false; swHomeLoad(v,true); } else swHomeDraw(v); };
-  swHomeLoad(v,false); }};
+  v.onResume=function(){ rpHomeKick(); if(swHomeRoll(v)) return; if(v.state.stale){ v.state.stale=false; swHomeLoad(v,true); } else swHomeDraw(v); };
+  swHomeLoad(v,false); rpHomeKick(); }};   // v10.52 수리 ERP: 내 권한(rpMe)·못 보낸 수리 기록 보내기
 /* 앱을 켜 둔 채 자정이 지나면 "어제"를 새 어제로 (사용자가 다른 날짜를 골랐으면 그대로) */
 function swHomeRoll(v){ if(!v.state.auto||v.state.date===todayISO(-1)) return false; v.state.date=todayISO(-1); resetCount(v); swHomeLoad(v,false); return true; }
 document.addEventListener('visibilitychange',function(){ if(document.hidden) return; var v=stack[stack.length-1]; if(v&&v.name==='home'&&SERVER==='swing'&&stack.length===1) swHomeRoll(v); });
@@ -2483,11 +2584,11 @@ function swHomeLoad(v,quiet,fresh){ var date=v.state.date, tok=v.state.tok=(v.st
   if(cached&&!cached.locked&&homeLockOf('swing')){ homeLockPurge('swing'); cached=null; }   // v10.51 홈 현황 권한 없음 → 예전 숫자 저장본은 그리지 않고 지움
   if(!cached&&homeLockOf('swing')&&!(v.state.res&&v.state.res.date===date)){ v.state.res={ok:true,date:date,locked:true}; swHomeDraw(v); }   // 받기 전에도 틀 + 자물쇠 (서버 답이 오면 그걸로)
   else if(cached&&cached.date===date){ v.state.res=cached; swHomeDraw(v); }
-  else if(!quiet||!v.state.res||v.state.res.date!==date){ v.state.res=null; v.el.innerHTML=swHomeHead(v)+spin('작업내역을 불러오는 중'); }
+  else if(!quiet||!v.state.res||v.state.res.date!==date){ v.state.res=null; v.el.innerHTML=swHomeHead(v)+spin('작업내역을 불러오는 중')+rpHomeBtn(); }
   if(!fresh&&cached&&cached.date===date&&SWH_AT[date]&&Date.now()-SWH_AT[date]<120000&&DIRTY_AT<SWH_AT[date]) return Promise.resolve();   // v10.41 2분 안에 받았고 그 사이 내가 바꾼 게 없으면 저장본 그대로 (홈 탭을 다시 눌러도 서버 안 부름)
   function alive(){ return stack.indexOf(v)>=0&&v.state.tok===tok; }
   function fail(e){ if(!alive()) return; if(v.state.res){ toast('새로고침 실패: '+(e&&e.message||e)); return; }
-    v.el.innerHTML=swHomeHead(v)+errBox(e)+'<button class="btn line" onclick="swHomeLoad(stack[stack.length-1],false)">다시 시도</button>'; }
+    v.el.innerHTML=swHomeHead(v)+errBox(e)+'<button class="btn line" onclick="swHomeLoad(stack[stack.length-1],false)">다시 시도</button>'+rpHomeBtn(); }
   var qsteps=0, wsteps=0;   // queued = 뒤에서 받는 중 확인(15초) · wait = 다른 쪽이 받는 중(3초) — 직접 받는 40번과 따로 셈 (v10.38)
   function step(){ if(steps>40||qsteps>80||wsteps>100) return fail(new Error('기록을 받는 데 너무 오래 걸려요. 잠시 뒤 다시 열어 주세요.'));
     var pre=(!fresh&&!steps&&!qsteps&&!wsteps&&!later)?bootTake('swh:'+date):null;   // v10.41 자동 접속 때 미리 출발한 호출
@@ -2500,9 +2601,9 @@ function swHomeLoad(v,quiet,fresh){ var date=v.state.date, tok=v.state.tok=(v.st
     .catch(function(e){ if(!alive()) return; if(e&&e.auth===false) return; if(++fails<=2) return step(); return fail(e); }); }
   return step(); }
 function swHomeDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res; if(!res){ return; } var d=v.state.date, admin=!!(AUTH&&AUTH.admin), h=swHomeHead(v);
-  if(res.locked){ v.el.innerHTML=h+swHomeLockHtml(d); homeLockPurge('swing'); return; }   // v10.51 서버가 숫자를 안 보냄 (홈 현황 권한 없음)
+  if(res.locked){ v.el.innerHTML=h+swHomeLockHtml(d)+rpHomeBtn(); homeLockPurge('swing'); return; }   // v10.51 서버가 숫자를 안 보냄 (홈 현황 권한 없음) · v10.52 아래 [수리기기 입력]
   if(res.noWorkers){ v.el.innerHTML=h+'<div class="card"><div class="empty">아직 등록된 작업자가 없어요.<br>'+(admin?'추가기능 → 작업자 관리에서 컬렉터 아이디를 넣어 주세요.':'관리자에게 작업자 등록을 요청해 주세요.')+'</div>'+
-    (admin?'<button class="btn" onclick="push(\'sw_workers\',{})">작업자 관리</button>':'')+'</div>'; return; }
+    (admin?'<button class="btn" onclick="push(\'sw_workers\',{})">작업자 관리</button>':'')+'</div>'+rpHomeBtn(); return; }
   var day=res.day||{}, c=day.cats||{};
   h+='<div class="card sum"><div class="lb">'+swDayLabel(d)+' 작업 합계'+(day.updated?' · '+esc(day.updated)+' 기준':'')+'</div>'+
     '<div class="big">'+num(day.total||0,'swh')+'<span>건</span></div>'+swCatBrk(c)+
@@ -2511,7 +2612,7 @@ function swHomeDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res; if(!res
     (can('swing.sw_work')?'<button class="btn line" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">작업자별 자세히 보기 ›</button>'
       :'<button class="btn line lockb" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">'+LOCK_I+' 작업자별 자세히 보기</button>')+'</div>';   // 작업자 작업내역 권한이 없으면 push 가 막고 안내
   h+=swWeekCard(res.week||[]);
-  v.el.innerHTML=h; if(!quiet) countUp(v.el); }
+  v.el.innerHTML=h+rpHomeBtn(); if(!quiet) countUp(v.el); }   // v10.52 홈 하단 [수리기기 입력] (수리 기록 권한)
 /* v10.51 SWING 홈 현황 권한 없음: 합계 카드·최근 7일 카드 틀(제목·분류 이름·날짜·범례)은 그대로 · 숫자·막대 자리만 흐리게 + 선 자물쇠 · "작업자별 자세히 보기"는 따로 (작업자 작업내역 권한) */
 function swHomeLockHtml(d){ var n='<b>'+hph()+'</b>';
   var h='<div class="card sum hlk"><div class="lb">'+swDayLabel(d)+' 작업 합계</div><div class="hlkz" onclick="homeLockTap()"><div class="hbl" aria-hidden="true"><div class="big">'+n+'<span>건</span></div></div>'+hlockMark(true)+
@@ -3111,6 +3212,643 @@ function swSumXlsx(){ var v=swSumView(); if(!v||v.state.busy) return; var ym=v.s
       haptic([12,40,18]); toast(r.splitting?'받았어요 · 아직 향남·수원으로 나누는 중이라 이번 파일은 예전 합본이에요 — 1~2분 뒤 다시 받아 주세요':(r.left?'받았어요 · 아직 반영 중인 확인 '+r.left+'건은 15분 뒤 다시 받아 주세요':'받았어요 · '+(r.name||''))); } catch(e){ toast('저장 실패: '+e.message); }
     if(swSumView()===v&&v.state.ym===ym) swSumLoad(v); })   // 받기 전에 빠진 칸을 채웠을 수 있으니 목록 새로
     .catch(function(e){ v.state.busy=false; toast('엑셀 만들기 실패: '+e.message); }); }
+
+/* ================= v10.52 SWING 수리 ERP (erp/SPEC.md · 새 서버만) =================
+   흐름: SWING 홈 하단 [수리기기 입력] (수리 기록 권한 · 관리자·마스터 늘) → QR 찍기 (지금 스캐너 · 직접 입력 · 사진) → rpDevice (SWING 기기 D1)
+         향남 = 주식회사 애퍼처 · 수원 = 에스에스글로벌 (내부) · 목록에 없으면 외주 거래처 고르기 (또는 어드민 검색 swingSearch 로 계정 찾기 → acct)
+         → 수리 내역 입력 (많이 한 15개 · S9/W9/기타 · 검색 · 고른 항목 · 특이사항) → [입력 완료] = 이 폰 보낼 목록(rp_out)에 넣고 바로 홈으로 (막지 않음 · "저장 중…")
+         → 뒤에서 같은 rid 로 보냄 (연결 실패·시간 초과·다른 작업 중·점검 중이면 같은 rid 로 다시 · 서버가 거절하면 그 글 그대로 + 고치기·다시·버리기)
+   내 수리 내역 (일자별 · 그날 것만 고치기·지우기) · 수리 전산 (전체 기록·그래프·명세서 · 수리 전산·관리자·마스터) · 부품 재고·거래처 관리 (관리자·마스터)
+   rp* 함수는 새 서버에만 → 늘 새 서버(fetch)로 · 구글(JSONP)로 다시 안 보냄 · 오류 글은 서버 글 그대로 · 금액은 서버가 수리 전산·관리자에게만 줌
+   기록(속도 기록 spdLog)엔 함수 이름·ms 만 */
+var RP_ME=null, RP_ME_C='', RP_ME_AT=0, RP_ME_P=null, RP_ITEMS=null, RP_RECS={}, RP_CX={}, RP_DIRTY=0, RP_LINES_MAX=30;
+var RP_BACK0=3000, RP_RETRY=[1500,4000], RP_FL=false, RP_FL_T=0, RP_BACK=0, RP_PRINT_OLD=null;   // 다시 보내기 간격 (시험이 줄임)
+var RP_SLOW={rpSave:30000,rpEdit:30000,rpStmt:30000,rpStmtIssue:45000,rpStmtGet:30000,rpList:30000,rpChart:30000,rpStockSet:30000};
+var RP_I={   // 선 아이콘 (지금 앱처럼 stroke=currentColor)
+  qr:'<svg viewBox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4M7 12h10"/></svg>',
+  list:'<svg viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 8.5h8M8 12.5h8M8 16.5h5"/></svg>',
+  chart:'<svg viewBox="0 0 24 24"><path d="M5 20v-8M10 20V5M15 20v-6M20 20V9M3 20.5h18"/></svg>',
+  box:'<svg viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg>',
+  bld:'<svg viewBox="0 0 24 24"><path d="M4.5 21V5.5A1.5 1.5 0 0 1 6 4h7a1.5 1.5 0 0 1 1.5 1.5V21M14.5 9.5H18a1.5 1.5 0 0 1 1.5 1.5v10M2.5 21h19M8 8h3M8 11.5h3M8 15h3"/></svg>',
+  doc:'<svg viewBox="0 0 24 24"><path d="M6 3h8.5L19 7.5V21H6z"/><path d="M14 3v5h5M9 12.5h7M9 16.5h7"/></svg>',
+  print:'<svg viewBox="0 0 24 24"><path d="M6.5 9V3.5h11V9"/><rect x="3.5" y="9" width="17" height="8" rx="2"/><path d="M6.5 14h11v6.5h-11z"/></svg>',
+  ok:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  trash:'<svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/></svg>',
+  srch:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'
+};
+var RP_GRP={S9:'S9',W9:'W9',ETC:'기타'}, RP_MV={set:'입력',use:'수리',edit:'고침',void:'지움',restore:'되살림'}, RP_PCOL=['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4','#8e6bd8'];
+
+/* ---- 공통 ---- */
+function rpTop(n){ var v=stack[stack.length-1]; return (v&&v.name===n)?v:null; }
+function rpWon(n){ return (n==null||n==='')?'':String(Math.round(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+function rpMd(iso){ var p=String(iso||'').split('-'); return p.length===3?(+p[1])+'/'+(+p[2]):String(iso||''); }
+function rpIso(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function rpDayLb(iso){ var p=String(iso||'').split('-'); if(p.length!==3) return String(iso||''); var w='일월화수목금토'[new Date(+p[0],+p[1]-1,+p[2],12).getDay()];
+  return rpMd(iso)+' ('+w+')'+(iso===todayISO(0)?' · 오늘':(iso===todayISO(-1)?' · 어제':'')); }
+function rpHM(ms){ var d=new Date(ms); return pad2(d.getMonth()+1)+'/'+pad2(d.getDate())+' '+pad2(d.getHours())+':'+pad2(d.getMinutes()); }
+function rpKindLb(k){ return k==='HN'?'향남':(k==='SW'?'수원':'외주'); }
+function rpKindCls(k){ return (k==='HN'||k==='SW')?'in':'out'; }
+function rpPeriod(x){ return x.unit==='month'?String(x.from||'').slice(0,7).replace('-','년 ')+'월':rpMd(x.from)+'~'+rpMd(x.to); }
+function rpKeep(recs){ (recs||[]).forEach(function(x){ if(x&&x.id!=null) RP_RECS[x.id]=x; }); }
+function rpPermKey(f){ return !!f&&/^swing\.repair/.test(String(f.k||'')); }   // 권한 설정 화면 '수리 기록'·'수리 전산'
+
+/* ---- 새 서버 부르기: rp* 는 늘 새 서버(fetch) · 브레이커·?api2=off 도 안 봄 (다른 길이 없음) · 서버가 api2 '' (주인 비상 스위치)면 못 씀 ---- */
+function rpUrl(){ if(!window.fetch) return ''; var s=api2Get('swapApi2Srv'), w=(s!==null)?s:(WORKER_URL||API2_ON); w=String(w||'').replace(/\/+$/,''); return API2_RE.test(w)?w:''; }
+function rpRun(fn,args,cx){ cx=cx||runCx(); var w=rpUrl();
+  if(!w){ var eo=new Error('수리 기록은 새 서버로만 보내요. 인터넷 연결을 확인하고 앱을 다시 열어 주세요.'); eo.off=true; return Promise.reject(eo); }   // off = 잠깐 못 감 (보낼 목록은 그대로 두고 다시)
+  if(!cx.rid) cx.rid=ridNew();   // 쓰기 = 다시 보낼 때도 같은 rid (서버가 한 번만 처리)
+  return new Promise(function(res,rej){ var done=false, t0=Date.now(), ac=AUTH&&AUTH.code, ctl=null, ms=RP_SLOW[fn]||20000, t; try{ ctl=new AbortController(); }catch(e){}
+    function fail(r,msg,k){ if(done) return; done=true; clearTimeout(t); try{ if(ctl) ctl.abort(); }catch(e){} spdLog(fn,t0,null,r,null,'w'); var er=new Error(msg); er[k]=true; rej(er); }
+    t=setTimeout(function(){ fail('timeout','서버 응답 없음('+(ms/1000)+'초)','timeout'); },ms);
+    fetch(w+'/api',{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},credentials:'omit',signal:ctl?ctl.signal:undefined,
+      body:JSON.stringify({fn:fn,args:args||[],auth:ac||'',rid:cx.rid,v:APP_VER})})
+      .then(function(r){ return r.text().then(function(s){ if(done) return; var j=null; try{ j=JSON.parse(s); }catch(e){}
+        if(j&&typeof j==='object'&&typeof j.ok==='boolean'){ done=true; clearTimeout(t); runEnv(fn,args,t0,j,null,ac,'w',null,res,rej); return; }   // 오류 글 그대로 · auth:false 면 로그인 화면 · guard 표시
+        fail('wbad','서버 연결 실패(네트워크 · 새 서버 오류)','net'); }); })
+      .catch(function(){ fail('net','서버 연결 실패(네트워크)','net'); }); }); }
+/* 쓰기 한 번 (고치기·지우기 등): 연결 실패·시간 초과·"다른 작업 중"이면 같은 rid 로 두 번 더 (cx 를 넘기면 다음 누름에도 같은 rid) */
+function rpSoft(e){ return !!(e&&(e.net||e.timeout||e.off||e.guard==='freeze'||/다른 작업 중/.test(String(e.message||'')))); }   // off = 주인 비상 스위치(새 서버 끔) — 켜지면 자동으로 다시
+function rpWrite(fn,args,cx){ cx=cx||runCx(); var n=0;
+  function go(){ return rpRun(fn,args,cx).catch(function(e){ if(rpSoft(e)&&e.guard!=='freeze'&&!e.off&&n<RP_RETRY.length){ var ms=RP_RETRY[n++]; return new Promise(function(r){ setTimeout(r,ms); }).then(go); } throw e; }); }
+  return go(); }
+
+/* ---- 내 권한 (rpMe) — 이 폰 저장 'rp_me' (다른 코드면 lsOwner 가 지움) · 받기 전엔 관리자·마스터만 됨 ---- */
+function rpMeOf(){ if(!RP_ME){ var m=lsGet('rp_me'); RP_ME=(m&&typeof m==='object'&&!Array.isArray(m))?m:null; } return RP_ME; }
+function rpCan(k){ if(!AUTH) return false; var m=rpMeOf(); if(m&&typeof m[k]==='boolean') return m[k]; return !!(AUTH.admin||AUTH.master); }   // repair·office·admin·stock
+function rpMeLoad(force){ if(!AUTH||!canServer('swing')) return Promise.resolve(null); if(RP_ME_P) return RP_ME_P;
+  var code=AUTH.code; if(!force&&RP_ME_C===code&&Date.now()-RP_ME_AT<60000) return Promise.resolve(rpMeOf());
+  RP_ME_P=rpRun('rpMe',[]).then(function(m){ RP_ME_P=null; if(!AUTH||AUTH.code!==code||!m||typeof m!=='object') return m;
+      RP_ME_C=code; RP_ME_AT=Date.now(); var before=JSON.stringify(rpMeOf()); RP_ME=m; lsSet('rp_me',m); if(JSON.stringify(m)!==before) rpMeChanged(); return m; },
+    function(e){ RP_ME_P=null; throw e; });
+  return RP_ME_P; }
+function rpMeChanged(){ rpHomeSync(); var ex=$('rpext'); if(ex) ex.innerHTML=rpExtrasRows(); }
+function rpHomeKick(){ if(!AUTH||!appStarted) return; rpMeLoad().catch(function(){}); rpFlush(); }
+
+/* ---- SWING 홈 하단 [수리기기 입력] · 못 보낸 기록 줄 ---- */
+function rpHomeBtn(){ return '<div class="rphome" id="rphome">'+rpHomeInner()+'</div>'; }
+function rpHomeInner(){ var can=rpCan('repair'), o=rpOut(); if(!can&&!o.length) return '';   // 권한이 꺼져도 못 보낸 기록 줄은 보임 (보고·버릴 수 있게)
+  var e=o.filter(function(j){ return j.st==='err'; }).length, s=o.length-e;
+  return (can?'<button class="btn rpgo" onclick="rpStart()">'+RP_I.qr+'수리기기 입력</button>':'')+
+    (o.length?'<button class="rpq'+(e||RP_OUT_MEM?' err':'')+'" onclick="push(\'rp_mine\',{})">'+(s?'<i></i>저장 중 '+s+'건':'')+(s&&e?' · ':'')+(e?'저장 못 한 수리 기록 '+e+'건 · 눌러서 확인':'')+(RP_OUT_MEM?' · 폰 저장 안 됨 (앱을 닫지 마세요)':'')+'</button>':''); }
+function rpHomeSync(){ var el=$('rphome'); if(el) el.innerHTML=rpHomeInner(); }
+function rpStart(){ if(!rpCan('repair')){ lockToast(); return; } haptic(8); push('scan',{rp:1}); }
+/* 추가기능 (SWING) 줄 — 권한 있는 것만 */
+function rpExtrasRows(){ var r=function(view,svg,b,s){ return '<button class="mitem" onclick="push(\''+view+'\',{})"><span class="mi">'+svg+'</span><span class="mt"><b>'+b+'</b><span>'+s+'</span></span><span class="ar">›</span></button>'; };
+  var on=rpCan('repair'), no=rpOut().length;   // 권한이 꺼져도 못 보낸 기록이 있으면 (보고·버릴 수 있게)
+  var h=(on||no?r('rp_mine',RP_I.list,'내 수리 내역',on?'일자별 · 오늘 것은 고치기·지우기':'못 보낸 수리 기록 '+no+'건 · 보기·버리기'):'')+
+    (rpCan('office')?r('rp_office',RP_I.chart,'수리 전산','전체 수리 기록 · 수리 갯수 그래프 · 명세서'):'')+
+    (rpCan('stock')?r('rp_stock',RP_I.box,'부품 재고','부품 수량 · 안전재고 · 재고 입력 · 알림 받을 사람'):'')+
+    (rpCan('admin')?r('rp_clients',RP_I.bld,'거래처 관리','외주 거래처 추가·삭제'):'');
+  return h?'<div class="melb">수리</div>'+h:''; }
+
+/* ---- QR 찍기 (지금 스캐너 그대로 + 직접 입력) ---- */
+function rpScanRender(v){ v.el.innerHTML=title('수리기기 QR','기기 QR 을 화면 가운데에 맞추세요','<button class="hbtn" id="scantorch" style="display:none" onclick="swTorch(this,\'🔦 플래시\',\'🔦 플래시 끄기\')">🔦 플래시</button>')+
+    '<div class="scan" id="scanbox"><video id="vid" playsinline muted></video><div class="frame"></div></div>'+
+    '<div id="scanmsg" class="muted" style="text-align:center;margin-bottom:12px">카메라 준비 중…</div>'+
+    '<div class="row" style="margin:0 0 10px"><input class="input mono" id="rpcode" maxlength="40" placeholder="QR 또는 IMEI 직접 입력" autocapitalize="characters" autocomplete="off" spellcheck="false" style="flex:1">'+
+    '<button class="btn sm" style="flex:0 0 auto;padding:0 18px" onclick="rpScanned($(\'rpcode\').value)">확인</button></div>'+
+    '<button class="btn line" onclick="camTarget=null;$(\'camfile\').click()"><svg viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg>사진으로 찍어서 읽기</button>';
+  var i=$('rpcode'); if(i&&i.addEventListener) i.addEventListener('keydown',function(e){ if(e.key==='Enter') rpScanned(i.value); });
+  v.onLeave=stopScan; liveScan(v);
+  setTimeout(function(){ if(stack.indexOf(v)<0) return; var tb=$('scantorch'); if(tb&&scanStream){ var tr=scanStream.getVideoTracks()[0]; try{ if(tr.getCapabilities&&tr.getCapabilities().torch){ swTrack=tr; tb.style.display=''; } }catch(e){} } },1200); }
+function rpScanned(text){ var q=String(swExtract(text)||String(text||'').trim()).toUpperCase().replace(/\s+/g,'');
+  if(!q||q.length>40||!/^[0-9A-Z_.:\-]+$/.test(q)){ toast('기기 QR 을 찍거나 적어 주세요.'); return; }
+  var top=stack[stack.length-1]; stopScan(); haptic([10,30,10]);
+  if(top&&top.name==='scan') replace('rp_new',{q:q}); else push('rp_new',{q:q}); }
+
+/* ---- 품목 (5분 메모리 · 폰 저장 'rp_items' 로 바로 그림) ---- */
+function rpItemsCached(){ return (RP_ITEMS&&RP_ITEMS.r)||lsGet('rp_items'); }
+function rpItemsLoad(force){ var c=RP_ITEMS; if(!force&&c&&c.r&&Date.now()-c.t<300000) return Promise.resolve(c.r); if(!force&&c&&c.p) return c.p;
+  var p=rpRun('rpItems',[{}]).then(function(r){ RP_ITEMS={t:Date.now(),r:r}; lsSet('rp_items',r); return r; },function(e){ if(RP_ITEMS&&RP_ITEMS.p===p) RP_ITEMS.p=null; throw e; });
+  RP_ITEMS=Object.assign({},c||{},{p:p}); return p; }
+function rpItemsSet(r){ if(r&&r.groups){ RP_ITEMS={t:Date.now(),r:r}; lsSet('rp_items',r); } }
+
+/* ---- 수리 내역 입력 (새 기록 {q} · 고치기 {edit:id} · 못 보낸 기록 고치기 {out:rid}) ---- */
+VIEWS.rp_new={ render:function(v){ reanim(v); var p=v.params, s=v.state;
+  s.sel=s.sel||[]; s.tab=s.tab||'S9'; s.q=s.q||''; s.memo=s.memo||''; s.names=s.names||{};
+  var ci=rpItemsCached(); if(ci&&!s.items) s.items=ci;
+  rpItemsLoad().then(function(r){ if(stack.indexOf(v)<0) return; var hadTop=!!(s.items&&s.items.top&&s.items.top.length), first=!s.items||s.itemsErr||hadTop!==!!(r.top&&r.top.length);
+      s.items=r; s.itemsErr=null; if(!s.dev) return; if(first) rpNewDraw(v); else rpNewSync(v); })
+    .catch(function(e){ if(stack.indexOf(v)<0) return; if(s.items){ return; } s.itemsErr=e; if(s.dev) rpNewDraw(v); });
+  if(p.edit){ var go=function(x){ s.rec=x; s.dev={found:true,qr:x.qr,imei:x.imei,model:x.model,acct:x.acct}; rpTabAuto(v); s.client=x.client; s.sel=x.lines.map(function(l){ return l.code; });
+      x.lines.forEach(function(l){ s.names[l.code]=l.name; }); s.memo=x.memo||''; rpNewDraw(v); };
+    if(s.rec) rpNewDraw(v); else if(RP_RECS[p.edit]) go(RP_RECS[p.edit]); else v.el.innerHTML=title('수리 기록 고치기','')+spin('기록을 불러오는 중');
+    rpRun('rpGet',[p.edit]).then(function(r){ if(stack.indexOf(v)<0) return; RP_RECS[r.rec.id]=r.rec; if(!s.dirty) go(r.rec); })   // 고치는 중이면 그대로 (그 사이 바뀌었으면 서버가 '먼저 고쳤어요')
+      .catch(function(e){ if(stack.indexOf(v)<0) return; if(!s.rec) v.el.innerHTML=title('수리 기록 고치기','')+errBox(e); else toast(e.message); });
+    return; }
+  if(p.out){ var j=rpOutGet(p.out);
+    if(!j){ v.el.innerHTML=title('수리 내역 입력','')+'<div class="card"><div class="empty">이미 보냈거나 없는 기록이에요.</div></div>'; return; }
+    s.dev=j.view.dev; rpTabAuto(v); s.client=j.view.client; s.acct=j.view.acct||''; s.names=j.view.names||{}; if(!s.dirty){ s.sel=j.rec.lines.map(function(l){ return l.code; }); s.memo=j.rec.memo||''; }
+    rpNewDraw(v); return; }
+  if(s.dev){ rpNewDraw(v); return; }
+  v.el.innerHTML=title('수리 내역 입력',esc(p.q))+'<div class="card"><div class="loadlogo" style="padding:18px 0 10px">'+curLogo()+'<span>'+esc(p.q)+' · SWING 기기 목록(향남·수원)에서 찾는 중</span></div></div>';
+  rpDevLoad(v); }};
+function rpDevLoad(v){ var s=v.state, q=v.params.q;
+  return rpRun('rpDevice',[q]).then(function(r){ if(stack.indexOf(v)<0) return; s.dev=r; rpTabAuto(v); if(r.found){ s.client=r.client; haptic([10,30,10]); } rpNewDraw(v);
+      if(!r.found) setTimeout(function(){ if(stack[stack.length-1]===v&&!s.client&&!sheetOpen) rpVendorAsk(); },350); })   // 못 찾음 → 외주 거래처 고르기 창
+    .catch(function(e){ if(stack.indexOf(v)<0) return; v.el.innerHTML=title('수리 내역 입력',esc(q))+errBox(e)+'<button class="btn line" onclick="rpDevRetry()">다시 시도</button>'; }); }
+function rpDevRetry(){ var v=rpTop('rp_new'); if(!v) return; v.el.innerHTML=title('수리 내역 입력',esc(v.params.q))+spin('기기 찾는 중'); rpDevLoad(v); }
+function rpInner(v){ var c=v.state.client; return !!c&&(c.kind==='HN'||c.kind==='SW'); }   // 내부 거래처 (내부 단가)
+/* 항목 묶음 탭 = 기기 종류대로 (W9 기기는 W9 탭으로 열림 · 직접 누른 탭은 그대로 둠) */
+function rpTabOf(model){ var m=String(model||'').toUpperCase(); return m.indexOf('W9')>=0?'W9':(m.indexOf('S9')>=0?'S9':''); }
+function rpTabAuto(v){ var s=v.state, t=rpTabOf(s.dev&&s.dev.model); if(t&&!s.tabPick) s.tab=t; }
+function rpClientChangeable(v){ var s=v.state, d=s.dev||{}, c=s.client;
+  if(v.params.edit) return rpCan('admin')||!!(c&&c.kind==='vendor');   // 수리팀원은 외주끼리만 · 관리자·마스터는 아무 곳
+  return !d.found&&!s.acct; }
+function rpNewDraw(v){ var s=v.state, d=s.dev||{}, ed=!!v.params.edit;
+  v.el.innerHTML=title(ed?'수리 기록 고치기':'수리 내역 입력',esc(d.qr||'')+(d.model?' · '+esc(d.model):''))+rpDevCard(v)+'<div id="rpbody">'+rpBodyHtml(v)+'</div>'; }
+function rpDevCard(v){ var s=v.state, d=s.dev||{}, c=s.client, k=c?c.kind:'', inn=(k==='HN'||k==='SW'), ed=!!v.params.edit;
+  var h='<div class="card rpdev"><div class="rpdh">'+swVehAv(d.model)+'<div class="bd"><b class="mono">'+esc(d.qr||'')+'</b>'+(d.model?'<span class="pill rpm">'+esc(d.model)+'</span>':'')+
+    '<div class="rpcl"><span class="rpk '+(inn?'in':(c?'out':'none'))+'">'+(inn?(k==='HN'?'향남':'수원'):(c?'외주':'거래처 고르기 전'))+'</span>'+(c?'<b>'+esc(c.name)+'</b>':'')+'</div></div></div>';
+  if(!d.found&&!ed) h+='<p class="muted rpnote">SWING 기기 목록(향남·수원)에 없는 기기예요'+(s.acct?' · 어드민 검색으로 '+(s.acct==='HN'?'향남':'수원')+' 계정을 찾았어요.':' → 외주 거래처를 골라 주세요.')+'</p>';
+  else if(d.found&&!ed&&!c) h+='<p class="muted rpnote" style="color:var(--danger)">내부 거래처가 아직 없어요. 관리자에게 알려 주세요.</p>';
+  var b=[];
+  if(rpClientChangeable(v)) b.push('<button class="btn line sm" onclick="rpVendorAsk()">'+(c?'거래처 바꾸기':'외주 거래처 고르기')+'</button>');
+  if(!d.found&&!ed&&!s.acct) b.push('<button class="btn line sm" id="rpss" onclick="rpSwingFind()">향남·수원 어드민에서 찾기</button>');
+  if(b.length) h+='<div class="row">'+b.join('')+'</div>';
+  if(d.recent&&d.recent.length) h+='<div class="rprecent"><div class="lb">이 기기 최근 수리</div>'+d.recent.map(function(r){ return '<div><span>'+esc(rpMd(r.date))+' · '+esc(r.worker)+'</span>'+esc(r.items)+'</div>'; }).join('')+'</div>';
+  return h+'</div>'; }
+function rpBodyHtml(v){ var s=v.state, it=s.items;
+  if(!it) return s.itemsErr?errBox(s.itemsErr)+'<button class="btn line" onclick="rpItemsRetry()">다시 시도</button>':spin('수리 항목을 불러오는 중');
+  var h='';
+  if(it.top&&it.top.length) h+='<div class="card"><h3>많이 한 작업</h3><div class="rptop" id="rptop">'+rpTopHtml(v)+'</div></div>';
+  h+='<div class="card"><h3>수리 항목</h3><div class="srch rpsrch">'+RP_I.srch+'<input class="input" id="rpq" placeholder="항목 검색 (예: 컨트롤러)" value="'+esc(s.q)+'" oninput="rpSearch(this.value)" autocomplete="off"></div>'+
+    '<div class="seg rpseg'+(s.q?' q':'')+'" id="rpseg">'+rpSegHtml(v)+'</div><div class="rplist" id="rplist">'+rpListHtml(v)+'</div></div>';
+  h+='<div class="card"><h3 id="rpselh">'+rpSelHead(v)+'</h3><div id="rpsel">'+rpSelHtml(v)+'</div></div>';
+  h+='<div class="card"><h3>특이사항</h3><textarea class="input" id="rpmemo" maxlength="500" placeholder="예: 레버 헐거움 · 다음에 다시 봄" oninput="rpMemoIn(this.value)">'+esc(s.memo)+'</textarea></div>';
+  return h+'<div class="stickybar"><button class="btn" id="rpgo" onclick="rpSubmit()">'+rpGoLabel(v)+'</button></div>'; }
+function rpItemsRetry(){ var v=rpTop('rp_new'); if(!v) return; v.state.itemsErr=null; var b=$('rpbody'); if(b) b.innerHTML=spin('수리 항목을 불러오는 중');
+  rpItemsLoad(true).then(function(r){ if(stack.indexOf(v)<0) return; v.state.items=r; rpNewDraw(v); }).catch(function(e){ if(stack.indexOf(v)<0) return; v.state.itemsErr=e; rpNewDraw(v); }); }
+function rpAllItems(v){ var g=(v.state.items&&v.state.items.groups)||[]; return [].concat.apply([],g.map(function(x){ return x.items||[]; })); }
+function rpItemOf(v,code){ var l=rpAllItems(v); for(var i=0;i<l.length;i++) if(l[i].code===code) return l[i]; var t=(v.state.items&&v.state.items.top)||[]; for(var k=0;k<t.length;k++) if(t[k].code===code) return t[k]; return null; }
+function rpNameOf(v,code){ var it=rpItemOf(v,code); return it?it.name:(v.state.names[code]||code); }
+function rpCount(v,code){ var n=0; v.state.sel.forEach(function(c){ if(c===code) n++; }); return n; }
+function rpPriceTag(v,it){ if(it.pin===undefined&&it.pout===undefined) return '';   // 금액은 수리 전산·관리자 답에만
+  var p=rpInner(v)?it.pin:it.pout; return p==null?'':'<em class="rpb won">'+rpWon(p)+'원</em>'; }
+function rpSegHtml(v){ var s=v.state, g=(s.items&&s.items.groups)||[];
+  return g.map(function(x){ return '<button class="'+(!s.q&&s.tab===x.key?'on':'')+'" onclick="rpTab(\''+x.key+'\')">'+esc(x.label||RP_GRP[x.key]||x.key)+'<b>'+(x.items||[]).length+'</b></button>'; }).join(''); }
+function rpListHtml(v){ var s=v.state, q=String(s.q||'').trim().toLowerCase(), list;
+  if(q) list=rpAllItems(v).filter(function(it){ return String(it.name).toLowerCase().indexOf(q)>=0||String(it.code).indexOf(q)>=0; });
+  else { var g=((s.items&&s.items.groups)||[]).filter(function(x){ return x.key===s.tab; })[0]; list=(g&&g.items)||[]; }
+  if(!list.length) return '<div class="empty" style="padding:22px 0">'+(q?'"'+esc(s.q)+'" 에 맞는 항목이 없어요':'항목이 없어요')+'</div>';
+  return list.map(function(it){ return rpItemRow(v,it,!!q); }).join(''); }
+function rpItemRow(v,it,grp){ var n=rpCount(v,it.code), bd=(it.multi?'<em class="rpb multi">여러 개</em>':'')+(rpInner(v)&&it.noIn?'<em class="rpb warn">내부 단가 없음</em>':'')+rpPriceTag(v,it);
+  return '<button class="rpit'+(n?' on':'')+'" onclick="rpPick(\''+jsa(it.code)+'\')"><span class="nm">'+(grp?'<small>'+esc(RP_GRP[it.grp]||it.grp)+'</small>':'')+esc(it.name)+'</span>'+
+    (bd?'<span class="bg">'+bd+'</span>':'')+'<span class="ck">'+(n?(it.multi?n:RP_I.ok):'')+'</span></button>'; }
+function rpTopHtml(v){ var t=(v.state.items&&v.state.items.top)||[];
+  return t.map(function(it){ var n=rpCount(v,it.code); return '<button class="rpchip'+(n?' on':'')+'" onclick="rpPick(\''+jsa(it.code)+'\')">'+esc(it.name)+(n&&it.multi?'<b>'+n+'</b>':'')+'</button>'; }).join(''); }
+function rpSelGroups(v){ var g=[], m={}; v.state.sel.forEach(function(c){ if(!m[c]){ m[c]={code:c,n:0}; g.push(m[c]); } m[c].n++; }); return g; }
+function rpSelHead(v){ return '고른 항목 '+v.state.sel.length+'개'; }
+function rpSelHtml(v){ var g=rpSelGroups(v), inn=rpInner(v);
+  if(!g.length) return '<div class="empty" style="padding:14px 0">위에서 수리 항목을 골라 주세요 (같은 항목 여러 개는 누를 때마다 1개씩)</div>';
+  return g.map(function(x){ var it=rpItemOf(v,x.code), multi=it?!!it.multi:x.n>1;
+    return '<div class="rpsr"><div class="nm"><b>'+esc(rpNameOf(v,x.code))+'</b>'+(inn&&it&&it.noIn?'<em class="rpb warn">내부 단가 없음</em>':'')+'</div>'+
+      (multi?'<div class="rpqty"><button onclick="rpUnpick(\''+jsa(x.code)+'\')" aria-label="하나 빼기">−</button><b>'+x.n+'</b><button onclick="rpPick(\''+jsa(x.code)+'\')" aria-label="하나 더">+</button></div>'
+        :'<button class="rpx" onclick="rpUnpick(\''+jsa(x.code)+'\')" aria-label="빼기">'+RP_I.x+'</button>')+'</div>'; }).join(''); }
+function rpGoLabel(v){ var n=v.state.sel.length; return v.params.edit?'고친 내용 저장'+(n?' · '+n+'개':''):'입력 완료'+(n?' · '+n+'개':''); }
+function rpNewSync(v){ var set=function(id,h){ var e=$(id); if(e) e.innerHTML=h; }, sg=$('rpseg');
+  set('rplist',rpListHtml(v)); set('rptop',rpTopHtml(v)); set('rpsel',rpSelHtml(v)); set('rpselh',rpSelHead(v)); set('rpgo',rpGoLabel(v)); set('rpseg',rpSegHtml(v));
+  if(sg&&sg.classList) sg.classList.toggle('q',!!v.state.q); }
+/* 고르기: 여러 개 항목이 아니면 다시 누르면 빠짐 · 여러 개 항목은 누를 때마다 줄 하나 더 (빼기는 줄마다) · 줄 하나 = 1개 */
+function rpPick(code){ var v=rpTop('rp_new'); if(!v) return; var s=v.state, it=rpItemOf(v,code), i=s.sel.indexOf(code);
+  if(!it){ if(i>=0) rpUnpick(code); return; }
+  if(!it.multi&&i>=0){ s.sel.splice(i,1); haptic(6); }
+  else { if(s.sel.length>=RP_LINES_MAX){ toast('수리 항목은 '+RP_LINES_MAX+'개까지예요'); return; } s.sel.push(code); haptic(8); }
+  s.dirty=true; rpNewSync(v); }
+function rpUnpick(code){ var v=rpTop('rp_new'); if(!v) return; var s=v.state, i=s.sel.lastIndexOf(code); if(i<0) return; s.sel.splice(i,1); s.dirty=true; haptic(6); rpNewSync(v); }
+function rpTab(k){ var v=rpTop('rp_new'); if(!v) return; v.state.tab=k; v.state.tabPick=true; v.state.q=''; var i=$('rpq'); if(i) i.value=''; haptic(6); rpNewSync(v); var l=$('rplist'); if(l) l.scrollTop=0; }
+function rpSearch(q){ var v=rpTop('rp_new'); if(!v) return; v.state.q=String(q||''); rpNewSync(v); }
+function rpMemoIn(t){ var v=rpTop('rp_new'); if(!v) return; v.state.memo=String(t||''); v.state.dirty=true; }
+/* 거래처 고르기 창 (못 찾은 기기 = 외주 · 고치기: 수리팀원 외주끼리 · 관리자 아무 곳) */
+function rpVendorAsk(){ var v=rpTop('rp_new'); if(!v) return; var s=v.state, all=!!v.params.edit&&rpCan('admin'), find=!v.params.edit&&!!s.dev&&!s.dev.found&&!s.acct;   // find = 못 찾은 새 기기 → 이 창 맨 위에서 어드민 검색 (창을 안 닫아도 됨)
+  var go=function(list){ s.vlist=list; openSheet('<h3>'+(all?'거래처 고르기':'외주 거래처 고르기')+'</h3><p>'+(all?'관리자는 아무 거래처나 고를 수 있어요.':'SWING 기기 목록(향남·수원)에 없는 기기는 외주 거래처로 기록해요.')+'</p>'+
+      (find?'<div class="rpvfind"><button class="btn line sm" id="rpss2" onclick="rpSwingFind(\'rpss2\')">'+RP_I.srch+'향남·수원 어드민에서 먼저 찾기</button><span id="rpssm">목록에 늦게 들어온 향남·수원 기기일 수 있어요 · 찾으면 내부로 들어가요</span></div>':'')+
+      (list.length>8?'<div class="srch rpsrch">'+RP_I.srch+'<input class="input" id="rpvq" placeholder="거래처 이름" oninput="rpVendorFilter(this.value)" autocomplete="off"></div>':'')+
+      '<div class="rpvl" id="rpvl">'+rpVendorRows(list,'')+'</div>'); };
+  if(s.dev&&s.dev.vendors&&!v.params.edit){ go(s.dev.vendors); return; }
+  toast('거래처 목록을 받는 중…');
+  rpRun('rpClients',[]).then(function(r){ if(stack.indexOf(v)<0) return; go(((r&&r.clients)||[]).filter(function(c){ return all||c.kind==='vendor'; })); }).catch(function(e){ toast(e.message); }); }
+function rpVendorRows(list,q){ q=String(q||'').trim(); var l=list.filter(function(c){ return !q||String(c.name).indexOf(q)>=0; });
+  if(!l.length) return '<div class="empty" style="padding:18px 0">맞는 거래처가 없어요 · 관리자가 거래처 관리에서 추가해요</div>';
+  return l.map(function(c){ return '<button class="rpvr" onclick="rpVendorPick('+Number(c.id)+')"><b>'+esc(c.name)+'</b><span>'+(c.kind==='vendor'?'외주':'내부 · '+rpKindLb(c.kind))+'</span></button>'; }).join(''); }
+function rpVendorFilter(q){ var v=rpTop('rp_new'), el=$('rpvl'); if(v&&el) el.innerHTML=rpVendorRows(v.state.vlist||[],q); }
+function rpVendorPick(id){ var v=rpTop('rp_new'); if(!v) return; var c=(v.state.vlist||[]).filter(function(x){ return Number(x.id)===Number(id); })[0]; if(!c) return;
+  v.state.client={id:c.id,name:c.name,kind:c.kind}; v.state.acct=''; v.state.dirty=true; haptic(8); closeSheet(); rpNewDraw(v); }
+/* 못 찾은 기기 → 지금 앱 검색(swingSearch · 향남 → 수원 어드민)으로 계정 찾기 → acct 를 보냄 (서버가 그 계정 내부 거래처로) */
+function rpSwingFind(bid){ var v=rpTop('rp_new'); if(!v) return; var s=v.state, q=s.dev&&s.dev.qr, sh=bid==='rpss2';   // bid 'rpss2' = 외주 고르기 창 안 단추 · 없으면 기기 카드 단추
+  if(s.finding) return; s.finding=true;
+  var btn=function(dis,h){ ['rpss','rpss2'].forEach(function(id){ var b=$(id); if(b){ b.disabled=dis; b.innerHTML=h||(id==='rpss2'?RP_I.srch+'향남·수원 어드민에서 먼저 찾기':'향남·수원 어드민에서 찾기'); } }); };
+  var back=function(msg,done){ s.finding=false; btn(!!done,done?'어드민에도 없어요':''); var m=$('rpssm'); if(m&&sheetOpen) m.textContent=msg; toast(msg); };   // 창 안이면 창에도 적음 (창은 그대로 → 외주 고르기)
+  btn(true,'어드민에서 찾는 중…');
+  run('swingSearch',q).then(function(r){ if(stack.indexOf(v)<0){ s.finding=false; return; } var c=r&&r.found&&r.card, a=c?(({'향남':'HN','수원':'SW'})[c.account]||((c.account==='HN'||c.account==='SW')?c.account:'')):'';
+      if(!a){ back('어드민에서도 못 찾았어요 · 외주 거래처를 골라 주세요',true); return; }
+      return rpRun('rpClients',[]).then(function(cl){ if(stack.indexOf(v)<0){ s.finding=false; return; } var x=cl&&cl.internal&&cl.internal[a];
+        if(!x){ back('내부 거래처가 아직 없어요. 관리자에게 알려 주세요.'); return; }
+        s.finding=false; s.acct=a; s.client={id:x.id,name:x.name,kind:a}; s.dirty=true; if(c.model&&!s.dev.model){ s.dev.model=c.model; rpTabAuto(v); } if(c.imei&&!s.dev.imei) s.dev.imei=String(c.imei);
+        if(sheetOpen&&$('rpvl')) closeSheet();   // 외주 고르기 창이 떠 있으면 닫음 (내부로 들어감)
+        haptic([10,30,10]); toast((a==='HN'?'향남':'수원')+' 기기예요 · '+x.name); rpNewDraw(v); }); })
+    .catch(function(e){ if(stack.indexOf(v)<0){ s.finding=false; return; } back('어드민 찾기 실패: '+e.message); }); }
+/* [입력 완료] — 막지 않음: 보낼 목록에 넣고 바로 홈으로 · 뒤에서 같은 rid 로 보냄 */
+function rpSubmit(){ var v=rpTop('rp_new'); if(!v) return; var s=v.state, d=s.dev||{};
+  if(s.sent) return;   // 이미 보낼 목록에 넣음 (닫히는 중)
+  if(!s.sel.length){ toast('수리 항목을 하나 이상 골라 주세요.'); return; }
+  if(s.sel.length>RP_LINES_MAX){ toast('수리 항목이 너무 많아요 ('+RP_LINES_MAX+'개까지).'); return; }
+  if(v.params.edit){ rpEditGo(v); return; }
+  if(!d.found&&!s.acct&&!(s.client&&s.client.kind==='vendor')){ toast('외주 거래처를 골라 주세요.'); rpVendorAsk(); return; }
+  var old=v.params.out?rpOutGet(v.params.out):null, rid=(old&&old.rid)||ridNew();
+  var rec={rid:rid,qr:d.qr,lines:s.sel.map(function(c){ return {code:c}; }),memo:String(s.memo||'').slice(0,500),saved_ms:(old&&old.rec.saved_ms)||Date.now()};   // saved_ms = 누른 시각 (3일 안이면 그 날짜로)
+  if(d.imei) rec.imei=String(d.imei);
+  if(!d.found){ if(s.acct) rec.acct=s.acct; else rec.client_id=s.client.id; }
+  var names={}; s.sel.forEach(function(c){ names[c]=rpNameOf(v,c); });
+  var job={rid:rid,at:(old&&old.at)||Date.now(),st:'send',err:'',rec:rec,
+    view:{dev:{found:!!d.found,qr:d.qr,imei:d.imei||'',model:d.model||'',acct:d.acct||'',vendors:d.vendors||null},client:s.client,acct:s.acct||'',names:names}};
+  if(old) rpOutPut(job); else rpOutAdd(job);
+  s.sent=true; haptic([12,40,18]); toast('저장 중… · '+d.qr+' '+s.sel.length+'개'+(RP_OUT_MEM?' · 폰 저장 공간이 없어 이 폰엔 못 남겨요 · 저장될 때까지 앱을 닫지 마세요':'')); rpBack(v); RP_BACK=0; rpFlush(); }
+/* 이 화면을 닫음 — 화면이 아직 움직이는 중(0.38초)이면 끝난 뒤에 (두 번 넣지 않게 s.sent) */
+function rpBack(v){ if(stack[stack.length-1]!==v) return; if(animating){ setTimeout(function(){ rpBack(v); },120); return; } pop(); }
+/* 고치기 저장 (같은 rid 로 다시 · 서버가 거절하면 그 글 그대로) */
+function rpEditGo(v){ var s=v.state; if(s.busy||s.sent) return; var x=s.rec; if(!x) return; s.busy=true;
+  var b=$('rpgo'); if(b){ b.disabled=true; b.textContent='저장 중…'; }
+  var patch={lines:s.sel.map(function(c){ return {code:c}; }),memo:String(s.memo||'').slice(0,500)};
+  if(s.client&&x.client&&s.client.id!==x.client.id) patch.client_id=s.client.id;
+  var cx=s.cx=s.cx||runCx();
+  rpWrite('rpEdit',[x.id,x.ver,patch],cx).then(function(r){ s.busy=false; s.cx=null; s.sent=true; RP_RECS[r.rec.id]=r.rec; RP_DIRTY=Date.now(); haptic([12,40,18]); toast('고쳤어요 · '+r.rec.qr); rpLowToast(r.low);
+      rpBack(v); },
+    function(e){ s.busy=false; if(b){ b.disabled=false; b.textContent=rpGoLabel(v); } toast('고치기 실패: '+e.message); }); }
+
+/* ---- 보낼 목록 rp_out (이 폰 · 다른 코드면 지움) — {rid, at, st:'send'|'err', err, rec, view} ---- */
+/*     폰 저장이 안 되면 (공간이 꽉 참·저장소 막힘) 메모리 RP_OUT_MEM 에 둠 → 보내기는 그대로 · 앱을 닫으면 사라지니 화면에 알림 · 다시 저장되면 폰으로 */
+var RP_OUT_MEM=null;
+function rpOut(){ if(RP_OUT_MEM) return JSON.parse(JSON.stringify(RP_OUT_MEM)); var a=lsGet('rp_out'); return Array.isArray(a)?a:[]; }
+function rpOutSet(a){ if(a.length){ var s=JSON.stringify(a); lsSetStr('rp_out',s); RP_OUT_MEM=(lsRaw('rp_out')===s)?null:JSON.parse(s); }   // 써 놓고 읽어 봐서 다르면 메모리
+  else { RP_OUT_MEM=null; try{ localStorage.removeItem('swapc:rp_out'); }catch(e){} } rpOutChanged(); }
+function rpOutGet(rid){ return rpOut().filter(function(j){ return j.rid===rid; })[0]||null; }
+function rpOutAdd(j){ var a=rpOut(); a.push(j); rpOutSet(a); }
+function rpOutPut(j){ rpOutSet(rpOut().map(function(x){ return x.rid===j.rid?j:x; })); }
+function rpOutDrop(rid){ rpOutSet(rpOut().filter(function(x){ return x.rid!==rid; })); }
+function rpOutMark(rid,st,err){ rpOutSet(rpOut().map(function(x){ if(x.rid===rid){ x.st=st; x.err=err||''; x.tries=(x.tries||0)+1; } return x; })); }
+function rpOutChanged(){ rpHomeSync(); var ex=$('rpext'); if(ex) ex.innerHTML=rpExtrasRows(); if(rpTop('rp_mine')){ var e=$('rpoutbox'); if(e) e.innerHTML=rpOutHtml(); } }   // 추가기능 줄도 (권한이 꺼진 사람의 '내 수리 내역' 줄)
+/* 하나씩 보냄 (같은 rid) — 연결 실패·시간 초과·다른 작업 중·점검 중 = 3·6·12…60초 뒤 다시 · 서버 거절 = 'err' (그 글 그대로) */
+function rpFlush(){ if(RP_FL||!AUTH||!appStarted) return; clearTimeout(RP_FL_T);
+  var job=rpOut().filter(function(j){ return j.st!=='err'; })[0]; if(!job) return;
+  var code=AUTH.code; RP_FL=true;
+  rpRun('rpSave',[job.rec],{rid:job.rid,j:false,fb:false,mv:false}).then(function(r){ RP_FL=false; RP_BACK=0; if(!AUTH||AUTH.code!==code) return;
+      rpOutDrop(job.rid); rpSaved(job,r); rpFlush(); },
+    function(e){ RP_FL=false; if(!AUTH||AUTH.code!==code||(e&&e.auth===false)) return;
+      if(rpSoft(e)){ RP_BACK=Math.min(60000,RP_BACK?RP_BACK*2:RP_BACK0); rpOutMark(job.rid,'send',e.message); RP_FL_T=setTimeout(rpFlush,RP_BACK); }
+      else { rpOutMark(job.rid,'err',e.message); toast('수리 기록 저장 못 함: '+e.message); rpFlush(); } }); }
+function rpSaved(job,r){ var rec=r&&r.rec; if(rec) RP_RECS[rec.id]=rec; RP_ITEMS=RP_ITEMS&&RP_ITEMS.r?{t:0,r:RP_ITEMS.r}:RP_ITEMS;   // 많이 한 작업 다시 받게
+  toast('수리 기록 저장했어요 · '+job.rec.qr+(r&&r.dup?' (이미 저장돼 있었어요)':'')); rpLowToast(r&&r.low); rpRefreshViews(); }
+function rpLowToast(low){ if(!low||!low.length||!rpCan('stock')) return;   // 재고 부족 알림 (관리자 화면에서만)
+  setTimeout(function(){ toast('재고 부족 알림 보냄 · '+low.slice(0,2).map(function(x){ return x.name; }).join(', ')+(low.length>2?' 외 '+(low.length-2)+'개':'')); },1800); }
+function rpRefreshViews(){ RP_DIRTY=Date.now(); var v=stack[stack.length-1]; if(v&&/^rp_(mine|office|rec)$/.test(v.name)&&v.refresh){ try{ var p=v.refresh(v); if(p&&p.catch) p.catch(function(){}); }catch(e){} } }
+function rpOutRetry(rid){ var j=rpOutGet(rid); if(!j) return; haptic(8); rpOutMark(rid,'send',''); RP_BACK=0; clearTimeout(RP_FL_T); toast('다시 보내는 중…'); rpFlush(); }
+function rpOutFix(rid){ haptic(8); push('rp_new',{out:rid}); }
+function rpOutDropAsk(rid){ var j=rpOutGet(rid); if(!j) return; openSheet('<h3>'+esc(j.rec.qr)+' 기록 버리기</h3><p>서버에 안 들어간 기록이에요. 버리면 이 폰에서도 지워져요.</p>'+
+  '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--danger)" onclick="rpOutDropGo(\''+jsa(rid)+'\')">버리기</button></div>'); }
+function rpOutDropGo(rid){ rpOutDrop(rid); closeSheet(); toast('버렸어요'); }
+window.addEventListener('online',function(){ RP_BACK=0; rpFlush(); });   // 신호가 돌아오면 바로
+document.addEventListener('visibilitychange',function(){ if(!document.hidden) setTimeout(rpFlush,1200); });
+function rpOutHtml(){ var o=rpOut(); if(!o.length) return '';
+  return '<div class="card rpout"><h3>아직 서버에 안 들어간 수리 기록 '+o.length+'건</h3>'+(RP_OUT_MEM?'<div class="rpnote2 err">폰 저장 공간이 없어서 이 기록들은 앱 메모리에만 있어요 · 저장될 때까지 앱을 닫지 마세요</div>':'')+o.map(function(j){ var er=j.st==='err', nm=j.rec.lines.map(function(l){ return (j.view&&j.view.names&&j.view.names[l.code])||l.code; });
+    return '<div class="rpoj'+(er?' err':'')+'"><div class="hd"><b class="mono">'+esc(j.rec.qr)+'</b><span>'+esc(rpHM(j.at))+'</span></div><div class="ln">'+esc((j.view&&j.view.client&&j.view.client.name)||'')+' · '+esc(nm.join(', '))+'</div>'+
+      '<div class="st">'+(er?'저장 못 함 · '+esc(j.err):'<i></i>저장 중…'+(j.err?' ('+esc(j.err)+' · 자동으로 다시 보내요)':''))+'</div>'+
+      '<div class="row">'+(er?'<button class="btn line sm" onclick="rpOutFix(\''+jsa(j.rid)+'\')">고치기</button><button class="btn line sm" onclick="rpOutRetry(\''+jsa(j.rid)+'\')">다시 보내기</button><button class="btn danger sm" onclick="rpOutDropAsk(\''+jsa(j.rid)+'\')">버리기</button>'
+        :'<button class="btn line sm" onclick="rpOutRetry(\''+jsa(j.rid)+'\')">지금 다시 보내기</button>')+'</div></div>'; }).join('')+'</div>'; }
+
+/* ---- 수리 기록 카드 (내 기록 · 전체 기록) ---- */
+function rpLinesBrief(lines){ var g=[], m={}; (lines||[]).forEach(function(l){ if(!m[l.name]){ m[l.name]={name:l.name,n:0}; g.push(m[l.name]); } m[l.name].n++; });
+  return g.map(function(x){ return esc(x.name)+(x.n>1?' <b>×'+x.n+'</b>':''); }).join(' · '); }
+function rpRecCard(x,from){ var vd=x.state==='void', money=x.total!==undefined, np=x.noPrice?'<em class="rpb warn">단가 없음 '+x.noPrice+'줄</em>':'';
+  return '<div class="rprec'+(vd?' void':'')+'"><button class="rph" onclick="rpRecOpen('+Number(x.id)+')"><span class="tm">'+esc(String(x.at||'').slice(11,16))+'</span><b class="mono">'+esc(x.qr)+'</b>'+
+      '<span class="rpk '+rpKindCls(x.client.kind)+'">'+esc(rpKindLb(x.client.kind))+'</span>'+(vd?'<span class="pill sys sm">지움</span>':'')+(x.stmt?'<span class="pill rpst sm">명세서</span>':'')+'</button>'+
+    '<div class="cl">'+esc(x.client.name)+(from!=='mine'?' · '+esc(x.worker.name):'')+(x.edited?' · 고침':'')+'</div><div class="ln">'+rpLinesBrief(x.lines)+'</div>'+
+    (x.memo?'<div class="memo">'+esc(x.memo)+'</div>':'')+
+    (money?'<div class="mn">'+np+'<b>'+rpWon(x.total)+'원</b></div>':(np?'<div class="mn">'+np+'</div>':''))+
+    (vd&&x.voided?'<div class="vd">'+esc(x.voided.by)+' 지움 · '+esc(String(x.voided.at||'').slice(5,16))+(x.voided.why?' · '+esc(x.voided.why):'')+'</div>':'')+
+    (x.canEdit?'<div class="row rpact"><button class="btn line sm" onclick="rpEditOpen('+Number(x.id)+')">고치기</button><button class="btn danger sm" onclick="rpVoidAsk('+Number(x.id)+')">지우기</button></div>':'')+'</div>'; }
+function rpRecOpen(id){ haptic(6); push('rp_rec',{id:id}); }
+function rpEditOpen(id){ haptic(8); push('rp_new',{edit:id}); }
+
+/* ---- 내 수리 내역 (일자별 · 기본 7일 · 62일까지) ---- */
+VIEWS.rp_mine={ render:function(v){ reanim(v); v.state.days=v.state.days||7;
+  v.refresh=function(){ return rpMineLoad(v); }; v.onResume=function(){ if(!(v.state.at>RP_DIRTY)) rpMineLoad(v); else rpMineDraw(v); };
+  rpMineDraw(v); rpMineLoad(v); rpFlush(); }};
+function rpMineHead(v){ return title('내 수리 내역','일자별 · 오늘 것은 고치기·지우기')+'<div class="days">'+[7,30,62].map(function(n){ return '<button class="'+(v.state.days===n?'on':'')+'" onclick="rpMineDays('+n+')">최근 '+n+'일</button>'; }).join('')+'</div>'; }
+function rpMineDays(n){ var v=rpTop('rp_mine'); if(!v||v.state.days===n) return; haptic(6); v.state.days=n; v.state.res=null; rpMineDraw(v); rpMineLoad(v); }
+function rpMineLoad(v){ var s=v.state, tok=s.tok=(s.tok||0)+1, t0=Date.now();
+  return rpRun('rpMine',[{from:todayISO(-(s.days-1)),to:todayISO(0)}]).then(function(r){ if(stack.indexOf(v)<0||s.tok!==tok) return; s.res=r; s.err=null; s.at=t0;
+      (r.days||[]).forEach(function(d){ rpKeep(d.recs); }); rpMineDraw(v); })
+    .catch(function(e){ if(stack.indexOf(v)<0||s.tok!==tok) return; if(s.res) toast('새로고침 실패: '+e.message); else { s.err=e; rpMineDraw(v); } }); }
+function rpMineDraw(v){ var r=v.state.res, h=rpMineHead(v)+'<div id="rpoutbox">'+rpOutHtml()+'</div>';
+  if(!r){ v.el.innerHTML=h+(v.state.err?errBox(v.state.err):spin('내 수리 내역을 불러오는 중')); return; }
+  var days=r.days||[], tot=days.reduce(function(a,d){ return a+(d.n||0); },0);
+  h+='<div class="card sum"><div class="lb">'+esc(rpMd(r.from))+' ~ '+esc(rpMd(r.to))+' 내 수리</div><div class="big"><b>'+tot+'</b><span>건</span></div>'+
+    '<p class="muted" style="margin:6px 0 0;font-size:12.5px">고치기·지우기는 입력한 날(한국 날짜)만 돼요 · 그 뒤는 관리자에게 말해 주세요</p></div>';
+  if(!days.length) h+='<div class="card"><div class="empty">이 기간엔 수리 기록이 없어요.<br>SWING 홈 아래 [수리기기 입력]으로 넣어요.</div></div>';
+  days.forEach(function(d){ h+='<div class="sec"><span>'+esc(rpDayLb(d.date))+'</span><span>'+d.n+'건</span></div><div class="rprecs">'+(d.recs||[]).map(function(x){ return rpRecCard(x,'mine'); }).join('')+'</div>'; });
+  v.el.innerHTML=h; }
+
+/* ---- 기록 하나 (고치기·지우기 · 관리자: 되살리기·단가 넣기) ---- */
+VIEWS.rp_rec={ render:function(v){ reanim(v); var id=v.params.id; v.refresh=function(){ return rpRecLoad(v); }; v.onResume=function(){ if(!(v.state.at>RP_DIRTY)) rpRecLoad(v); };
+  if(RP_RECS[id]){ v.state.rec=RP_RECS[id]; rpRecDraw(v); } else v.el.innerHTML=title('수리 기록','')+spin(); rpRecLoad(v); }};
+function rpRecLoad(v){ var t0=Date.now(); return rpRun('rpGet',[v.params.id]).then(function(r){ if(stack.indexOf(v)<0) return; v.state.rec=r.rec; v.state.at=t0; RP_RECS[r.rec.id]=r.rec; rpRecDraw(v); })
+  .catch(function(e){ if(stack.indexOf(v)<0) return; if(v.state.rec) toast(e.message); else v.el.innerHTML=title('수리 기록','')+errBox(e); }); }
+function rpRecDraw(v){ var x=v.state.rec, money=x.total!==undefined, vd=x.state==='void', admin=rpCan('admin');
+  var h=title(esc(x.qr),esc(rpDayLb(x.date))+' '+esc(String(x.at||'').slice(11,16))+' · '+esc(x.worker.name));
+  h+='<div class="card"><dl class="kv" style="margin-top:0"><dt>거래처</dt><dd>'+esc(x.client.name)+' <span class="rpk '+rpKindCls(x.client.kind)+'">'+esc(rpKindLb(x.client.kind))+'</span></dd>'+
+    (x.model?'<dt>기종</dt><dd>'+esc(x.model)+'</dd>':'')+(x.imei?'<dt>IMEI</dt><dd class="mono">'+esc(x.imei)+'</dd>':'')+
+    '<dt>입력</dt><dd>'+esc(x.worker.name)+' · '+esc(x.at)+'</dd>'+(x.edited?'<dt>고침</dt><dd>'+esc(x.edited.by)+' · '+esc(x.edited.at)+'</dd>':'')+
+    (x.stmt?'<dt>명세서</dt><dd>'+(rpCan('office')?'<button class="rplink" onclick="push(\'rp_stmt\',{id:'+Number(x.stmt.id)+'})">명세서 '+esc(x.stmt.serial)+' ›</button>':'명세서 '+esc(x.stmt.serial))+' <span class="muted">· 잠김</span></dd>':'')+
+    (vd&&x.voided?'<dt>지움</dt><dd style="color:var(--danger)">'+esc(x.voided.by)+' · '+esc(x.voided.at)+(x.voided.why?' · '+esc(x.voided.why):'')+'</dd>':'')+'</dl></div>';
+  h+='<div class="card"><h3>수리 항목 '+x.lines.length+'개</h3><div class="rplines">'+x.lines.map(function(l){
+      return '<div class="rpl"><span class="n">'+l.n+'</span><span class="nm">'+esc(l.name)+(l.noPrice?' <em class="rpb warn">단가 없음</em>':'')+'</span>'+
+        (money?'<span class="won">'+(l.amount==null?'—':rpWon(l.amount))+'</span>':'')+
+        (money&&admin&&l.noPrice&&!vd&&!x.stmt?'<button class="rpsetp" onclick="rpPriceAsk('+Number(x.id)+','+Number(l.n)+')">금액 넣기</button>':'')+'</div>'; }).join('')+'</div>'+
+    (money?'<div class="rptot"><span>합계'+(x.noPrice?' (단가 없음 '+x.noPrice+'줄 빼고)':'')+'</span><b>'+rpWon(x.total)+'원</b></div>':'')+'</div>';
+  if(x.memo) h+='<div class="card"><h3>특이사항</h3><p style="margin:0;white-space:pre-wrap;word-break:break-all">'+esc(x.memo)+'</p></div>';
+  if(x.canEdit) h+='<div class="row"><button class="btn line sm" onclick="rpEditOpen('+Number(x.id)+')">고치기</button><button class="btn danger sm" onclick="rpVoidAsk('+Number(x.id)+')">지우기</button></div>';
+  else if(vd&&admin) h+='<button class="btn line" onclick="rpRestoreAsk('+Number(x.id)+')">되살리기 (관리자)</button>';
+  else if(!vd&&x.stmt) h+='<p class="muted rpnote">명세서에 들어간 기록이라 못 고쳐요. 관리자가 그 명세서를 취소한 뒤 고쳐요.</p>';
+  else if(!vd&&rpCan('repair')&&!admin) h+='<p class="muted rpnote">입력한 날(한국 날짜)에만 고칠 수 있어요. 고칠 게 있으면 관리자에게 말해 주세요.</p>';
+  v.el.innerHTML=h; }
+function rpVoidAsk(id){ var x=RP_RECS[id]; if(!x) return; haptic(8);
+  openSheet('<h3>'+esc(x.qr)+' 수리 기록 지우기</h3><p>지워도 흔적은 남고 (관리자가 되살릴 수 있음) 부품 재고는 되돌려요.</p><input class="input" id="rpwhy" maxlength="200" placeholder="지우는 이유 (선택)" style="margin-bottom:12px">'+
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--danger)" id="rpvgo" onclick="rpVoidGo('+Number(x.id)+')">지우기</button></div>'); }
+function rpVoidGo(id){ var x=RP_RECS[id]; if(!x) return; var w=$('rpwhy'), why=w?String(w.value||'').trim():'', b=$('rpvgo'), k='v'+id; if(b){ b.disabled=true; b.textContent='지우는 중…'; }
+  rpWrite('rpVoid',[x.id,x.ver,why],RP_CX[k]=RP_CX[k]||runCx()).then(function(r){ delete RP_CX[k]; RP_RECS[r.rec.id]=r.rec; closeSheet(); haptic([12,40,18]); toast('지웠어요 · 부품 재고 되돌림'); rpRefreshViews(); },
+    function(e){ if(b){ b.disabled=false; b.textContent='다시 지우기'; } toast('지우기 실패: '+e.message); }); }
+function rpRestoreAsk(id){ var x=RP_RECS[id]; if(!x) return; openSheet('<h3>'+esc(x.qr)+' 되살리기</h3><p>지운 기록을 다시 살리고 부품 재고를 다시 빼요. 그 날짜 명세서가 이미 나갔으면 다음 명세서의 "지난 기간 추가분"으로 들어가요.</p>'+
+  '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" id="rprgo" onclick="rpRestoreGo('+Number(x.id)+')">되살리기</button></div>'); }
+function rpRestoreGo(id){ var x=RP_RECS[id]; if(!x) return; var b=$('rprgo'), k='r'+id; if(b){ b.disabled=true; b.textContent='되살리는 중…'; }
+  rpWrite('rpRestore',[x.id,x.ver],RP_CX[k]=RP_CX[k]||runCx()).then(function(r){ delete RP_CX[k]; RP_RECS[r.rec.id]=r.rec; closeSheet(); toast('되살렸어요'); rpLowToast(r.low); rpRefreshViews(); },
+    function(e){ if(b){ b.disabled=false; b.textContent='다시 되살리기'; } toast('되살리기 실패: '+e.message); }); }
+function rpPriceAsk(id,n){ var x=RP_RECS[id]; if(!x) return; var l=x.lines.filter(function(y){ return y.n===n; })[0]; if(!l) return;
+  openSheet('<h3>금액 넣기</h3><p>'+esc(x.qr)+' · '+esc(l.name)+'<br>단가표에 단가가 없는 줄이에요. 이 기록에만 들어가요 (원 · 부가세 포함).</p><input class="input" id="rpprice" inputmode="numeric" maxlength="9" placeholder="예: 15000" style="margin-bottom:12px">'+
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" id="rppgo" onclick="rpPriceGo('+Number(id)+','+Number(n)+')">넣기</button></div>');
+  setTimeout(function(){ var i=$('rpprice'); if(i&&i.focus) i.focus(); },380); }
+function rpPriceGo(id,n){ var x=RP_RECS[id]; if(!x) return; var i=$('rpprice'), raw=String(i?i.value:'').replace(/[,\s원]/g,''), p=/^\d+$/.test(raw)?Number(raw):raw, b=$('rppgo'), k='p'+id+'_'+n;
+  if(b){ b.disabled=true; b.textContent='넣는 중…'; }
+  rpWrite('rpSetPrice',[x.id,x.ver,n,p],RP_CX[k]=RP_CX[k]||runCx()).then(function(r){ delete RP_CX[k]; RP_RECS[r.rec.id]=r.rec; closeSheet(); toast('금액을 넣었어요'); rpRefreshViews(); },
+    function(e){ if(b){ b.disabled=false; b.textContent='넣기'; } toast(e.message); }); }
+
+/* ---- 수리 전산 (수리 전산·관리자·마스터): 전체 기록 · 그래프 · 명세서 ---- */
+VIEWS.rp_office={ render:function(v){ reanim(v); var s=v.state; s.tab=s.tab||v.params.tab||'list'; s.days=s.days||7; s.cdays=s.cdays||30; s.st=s.st||'ok';
+  v.refresh=function(){ return rpOffLoad(v,true); }; v.onResume=function(){ if(!(s.at>RP_DIRTY)) rpOffLoad(v); else rpOffDraw(v); };
+  rpOffDraw(v); rpOffLoad(v); }};
+function rpOffHead(v){ var t=v.state.tab; return title('수리 전산','전체 기록 · 수리 갯수 그래프 · 명세서')+
+  '<div class="seg">'+[['list','전체 기록'],['chart','그래프'],['stmt','명세서']].map(function(x){ return '<button class="'+(t===x[0]?'on':'')+'" onclick="rpOffTab(\''+x[0]+'\')">'+x[1]+'</button>'; }).join('')+'</div>'; }
+function rpOffTab(t){ var v=rpTop('rp_office'); if(!v||v.state.tab===t) return; haptic(6); v.state.tab=t; v.state.err=null; rpOffDraw(v); rpOffLoad(v); }
+function rpOffLoad(v,force){ var s=v.state, t=s.tab, tok=s.tok=(s.tok||0)+1, t0=Date.now(), alive=function(){ return stack.indexOf(v)>=0&&s.tok===tok; }, cl=function(){ return s.clients&&!force?Promise.resolve(s.clients):rpRun('rpClients',[]); }, p;
+  if(t==='list'){ var o={from:todayISO(-(s.days-1)),to:todayISO(0),state:s.st}; if(s.cid) o.client_id=Number(s.cid); if(s.fq) o.qr=s.fq;
+    p=Promise.all([rpRun('rpList',[o]),cl().catch(function(){ return null; })]).then(function(a){ if(!alive()) return; s.list=a[0]; if(a[1]) s.clients=a[1]; rpKeep(a[0].recs); }); }
+  else if(t==='chart') p=rpRun('rpChart',[{from:todayISO(-(s.cdays-1)),to:todayISO(0)}]).then(function(r){ if(alive()) s.chart=r; });
+  else p=Promise.all([cl(),rpRun('rpStmtList',[{}])]).then(function(a){ if(!alive()) return; s.clients=a[0]; s.slist=a[1]; });
+  return p.then(function(){ if(!alive()) return; s.at=t0; s.err=null; rpOffDraw(v); })
+    .catch(function(e){ if(!alive()) return; s.err=e; rpOffDraw(v); if(force) toast('새로고침 실패: '+e.message); }); }
+function rpOffDraw(v){ var s=v.state; v.el.innerHTML=rpOffHead(v)+(s.tab==='chart'?rpOffChartHtml(v):(s.tab==='stmt'?rpOffStmtHtml(v):rpOffListHtml(v))); }
+function rpOffSet(k,val,reset){ var v=rpTop('rp_office'); if(!v) return; v.state[k]=val; if(reset) v.state[reset]=null; haptic(6); rpOffDraw(v); rpOffLoad(v); }
+function rpOffListHtml(v){ var s=v.state, r=s.list, cl=(s.clients&&s.clients.clients)||[];
+  var h='<div class="days">'+[[1,'오늘'],[7,'7일'],[30,'30일'],[92,'92일']].map(function(x){ return '<button class="'+(s.days===x[0]?'on':'')+'" onclick="rpOffSet(\'days\','+x[0]+',\'list\')">'+x[1]+'</button>'; }).join('')+'</div>'+
+    '<div class="lab-opts" style="margin-bottom:10px"><select class="input" onchange="rpOffSet(\'cid\',this.value,\'list\')"><option value="">거래처 전체</option>'+cl.map(function(c){ return '<option value="'+Number(c.id)+'"'+(String(s.cid||'')===String(c.id)?' selected':'')+'>'+esc(c.name)+'</option>'; }).join('')+'</select>'+
+    '<select class="input" onchange="rpOffSet(\'st\',this.value,\'list\')">'+[['ok','지운 것 빼고'],['void','지운 것만'],['all','모두']].map(function(x){ return '<option value="'+x[0]+'"'+(s.st===x[0]?' selected':'')+'>'+x[1]+'</option>'; }).join('')+'</select></div>'+
+    '<div class="srch rpsrch">'+RP_I.srch+'<input class="input" id="rpfq" placeholder="QR 로 찾기 (엔터)" value="'+esc(s.fq||'')+'" autocapitalize="characters" autocomplete="off" onkeydown="if(event.key===\'Enter\'){ rpOffSet(\'fq\',String(this.value||\'\').trim().toUpperCase(),\'list\'); }"></div>';
+  if(!r) return h+(s.err?errBox(s.err):spin('수리 기록을 불러오는 중'));
+  var by={}, order=[]; r.recs.forEach(function(x){ if(!by[x.date]){ by[x.date]=[]; order.push(x.date); } by[x.date].push(x); });
+  h+='<div class="card sum"><div class="lb">'+esc(rpMd(r.from))+' ~ '+esc(rpMd(r.to))+' 수리 기록</div><div class="big"><b>'+r.n+'</b><span>건</span></div>'+
+    (r.total!==undefined?'<div class="brk"><span>합계<b>'+rpWon(r.total)+'원</b></span></div>':'')+(r.more?'<p class="muted" style="margin:8px 0 0;font-size:12.5px">2000건까지만 보여요 · 기간을 줄여 주세요</p>':'')+'</div>';
+  if(!r.recs.length) h+='<div class="card"><div class="empty">이 조건에 맞는 수리 기록이 없어요</div></div>';
+  order.forEach(function(d){ var l=by[d], ok=l.filter(function(x){ return x.state==='ok'; });
+    h+='<div class="sec"><span>'+esc(rpDayLb(d))+'</span><span>'+ok.length+'건'+(r.total!==undefined?' · '+rpWon(ok.reduce(function(a,x){ return a+(x.total||0); },0))+'원':'')+'</span></div><div class="rprecs">'+l.map(function(x){ return rpRecCard(x,'office'); }).join('')+'</div>'; });
+  return h; }
+/* 수리 갯수 그래프: 일자별 쌓은 막대 (사람별 색 · 지금 7일 그래프 모양) + 사람별 막대 */
+function rpOffChartHtml(v){ var s=v.state, r=s.chart;
+  var h='<div class="days">'+[[7,'7일'],[30,'30일'],[92,'92일']].map(function(x){ return '<button class="'+(s.cdays===x[0]?'on':'')+'" onclick="rpOffSet(\'cdays\','+x[0]+',\'chart\')">'+x[1]+'</button>'; }).join('')+'</div>';
+  if(!r) return h+(s.err?errBox(s.err):spin('그래프를 그리는 중'));
+  return h+rpChartHtml(r); }
+function rpChartHtml(r){ var days=r.days||[], ppl=r.people||[], n=days.length; if(!n) return '<div class="card"><div class="empty">기간이 없어요</div></div>';
+  var col={}; ppl.forEach(function(p,i){ col[String(p.id)]=i<RP_PCOL.length?RP_PCOL[i]:'#b0b8c1'; });
+  var tot=r.n||0, act=days.filter(function(d){ return d.n; }), avg=act.length?Math.round(tot/act.length*10)/10:0, best=days.slice().sort(function(a,b){ return b.n-a.n; })[0];
+  var max=Math.max(1,Math.max.apply(null,days.map(function(d){ return d.n||0; })));
+  var W=340,H=190,top=22,bot=28,pl=4,pr=4,slot=(W-pl-pr)/n,bw=Math.max(2,Math.min(30,slot*0.6)),ph=H-top-bot,every=Math.ceil(n/7);
+  var svg='<svg class="wk7" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="일자별 수리 갯수"><line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+(top+ph)+'" y2="'+(top+ph)+'" class="ax"/>';
+  days.forEach(function(d,i){ var cx=pl+slot*i+slot/2, x0=cx-bw/2, y=top+ph, segs=ppl.filter(function(p){ return d.by&&d.by[String(p.id)]; });
+    segs.forEach(function(p,k){ var c=d.by[String(p.id)], hgt=c/max*ph, last=k===segs.length-1; y-=hgt; var hh=Math.max(0,hgt-(last?0:1.5)), yy=y+(last?0:1.5), fc=col[String(p.id)];
+      svg+=last?'<path d="'+swBarTop(x0,yy,bw,hh)+'" fill="'+fc+'"/>':'<rect x="'+x0.toFixed(1)+'" y="'+yy.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+hh.toFixed(1)+'" fill="'+fc+'"/>'; });
+    if(d.n&&(n<=10||d===best)) svg+='<text x="'+cx.toFixed(1)+'" y="'+(Math.min(top+ph,y)-6).toFixed(1)+'" class="tl">'+d.n+'</text>';
+    if((n-1-i)%every===0) svg+='<text x="'+cx.toFixed(1)+'" y="'+(H-8)+'" class="dl">'+swDayLabel(d.date)+'</text>'; });
+  svg+='</svg>';
+  var pmax=Math.max(1,Math.max.apply(null,[0].concat(ppl.map(function(p){ return p.n; }))));
+  return '<div class="card"><h3>일자별 수리 갯수</h3><div class="wkst"><div><span>기간 합계</span><b>'+tot+'</b></div><div><span>하루 평균</span><b>'+avg+'</b></div>'+
+      '<div><span>최고일'+(best&&best.n?' · '+swDayLabel(best.date):'')+'</span><b>'+(best?best.n:0)+'</b></div></div>'+svg+
+      '<div class="wklg">'+ppl.slice(0,RP_PCOL.length).map(function(p){ return '<span><i style="background:'+col[String(p.id)]+'"></i>'+esc(p.name||'이름 없음')+'</span>'; }).join('')+(ppl.length>RP_PCOL.length?'<span><i style="background:#b0b8c1"></i>그 밖</span>':'')+'</div></div>'+
+    '<div class="card"><h3>사람별</h3>'+(ppl.length?ppl.map(function(p){ var c=col[String(p.id)]; return '<div class="rpper"><span class="nm"><i style="background:'+c+'"></i>'+esc(p.name||'이름 없음')+'</span><span class="bar"><i style="width:'+Math.round(p.n/pmax*100)+'%;background:'+c+'"></i></span><b>'+p.n+'건</b><small>'+p.items+'개</small></div>'; }).join('')
+      :'<div class="empty" style="padding:16px 0">이 기간엔 수리 기록이 없어요</div>')+'<p class="muted" style="margin:6px 0 0;font-size:12.5px">건 = 수리 기록(기기) 수 · 개 = 수리 항목 줄 수 · 지운 기록 빼고</p></div>'; }
+/* 명세서 고르기 — 내부(애퍼처·에스에스글로벌) = 달 · 외주 = 월~일 주 단위 (여러 주 · 13주까지) */
+function rpMondays(){ var d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()-((d.getDay()+6)%7)); var out=[]; for(var i=0;i<26;i++){ out.push(rpIso(d)); d.setDate(d.getDate()-7); } return out; }
+function rpAddDays(iso,n){ var p=String(iso).split('-'), d=new Date(+p[0],+p[1]-1,+p[2],12); d.setDate(d.getDate()+n); return rpIso(d); }
+function rpMonths(){ var d=new Date(), out=[]; d.setHours(12,0,0,0); d.setDate(1); for(var i=0;i<12;i++){ out.push(d.getFullYear()+'-'+pad2(d.getMonth()+1)); d.setMonth(d.getMonth()-1); } return out; }
+function rpOffStmtHtml(v){ var s=v.state, cl=(s.clients&&s.clients.clients)||[];
+  if(!s.clients) return s.err?errBox(s.err):spin('거래처를 불러오는 중');
+  if(!s.sc&&cl.length) s.sc=cl[0].id;
+  var c=cl.filter(function(x){ return Number(x.id)===Number(s.sc); })[0], inn=!!c&&c.kind!=='vendor';
+  var h='<div class="card"><h3>명세서 만들기</h3><div class="field"><label>거래처</label><select class="input" onchange="rpStmtSet(\'sc\',this.value)">'+cl.map(function(x){ return '<option value="'+Number(x.id)+'"'+(Number(x.id)===Number(s.sc)?' selected':'')+'>'+esc(x.name)+(x.kind==='vendor'?'':' (내부 · 월별)')+'</option>'; }).join('')+'</select></div>';
+  if(inn){ s.sm=s.sm||todayISO(0).slice(0,7); h+='<div class="field"><label>달 (1일~말일)</label><select class="input" onchange="rpStmtSet(\'sm\',this.value)">'+rpMonths().map(function(m){ return '<option value="'+m+'"'+(m===s.sm?' selected':'')+'>'+m.replace('-','년 ')+'월</option>'; }).join('')+'</select></div>'; }
+  else if(c){ var ms=rpMondays(); s.sw=s.sw||ms[0]; s.sn=Number(s.sn)||1;
+    h+='<div class="lab-opts"><div class="field"><label>시작 주 (월요일)</label><select class="input" onchange="rpStmtSet(\'sw\',this.value)">'+ms.map(function(m){ return '<option value="'+m+'"'+(m===s.sw?' selected':'')+'>'+rpMd(m)+' ~ '+rpMd(rpAddDays(m,6))+'</option>'; }).join('')+'</select></div>'+
+      '<div class="field"><label>몇 주</label><select class="input" onchange="rpStmtSet(\'sn\',this.value)">'+[1,2,3,4,5,6,7,8,9,10,11,12,13].map(function(n){ return '<option value="'+n+'"'+(n===s.sn?' selected':'')+'>'+n+'주</option>'; }).join('')+'</select></div></div>'+
+      '<p class="muted" style="margin:0 0 12px;font-size:13px">기간 '+esc(s.sw)+' (월) ~ '+esc(rpAddDays(s.sw,7*s.sn-1))+' (일)</p>'; }
+  h+='<button class="btn" onclick="rpStmtGo()">'+RP_I.doc+'미리보기</button></div>';
+  var l=(s.slist&&s.slist.list)||[];
+  h+='<div class="card"><h3>발행한 명세서'+(l.length?' '+l.length:'')+'</h3>'+(l.length?l.map(function(x){ return '<button class="rpsl'+(x.void?' void':'')+'" onclick="push(\'rp_stmt\',{id:'+Number(x.id)+'})"><div><b class="mono">'+esc(x.serial)+'</b>'+(x.void?'<span class="pill sys sm">취소</span>':'')+
+      '<span>'+esc(x.client.name)+' · '+esc(rpPeriod(x))+' · '+x.recs+'건 '+x.n+'줄</span></div><b>'+rpWon(x.total)+'원</b></button>'; }).join(''):'<div class="empty" style="padding:16px 0">아직 없어요</div>')+'</div>';
+  return h; }
+function rpStmtSet(k,val){ var v=rpTop('rp_office'); if(!v) return; v.state[k]=(k==='sn'||k==='sc')?Number(val):val; rpOffDraw(v); }
+function rpStmtGo(){ var v=rpTop('rp_office'); if(!v) return; var s=v.state, cl=(s.clients&&s.clients.clients)||[], c=cl.filter(function(x){ return Number(x.id)===Number(s.sc); })[0];
+  if(!c){ toast('거래처를 골라 주세요'); return; } haptic(8);
+  if(c.kind!=='vendor') push('rp_stmt',{client_id:Number(c.id),month:s.sm||todayISO(0).slice(0,7)});
+  else push('rp_stmt',{client_id:Number(c.id),from:s.sw,to:rpAddDays(s.sw,7*(Number(s.sn)||1)-1)}); }
+
+/* ---- 거래명세서 (미리보기 · 발행 · 다시 인쇄 · 취소) — 양식 그대로 A4 세로 · 쪽마다 머리 · [n/N] · 마지막 쪽 총합계 ---- */
+VIEWS.rp_stmt={ render:function(v){ reanim(v); v.refresh=function(){ return rpStmtLoad(v); };
+  v.el.innerHTML=title('거래명세서','')+spin('명세서를 만드는 중'); rpStmtLoad(v); }};
+function rpStmtArg(p){ var o={client_id:p.client_id}; if(p.month) o.month=p.month; else { o.from=p.from; o.to=p.to; } return o; }
+function rpStmtLoad(v){ var p=v.params, t0=Date.now();
+  return (p.id?rpRun('rpStmtGet',[p.id]):rpRun('rpStmt',[rpStmtArg(p)])).then(function(d){ if(stack.indexOf(v)<0) return; v.state.d=d; v.state.at=t0; rpStmtDraw(v); })
+    .catch(function(e){ if(stack.indexOf(v)<0) return; if(v.state.d) toast(e.message); else v.el.innerHTML=title('거래명세서','')+errBox(e); }); }
+function rpStmtDraw(v){ var d=v.state.d, st=d.stmt||null, can=!st&&!d.noPrice&&d.recs>0;
+  var h=title('거래명세서',esc(d.client.name)+' · '+esc(rpPeriod(d)));
+  if(st&&st.void) h+='<div class="rpnote2 err">취소한 명세서예요 · '+esc(st.void.by)+' '+esc(st.void.at)+(st.void.why?' · '+esc(st.void.why):'')+'</div>';
+  if(!st&&d.todayIn) h+='<div class="rpnote2">기간에 오늘(또는 앞날)이 있어요 · 아직 기록이 더 들어올 수 있어요</div>';
+  if(d.noPrice) h+='<div class="rpnote2 err">단가 없음 '+d.noPrice+'줄 · 관리자가 금액을 넣어야 발행돼요</div>';
+  if(d.lateN) h+='<div class="rpnote2">지난 기간 추가분 '+d.lateN+'줄 (맨 뒤에 있어요)</div>';
+  (d.issued||[]).forEach(function(x){ h+='<div class="rpnote2">이미 발행 '+esc(x.serial)+' · '+esc(rpMd(x.from))+'~'+esc(rpMd(x.to))+' · '+rpWon(x.total)+'원 <button onclick="push(\'rp_stmt\',{id:'+Number(x.id)+'})">보기</button></div>'; });
+  if(!st&&!d.recs) h+='<div class="rpnote2">이 기간엔 명세서에 넣을 수리 기록이 없어요 (이미 명세서에 들어간 기록은 빠져요)</div>';
+  h+='<div class="card sum"><div class="lb">'+(st?'일련번호 <b class="mono" style="color:var(--ink)">'+esc(st.serial)+'</b> · '+esc(st.by)+' 발행':'미리보기 · 아직 일련번호 없음')+'</div><div class="big"><b>'+rpWon(d.total)+'</b><span>원</span></div>'+
+    '<div class="brk"><span>기록<b>'+d.recs+'</b></span><span>줄<b>'+d.n+'</b></span><span>쪽<b>'+(d.pages||[]).length+'</b></span><span>부품비<b>'+rpWon(d.costTotal)+'</b></span></div></div>';
+  if(!st) h+='<button class="btn" id="rpissue"'+(can?'':' disabled')+' onclick="rpStmtIssueAsk()">'+RP_I.doc+'발행 (일련번호 붙이기)</button><p class="muted rpnote">발행하면 일련번호가 붙고 안의 기록이 잠겨요 (못 고침). 인쇄·PDF 는 발행한 뒤에.</p>';
+  else if(!st.void) h+='<button class="btn" onclick="rpStmtPrint()">'+RP_I.print+'인쇄 · PDF로 저장</button><p class="muted rpnote">인쇄 창에서 <b>PDF로 저장</b> · 용지 A4 세로 · 여백 없음 (머리글·바닥글 끄기)</p>';
+  if(st&&!st.void&&rpCan('admin')) h+='<button class="btn danger" style="margin-top:8px" onclick="rpStmtCancelAsk()">명세서 취소 (관리자)</button>';
+  h+='<div class="stview" id="stview">'+rpStmtPagesHtml(d,v)+'</div>';
+  v.el.innerHTML=h; }
+function rpStmtPagesHtml(d,v){ var w=Math.max(280,((v&&v.el&&v.el.clientWidth)||390)-40), k=Math.min(1,w/794);   // A4 = 794×1123 px (96dpi) → 화면 폭에 맞게 줄임
+  return (d.pages||[]).map(function(p){ return '<div class="stsc" style="width:'+Math.round(794*k)+'px;height:'+Math.round(1119*k)+'px"><div class="stz" style="transform:scale('+k.toFixed(4)+')">'+rpStmtPage(d,p)+'</div></div>'; }).join(''); }
+/* 한 쪽 (erp/inputs/명세서_양식_쪽그림 page1·page7 그대로) — 받는 곳 '{name} 貴 中'·주소·☎ · 공급자 표 · 순번|품목명[규격]|QR|부품비|총 금액 · [ n / N ] */
+function rpStmtPage(d,p){ var s=d.supplier||{}, c=d.client||{}, bk=String(s.bank||''), bi=bk.indexOf(' ');
+  var rows=(p.rows||[]).map(function(r){ return '<tr'+(r.late?' class="late"':'')+'><td>'+Number(r.no)+'</td>'+rpStmtNm(r)+rpStmtQr(r.qr)+
+    '<td class="w">'+(r.cost==null?'':rpWon(r.cost))+'</td><td class="w">'+(r.amount==null?'<span class="np">단가 없음</span>':rpWon(r.amount))+'</td></tr>'; }).join('');
+  if(p.total) rows+='<tr class="tot"><td colspan="3">총합계</td><td></td><td class="w">'+rpWon(d.total)+'</td></tr>';
+  return '<div class="stpg"><div class="sttl">'+esc(d.title||'거래명세서')+'</div>'+
+    '<div class="stto"><b>'+esc(c.name)+' 貴 中</b>'+(c.addr?'<b>'+esc(c.addr)+'</b>':'')+(c.tel?'<b>☎ '+esc(c.tel)+'</b>':'')+'</div>'+
+    '<table class="stsup"><colgroup><col style="width:5.5mm"><col style="width:22.4mm"><col style="width:29mm"><col style="width:14.4mm"><col></colgroup>'+
+      '<tr style="height:6.6mm"><th class="vt" rowspan="5">공<br>급<br>자</th><th>일련번호</th><td>'+esc(s.serial||'')+'</td><th>TEL</th><td>'+esc(s.tel||'')+'</td></tr>'+
+      '<tr style="height:10.5mm"><th>사업자등록<br>번호</th><td>'+esc(s.biz||'')+'</td><th>성명</th><td>'+esc(s.ceo||'')+'</td></tr>'+
+      '<tr style="height:6.6mm"><th>상호</th><td colspan="3">'+esc(s.company||'')+'</td></tr>'+
+      '<tr style="height:8.4mm"><th>주소</th><td colspan="3">'+esc(s.addr||'')+'</td></tr>'+
+      '<tr style="height:8.4mm"><th>입금계좌</th><td colspan="3" class="bk"><b>'+esc(bi>0?bk.slice(0,bi):bk)+'</b><b>'+esc(bi>0?bk.slice(bi+1):'')+'</b></td></tr></table>'+
+    '<div class="strule"></div>'+
+    '<table class="sttb"><colgroup><col style="width:18.3mm"><col style="width:74.9mm"><col style="width:26.3mm"><col style="width:25.8mm"><col></colgroup>'+
+      '<thead><tr><th>순번</th><th>품목명[규격]</th><th>QR</th><th>부품비</th><th>총 금액(VAT,부품비 포함)</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div class="stft"><i></i><span>[ '+Number(p.page)+' / '+Number(p.pages)+' ]</span></div></div>'; }
+/* 품목명 칸: 길면 글자를 줄여 두 줄까지 · 지난 기간 추가분 '(m/d 추가분)' 은 따로 떼어 늘 보이게 (이름만 줄임) */
+function rpStmtNm(r){ var nm=String(r.name||''), lt=r.late?'('+rpMd(r.date)+' 추가분)':'', l=nm.length+lt.length>20;
+  return '<td class="nm'+(l?' l':'')+'">'+(lt||l?'<div class="nw"><span>'+esc(nm)+'</span>'+(lt?'<small>'+esc(lt)+'</small>':'')+'</div>':esc(nm))+'</td>'; }
+/* QR 칸 (26mm): 11자 넘으면 (IMEI 15자리·긴 QR · 앱은 40자까지) 자르지 않고 작은 글자로 줄바꿈 */
+function rpStmtQr(q){ q=String(q||''); return '<td class="qr'+(q.length>24?' s':(q.length>11?' l':''))+'">'+esc(q)+'</td>'; }
+function rpStmtIssueAsk(){ var v=rpTop('rp_stmt'); if(!v) return; var d=v.state.d; haptic(8);
+  openSheet('<h3>명세서 발행</h3><p>'+esc(d.client.name)+' · '+esc(rpPeriod(d))+' · '+d.recs+'건 '+d.n+'줄 · '+rpWon(d.total)+'원<br>발행하면 일련번호가 붙고 안의 수리 기록이 잠겨요. 잘못되면 관리자가 취소할 수 있어요 (번호는 다시 안 씀).</p>'+
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" id="rpigo" onclick="rpStmtIssueGo()">발행</button></div>'); }
+function rpStmtIssueGo(){ var v=rpTop('rp_stmt'); if(!v) return; var b=$('rpigo'); if(b){ b.disabled=true; b.textContent='발행 중…'; }
+  rpWrite('rpStmtIssue',[rpStmtArg(v.params)],v.state.icx=v.state.icx||runCx()).then(function(d){ v.state.icx=null; closeSheet(); if(stack.indexOf(v)<0) return;
+      v.state.d=d; v.params={id:d.stmt.id}; RP_DIRTY=Date.now(); haptic([12,40,18]); toast((d.again?'이미 발행한 명세서예요 · ':'발행했어요 · ')+d.stmt.serial); rpStmtDraw(v); },
+    function(e){ if(b){ b.disabled=false; b.textContent='다시 발행'; } toast('발행 못 함: '+e.message); }); }
+function rpStmtCancelAsk(){ var v=rpTop('rp_stmt'); if(!v||!v.state.d.stmt) return; var st=v.state.d.stmt;
+  openSheet('<h3>명세서 '+esc(st.serial)+' 취소</h3><p>안의 기록 잠금이 풀려 고칠 수 있어요. 번호는 다시 안 써요 (고친 뒤 다시 발행하면 새 번호).</p><input class="input" id="rpcwhy" maxlength="200" placeholder="취소 이유 (선택)" style="margin-bottom:12px">'+
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">닫기</button><button class="btn sm" style="background:var(--danger)" id="rpcgo" onclick="rpStmtCancelGo()">명세서 취소</button></div>'); }
+function rpStmtCancelGo(){ var v=rpTop('rp_stmt'); if(!v||!v.state.d.stmt) return; var id=v.state.d.stmt.id, w=$('rpcwhy'), b=$('rpcgo'), k='c'+id; if(b){ b.disabled=true; b.textContent='취소하는 중…'; }
+  rpWrite('rpStmtCancel',[id,w?String(w.value||'').trim():''],RP_CX[k]=RP_CX[k]||runCx()).then(function(d){ delete RP_CX[k]; closeSheet(); if(stack.indexOf(v)<0) return; v.state.d=d; RP_DIRTY=Date.now(); toast('명세서를 취소했어요 · 기록 잠금이 풀렸어요'); rpStmtDraw(v); },
+    function(e){ if(b){ b.disabled=false; b.textContent='명세서 취소'; } toast(e.message); }); }
+/* 인쇄 = #printarea 에 쪽들을 넣고 브라우저 인쇄 (PDF로 저장) → 끝나면 원래대로 (라벨 인쇄가 같은 자리를 씀) */
+function rpStmtFill(d){ var pa=$('printarea'); if(!pa) return false; if(RP_PRINT_OLD===null) RP_PRINT_OLD=pa.innerHTML; pa.innerHTML=(d.pages||[]).map(function(p){ return rpStmtPage(d,p); }).join(''); return true; }
+function rpStmtPrint(){ var v=rpTop('rp_stmt'), d=v&&v.state.d; if(!d||!d.stmt||d.stmt.void){ toast('발행한 명세서만 인쇄할 수 있어요'); return; }
+  if(!rpStmtFill(d)) return; var t0=document.title; try{ document.title='거래명세서 '+d.client.name+' '+String(d.stmt.serial).replace(/\//g,'-'); }catch(e){}   // PDF 파일 이름
+  var done=function(){ window.removeEventListener('afterprint',done); try{ document.title=t0; }catch(e){} var pa=$('printarea'); if(pa&&RP_PRINT_OLD!==null){ pa.innerHTML=RP_PRINT_OLD; RP_PRINT_OLD=null; } };
+  window.addEventListener('afterprint',done); haptic(10);
+  try{ if(typeof window.print==='function') window.print(); else { toast('이 브라우저는 인쇄를 못 해요'); done(); } }catch(e){ toast('인쇄를 열 수 없어요: '+e.message); done(); } }
+
+/* ---- 부품 재고 (관리자·마스터): 수량 · 안전재고(마지막 입력의 20%) · 입력 · 부족 빨강 · 여러 개 항목 · 알림 받을 사람 ---- */
+VIEWS.rp_stock={ render:function(v){ reanim(v); var s=v.state; s.f=s.f||'all'; s.tab=s.tab||'stock'; s.inp=s.inp||{};
+  v.refresh=function(){ return rpStockLoad(v); }; rpStockDraw(v); rpStockLoad(v); }};
+function rpStockLoad(v){ var s=v.state, t0=Date.now();
+  if(s.tab==='items') return rpItemsLoad(true).then(function(r){ if(stack.indexOf(v)<0) return; s.items=r; rpStockDraw(v); }).catch(function(e){ if(stack.indexOf(v)<0) return; s.err=e; rpStockDraw(v); });
+  return Promise.all([rpRun('rpStock',[]),rpRun('rpCfg',[]).catch(function(){ return null; })]).then(function(a){ if(stack.indexOf(v)<0) return; s.st=a[0]; if(a[1]) s.cfg=a[1]; s.at=t0; s.err=null; rpStockDraw(v); })
+    .catch(function(e){ if(stack.indexOf(v)<0) return; s.err=e; rpStockDraw(v); }); }
+function rpStockTab(t){ var v=rpTop('rp_stock'); if(!v||v.state.tab===t) return; haptic(6); v.state.tab=t; v.state.err=null; rpStockDraw(v); rpStockLoad(v); }
+/* 입력 전 = 서버 unset 과 같은 뜻 (수량 줄이 없음 · 또는 마지막 입력이 0 — 처음 입력 전에 수리로 쓴 부품은 서버가 0 에서 빼서 -1·-2 로 있음) */
+function rpStockUnset(x){ return x.qty===null||!x.lastIn; }
+function rpStockBase(x){ return (x.qty===null||x.qty<0)?'':String(x.qty); }   // 입력 칸 처음 값 (선반 수는 0 아래가 없음)
+function rpStockSub(x){ if(!rpStockUnset(x)) return '안전재고 '+x.safety+' · 마지막 입력 '+x.lastIn+(x.inAt?' ('+esc(String(x.inAt).slice(5,10))+')':'')+(x.low?' · 부족':'');
+  return (x.inAt?'0개로 입력함 ('+esc(String(x.inAt).slice(5,10))+') · 안전재고 없음':'아직 입력 전')+(x.qty<0?' · 그동안 수리로 '+(-x.qty)+'개 씀':''); }
+function rpStockShown(v){ var s=v.state, q=String(s.q||'').trim().toLowerCase();
+  return ((s.st&&s.st.items)||[]).filter(function(x){ return (s.f==='low'?x.low:(s.f==='unset'?rpStockUnset(x):true))&&(!q||String(x.name).toLowerCase().indexOf(q)>=0||String(x.code).indexOf(q)>=0); }); }
+function rpStockVal(s,x){ return Object.prototype.hasOwnProperty.call(s.inp,x.code)?s.inp[x.code]:rpStockBase(x); }
+function rpStockList(v){ var s=v.state, l=rpStockShown(v); if(!l.length) return '<div class="card"><div class="empty">맞는 부품이 없어요</div></div>';
+  var rk=function(x){ return x.low?0:(rpStockUnset(x)?2:1); }, h='';   // 묶음 안에서 부족 → 입력한 것 → 입력 전
+  ['S9','W9','ETC'].forEach(function(g){ var gl=l.filter(function(x){ return x.grp===g; }).sort(function(a,b){ return (rk(a)-rk(b))||(a.code<b.code?-1:(a.code>b.code?1:0)); }); if(!gl.length) return;
+    h+='<div class="sec"><span>'+esc(RP_GRP[g])+'</span><span>'+gl.length+'개</span></div><div class="card" style="padding:6px 10px">'+gl.map(function(x){
+      return '<div class="rpstk'+(x.low?' low':'')+'"'+(s.edit?'':' onclick="rpStockInfo(\''+jsa(x.code)+'\')"')+'><div class="nm">'+esc(x.name)+(x.multi?' <em class="rpb multi">여러 개</em>':'')+
+        '<span>'+rpStockSub(x)+'</span></div>'+
+        (s.edit?'<input class="input qi" inputmode="numeric" maxlength="5" id="rpqi_'+esc(x.code)+'" value="'+esc(rpStockVal(s,x))+'" placeholder="수량" oninput="rpStockIn(\''+jsa(x.code)+'\',this.value)">'
+          :'<div class="q">'+(x.qty===null||x.qty<0?'<span>—</span>':'<b>'+x.qty+'</b><span>개</span>')+'</div>')+'</div>'; }).join('')+'</div>'; });
+  return h; }
+function rpStockDirty(v){ var s=v.state, m={}; ((s.st&&s.st.items)||[]).forEach(function(x){ m[x.code]=x; });
+  return Object.keys(s.inp).filter(function(k){ var x=m[k], val=String(s.inp[k]).trim(); return x&&val!==''&&val!==rpStockBase(x); }); }
+function rpStockDraw(v){ var s=v.state, r=s.st;
+  var h=title('부품 재고','관리자 · 마스터')+'<div class="seg">'+[['stock','부품 재고'],['items','품목 여러 개']].map(function(x){ return '<button class="'+(s.tab===x[0]?'on':'')+'" onclick="rpStockTab(\''+x[0]+'\')">'+x[1]+'</button>'; }).join('')+'</div>';
+  if(s.tab==='items'){ v.el.innerHTML=h+rpMultiHtml(v); return; }
+  if(!r){ v.el.innerHTML=h+(s.err?errBox(s.err):spin('부품 재고를 불러오는 중')); return; }
+  h+='<div class="card sum"><div class="lb">부품 (원가가 있는 수리 항목 1개 = 부품 1개)</div><div class="big"><b>'+r.n+'</b><span>개</span></div><div class="brk"><span'+(r.low?' class="rplow"':'')+'>안전재고 아래<b>'+r.low+'</b></span><span>입력 전<b>'+r.unset+'</b></span></div></div>'+
+    '<div class="tipb">안전재고 = 마지막으로 입력한 수량의 20% · 그 아래로 떨어지면 <b>앱 알림 + 슬랙</b> 한 번 · 다시 입력하면 알림이 다시 가능해요. 수리에 그 항목이 들어가면 줄마다 1개씩 자동으로 빠지고, 고치거나 지우면 되돌려요.</div>'+
+    '<div class="rpchips" style="margin-bottom:10px">'+[['all','전체 '+r.n],['low','부족 '+r.low],['unset','입력 전 '+r.unset]].map(function(x){ return '<button class="rpchip'+(s.f===x[0]?' on':'')+'" onclick="rpStockF(\''+x[0]+'\')">'+x[1]+'</button>'; }).join('')+'</div>'+
+    '<div class="srch rpsrch">'+RP_I.srch+'<input class="input" id="rpsq" placeholder="부품 이름" value="'+esc(s.q||'')+'" oninput="rpStockQ(this.value)" autocomplete="off"></div>'+
+    '<div id="rpstl">'+rpStockList(v)+'</div>'+rpCfgHtml(v)+
+    (s.edit?'<div class="stickybar"><div class="row" style="margin:0"><button class="btn line sm" onclick="rpStockEdit(false)">그만</button><button class="btn sm" id="rpstsave" onclick="rpStockSave()">'+rpStockSaveLb(v)+'</button></div></div>'
+      :'<div class="stickybar"><button class="btn" onclick="rpStockEdit(true)">'+RP_I.box+'재고 입력 (지금 선반에 있는 수)</button></div>');
+  v.el.innerHTML=h; }
+function rpStockSaveLb(v){ var n=rpStockDirty(v).length; return n?'저장 · '+n+'개':'바꾼 것 없음'; }
+function rpStockF(f){ var v=rpTop('rp_stock'); if(!v) return; haptic(6); v.state.f=f; rpStockDraw(v); }
+function rpStockQ(q){ var v=rpTop('rp_stock'); if(!v) return; v.state.q=String(q||''); var el=$('rpstl'); if(el) el.innerHTML=rpStockList(v); }
+function rpStockEdit(on){ var v=rpTop('rp_stock'); if(!v) return; haptic(8); v.state.edit=!!on; if(!on) v.state.inp={}; rpStockDraw(v); }
+function rpStockIn(code,val){ var v=rpTop('rp_stock'); if(!v) return; v.state.inp[code]=String(val||''); var b=$('rpstsave'); if(b) b.textContent=rpStockSaveLb(v); }
+function rpStockSave(){ var v=rpTop('rp_stock'); if(!v) return; var s=v.state, ks=rpStockDirty(v);
+  if(!ks.length){ toast('바꾼 수량이 없어요'); return; }
+  var bad=ks.filter(function(k){ return !/^\d{1,5}$/.test(String(s.inp[k]).trim()); }); if(bad.length){ toast('재고 수량은 0~99999 사이 숫자로 적어 주세요.'); return; }
+  var rows=ks.map(function(k){ return {code:k,qty:Number(String(s.inp[k]).trim())}; }), parts=[]; for(var i=0;i<rows.length;i+=200) parts.push(rows.slice(i,i+200));
+  var b=$('rpstsave'); if(b){ b.disabled=true; b.textContent='저장 중…'; } s.scx=s.scx||[];
+  var k=0, last=null, next=function(){ if(k>=parts.length) return Promise.resolve(last); var cx=s.scx[k]=s.scx[k]||runCx(); return rpWrite('rpStockSet',[parts[k]],cx).then(function(r){ last=r; k++; return next(); }); };
+  next().then(function(r){ s.scx=null; s.st=r; s.inp={}; s.edit=false; haptic([12,40,18]); toast('재고 '+rows.length+'개 저장했어요 · 안전재고 = 그 20%'); if(stack.indexOf(v)>=0) rpStockDraw(v); },
+    function(e){ if(b){ b.disabled=false; b.textContent=rpStockSaveLb(v); } toast('재고 저장 실패: '+e.message); }); }
+function rpStockInfo(code){ var v=rpTop('rp_stock'); if(!v||!v.state.st) return; var x=v.state.st.items.filter(function(i){ return i.code===code; })[0]; if(!x) return; haptic(6);
+  openSheet('<h3>'+esc(x.name)+'</h3><p>'+esc(x.code)+' · '+(rpStockUnset(x)?rpStockSub(x):'지금 '+x.qty+'개 · 안전재고 '+x.safety+' (마지막 입력 '+x.lastIn+'의 20%)')+(x.inBy?' · '+esc(x.inBy)+' 입력':'')+'</p>'+
+    permRow({label:'여러 개 쓸 수 있는 항목',note:'켜면 한 기록에 두 번 이상 넣을 수 있고 이름 뒤에 " 1EA"'},x.multi,'rpMultiSet(\''+jsa(code)+'\','+(x.multi?'false':'true')+',this)')+
+    '<div class="lb" style="margin-top:14px">재고 움직임 (최근 100)</div><div id="rpmv"><div class="muted" style="padding:10px 0">불러오는 중…</div></div>');
+  rpRun('rpStockLog',[code]).then(function(r){ var el=$('rpmv'); if(!el) return;
+    el.innerHTML=(r.moves||[]).length?'<ul class="hist">'+r.moves.map(function(m){ return '<li><span><b>'+esc(RP_MV[m.kind]||m.kind)+' '+(m.delta>0?'+':'')+m.delta+'</b> → '+m.after+'개'+(m.by?' · '+esc(m.by):'')+'</span><span>'+esc(String(m.at||'').slice(5,16))+'</span></li>'; }).join('')+'</ul>'
+      :'<div class="empty" style="padding:14px 0">아직 움직임이 없어요</div>'; }).catch(function(e){ var el=$('rpmv'); if(el) el.innerHTML='<div class="muted">'+esc(e.message)+'</div>'; }); }
+/* 여러 개 항목 켜고 끄기 (rpItemSet → rpItems 답) — 옛 기록 이름은 그대로 */
+function rpMultiSet(code,on,btn){ if(btn&&btn.classList) btn.classList.toggle('on',!!on); haptic(8);
+  rpWrite('rpItemSet',[[{code:code,multi:!!on}]]).then(function(r){ rpItemsSet(r); toast((on?'여러 개 켬':'여러 개 끔')+' · '+code); var v=rpTop('rp_stock'); if(v){ v.state.items=r; rpStockLoad(v); } },
+    function(e){ if(btn&&btn.classList) btn.classList.toggle('on',!on); toast('바꾸기 실패: '+e.message); }); }
+function rpMultiHtml(v){ var s=v.state, it=s.items; if(!it) return s.err?errBox(s.err):spin('품목을 불러오는 중');
+  var h='<div class="tipb">켠 항목만 한 기록에 두 번 이상 넣을 수 있어요 (누를 때마다 1개 · 이름 뒤 " 1EA" · 명세서도 개수만큼 줄). 끄면 한 번만.</div>';
+  (it.groups||[]).forEach(function(g){ h+='<div class="sec"><span>'+esc(g.label||RP_GRP[g.key])+'</span><span>'+(g.items||[]).filter(function(x){ return x.multi; }).length+' 켬</span></div><div class="card" style="padding:4px 16px">'+
+    (g.items||[]).map(function(x){ return permRow({label:x.name,note:x.code+(x.part?' · 부품':'')},x.multi,'rpMultiSet(\''+jsa(x.code)+'\','+(x.multi?'false':'true')+',this)'); }).join('')+'</div>'; });
+  return h; }
+/* 재고 부족 알림 받을 관리자 (마스터는 늘) · 슬랙 웹훅 있음/없음 */
+function rpCfgHtml(v){ return v.state.cfg?'<div id="rpcfg">'+rpCfgInner(v)+'</div>':''; }
+function rpCfgInner(v){ var c=v.state.cfg;
+  return '<div class="card"><h3>재고 부족 알림 받을 사람</h3><p class="muted" style="margin:0 0 6px;font-size:13px">앱 알림 · 마스터는 늘 받아요 · 슬랙: '+(c.slack?'연결됨':'웹훅 주소 없음 (넣으면 같이 감)')+'</p>'+
+    ((c.admins||[]).length?c.admins.map(function(a){ return permRow({label:a.name,note:a.active?'관리자':'관리자 · 사용 중지'},a.on,'rpAlertTo('+Number(a.id)+','+(a.on?'false':'true')+',this)'); }).join(''):'<div class="empty" style="padding:12px 0">관리자가 없어요</div>')+'</div>'; }
+/* 알림 받을 사람 켜고 끄기 — 화면 값을 바로 바꾸고 (잇달아 눌러도 앞의 것이 안 덮임) 하나씩 차례로 보냄 (보낼 때의 전체 목록 · 마지막 답으로 그림) */
+function rpAlertTo(id,on,btn){ var v=rpTop('rp_stock'); if(!v||!v.state.cfg) return; var s=v.state, a0=(s.cfg.admins||[]).filter(function(a){ return Number(a.id)===Number(id); })[0]; if(!a0) return;
+  haptic(8); a0.on=!!on; var el=$('rpcfg'); if(el) el.innerHTML=rpCfgInner(v); else if(btn&&btn.classList) btn.classList.toggle('on',!!on);
+  s.alertN=(s.alertN||0)+1;
+  var send=function(){ return rpWrite('rpCfgSet',[{alertTo:s.cfg.admins.filter(function(a){ return a.on; }).map(function(a){ return Number(a.id); })}]); };
+  s.alertQ=(s.alertQ||Promise.resolve()).then(send,send).then(function(r){ s.alertN--; if(stack.indexOf(v)<0) return r;
+      if(!s.alertN){ s.cfg=r; toast('알림 받을 사람을 바꿨어요'); rpStockDraw(v); } return r; },   // 더 보낼 게 남았으면 그 답을 기다림
+    function(e){ s.alertN--; if(stack.indexOf(v)<0) return; var a=(s.cfg.admins||[]).filter(function(x){ return Number(x.id)===Number(id); })[0]; if(a) a.on=!on;   // 이 사람만 되돌림
+      toast('바꾸기 실패: '+e.message); var el2=$('rpcfg'); if(el2) el2.innerHTML=rpCfgInner(v); }); }
+
+/* ---- 거래처 관리 (관리자·마스터): 외주 추가·삭제 (내부 두 곳은 못 지움 · 지운 이름을 다시 넣으면 되살림) ---- */
+VIEWS.rp_clients={ render:function(v){ reanim(v); v.refresh=function(){ return rpClientsLoad(v); };
+  v.el.innerHTML=title('거래처 관리','명세서 받는 곳 · 외주 고르기 목록')+spin(); rpClientsLoad(v); }};
+function rpClientsLoad(v){ return rpRun('rpClients',[]).then(function(r){ if(stack.indexOf(v)<0) return; v.state.r=r; rpClientsDraw(v); })
+  .catch(function(e){ if(stack.indexOf(v)<0) return; if(v.state.r) toast(e.message); else v.el.innerHTML=title('거래처 관리','')+errBox(e); }); }
+function rpClientsDraw(v){ var l=(v.state.r&&v.state.r.clients)||[], admin=rpCan('admin');
+  var h=title('거래처 관리',l.length+'곳')+'<div class="tipb">주식회사 애퍼처(향남)·에스에스글로벌(수원)은 내부라 못 지워요. 나머지는 외주 — SWING 기기 목록에 없는 기기를 입력할 때 고르는 목록이에요. 지운 거래처의 옛 기록·명세서는 이름 그대로 남아요.</div>';
+  if(admin) h+='<button class="btn" style="margin-bottom:14px" onclick="rpClientAddAsk()">'+RP_I.plus+'거래처 추가</button>';
+  h+='<div class="card" style="padding:8px 16px">'+l.map(function(c){ var inn=c.kind!=='vendor';
+    return '<div class="rpcrow"><div class="nm"><b>'+esc(c.name)+'</b><span class="rpk '+(inn?'in':'out')+'">'+(inn?'내부 · '+rpKindLb(c.kind):'외주')+'</span>'+
+      '<div class="sub">'+[c.ceo,c.tel,c.addr].filter(function(x){ return !!x; }).map(esc).join(' · ')+'</div></div>'+
+      (admin&&!inn?'<button class="rpx" onclick="rpClientDelAsk('+Number(c.id)+')" aria-label="'+esc(c.name)+' 지우기">'+RP_I.trash+'</button>':'')+'</div>'; }).join('')+'</div>';
+  v.el.innerHTML=h; }
+function rpClientAddAsk(){ haptic(8); openSheet('<h3>거래처 추가 (외주)</h3><p>명세서 받는 곳에 그대로 찍혀요 (이름 · 주소 · 전화).</p>'+
+  '<input class="input" id="rpcn" maxlength="60" placeholder="거래처 이름 (필수)" style="margin-bottom:8px"><input class="input" id="rpcc" maxlength="40" placeholder="대표자 (선택)" style="margin-bottom:8px">'+
+  '<input class="input" id="rpct" maxlength="30" inputmode="tel" placeholder="전화 (선택)" style="margin-bottom:8px"><input class="input" id="rpca" maxlength="200" placeholder="주소 (선택)" style="margin-bottom:12px">'+
+  '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" id="rpcago" onclick="rpClientAddGo()">추가</button></div>'); }
+function rpClientAddGo(){ var g=function(id){ var e=$(id); return e?String(e.value||'').trim():''; }, o={name:g('rpcn'),ceo:g('rpcc'),tel:g('rpct'),addr:g('rpca')}, b=$('rpcago');
+  if(!o.name){ toast('거래처 이름을 적어 주세요.'); return; } if(b){ b.disabled=true; b.textContent='추가하는 중…'; }
+  rpWrite('rpClientAdd',[o],RP_CX.ca=RP_CX.ca||runCx()).then(function(r){ RP_CX.ca=null; closeSheet(); toast('추가했어요 · '+o.name); var v=rpTop('rp_clients'); if(v){ v.state.r=r; rpClientsDraw(v); } },
+    function(e){ if(!rpSoft(e)) RP_CX.ca=null; if(b){ b.disabled=false; b.textContent='추가'; } toast(e.message); }); }
+function rpClientDelAsk(id){ var v=rpTop('rp_clients'); if(!v) return; var c=((v.state.r&&v.state.r.clients)||[]).filter(function(x){ return Number(x.id)===Number(id); })[0]; if(!c) return;
+  openSheet('<h3>'+esc(c.name)+' 지우기</h3><p>외주 고르기 목록에서 빠져요. 옛 기록·명세서는 이름 그대로 남고, 같은 이름으로 다시 추가하면 되살아나요.</p>'+
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--danger)" id="rpcdgo" onclick="rpClientDelGo('+Number(id)+')">지우기</button></div>'); }
+function rpClientDelGo(id){ var b=$('rpcdgo'), k='cd'+id; if(b){ b.disabled=true; b.textContent='지우는 중…'; }
+  rpWrite('rpClientDel',[id],RP_CX[k]=RP_CX[k]||runCx()).then(function(r){ delete RP_CX[k]; closeSheet(); toast('지웠어요'); var v=rpTop('rp_clients'); if(v){ v.state.r=r; rpClientsDraw(v); } },
+    function(e){ if(b){ b.disabled=false; b.textContent='지우기'; } toast(e.message); }); }
+/* ================= v10.52 SWING 수리 ERP 끝 ================= */
 
 /* ================= 작업자 관리 (관리자 전용) ================= */
 /* 작업내역에 모을 컬렉터 로그인 아이디(어드민 기기 기록의 "등록인")를 관리. 서버 시트 "SWING작업자" 탭에 저장된다. */
@@ -3865,8 +4603,12 @@ function addCodeGo(){ var name=($('ncn').value||'').trim(); var v=codeView(); cl
 var permMem=null;   // 마지막으로 받은 permInfo (권한 설정 → 사람별 페이지가 같이 씀)
 function permLoad(v,draw){ return run('permInfo').then(function(r){ permMem=r; if(stack.indexOf(v)>=0) draw(v); })
   .catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title(v.name==='perms'?'권한 설정':'사람별 권한','')+errBox(e); }); }
-function permGroups(fs,servers){ return ['swap','swing'].filter(function(sv){ return !servers||servers.indexOf(sv)>=0; }).map(function(sv){ return {sv:sv,list:fs.filter(function(f){ return f.server===sv; })}; }); }
-function permGroupLb(g){ return g.sv.toUpperCase()+(g.list.some(function(f){ return /\.home$/.test(f.k); })?' 홈·추가기능':' 추가기능'); }   // v10.51 서버가 '홈 현황 보기' 줄을 주면 (새 서버 · 켠 서버만)
+function permGroups(fs,servers){ var out=[];
+  ['swap','swing'].filter(function(sv){ return !servers||servers.indexOf(sv)>=0; }).forEach(function(sv){ var l=fs.filter(function(f){ return f.server===sv; }), rp=l.filter(rpPermKey), o=l.filter(function(f){ return !rpPermKey(f); });
+    if(o.length||!rp.length) out.push({sv:sv,list:o}); if(rp.length) out.push({sv:sv,list:rp,rp:true}); });   // v10.52 수리 기록·수리 전산 두 줄은 따로 무리 (새 서버가 수리 ERP 를 켰을 때만 줌)
+  return out; }
+function permGroupLb(g){ if(g.rp) return 'SWING 수리 ERP';
+  return g.sv.toUpperCase()+(g.list.some(function(f){ return /\.home$/.test(f.k); })?' 홈·추가기능':' 추가기능'); }   // v10.51 서버가 '홈 현황 보기' 줄을 주면 (새 서버 · 켠 서버만)
 function permRow(f,on,onclick,badge){ return '<div class="prow"><div class="pl"><b>'+esc(f.label)+(badge||'')+'</b>'+(f.note?'<span>'+esc(f.note)+'</span>':'')+'</div><button class="sw'+(on?' on':'')+'" aria-label="'+esc(f.label)+'" onclick="'+onclick+'"></button></div>'; }
 VIEWS.perms={ render:function(v){ v.refresh=function(){ return permLoad(v,permDraw); };
   if(!isAdminUp()){ v.el.innerHTML=title('권한 설정','')+'<div class="card"><div class="empty">관리자만 쓸 수 있어요.</div></div>'; return; }
@@ -3876,7 +4618,9 @@ function permView(n){ var v=stack[stack.length-1]; return (v&&v.name===n)?v:null
 function permDraw(v){ var r=permMem||{}, fs=r.features||[], d=r.defaults||{}, ppl=r.people||[];
   var h=title('권한 설정','일반 작업자')+
     '<div class="tipb">관리자·마스터는 모든 기능을 써요. 여기서 끈 기능은 일반 작업자 추가기능에 <b>자물쇠</b>로 보이고 못 들어가요.'+
-    (fs.some(function(f){ return /\.home$/.test(f.k); })?' <b>홈 현황 보기</b>를 끄면 홈 화면 숫자가 흐리게 + 자물쇠로 보여요 (서버도 숫자를 안 보냄).':'')+' 바꾸면 작업자가 앱을 다시 열 때 적용돼요.</div>';
+    (fs.some(function(f){ return /\.home$/.test(f.k); })?' <b>홈 현황 보기</b>를 끄면 홈 화면 숫자가 흐리게 + 자물쇠로 보여요 (서버도 숫자를 안 보냄).':'')+
+    (fs.some(rpPermKey)?' <b>수리 기록</b> = 홈 [수리기기 입력]·내 수리 내역 (그날 것만 고침) · <b>수리 전산</b> = 명세서·전체 기록·그래프 보기 (고치기 없음) · 둘 다 처음엔 꺼짐 → 사람별 예외로 켜 주세요.':'')+   // v10.52
+    ' 바꾸면 작업자가 앱을 다시 열 때 적용돼요.</div>';
   h+='<div class="card"><h3>기본값 · 일반 작업자 전체</h3>'+permGroups(fs).map(function(g){ return '<div class="lb" style="margin-top:12px">'+permGroupLb(g)+'</div>'+
     g.list.map(function(f){ return permRow(f,d[f.k]!==false,'permSetDefault(\''+f.k+'\','+(d[f.k]!==false?'false':'true')+',this)'); }).join(''); }).join('')+'</div>';
   h+='<div class="card"><h3>사람별 예외</h3><p class="muted" style="margin:0 0 6px;font-size:13px">한 사람만 기본값과 다르게 하고 싶을 때. 누르면 그 사람 기능을 따로 켜고 꺼요.</p>'+
@@ -4195,7 +4939,8 @@ function logout(msg){ if(loggingOut) return; loggingOut=true; AUTH=null; try{ lo
   try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('swapc:')===0&&k!=='swapc:_owner'&&k!=='swapc:sw_photos') localStorage.removeItem(k); }); }catch(e){}   // 주인 표시는 둠 (다음에 다른 사람이 들어오면 lsOwner 가 앞사람 작업자 이름도 비우게)
   // v10.46 사진 목록도 둠 — 사진 원본(IndexedDB swing-photos)은 남는데 목록만 지워져서, 사진모음에서 안 보이고 지울 수도 없게 쌓였음 (다른 코드로 들어올 때 lsOwner 도 사진은 남김)
   var u=location.pathname+(msg?'?bye='+encodeURIComponent(msg):''); kvClear().then(function(){ location.replace(u); }); }   // IndexedDB 를 다 지운 뒤에 다시 염 (지우는 중에 떠나면 남을 수 있어서)
-function logoutAsk(){ openSheet('<h3>로그아웃</h3><p>다시 들어오려면 접속 코드를 입력해야 해요.</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#d6336c" onclick="logout()">로그아웃</button></div>'); }
+function logoutAsk(){ var rpn=rpOut().length;   // v10.52 못 보낸 수리 기록이 있으면 알려 줌 (로그아웃하면 이 폰에서 지워짐)
+  openSheet('<h3>로그아웃</h3><p>다시 들어오려면 접속 코드를 입력해야 해요.'+(rpn?'<br><b style="color:var(--danger)">아직 못 보낸 수리 기록 '+rpn+'건이 있어요. 로그아웃하면 지워져요.</b>':'')+'</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#d6336c" onclick="logout()">로그아웃</button></div>'); }
 var appStarted=false;
 function startApp(){ if(appStarted) return; appStarted=true;
   stResume();   // v10.49 지난번에 끝을 못 본 상태 변경 → 홈을 그리기 전에 넣어 두고 getTag 로 확인
