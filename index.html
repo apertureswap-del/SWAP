@@ -18,19 +18,21 @@
 <style>
   :root{
     --bg:#f2f4f6; --card:#ffffff; --fill:#f2f4f6; --fill2:#f9fafb; --line:#e5e8eb; --line2:#d1d6db;
-    --ink:#191f28; --ink2:#333d4b; --muted:#6b7684; --muted2:#8b95a1;
+    --ink:#191f28; --ink2:#333d4b; --muted:#5b6573; --muted2:#636d7a;   /* v10.54 디자인 6-1: 회색 글 #6b7684→#5b6573 · 연한 글 #8b95a1→#636d7a (회색 칸 위 4.76 · 흰 바탕 5.25) */
     --p:#7820e8; --p-dark:#5b12b8; --p-soft:#f1e9ff; --p-soft2:#e4d4ff; --p-ink:#4a0fa3;
-    --green:#0fa958; --green-soft:#e6f8ee; --green-ink:#0b7a40;
+    --green:#0b7a40; --green-soft:#e6f8ee; --green-ink:#0b7a40;   /* 6-1: 초록 버튼 흰 글자 #0fa958(3.07) → 진한 초록(5.42) */
     --lime:#e6f8ee; --lime-ink:#0b7a40; --amber:#fff4d6; --amber-ink:#8a5a00; --blue-soft:#e8f3ff; --blue-ink:#1b64da;
-    --danger:#f04452; --danger-soft:#fdecec;
+    --danger:#c81e2d; --danger-soft:#fdecec;   /* 6-1: 빨강 글자·채움 #f04452(3.25·3.71) → #c81e2d(연분홍 위 5.00 · 흰 글자 5.71) */
+    --edge:#b0b8c1;   /* 5-1: 회색 바탕 위에 바로 놓인 칸의 테두리 */
     --r:20px; --r2:14px; --ease:cubic-bezier(.32,.72,0,1); --spring:cubic-bezier(.22,1.2,.36,1); --dur:.42s; --tab-h:64px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
   body{background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5;
        font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased;
-       font-feature-settings:"tnum"}
+       font-feature-settings:"tnum";word-break:keep-all;overflow-wrap:anywhere}   /* v10.54 디자인 2-2: 한국어는 단어 단위로 줄바꿈 ('기/기' 끊김 없앰) */
   button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0;margin:0}
+  :where(button:not([disabled])):active{transform:scale(.96)}   /* 5-4: 눌림 표시 공통 (큰 버튼과 같은 줄어듦) · 맨 앞 + 낮은 우선순위 = 따로 정한 버튼(위치용 transform 포함)이 늘 이김 */
   input,select,textarea{font:inherit;color:var(--ink)} a{color:inherit}
   b,strong{font-weight:700}
 
@@ -62,7 +64,7 @@
   .view.anim .code-badge{animation:pop .5s var(--spring) both}
   @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
   .view.has-back{padding-top:calc(16px + env(safe-area-inset-top))}
-  .fback{position:absolute;left:14px;top:calc(12px + env(safe-area-inset-top));width:42px;height:42px;border-radius:50%;
+  .fback{position:absolute;left:13px;top:calc(11px + env(safe-area-inset-top));width:44px;height:44px;border-radius:50%;   /* v10.54 디자인 5-3: 42 → 44px (가운데 자리는 그대로) */
          background:rgba(255,255,255,.92);box-shadow:0 2px 10px rgba(25,31,40,.10);display:flex;align-items:center;justify-content:center;
          z-index:6;opacity:0;pointer-events:none;transform:scale(.8);
          backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:opacity .2s,transform .35s var(--spring)}
@@ -90,14 +92,15 @@
   .fback:active{background:#fff;transform:scale(.88)}
   .ptitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 18px;min-height:42px}
   .ptitle .rt{flex:0 0 auto}
-  .hbtn{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:999px;background:var(--p);color:#fff;font-weight:700;font-size:13.5px;letter-spacing:-.2px;
+  .hbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:10px 14px;border-radius:999px;background:var(--p);color:#fff;font-weight:700;font-size:13.5px;letter-spacing:-.2px;
         box-shadow:0 8px 18px rgba(120,32,232,.28);transition:transform .25s var(--spring),box-shadow .2s}
   .hbtn:active{transform:scale(.94);box-shadow:0 3px 8px rgba(120,32,232,.2)}
   .hbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
   .view.anim .hbtn{animation:pop .5s var(--spring) .1s both}
   .days{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;margin:0 -2px 8px;scrollbar-width:none} .days::-webkit-scrollbar{display:none}
-  .days button{flex:0 0 auto;padding:9px 14px;border-radius:999px;background:#fff;font-weight:600;font-size:14px;color:var(--ink2);box-shadow:0 1px 3px rgba(25,31,40,.04);transition:all .2s var(--spring)}
+  .days button{flex:0 0 auto;min-height:44px;padding:9px 14px;border-radius:999px;background:#fff;font-weight:600;font-size:14px;color:var(--ink2);box-shadow:0 1px 3px rgba(25,31,40,.04);transition:all .2s var(--spring)}   /* 5-3: 39 → 44px */
   .days button b{margin-left:5px;color:var(--muted);font-weight:700} .days button.on{background:var(--ink);color:#fff} .days button.on b{color:rgba(255,255,255,.7)}
+  .days button b.pend{color:var(--danger)} .days button.on b.pend{color:#ff8fa3}   /* v10.54 검증: 업무보고 '미보고' — 흰 칩 위 빨강(5.71) · 고른 검정 칩 위는 밝은 빨강(7.66 · 예전 --danger 는 2.90) */
   .days button:active{transform:scale(.93)}
   .tl{margin:0;padding:0;list-style:none}
   .tl li{display:flex;gap:12px;padding:13px 4px;border-top:1px solid var(--fill);align-items:flex-start}
@@ -124,12 +127,13 @@
 
   /* 하단 메뉴: 불투명 + 테마색을 은은하게 (SWAP 보라 / SWING 검정). 고른 탭 아이콘은 테마색(--p)으로 선 안쪽만 채움
      (선 두께는 안 고른 때와 같게 — 두꺼워지면 집 문·톱니 구멍·네모 사이 틈이 좁아짐, v10.19) */
-  .tabbar{--tabbg:#f6effd;--tabline:#e9dbfb;height:var(--tab-h);flex:0 0 auto;display:flex;background:var(--tabbg);
+  .tabbar{--tabbg:#f6effd;--tabline:#e9dbfb;height:calc(var(--tab-h) + env(safe-area-inset-bottom));flex:0 0 auto;display:flex;background:var(--tabbg);   /* v10.54 디자인 10-1: 아이폰 홈 막대 여백은 64px 밖에 더함 (안에 넣으면 탭이 29.5px로 찌그러짐) */
           border-top:1px solid var(--tabline);padding-bottom:env(safe-area-inset-bottom);z-index:5}
   body.swing .tabbar{--tabbg:#ededee;--tabline:#dcdcdf}
-  .tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;color:#98a1ab;transition:color .15s}
+  .tabbar button{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:600;color:#5b6573;transition:color .15s}   /* 6-1: #98a1ab(2.33) → #5b6573(5.26) · 2-1: 11 → 12px */
   .tabbar button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
-  .tabbar button.on{color:var(--p)} .tabbar button.on svg{fill:currentColor;animation:tabpop .4s var(--spring)}
+  .tabbar button.on{color:var(--p);font-weight:800} .tabbar button.on svg{fill:currentColor;animation:tabpop .4s var(--spring)}
+  .tabbar button.on::before{content:'';position:absolute;top:0;left:50%;width:28px;height:3px;margin-left:-14px;border-radius:0 0 3px 3px;background:var(--p)}   /* 6-1: 안 고른 탭이 진해져서 고른 탭은 굵게 + 위 3px 막대 (색만으로 구분 안 함) */
   .tabbar button[data-tab="me"].on svg circle{fill:var(--tabbg)}   /* 톱니 가운데 구멍은 비움 */
   .tabbar button:active svg{transform:scale(.85)}
   @keyframes tabpop{0%{transform:scale(.8)}60%{transform:scale(1.18)}100%{transform:none}}
@@ -137,28 +141,31 @@
   .card{background:var(--card);border-radius:var(--r);padding:22px 20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(25,31,40,.03)}
   .card h3{margin:0 0 12px;font-size:17px;font-weight:700;letter-spacing:-.3px}
   .card .more{font-size:13.5px;font-weight:600;color:var(--muted)}
+  .more{display:inline-flex;align-items:center;min-height:44px;margin:-12px 0}   /* v10.54 디자인 5-2: '전체 보기 ›'·'기록 시트 ›' 보이는 크기는 그대로 · 누르는 높이만 44px */
+  .more:active{opacity:.6}
   .sum{padding:22px 20px 18px}
   .sum .lb{font-size:14px;color:var(--muted);font-weight:600}
   .sum .big{display:flex;align-items:baseline;gap:4px;margin-top:2px}
   .sum .big b{font-size:34px;font-weight:800;letter-spacing:-1px;line-height:1.15}
   .sum .big span{font-size:18px;font-weight:700;color:var(--ink2)}
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}
-  .stats button{background:var(--fill2);border-radius:14px;padding:12px 6px 10px;text-align:center;color:var(--ink);transition:transform .25s var(--spring),background .15s}
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:18px}   /* v10.54 디자인 2-1·7-1: 4칸 같은 폭 (글자가 칸을 밀지 않게) */
+  .stats button{background:var(--fill2);border-radius:14px;padding:12px 4px 10px;text-align:center;color:var(--ink);transition:transform .25s var(--spring),background .15s}   /* 옆 여백 6 → 4px (12px 칸 이름 한 줄) */
   .stats button:active{transform:scale(.93);background:var(--fill)}
-  .stats button span{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap}
+  .stats button span{display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}   /* 2-1: 11 → 12px (이름은 4-3 짧은 이름) */
   .stats button b{display:block;font-size:22px;font-weight:800;margin-top:2px;letter-spacing:-.6px;line-height:1.2}
-  .stats button.hot{background:var(--p);color:#fff} .stats button.hot span{color:rgba(255,255,255,.85)}
+  .stats button.hot{background:var(--green-soft);color:var(--green-ink)} .stats button.hot span{color:var(--green-ink)}   /* 8-2: 보라 채움 빼고 상태 색(연한 초록 · 4.91) — 보라 채움 = 'QR 찍기' 주 버튼만 */
   .stats button.wide{grid-column:span 2;display:flex;align-items:center;justify-content:center;gap:6px} .stats button.wide b{margin:0}
   .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted2);flex:0 0 auto}
   .dot.s-입고{background:var(--p)} .dot.s-수리대기{background:#f5a524} .dot.s-수리가능{background:#3182f6} .dot.s-재고{background:var(--green)} .dot.s-출고대기중{background:#14b8a6}
-  .dot.s-출고준비완료{background:var(--green)} .dot.s-출고완료{background:var(--muted2)} .hot .dot{background:#fff}
+  .dot.s-출고준비완료{background:var(--green)} .dot.s-출고완료{background:var(--muted2)} .hot .dot{background:var(--green-ink)}
 
   .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border-radius:16px;font-weight:700;font-size:16px;
        background:var(--p);color:#fff;text-decoration:none;letter-spacing:-.2px;
        transition:transform .25s var(--spring),opacity .15s,background .15s}
   .btn:active{transform:scale(.96);opacity:.9}
   .btn.dark{background:var(--ink)}
-  .btn.line{background:var(--fill);color:var(--ink2)}
+  .btn.line{background:#fff;color:var(--ink2);box-shadow:inset 0 0 0 1.5px var(--edge)}   /* v10.54 디자인 5-1: 회색 바탕 위 보조 버튼 = 흰 바탕 + 1.5px 테두리 (바탕과 같은 색이라 버튼으로 안 보였음) */
+  .card .btn.line,.list .btn.line,.sheet .btn.line,.modal .btn.line,.rprec .btn.line,.wfbar .btn.line,.devcard .btn.line{background:var(--fill);box-shadow:none}   /* 흰 카드 안은 지금 그대로 (회색 칸) */
   /* SWING 서버 테마: 보라 대신 검정 */
   body.swing{--p:#111318;--p-dark:#000;--p-soft:#e9eaef;--p-soft2:#d9dbe3;--p-ink:#111318}
   body.swing .hbtn{box-shadow:0 8px 18px rgba(0,0,0,.22)} body.swing .hbtn:active{box-shadow:0 3px 8px rgba(0,0,0,.18)}
@@ -175,7 +182,9 @@
   .field{margin-bottom:10px} .field label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
   .input{width:100%;padding:15px 16px;border-radius:var(--r2);border:0;background:var(--fill);outline:none;transition:box-shadow .15s,background .15s;font-weight:500}
   .input::placeholder{color:var(--muted2)}
-  .input:focus{background:#fff;box-shadow:0 0 0 2px var(--p)}
+  .view>.input,.view>.row>.input,.srch .input{background:#fff;box-shadow:inset 0 0 0 1.5px var(--edge)}   /* 5-1: 회색 바탕 위 입력칸·날짜칸·검색칸 = 흰 바탕 + 테두리 */
+  .card .srch .input,.sheet .srch .input{background:var(--fill);box-shadow:none}
+  .input:focus,.view>.input:focus,.view>.row>.input:focus,.srch .input:focus{background:#fff;box-shadow:0 0 0 2px var(--p)}
   .input.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:3px;font-weight:700;font-size:20px;text-transform:uppercase;text-align:center}
   .muted{color:var(--muted);font-size:14px}
   .empty{text-align:center;padding:36px 10px;color:var(--muted2);font-size:14.5px;line-height:1.6}
@@ -190,7 +199,8 @@
 
   .code-badge{display:inline-flex;align-items:center;font-family:ui-monospace,Menlo,monospace;font-size:19px;font-weight:800;letter-spacing:3px;
               background:var(--p-soft);color:var(--p-ink);padding:7px 12px 7px 14px;border-radius:12px}
-  .pill{display:inline-flex;align-items:center;font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:999px;letter-spacing:-.1px;white-space:nowrap}
+  .pill{display:inline-flex;align-items:center;font-size:14px;font-weight:700;padding:4px 11px;border-radius:999px;letter-spacing:-.1px;white-space:nowrap}   /* v10.54 디자인 2-1: 상태 칩 12.5 → 14px (목록에 박혀 있던 11px 은 지움) */
+  .tagst>.pill:first-child{font-size:18px;padding:6px 14px}   /* 2-1: 기기 상세 '지금 상태' = 18px 배지 */
   .s-입고{background:var(--p-soft);color:var(--p-ink)}
   .s-수리대기{background:var(--amber);color:var(--amber-ink)}
   .s-수리가능{background:var(--blue-soft);color:var(--blue-ink)}
@@ -253,8 +263,8 @@
   @media (orientation:landscape) and (min-width:640px){ .swgrid{grid-template-columns:repeat(5,1fr)} }
   .swgrid .ph{position:relative;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:var(--fill2);padding:0;text-align:left;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
   .swgrid .ph img{width:100%;height:100%;object-fit:cover;display:block}
-  .swgrid .ph .kind{position:absolute;left:6px;top:6px;padding:2px 6px;border-radius:6px;background:rgba(0,0,0,.65);color:#fff;font-size:10.5px;font-weight:800}
-  .swgrid .ph .info{position:absolute;left:0;right:0;bottom:0;padding:5px 6px;background:rgba(0,0,0,.6);color:#fff;font-size:10.5px;font-weight:600;line-height:1.3}
+  .swgrid .ph .kind{position:absolute;left:6px;top:6px;padding:2px 6px;border-radius:6px;background:rgba(0,0,0,.65);color:#fff;font-size:12px;font-weight:800}
+  .swgrid .ph .info{position:absolute;left:0;right:0;bottom:0;padding:5px 6px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;font-weight:600;line-height:1.3}   /* v10.54 디자인 2-1: 가장 작은 글자 12px */
   .swgrid .ph .ov{position:absolute;inset:0;background:rgba(74,21,75,.5);opacity:0;transition:opacity .15s;box-shadow:inset 0 0 0 3px #4a154b} .swgrid .ph.on .ov{opacity:1}
   .swgrid .ph.on .ov::after{content:"✓";position:absolute;right:6px;top:6px;width:22px;height:22px;border-radius:50%;background:#4a154b;color:#fff;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center}
   /* ---- 업무보고 ---- */
@@ -284,25 +294,25 @@
   @keyframes wig{0%{transform:rotate(-2deg) translateX(-.5px)}50%{transform:rotate(2deg) translateX(.5px)}100%{transform:rotate(-2deg) translateX(-.5px)}}
   .hr.bnc{animation:bnc .5s var(--spring)} @keyframes bnc{0%{transform:scale(1)}35%{transform:scale(1.2)}100%{transform:scale(1)}}
   .rcard{grid-column:2;margin:4px 0;background:#fff;border-radius:18px;padding:12px 14px;box-shadow:0 1px 2px rgba(25,31,40,.04),0 6px 20px rgba(25,31,40,.05);display:flex;flex-direction:column;animation:pop .4s var(--spring) both;min-height:0}
-  .rcard .hd{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:800;color:var(--p);margin-bottom:6px} .rcard .hd button{color:var(--muted2);font-size:18px;line-height:1;padding:0 2px}
+  .rcard .hd{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:800;color:var(--p);margin-bottom:6px} .rcard .hd button{color:var(--muted2);font-size:18px;line-height:1;padding:13px 0;min-width:44px;margin:-13px -15px -13px 0}   /* v10.54 디자인 5-2: 칸 지우기 × 보이는 크기·자리 그대로 · 누르는 범위 44x44 (검증: 폭이 39px 였음) */
   .rcard textarea{flex:1;min-height:44px;width:100%;overflow:hidden;resize:none;border:0;background:transparent;font:inherit;font-size:15px;font-weight:600;line-height:1.45;color:var(--ink);padding:0;outline:0}
   .rcard textarea::placeholder{color:var(--muted);font-weight:700;opacity:1}
   .rcard.done{box-shadow:inset 0 0 0 1.5px var(--p-soft)}
   .rcard.lock{background:var(--fill2);box-shadow:none} .rcard.lock .hd{color:var(--muted)} .rcard.lock textarea{color:var(--ink2);pointer-events:none} .rcard.lock textarea::placeholder{color:var(--muted2)}
   .rcard:not(.lock){box-shadow:0 0 0 2px var(--p),0 10px 26px rgba(120,32,232,.18)}
   /* 업무보고 자동 기록 (v10.31): 칸 안 목록 · 위 안내 줄 · 익일 시각 */
-  .rcard .rauto{list-style:none;margin:0 0 6px;padding:0;font-size:12.5px;line-height:1.45;color:var(--ink2);font-weight:600} .rcard .rauto li{padding:2px 0 2px 10px;position:relative;word-break:break-all}
+  .rcard .rauto{list-style:none;margin:0 0 6px;padding:0;font-size:12.5px;line-height:1.45;color:var(--ink2);font-weight:600} .rcard .rauto li{padding:2px 0 2px 10px;position:relative;word-break:keep-all;overflow-wrap:anywhere}
   .rcard .rauto li:before{content:'';position:absolute;left:0;top:9px;width:4px;height:4px;border-radius:50%;background:var(--p)}
   .rcard.lock .rauto{color:var(--ink2)}
   .rainfo{margin:0 0 12px;padding:10px 12px;border-radius:14px;background:var(--fill);font-size:13px;font-weight:600;color:var(--ink2);line-height:1.45} .rainfo.ok{background:var(--p-soft);color:var(--p-ink)} .rainfo.warn{background:#fff4e5;color:#8a4b00}
   .rainfo button{margin-left:6px;padding:3px 10px;border-radius:999px;background:#fff;font-weight:800;font-size:12.5px;color:inherit}
   .modal .rainfo{margin:0 0 4px;font-size:12.5px}
-  .hr i small{display:block;font-size:9.5px;font-weight:800;opacity:.75;margin-top:1px} .bubble button.nx{font-size:13px}
+  .hr i small{display:block;font-size:12px;font-weight:800;opacity:.75;margin-top:1px} .bubble button.nx{font-size:13px}
   .rhint{grid-column:2;align-self:center;font-size:13px;color:var(--muted2);font-weight:600;padding-left:4px;pointer-events:none}
   .selbar{position:sticky;bottom:calc(var(--tab-h) + 10px);z-index:3;margin:0 0 12px;background:var(--ink);color:#fff;border-radius:16px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:700;font-size:14px;box-shadow:0 14px 34px rgba(25,31,40,.3);animation:pop .35s var(--spring) both}
   .selbar b{font-size:16px;letter-spacing:-.3px} .selbar span{display:block;font-size:12px;color:rgba(255,255,255,.7);font-weight:600;margin-top:2px}
   .selbar button{padding:9px 14px;border-radius:999px;white-space:nowrap;background:rgba(255,255,255,.14);color:#fff;font-weight:800;font-size:13.5px} .selbar button.ok{background:var(--p)}
-  .flow{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:0 0 12px;font-size:12.5px;font-weight:700;color:var(--muted2)}
+  .flow{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:0 0 12px;font-size:12.5px;font-weight:700;color:var(--muted)}   /* v10.54 디자인 6-1: 상태 흐름 = 정보 글 → --muted
   .flow span{padding:4px 9px;border-radius:999px;background:var(--fill)} .flow span.on{background:var(--ink);color:#fff} .flow span.done{color:var(--ink2)} .flow i{font-style:normal;color:var(--line2)}
   .btn.lock{pointer-events:none}
   /* 재고/출고대기중 버튼: 자물쇠 잠금·해제 모션 */
@@ -311,26 +321,27 @@
   .btn.fin .lk svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;overflow:visible;display:block}
   .btn.fin .lk .sh{transform-origin:16px 11px}
   .btn.fin .lb{font-size:inherit;font-weight:inherit;color:inherit;margin:0}   /* v10.46 입력칸 이름표 .lb(회색 13px)가 버튼 글씨에도 먹어서 풀린 버튼 글씨가 흐렸음 */
-  .btn.fin.lock{background:var(--fill);color:var(--muted2);padding-left:34px} .btn.fin.lock .lk{display:block} .btn.fin.lock .lb{opacity:.75}
+  .btn.fin.lock{background:var(--fill);color:var(--muted2);padding-left:34px} .btn.fin.lock .lk{display:block} .btn.fin.lock .lb{opacity:1}   /* v10.54 디자인 6-1: 75% 흐림(2.98) 빼고 회색 글자 그대로 (4.76) · 잠김은 자물쇠가 알려 줌 */
   .btn.fin.unlocking,.btn.fin.locking{pointer-events:none}
   .btn.fin.unlocking{animation:btnun 1.6s ease both} .btn.fin.unlocking .lk{display:block;animation:lkun 1.6s cubic-bezier(.3,1.2,.5,1) both}
   .btn.fin.unlocking .lk .sh{animation:shopen 1.6s ease both} .btn.fin.unlocking .lb{animation:lbun 1.6s ease both}
   @keyframes btnun{0%,78%{background:var(--fill);color:var(--muted2)}100%{background:var(--fin);color:#fff}}
   @keyframes lkun{0%{left:14px;transform:scale(1);opacity:.75}22%{left:50%;transform:translateX(-50%) scale(1.9);opacity:1}72%{left:50%;transform:translateX(-50%) scale(1.9);opacity:1}100%{left:50%;transform:translateX(-50%) scale(0);opacity:0}}
   @keyframes shopen{0%,38%{transform:none}52%{transform:rotate(38deg) translateY(-1px)}60%{transform:rotate(30deg) translateY(-1px)}100%{transform:rotate(32deg) translateY(-1px)}}
-  @keyframes lbun{0%{opacity:.75}18%,72%{opacity:0}100%{opacity:1}}
+  @keyframes lbun{0%{opacity:1}18%,72%{opacity:0}100%{opacity:1}}
   .btn.fin.locking{animation:btnlk 1.6s ease both} .btn.fin.locking .lk{display:block;animation:lklk 1.6s cubic-bezier(.3,1.2,.5,1) both}
   .btn.fin.locking .lk .sh{animation:shclose 1.6s ease both} .btn.fin.locking .lb{animation:lblk 1.6s ease both}
   @keyframes btnlk{0%{background:var(--fin);color:#fff}22%,100%{background:var(--fill);color:var(--muted2)}}
   @keyframes lklk{0%{left:50%;transform:translateX(-50%) scale(0);opacity:0}22%{left:50%;transform:translateX(-50%) scale(1.9);opacity:1}72%{left:50%;transform:translateX(-50%) scale(1.9);opacity:1}100%{left:14px;transform:scale(1);opacity:.75}}
   @keyframes shclose{0%,38%{transform:rotate(32deg) translateY(-1px)}50%{transform:rotate(-4deg)}58%,100%{transform:none}}
-  @keyframes lblk{0%{opacity:1}18%,72%{opacity:0}100%{opacity:.75}}
-  .pill.sys{background:var(--danger-soft);color:var(--danger)} .pill.sys.sm{font-size:10.5px;padding:3px 7px}
-  .s-출고준비완료{background:var(--lime);color:var(--lime-ink)}
+  @keyframes lblk{0%{opacity:1}18%,72%{opacity:0}100%{opacity:1}}
+  .pill.sys{background:var(--danger-soft);color:var(--danger)} .pill.sys.sm{font-size:12px;padding:3px 7px}   /* 2-1: 10.5 → 12px */
+  .pill.sys[onclick]{position:relative;cursor:pointer;transition:transform .2s var(--spring),filter .15s} .pill.sys[onclick]::before{content:'';position:absolute;left:0;right:0;top:50%;height:44px;margin-top:-22px} .pill.sys[onclick]:active{transform:scale(.94);filter:brightness(.92)}   /* 5-2: 홈 '⚠️전산미완료 N' 누르는 높이 44px (보이는 칩은 그대로) */
+  .s-출고준비완료{background:var(--green-ink);color:#fff}   /* 6-2: 재고(연한 초록)와 나눔 — 지금 내보낼 것이라 진한 초록 채움 (5.42) */
   .s-출고완료{background:var(--fill);color:var(--muted)}
   .fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-  .fgrid button{display:flex;align-items:center;justify-content:center;gap:6px;padding:13px 6px;border-radius:14px;background:var(--fill);font-weight:700;font-size:14px;color:var(--ink2);white-space:nowrap;transition:all .2s var(--spring)}
-  .fgrid button:active{transform:scale(.94)} .fgrid button.on{background:var(--ink);color:#fff} .fgrid button.on .dot{background:#fff}
+  .fgrid button{display:flex;align-items:center;justify-content:center;gap:6px;padding:13px 6px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--edge);font-weight:700;font-size:14px;color:var(--ink2);white-space:nowrap;transition:all .2s var(--spring)}   /* v10.54 디자인 5-1: 안 고른 칸 = 흰 바탕 + 테두리 */
+  .fgrid button:active{transform:scale(.94)} .fgrid button.on{background:var(--ink);color:#fff;box-shadow:none} .fgrid button.on .dot{background:#fff}
   .fgrid button small{font-size:12px;font-weight:700;color:var(--muted);margin-left:2px} .fgrid button.on small{color:rgba(255,255,255,.75)}
   .fgrid button.sys{color:var(--danger)} .fgrid button.sys.on{background:var(--danger);color:#fff} .fgrid button.ship{color:var(--ink)}
   .kind{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;padding:4px 10px;border-radius:8px;letter-spacing:-.2px}
@@ -338,15 +349,16 @@
   .kindpick.three{grid-template-columns:1fr 1fr 1fr} .kindpick.three button{padding:16px 10px} .kindpick.three b{font-size:15px} .kindpick.three span{font-size:12px}
   .kindpick button.stock.on{box-shadow:inset 0 0 0 2px var(--ink2);background:#eef0f3}
   .srch{position:relative;margin-bottom:14px} .srch .input{padding-left:46px;font-size:17px;font-weight:600}
-  .srch svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:20px;height:20px;stroke:var(--muted2);fill:none;stroke-width:2.2;stroke-linecap:round}
+  .srch svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:20px;height:20px;stroke:var(--muted);fill:none;stroke-width:2.2;stroke-linecap:round}   /* 5-1: 칸 안 돋보기도 진한 회색 (햇빛에서 '누를 곳') */
   .srch .clr{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:var(--line2);color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .srch .clr::before{content:'';position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px}   /* 5-2: × 보이는 크기 그대로 · 누르는 범위 44px */
   .sec{display:flex;align-items:center;justify-content:space-between;margin:18px 6px 8px;font-size:14px;font-weight:700;color:var(--muted)}
   .sec .logo{width:38px;height:11px;opacity:.6}
   .item .av.gray{background:var(--fill);color:var(--ink2)}
   .steps{display:flex;gap:6px;margin:0 0 18px}
   .steps i{flex:1;height:4px;border-radius:2px;background:var(--line);transition:background .4s} .steps i.on{background:var(--p)}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chips button{padding:10px 15px;border-radius:999px;background:var(--fill);font-weight:600;font-size:14px;color:var(--ink2);transition:all .2s var(--spring)}
+  .chips button{min-height:44px;padding:10px 15px;border-radius:999px;background:var(--fill);font-weight:600;font-size:14px;color:var(--ink2);transition:all .2s var(--spring)}   /* v10.54 디자인 5-3: 36~41 → 44px */
   .chips button:active{transform:scale(.92)} .chips button.on{background:var(--ink);color:#fff;transform:scale(1.04)}
   /* 액세서리: 옵션을 고르는 물품(바구니·짐받이 = 프론트/리어, 레인커버 = S/M/L)은 작은 화살표 → 누르면 말풍선 */
   .chips button[data-opt]::after{content:'';display:inline-block;width:5px;height:5px;margin:0 1px 3px 7px;border:solid currentColor;border-width:0 1.8px 1.8px 0;transform:rotate(45deg);opacity:.5;vertical-align:middle}
@@ -377,8 +389,8 @@
   .kindpick .ic{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;background:#fff;font-size:20px}
   .kindpick b{display:block;font-size:17px;letter-spacing:-.3px} .kindpick span{font-size:13px;color:var(--muted);display:block;margin-top:2px;line-height:1.45}
   .field-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
-  .field-row .edit{font-size:13px;font-weight:700;color:var(--muted);background:var(--fill);padding:5px 10px;border-radius:8px}
-  .field-row .edit:active{background:var(--line)}
+  .edit{display:inline-flex;align-items:center;justify-content:center;min-height:44px;font-size:13px;font-weight:700;color:var(--muted);background:var(--fill);padding:0 16px;border-radius:8px;vertical-align:middle}   /* v10.54 디자인 5-2: '수정'·'어드민 새로고침'·'줄 고르기' 같은 작은 버튼은 어디서나 같은 모양 · 높이 44px · 옆 16px */
+  .edit:active{background:var(--line)}
   .acc{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .acc span{background:var(--fill);border-radius:8px;padding:5px 10px;font-size:13.5px;font-weight:600;color:var(--ink2)}
   .block{margin-top:16px;background:var(--fill2);border-radius:16px;padding:16px}
@@ -387,7 +399,7 @@
   .sect h3{margin:0}
 
   .kv{display:grid;grid-template-columns:76px 1fr;gap:10px 12px;font-size:15px;margin-top:14px}
-  .kv dt{color:var(--muted);font-size:14px;padding-top:1px} .kv dd{margin:0;font-weight:600;word-break:break-all}
+  .kv dt{color:var(--muted);font-size:14px;padding-top:1px} .kv dd{margin:0;font-weight:600;word-break:keep-all;overflow-wrap:anywhere}   /* v10.54 검증 2-2: 단어 단위 (긴 번호는 overflow-wrap 으로 그래도 끊김 · '15:2/3:00' 처럼 끊기던 것) */
   .mono{font-family:ui-monospace,Menlo,monospace;letter-spacing:.5px}
 
   .list{background:#fff;border-radius:var(--r);padding:8px;margin-bottom:14px;box-shadow:0 1px 3px rgba(25,31,40,.03)}
@@ -400,15 +412,18 @@
   .item .av.dev{letter-spacing:-.3px;font-family:Pretendard,-apple-system,sans-serif;font-weight:800;text-shadow:0 1px 1px rgba(0,0,0,.08)}
   .item .bd{flex:1;min-width:0}
   .item .nm{font-weight:700;font-size:16.5px;display:flex;align-items:center;gap:6px;letter-spacing:-.3px;flex-wrap:wrap}
-  .item .sub{font-size:13.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .item .sn{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--ink2);font-weight:600}
+  .item .sub{font-size:14px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* v10.54 디자인 2-1: 13.5 → 14px */
+  .item .sn{font-family:ui-monospace,Menlo,monospace;font-size:14px;color:var(--ink);font-weight:700}   /* 2-1: 일련번호 12.5 → 14px 진하게 (라벨과 맞춰 보는 값) */
+  .item .sub.sx{display:flex;align-items:baseline} .item .sub.sx .mt{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .item .sub.sx .dt{flex:0 0 auto;white-space:pre} .item .sub.sx .sn{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis}   /* v10.54 검증: 모자라면 앞(구분·모델·색)만 '…' · 일련번호는 끝까지 (subSn) */
   .item .chev{color:#b0b8c1;flex:0 0 auto}
   .item .rt{flex:0 0 auto;text-align:right}
-  .chip{font-size:10.5px;font-weight:700;background:var(--lime);color:var(--lime-ink);border-radius:6px;padding:2px 6px}
-  .chip.gray{background:#eef0f3;color:#6b7684} .chip.p{background:var(--p-soft);color:var(--p-ink)}
+  .chip{font-size:12px;font-weight:700;background:var(--lime);color:var(--lime-ink);border-radius:6px;padding:2px 6px}   /* 2-1: 10.5 → 12px */
+  .chip.gray{background:#eef0f3;color:var(--muted)} .chip.p{background:var(--p-soft);color:var(--p-ink)}
 
-  .seg{display:flex;background:var(--fill);border-radius:999px;padding:4px;margin-bottom:12px}
-  .seg button{flex:1;padding:10px;border-radius:999px;font-size:14.5px;font-weight:600;color:var(--muted);transition:all .2s var(--ease)}
+  .seg{display:flex;background:#e5e8eb;border-radius:999px;padding:4px;margin-bottom:12px}   /* v10.54 디자인 5-1: 회색 바탕 위 구분 버튼 틀은 한 단계 진하게 */
+  .card .seg,.sheet .seg,.wfbar .seg,.modal .seg{background:var(--fill)}
+  .seg button{flex:1;min-height:44px;padding:10px;border-radius:999px;font-size:14.5px;font-weight:600;color:var(--muted);transition:all .2s var(--ease)}   /* 5-3: 41.8 → 44px */
   .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(25,31,40,.10);font-weight:700}
   .hist{margin:0;padding:0;list-style:none}
   .hist li{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--muted);padding:11px 0;border-top:1px solid var(--fill)}
@@ -423,21 +438,29 @@
   /* v10.49 상태 변경을 기다리지 않음: 바로 바꿔 그리고 "전산 변경 중…" 만 작게 (그 기기 상태 칸 · 목록 · 아래 알림) */
   .stp{display:inline-flex;align-items:center;gap:6px;margin-left:8px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--fill);color:var(--muted);font-size:12px;font-weight:700;letter-spacing:-.1px;vertical-align:middle;white-space:nowrap}
   .stp i{flex:0 0 auto;width:11px;height:11px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--p);animation:rot .8s linear infinite}
-  .stp.sm{margin-left:6px;padding:2px 7px 2px 6px;font-size:10.5px;gap:4px} .stp.sm i{width:9px;height:9px}
+  .stp.sm{margin-left:6px;padding:2px 7px 2px 6px;font-size:12px;gap:4px} .stp.sm i{width:9px;height:9px}   /* v10.54 디자인 2-1: 10.5 → 12px */
   .stp.err{background:var(--danger-soft);color:var(--danger)} .stp.err i{display:none}
   .stbusy .btn{opacity:.5;pointer-events:none}
-  .hist li.stph{color:var(--muted2)}
-  .stbar{position:fixed;left:50%;bottom:calc(var(--tab-h) + 12px);transform:translateX(-50%) translateY(8px);opacity:0;pointer-events:none;z-index:6;display:flex;align-items:center;gap:8px;
+  .hist li.stph{color:var(--muted)}   /* 6-1: 이력 = 정보 글 */
+  .stbar{position:fixed;left:50%;bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);transform:translateX(-50%) translateY(8px);opacity:0;pointer-events:none;z-index:6;display:flex;align-items:center;gap:8px;
          max-width:88%;padding:9px 15px 9px 12px;border-radius:999px;background:rgba(25,31,40,.86);color:#fff;font-size:13px;font-weight:600;white-space:nowrap;
          transition:opacity .2s,transform .35s var(--spring);backdrop-filter:blur(8px)}
   .stbar.on{opacity:1;transform:translateX(-50%);pointer-events:auto}
   .stbar i{flex:0 0 auto;width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:rot .8s linear infinite}
   .stbar span{overflow:hidden;text-overflow:ellipsis} .stbar.err{background:var(--danger)} .stbar.err i{display:none}
-  .toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + 20px);transform:translateX(-50%) translateY(10px);opacity:0;background:rgba(25,31,40,.92);color:#fff;
-         padding:13px 20px;border-radius:16px;font-size:14.5px;font-weight:600;z-index:99;max-width:88%;text-align:center;pointer-events:none;
+  .toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 20px);transform:translateX(-50%) translateY(10px);opacity:0;background:rgba(25,31,40,.92);color:#fff;
+         padding:13px 20px;border-radius:16px;font-size:14.5px;font-weight:600;z-index:99;width:max-content;max-width:calc(100vw - 32px);text-align:center;pointer-events:none;
          transition:transform .45s var(--spring),opacity .25s;backdrop-filter:blur(8px)}
   .toast.on{opacity:1;transform:translateX(-50%)}
-  .stickybar{position:sticky;bottom:0;margin:8px -20px -28px;padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 70%,rgba(242,244,246,0))}
+  /* v10.54 디자인 10-1: 아이폰 홈 막대만큼 위로 · 10-2: 폭은 글 길이대로 (최대 화면 폭 − 32px · 반 폭에 갇혀 '닫/지'처럼 끊기던 것) · 오류·'앱을 닫지 마세요' = 눌러 닫을 때까지 (오른쪽 × 44px) */
+  .toast.keep.on{pointer-events:auto;padding-right:48px;cursor:pointer}
+  .toast.keep::after{content:'×';position:absolute;right:0;top:50%;width:44px;height:44px;margin-top:-22px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:rgba(255,255,255,.75)}
+  /* v10.54 검증: 시트가 열려 있으면 토스트는 화면 위 (어두운 자리) — 남는 토스트가 시트 아래쪽 칸을 덮어 첫 탭이 토스트 닫기로 먹히던 것 (외주 고르기 창 '어드민 찾기 실패' 등) */
+  body.shon #toast{top:calc(env(safe-area-inset-top) + 12px);bottom:auto;transform:translateX(-50%) translateY(-10px)} body.shon #toast.on{transform:translateX(-50%)}
+  /* v10.54 검증 8-1: '다음' 막대 = 아래 메뉴 바로 위 (위아래 여백 12px) — 뷰 아래 여백(64+28px)만큼 bottom·margin 을 내림 (bottom:0 은 여백 위 92px 에 떠서 밑으로 목록이 비쳤음)
+     · 홈 막대 여백은 아래 메뉴가 이미 가짐 (여기서 또 더하면 아이폰에서 34px 더 뜸) */
+  .stickybar{position:sticky;bottom:calc(-1 * (var(--tab-h) + 28px));margin:8px -20px calc(-1 * (var(--tab-h) + 28px));padding:12px 20px;background:linear-gradient(to top,var(--bg) 70%,rgba(242,244,246,0))}
+  #confirm{display:contents}   /* v10.54 디자인 8-1: 등록 '다음' 고정 고장 — 자기 높이만 한 상자(#confirm) 안이라 sticky 가 못 움직였음 → 상자를 없는 셈 치고 화면(뷰) 아래에 붙음 */
 
   .dim{position:fixed;inset:0;background:rgba(25,31,40,.5);opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
   .dim.on{opacity:1;pointer-events:auto}
@@ -470,14 +493,14 @@
   .lab-preview .lb{border-radius:14px;padding:12px;display:flex;gap:10px;align-items:center;background:var(--fill2)}
   .lab-preview .lb .qr img,.lab-preview .lb .qr canvas{display:block;width:64px;height:64px}
   .lab-preview .lb .c{font-family:ui-monospace,Menlo,monospace;font-weight:800;letter-spacing:1.5px;font-size:13px}
-  .lab-preview .lb .t{font-size:10px;color:var(--muted)}
+  .lab-preview .lb .t{font-size:12px;color:var(--muted)}
   #printarea{display:none}
 
   /* 작업보고 알림 지정 (v10.30): 출근 요일 · 날짜 예외 */
   .pawd{display:flex;gap:6px;margin-top:8px} .pawd button{flex:1;padding:11px 0;border-radius:12px;background:var(--fill);font-weight:800;font-size:15px;color:var(--ink2);transition:transform .15s}
-  .pawd button.sun{color:#e5484d} .pawd button.sat{color:#2b6fe0} .pawd button.on{background:var(--p);color:#fff} .pawd button:active{transform:scale(.94)}
+  .pawd button.sun{color:var(--danger)} .pawd button.sat{color:#2b6fe0} .pawd button.on{background:var(--p);color:#fff} .pawd button:active{transform:scale(.94)}
   .paex{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px} .paex span{display:inline-flex;align-items:center;gap:2px;padding:5px 4px 5px 11px;border-radius:999px;font-size:13px;font-weight:700}
-  .paex .add{background:var(--p-soft);color:var(--p-ink)} .paex .off{background:var(--fill);color:var(--muted)} .paex button{width:26px;height:26px;border-radius:50%;font-size:16px;line-height:1;color:inherit}
+  .paex .add{background:var(--p-soft);color:var(--p-ink)} .paex .off{background:var(--fill);color:var(--muted)} .paex button{position:relative;width:26px;height:26px;border-radius:50%;font-size:16px;line-height:1;color:inherit} .paex button::before{content:'';position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px}
   /* 추가기능 메뉴 */
   .mitem{display:flex;align-items:center;gap:14px;width:100%;padding:16px 14px;border-radius:18px;background:#fff;text-align:left;margin-bottom:10px;box-shadow:0 1px 2px rgba(25,31,40,.04),0 6px 20px rgba(25,31,40,.05);transition:transform .15s}
   .mitem:active{transform:scale(.98)} .mitem .mi{flex:0 0 46px;height:46px;border-radius:14px;background:var(--p-soft);color:var(--p);display:flex;align-items:center;justify-content:center}
@@ -529,15 +552,16 @@
   .wk7 .ph{fill:var(--line2)}
   .melb{font-size:13px;font-weight:700;color:var(--muted);margin:6px 6px 10px}
   /* 권한 설정 */
-  .prow{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--line)} .prow:last-child{border-bottom:0}
+  .prow{display:flex;align-items:center;gap:12px;min-height:52px;padding:4px 2px;border-bottom:1px solid var(--line);cursor:pointer} .prow:last-child{border-bottom:0}   /* v10.54 디자인 5-2: 스위치 줄 전체를 누름 (rowSwTap · 아이폰 설정 앱처럼) */
+  .prow:active{background:var(--fill)}
   .prow .pl{flex:1;min-width:0} .prow .pl b{font-size:15.5px;font-weight:700} .prow .pl span{display:block;font-size:12.5px;color:var(--muted);margin-top:1px}
-  .prow .exc,.pperson i{font-style:normal;margin-left:6px;padding:2px 7px;border-radius:999px;background:var(--amber);color:var(--amber-ink);font-size:11px;font-weight:800;vertical-align:1px}
+  .prow .exc,.pperson i{font-style:normal;margin-left:6px;padding:2px 7px;border-radius:999px;background:var(--amber);color:var(--amber-ink);font-size:12px;font-weight:800;vertical-align:1px}
   .plist{margin:0 -4px} .pperson{display:flex;align-items:center;gap:8px;width:100%;padding:13px 6px;border-radius:12px;text-align:left}
   .pperson:active{background:var(--fill)} .pperson b{font-size:15.5px;font-weight:700} .pperson span{flex:1;min-width:0;font-size:12px;color:var(--muted)}
   .pperson em{font-style:normal;font-size:12px;color:var(--muted2)} .pperson u{text-decoration:none;color:var(--muted2);font-size:18px} .pperson.off b{color:var(--muted);text-decoration:line-through}
   .srvchips{flex-wrap:wrap} .srvchips button{white-space:nowrap;flex:0 0 auto} .srvchips button.role.on{background:var(--amber-ink);color:#fff}
   /* 신품 체크 */
-  .chk{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink2);cursor:pointer;user-select:none;padding:8px 12px;border-radius:12px;background:var(--fill)}
+  .chk{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:14px;font-weight:700;color:var(--ink2);cursor:pointer;user-select:none;padding:8px 12px;border-radius:12px;background:var(--fill)}   /* v10.54 검증 5-3: 체크 줄 37 → 44px (SWING 환경설정 등) */
   .chk input{position:absolute;opacity:0;width:0;height:0}
   .chk i{width:20px;height:20px;border-radius:7px;border:1.5px solid var(--line2);background:#fff;display:inline-flex;align-items:center;justify-content:center;transition:all .15s}
   .chk i::after{content:'';width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px);opacity:0}
@@ -547,7 +571,7 @@
   .srow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)} .srow:last-child{border-bottom:0}
   .srow .sn{flex:1;min-width:0} .srow .sn b{font-weight:800;font-size:15px} .srow .sn span{display:block;font-size:12.5px;color:var(--muted)}
   .srow .sv{display:flex;gap:6px;flex:0 0 auto} .srow .sv em{font-style:normal;font-size:12.5px;font-weight:700;padding:5px 9px;border-radius:9px;background:var(--fill);color:var(--muted);white-space:nowrap}
-  .srow .sv em.ch{background:var(--p-soft);color:var(--p-ink)} .srow .sv em s{text-decoration:line-through;opacity:.55;margin-right:4px}
+  .srow .sv em.ch{background:var(--p-soft);color:var(--p-ink)} .srow .sv em s{text-decoration:line-through;color:var(--muted);margin-right:4px} .srow .sv em small{font-size:12px}   /* v10.54 검증: 지운 값 55% 흐림(3.23) → 회색 글자 · (+1) 기본 small 10.4px → 12px */
   .srow.dim .sn b{color:var(--muted)}
   .srow .sbtns{display:flex;gap:6px;flex:0 0 auto}   /* 줄 고르기 · 태그 */
   .sprow{display:flex;align-items:baseline;gap:8px;width:100%;padding:12px 4px;border-top:1px solid var(--line);text-align:left} .sprow:active{background:var(--fill)}
@@ -585,17 +609,18 @@
   .lcard .lt{font-size:22px;font-weight:800;letter-spacing:-.6px;line-height:1.25} .lcard .lt em{font-style:normal;color:#a56bff}
   /* 서버 선택: 배경 없는 글자만. 선택되면 굵게 + 밑줄 */
   .srvpick{display:flex;justify-content:center;gap:34px}
-  .srvpick button{background:transparent;color:rgba(255,255,255,.5);font-size:22px;font-weight:600;letter-spacing:1px;padding:4px 2px;position:relative;transition:color .2s,transform .25s var(--spring)}
+  .srvpick button{min-height:44px;background:transparent;color:rgba(255,255,255,.5);font-size:22px;font-weight:600;letter-spacing:1px;padding:4px 2px;position:relative;transition:color .2s,transform .25s var(--spring)}
   .srvpick button::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2.5px;border-radius:2px;background:#fff;transform:scaleX(0);transition:transform .3s var(--spring)}
   .srvpick button.on{color:#fff;font-weight:900;transform:scale(1.06)} .srvpick button.on::after{transform:scaleX(1)}
   .lcard .ll{margin:16px 0 8px;font-size:13px;font-weight:600;color:rgba(255,255,255,.62);letter-spacing:.3px}
   .lcard .linput{width:100%;box-sizing:border-box;margin-top:22px;padding:12px 4px 10px;border:0;border-bottom:2px solid rgba(255,255,255,.55);border-radius:0;background:transparent;color:#fff;outline:none;
          font-family:ui-monospace,Menlo,monospace;font-size:28px;font-weight:700;letter-spacing:8px;text-align:center;text-transform:uppercase;transition:border-color .15s}
-  .lcard .linput::placeholder{letter-spacing:0;font-size:15px;font-family:inherit;font-weight:500;color:rgba(255,255,255,.35);text-transform:none}
+  .lcard .linput::placeholder{letter-spacing:0;font-size:15px;font-family:inherit;font-weight:500;color:rgba(255,255,255,.55);text-transform:none}   /* v10.54 디자인 6-1: 35% → 55% (3.18 → 6.22) */
   .lcard .linput:focus{border-bottom-color:#fff;border-bottom-width:3px;padding-bottom:9px}
-  .lcard .btn{margin:18px auto 0;width:auto;min-width:112px;padding:10px 26px;font-size:22px;font-weight:900;letter-spacing:-.3px;border-radius:12px;background:transparent;color:#fff;box-shadow:none} .lcard .btn:active{transform:scale(.94)} .lcard .btn:disabled{opacity:.6}
-  .lcard .lauto{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;user-select:none}
-  .lcard .lauto input{position:absolute;opacity:0;width:0;height:0}
+  .lcard .btn{margin:18px auto 0;width:100%;min-height:56px;padding:0 16px;font-size:20px;font-weight:800;letter-spacing:-.3px;border-radius:16px;background:#7820e8;color:#fff;box-shadow:none}   /* v10.54 디자인 8-2: '접속' = 메인 색 채움 · 전체 폭 · 56px (투명이라 글자처럼 보였음) */
+  body.swing .lcard .btn{background:#fff;color:#111318}   /* SWING 메인 색(검정)은 검은 로그인 바탕에 안 보임 → 흰 채움 */ .lcard .btn:active{transform:scale(.94)} .lcard .btn:disabled{opacity:.6}
+  .lcard .lauto{display:inline-flex;align-items:center;gap:8px;margin-top:4px;padding:12px 6px;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;user-select:none}
+  .lcard .lauto input{position:absolute;opacity:0;width:0;height:0} .lcard .lauto:active{opacity:.7}
   .lcard .lauto i{width:20px;height:20px;border-radius:7px;border:1.5px solid rgba(255,255,255,.45);background:rgba(0,0,0,.25);display:inline-flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s}
   .lcard .lauto i::after{content:'';width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px);opacity:0;transition:opacity .15s}
   .lcard .lauto input:checked+i{background:var(--p);border-color:var(--p)} .lcard .lauto input:checked+i::after{opacity:1}
@@ -622,16 +647,19 @@
   .lpct b{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;min-width:64px;text-align:right;letter-spacing:-.5px}
   .lpct span{font-size:14px;font-weight:700;color:rgba(255,255,255,.78);min-width:138px;text-align:left}
   @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
-  .lver{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,.35)}
+  .lver{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,.5)}   /* 6-1: 35% → 50% (3.1 → 5.33) */
   /* 토글 스위치 */
-  .sw{position:relative;flex:0 0 auto;width:48px;height:28px;border-radius:999px;background:#d9dbe3;border:0;padding:0;transition:background .2s;cursor:pointer}
-  .sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .22s var(--spring)}
-  .sw.on{background:var(--p)} .sw.on::after{transform:translateX(20px)}
+  /* v10.54 디자인 5-2: 스위치 버튼 = 48x44 (누르는 칸) · 보이는 길·손잡이는 그대로 48x28 (길 = ::before) · 권한·품목 여러 개 줄은 줄 전체도 누름 */
+  .sw{position:relative;flex:0 0 auto;width:48px;height:44px;border-radius:0;background:none;border:0;padding:0;cursor:pointer}
+  .sw::before{content:"";position:absolute;left:0;right:0;top:8px;height:28px;border-radius:999px;background:#d9dbe3;transition:background .2s}
+  .sw::after{content:"";position:absolute;top:11px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .22s var(--spring)}
+  .sw.on::before{background:var(--p)} .sw.on::after{transform:translateX(20px)}
   .crow{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)} .crow:last-child{border-bottom:0}
   .crow .cc{font-family:ui-monospace,Menlo,monospace;font-weight:800;font-size:16px;letter-spacing:1.5px;flex:0 0 78px;color:var(--p-ink)}
   .crow.off .cc{color:var(--muted);text-decoration:line-through}
-  .srvchips{display:flex;gap:6px;margin-top:6px} .srvchips button{padding:4px 10px;border-radius:999px;background:var(--fill);font-size:11.5px;font-weight:800;color:var(--muted2);letter-spacing:.3px} .srvchips button.on{background:var(--p);color:#fff}
-  .crow .cn{flex:1;min-width:0} .crow .cn .input{padding:10px 12px;font-size:15px} .crow .cm{font-size:11.5px;color:var(--muted);margin-top:3px;padding-left:2px}
+  .srvchips{display:flex;gap:8px;margin-top:6px} .srvchips button{position:relative;min-height:36px;padding:4px 12px;border-radius:999px;background:var(--fill);font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.3px} .srvchips button.on{background:var(--p);color:#fff}   /* v10.54 디자인 5-2: 25 → 36px (누르는 높이 44px) · 2-1: 11.5 → 12px */
+  .srvchips button::before{content:'';position:absolute;left:0;right:0;top:50%;height:44px;margin-top:-22px}
+  .crow .cn{flex:1;min-width:0} .crow .cn .input{min-height:44px;padding:10px 12px;font-size:15px} .crow .cm{font-size:12px;color:var(--muted);margin-top:3px;padding-left:2px}
   /* SWING 작업자 관리 / 작업내역 */
   .crow .wid{font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:13.5px;color:var(--p-ink);margin:0 0 6px 2px;word-break:break-all} .crow.off .wid{color:var(--muted);text-decoration:line-through}
   .srvchips .wdel{margin-left:auto;background:transparent;color:var(--danger)}
@@ -642,18 +670,18 @@
   .wkq>div{background:var(--fill);border-radius:10px;padding:7px 9px;min-width:0}
   .wkq b{display:block;font-family:ui-monospace,Menlo,monospace;font-size:14px;font-weight:800;letter-spacing:.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .wkq i{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:1px}
-  .wkq small{display:block;font-size:11.5px;color:var(--ink2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .wkq small{display:block;font-size:12px;color:var(--ink2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .wkq b.im{white-space:normal;word-break:break-all;font-size:12px;line-height:1.3}   /* QR 없이 IMEI로 나오는 기기 */
-  .wkq>div.low{background:#fdecec;box-shadow:inset 0 0 0 1.5px var(--danger)} .wkq .bt{display:block;font-style:normal;font-size:11.5px;font-weight:800;color:var(--ink2);margin-top:2px} .wkq .low .bt{color:var(--danger)}
+  .wkq>div.low{background:#fdecec;box-shadow:inset 0 0 0 1.5px var(--danger)} .wkq .bt{display:block;font-style:normal;font-size:12px;font-weight:800;color:var(--ink2);margin-top:2px} .wkq .low .bt{color:var(--danger)}
   .wkq>div[data-i]{cursor:pointer;transition:transform .15s} .wkq>div[data-i]:active{transform:scale(.96)}
-  .wkq em.of,.wkq em.jd,.wkq em.pw,.wkq em.pd,.wkq em.pn{display:inline-block;margin-top:3px;padding:1px 6px;border-radius:6px;font-style:normal;font-size:11px;font-weight:800;line-height:1.5}
+  .wkq em.of,.wkq em.jd,.wkq em.pw,.wkq em.pd,.wkq em.pn{display:inline-block;margin-top:3px;padding:1px 6px;border-radius:6px;font-style:normal;font-size:12px;font-weight:800;line-height:1.5}
   .wkq em.of{background:#fff4e0;color:#b45309} .wkq em.jd{background:var(--p-soft,#f1e8fd);color:var(--p)} .wkq em.jd.no{background:var(--danger-soft,#fdecec);color:var(--danger)}
   .wkq em.pw{background:#fff4e0;color:#b45309} .wkq em.pd{background:#e6f7ec;color:#1f6b3a} .wkq em.pn{background:var(--fill);color:var(--muted)}
-  .wkq em.sv{display:inline-block;margin-top:3px;padding:1px 6px;border-radius:6px;font-style:normal;font-size:11px;font-weight:800;line-height:1.5;background:var(--fill);color:var(--muted);animation:svp 1.2s ease-in-out infinite}   /* 판정 저장 중 (v10.32) */
+  .wkq em.sv{display:inline-block;margin-top:3px;padding:1px 6px;border-radius:6px;font-style:normal;font-size:12px;font-weight:800;line-height:1.5;background:var(--fill);color:var(--muted);animation:svp 1.2s ease-in-out infinite}   /* 판정 저장 중 (v10.32) */
   @keyframes svp{50%{opacity:.45}} @media (prefers-reduced-motion:reduce){.wkq em.sv{animation:none}}
-  .wkq em.lv{display:block;margin-top:3px;font-style:normal;font-size:11px;font-weight:700;color:#1f6b3a;line-height:1.35} .wkq em.lv.no{color:var(--danger)}   /* 다시 확인: 지금 상태 */
+  .wkq em.lv{display:block;margin-top:3px;font-style:normal;font-size:12px;font-weight:700;color:#1f6b3a;line-height:1.35} .wkq em.lv.no{color:var(--danger)}   /* 다시 확인: 지금 상태 */
   .wdpend{margin:0 0 12px;padding:12px 14px;border-radius:14px;background:var(--danger-soft,#fdecec);color:var(--danger)} .wdpend b{display:block;font-size:14px}
-  .wdpend span{display:block;font-size:12.5px;color:var(--ink2);margin-top:2px} .wdpend .row{flex-wrap:wrap;gap:6px;margin-top:8px} .wdpend .row .btn{flex:0 0 auto;width:auto;padding:8px 12px}
+  .wdpend span{display:block;font-size:12.5px;color:var(--ink2);margin-top:2px} .wdpend .row{flex-wrap:wrap;gap:8px;margin-top:8px} .wdpend .row .btn{flex:0 0 auto;width:auto;min-height:44px;padding:8px 12px}   /* v10.54 검증 5-3: 판정 안 한 기기 이동 버튼 38.5 → 44px · 사이 8px */
   .wkq>div.cut b{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--muted)}
   /* SWING 홈 (작업내역 요약) */
   .hello h1.swt{font-size:24px;margin-top:6px}
@@ -662,19 +690,19 @@
   .brk span.ck{background:var(--danger-soft);color:var(--danger)} .brk span.ck b{color:var(--danger)}
   .tipb{position:relative;background:#111318;color:#fff;border-radius:14px;padding:10px 34px 10px 13px;font-size:13px;line-height:1.5;margin:0 0 16px}
   .tipb::after{content:'';position:absolute;left:24px;bottom:-7px;border:7px solid transparent;border-top-color:#111318;border-bottom:0}
-  .tipb button{position:absolute;right:6px;top:4px;width:26px;height:26px;color:rgba(255,255,255,.65);font-size:18px;background:none}
+  .tipb button{position:absolute;right:-3px;top:-5px;width:44px;height:44px;color:rgba(255,255,255,.65);font-size:18px;background:none}   /* v10.54 디자인 5-2: 닫기 × 누르는 칸 26 → 44px (× 자리는 그대로) */
   .tipb.warn{background:#fff4d6;color:#8a5a00;padding-right:13px;margin-bottom:18px} .tipb.warn::after{border-top-color:#fff4d6}
   .wkbtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .wkb{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:13px 13px 12px;border-radius:16px;background:var(--p);color:#fff;text-align:left;box-shadow:0 6px 16px rgba(0,0,0,.14);transition:transform .2s var(--spring)}
   .wkb:active{transform:scale(.96)} .wkb b{font-size:16.5px;font-weight:800;letter-spacing:-.3px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .wkb span{font-size:13px;opacity:.85;font-weight:600}
-  .wkb i{font-style:normal} .wkb .ck{position:absolute;right:10px;top:9px;font-size:11.5px;font-weight:800}
-  .wkb .lw{position:absolute;right:9px;bottom:9px;font-size:11px;font-weight:800;background:#fdecec;color:var(--danger);border-radius:999px;padding:1px 7px}
-  .wkb.done{background:var(--fill);color:var(--muted);box-shadow:none} .wkb.done b{color:var(--muted)}
-  .wkb.ld{background:var(--fill);color:var(--muted);box-shadow:none} .wkb.ld b{color:var(--ink2)} .wkb.ld span{animation:svp 1.4s ease-in-out infinite}   /* v10.39 새로 추가한 작업자: 서버가 뒤에서 받는 중 */
-  @media (prefers-reduced-motion:reduce){.wkb.ld span{animation:none}}
-  .wkb .nt{margin-top:6px;font-size:11.5px;font-weight:700;line-height:1.5;opacity:.92}   /* [야간] 21:10~익일 06:40 — 폭이 모자라면 시각만 다음 줄로 */
-  .wkb .nt em{font-style:normal;display:inline-block;font-size:10.5px;font-weight:800;background:rgba(255,255,255,.22);border-radius:999px;padding:0 7px;margin-right:4px}
-  .wkb .nt span{font-size:11.5px;opacity:1;white-space:nowrap}
+  .wkb i{font-style:normal} .wkb .ck{position:absolute;right:10px;top:9px;font-size:12px;font-weight:800}
+  .wkb .lw{position:absolute;right:9px;bottom:9px;font-size:12px;font-weight:800;background:#fdecec;color:var(--danger);border-radius:999px;padding:1px 7px}
+  .wkb.done{background:var(--fill);color:var(--muted);box-shadow:none} .wkb.done b{color:var(--muted)} .wkb.done span{opacity:1}   /* v10.54 디자인 6-1: 회색 버튼 위 85% 흐림(3.92) 빼기 */
+  .wkb.ld{background:var(--fill);color:var(--muted);box-shadow:none} .wkb.ld b{color:var(--ink2)} .wkb.ld>span{opacity:1} .wkb.ld>span::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:2px;animation:svp 1.4s ease-in-out infinite}   /* v10.54 검증: 글자 85% 흐림·깜빡임(3.92) 대신 앞 점만 깜빡 */   /* v10.39 새로 추가한 작업자: 서버가 뒤에서 받는 중 */
+  @media (prefers-reduced-motion:reduce){.wkb.ld>span::before{animation:none}}
+  .wkb .nt{margin-top:6px;font-size:12px;font-weight:700;line-height:1.5;opacity:.92}   /* [야간] 21:10~익일 06:40 — 폭이 모자라면 시각만 다음 줄로 */
+  .wkb .nt em{font-style:normal;display:inline-block;font-size:12px;font-weight:800;background:rgba(255,255,255,.22);border-radius:999px;padding:0 7px;margin-right:4px}
+  .wkb .nt span{font-size:12px;opacity:1;white-space:nowrap}
   .wkb.done .nt em{background:#e3e6ea;color:var(--ink2)} .wkb.hn .lw{position:static;margin-top:5px}   /* 야간 표시가 있으면 ⚠️ 는 그 아래 줄로 (겹치지 않게) */
   /* I9 작업 (작업자 세부 · 슬랙으로 보내기 위): 체크하면 아래 말풍선에서 I9 교체·I9 민원 대수 */
   .i9card{padding:14px 16px} .i9card .chk{width:100%}
@@ -683,7 +711,7 @@
   .exbtn{width:100%;display:flex;align-items:center;gap:8px;padding:11px 12px;border-radius:12px;background:var(--fill);font-size:14.5px;font-weight:700;color:var(--ink2);text-align:left;transition:transform .15s}
   .exbtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round;flex:0 0 auto}
   .exbtn b{flex:0 0 auto} .exbtn small{margin-left:auto;min-width:0;font-size:12px;font-weight:600;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .exbtn i{font-style:normal;font-size:11px;color:var(--muted);flex:0 0 auto} .exbtn:active{transform:scale(.98)}
+  .exbtn i{font-style:normal;font-size:12px;color:var(--muted);flex:0 0 auto} .exbtn:active{transform:scale(.98)}
   .exbtn.on{background:var(--p-soft);color:var(--p-ink)} .exbtn.on small,.exbtn.on i{color:var(--p-ink)}
   .exseg{position:relative;display:flex;gap:4px;background:#fff;border-radius:10px;padding:3px;margin-bottom:6px}
   .exseg button{position:relative;flex:1;height:32px;border-radius:8px;font-size:13.5px;font-weight:700;color:var(--muted)}
@@ -693,21 +721,24 @@
   .i9bub::before{content:'';position:absolute;top:-7px;left:22px;width:14px;height:14px;background:var(--p-soft);transform:rotate(45deg);border-radius:2px}
   .i9row{position:relative;display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:15px;font-weight:700;color:var(--ink)}
   .i9row .stp{display:flex;align-items:center;gap:6px} .i9row .stp b{min-width:34px;text-align:center;font-size:18px;font-weight:800}
-  .i9row .stp button{width:36px;height:36px;border-radius:11px;background:#fff;color:var(--p-ink);font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .i9row .stp button{width:44px;height:44px;border-radius:11px;background:#fff;color:var(--p-ink);font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center}
   .i9row .stp button:disabled{opacity:.35} .i9row .stp button:active{transform:scale(.92)}
   .i9bub p{position:relative;margin:6px 0 0;font-size:12.5px;color:var(--muted);line-height:1.45}
   .swold{margin-top:12px;font-size:12.5px;font-weight:700;color:var(--danger);background:#fdecec;border-radius:10px;padding:8px 10px;line-height:1.45}
   /* 작업자 세부 */
   .wdst{margin:-6px 4px 12px;font-size:13.5px;font-weight:700} .wdst.ok{color:var(--green-ink)} .wdst.un{color:#b45309} .wdst.ld{color:var(--muted)}
-  .seg button.z,.catbar button.z{opacity:.45}
+  .seg button.z,.catbar button.z{color:var(--muted);font-weight:500} .catbar button.z b{color:var(--muted)}   /* v10.54 디자인 6-1: 0건 탭 = 45% 흐림(대비 1.83~2.4) 대신 회색 글자 */
   .seg.mseg button{white-space:nowrap;padding:10px 4px;font-size:14px} .seg.mseg button b{font-weight:800;margin-left:3px}
-  .days button.z{opacity:.45}
+  .days button.z{color:var(--muted);font-weight:500}
   /* 홈 7일 그래프 */
   .wkst{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
   .wkst div{background:var(--fill);border-radius:12px;padding:9px 10px} .wkst span{display:block;font-size:12px;color:var(--muted);font-weight:600} .wkst b{display:block;font-size:17px;font-weight:800;letter-spacing:-.3px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .wk7{display:block;width:100%;height:auto;margin:4px 0 6px} .wk7 .ax{stroke:var(--line2);stroke-width:1}
-  .wk7 .tl{font-size:12px;font-weight:800;fill:var(--ink);text-anchor:middle} .wk7 .tl.s{font-size:10px;font-weight:600;fill:var(--muted2)}
-  .wk7 .dl{font-size:12px;font-weight:600;fill:var(--muted);text-anchor:middle} .wk7 .nd{fill:none;stroke:var(--line2);stroke-dasharray:3 3}
+  .wk7 .tl{font-size:13.5px;font-weight:800;fill:var(--ink);text-anchor:middle} .wk7 .tl.s{font-size:13.5px;font-weight:600;fill:var(--muted2)}   /* v10.54 디자인 2-1: 그림이 0.91배로 줄어 12px → 10.9px 였음 → 그림 기준 13.5px (실제 12px 이상) */
+  .wk7 .dl{font-size:13.5px;font-weight:600;fill:var(--muted);text-anchor:middle} .wk7 rect[onclick]:active{fill:rgba(25,31,40,.06)}   /* 5-4: 막대 누르면 그 칸이 살짝 어두워짐 */ .wk7 .nd{fill:none;stroke:var(--line2);stroke-dasharray:3 3}
+  /* v10.54 검증: 그림은 칸 폭(화면 − 80px)에 맞춰 줄어듦 → 좁은 폰은 그림 글자를 키워 실제 12px 이상 (13.5px 는 390 에서만 12.3px · 360 은 11.1px 였음) */
+  @media (max-width:389px){.wk7 .tl,.wk7 .tl.s,.wk7 .dl{font-size:14px}} @media (max-width:374px){.wk7 .tl,.wk7 .tl.s,.wk7 .dl{font-size:14.7px}}
+  @media (max-width:359px){.wk7 .tl,.wk7 .tl.s,.wk7 .dl{font-size:15.8px}} @media (max-width:339px){.wk7 .tl,.wk7 .tl.s,.wk7 .dl{font-size:17.1px}}
   .wklg,.wktip{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12.5px;color:var(--ink2);font-weight:600}
   .wklg i,.wktip i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
   .wktip{margin-top:10px;background:var(--fill);border-radius:12px;padding:10px 12px;color:var(--muted);line-height:1.6} .wktip b{color:var(--ink);width:100%} .wktip span{color:var(--ink2)} .wktip .ck{color:var(--danger)}
@@ -718,12 +749,12 @@
   .wfbar .wfm{margin:8px 0 0} .wfbar .wfs{margin-top:8px} .wfbar .wfs button{padding:8px 13px;font-size:13.5px}
   .pkseg{margin-bottom:10px} .pkseg button{display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
   .pkseg button b{font-weight:700;color:var(--muted2);font-size:13px} .pkseg button.on b{color:var(--muted)}
-  .pkseg button i{font-style:normal;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:var(--p);color:#fff;font-size:11.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+  .pkseg button i{font-style:normal;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:var(--p);color:#fff;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
   .pklist{max-height:46vh;overflow-y:auto;margin:0 -4px 4px;padding:0 4px;-webkit-overflow-scrolling:touch}
   .pkrow{display:flex;align-items:center;gap:10px;width:100%;padding:12px 10px;border-radius:12px;text-align:left;font-size:15.5px}
   .pkrow:active{background:var(--fill)} .pkrow i{flex:0 0 22px;height:22px;border-radius:7px;box-shadow:inset 0 0 0 2px var(--line2);font-style:normal;font-weight:800;font-size:13px;color:#fff;display:flex;align-items:center;justify-content:center}
   .pkrow.on i{background:var(--p);box-shadow:none} .pkrow b{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .pkrow span{font-size:12.5px;color:var(--muted)}
-  .catbar{display:flex;flex-wrap:wrap;gap:6px;margin:0 -2px 12px;padding:2px}   /* 줄바꿈 → 탭이 한 화면에 다 보임 (웹에서 끝이 잘리지 않게) */
+  .catbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 -2px 12px;padding:2px}   /* 줄바꿈 → 탭이 한 화면에 다 보임 (웹에서 끝이 잘리지 않게) */
   .catbar.res{align-items:center;margin-top:-4px;padding-top:8px;border-top:1px dashed #e5e8eb} .catbar.res .rl{font-size:12px;font-weight:700;color:var(--muted);margin:0 4px 0 2px}
   .catbar button.rb{color:#1f6b3a} .catbar button.rb b{color:#1f6b3a} .catbar button.rb.on{background:#1f6b3a;color:#fff} .catbar button.rb.on b{color:#fff}
   .catbar button.rm{color:var(--danger)} .catbar button.rm b{color:var(--danger)} .catbar button.rm.on{background:var(--danger);color:#fff} .catbar button.rm.on b{color:#fff}
@@ -732,17 +763,18 @@
   .wdq{display:flex;align-items:center;gap:6px;width:148px;max-width:40vw;padding:4px 1px 5px;border-bottom:1.5px solid #c9ced6;cursor:text;transition:border-color .15s}
   .wdq:focus-within{border-bottom-color:#191f28}
   .wdq svg{flex:0 0 18px;width:18px;height:18px;fill:none;stroke:#191f28;stroke-width:2;stroke-linecap:round}
-  .wdq input{flex:1;min-width:0;border:0;outline:0;background:transparent;padding:1px 0;font:inherit;font-size:15px;font-weight:700;letter-spacing:.4px;color:var(--ink);text-transform:uppercase}
-  .wdq input::placeholder{text-transform:none;letter-spacing:0;font-weight:500;color:#a0a7b1}
-  .wdq .wdqx{flex:0 0 20px;width:20px;height:20px;border-radius:50%;padding:0;background:#e9ecef;color:#6b7684;font-size:14px;font-weight:700;line-height:20px;text-align:center}
-  .wdq input:placeholder-shown + .wdqx{display:none}
-  .catbar button{flex:0 0 auto;padding:9px 12px;border-radius:12px;background:#fff;font-weight:700;font-size:13.5px;color:var(--ink2);box-shadow:0 1px 3px rgba(25,31,40,.05)}
+  .wdq input{flex:1;min-width:0;border:0;outline:0;background:transparent;padding:11px 0;font:inherit;font-size:15px;font-weight:700;letter-spacing:.4px;color:var(--ink);text-transform:uppercase}
+  .wdq input::placeholder{text-transform:none;letter-spacing:0;font-weight:500;color:var(--muted2)}
+  .wdq .wdqx{position:relative;flex:0 0 20px;width:20px;height:20px;border-radius:50%;padding:0;background:#e9ecef;color:var(--muted);font-size:14px;font-weight:700;line-height:20px;text-align:center}
+  .wdq input:placeholder-shown + .wdqx{display:none} .wdq .wdqx::before{content:'';position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px}
+  .catbar button{flex:0 0 auto;min-height:44px;padding:9px 12px;border-radius:12px;background:#fff;font-weight:700;font-size:13.5px;color:var(--ink2);box-shadow:0 1px 3px rgba(25,31,40,.05)}
   .catbar button b{margin-left:5px;color:var(--muted)} .catbar button.on{background:var(--ink);color:#fff} .catbar button.on b{color:rgba(255,255,255,.75)}
   .catbar button.ck{color:var(--danger)} .catbar button.ck b{color:var(--danger)} .catbar button.ck.on{background:var(--danger);color:#fff} .catbar button.ck.on b{color:#fff}
   .catbar button.of{color:#b45309} .catbar button.of b{color:#b45309} .catbar button.of.on{background:#b45309;color:#fff} .catbar button.of.on b{color:#fff}
   /* ---- v10.52 SWING 수리 ERP (지금 카드·버튼·선 아이콘 그대로) ---- */
   /* v10.53 아래 고정 자리 #rpdock: 뷰(스크롤 상자) 밖 · #stage 안 · 탭바 바로 위(bottom 10px) — 스크롤해도 늘 그 자리 (v10.52 는 뷰 안 sticky 라 탭바와 ~100px 떨어지고 내용이 짧으면 내용 밑에 붙어 같이 움직였음)
-     맨 위 화면 것만: SWING 홈 [수리기기 입력]+못 보낸 기록 줄 · 수리 내역 입력 [입력 완료] · 부품 재고 저장 막대 (rpDockSync) · 그 화면 뷰 아래 여백 = 이 높이 + 16px (JS) · 토스트·알림 막대는 그 위로 */
+     맨 위 화면 것만: 수리 내역 입력 [입력 완료] · 부품 재고 저장 막대 (rpDockSync) · 그 화면 뷰 아래 여백 = 이 높이 + 16px (JS) · 토스트·알림 막대는 그 위로
+     v10.54 SWING 홈 [수리기기 입력]+못 보낸 기록 줄은 여기서 빠짐 = 홈 내용 안 최근 7일 카드 바로 밑 (.rphome · 내용과 같이 스크롤) */
   .rpdock{position:absolute;left:0;right:0;bottom:0;z-index:4;display:none;padding:18px 20px 10px;pointer-events:none;background:linear-gradient(to top,var(--bg) 62%,rgba(242,244,246,0))}
   .rpdock.on{display:block;animation:rpdkin .28s var(--spring) both} .rpdock button,.rpdock input{pointer-events:auto}
   @keyframes rpdkin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -750,48 +782,49 @@
   .rpdock.out{animation:rpdkout var(--dur) var(--ease) both} .rpdock.out button,.rpdock.out input{pointer-events:none}   /* 뒤로 가는 0.38초: 떠나는 화면 버튼은 그 화면과 같이 옆으로 (rpDockLeave) */
   @keyframes rpdkout{from{opacity:1;transform:none}to{opacity:.85;transform:translateX(100%)}}
   body.camfull .rpdock{display:none}
-  body.rpdk .toast{bottom:calc(var(--tab-h) + 20px + var(--rpdock-h,0px))} body.rpdk .stbar{bottom:calc(var(--tab-h) + 12px + var(--rpdock-h,0px))}
-  .rphome{margin:0} .rphome:empty{display:none}
-  .rphome .rpgo{font-size:17px;padding:17px;box-shadow:0 10px 26px rgba(0,0,0,.22)}
+  body.rpdk .toast{bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 20px + var(--rpdock-h,0px))} body.rpdk .stbar{bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px + var(--rpdock-h,0px))}   /* v10.54 디자인 10-1: 홈 막대 여백 더함 */
+  .rphome{margin:0 0 14px} .rphome:empty{display:none}   /* v10.54 최근 7일 카드(아래 여백 14px) 바로 밑 · 내용 흐름 (sticky·고정 아님) */
+  .rphome .rpgo{font-size:17px;padding:17px;box-shadow:0 6px 18px rgba(0,0,0,.16)}
   .rpq{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:8px;padding:9px 12px;border-radius:12px;background:var(--card);color:var(--muted);font-size:13px;font-weight:700;box-shadow:0 1px 3px rgba(25,31,40,.08)}
   .rpq i,.rpoj .st i{flex:0 0 auto;width:11px;height:11px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--p);animation:rot .8s linear infinite}
   .rpq.err{background:var(--danger-soft);color:var(--danger)}
   .rpdev .rpdh{display:flex;align-items:center;gap:12px} .rpdev .bd{flex:1;min-width:0} .rpdev .bd>b{font-size:20px;font-weight:800;letter-spacing:.3px}
   .rpdev .av.veh{flex:0 0 48px;width:48px;height:48px;border-radius:50%;overflow:hidden;background:#000;box-shadow:0 2px 8px rgba(0,0,0,.18)} .rpdev .av.veh svg{display:block;width:100%;height:100%}
-  .rpm{margin-left:8px;background:var(--fill);color:var(--ink2);font-size:11px;padding:3px 8px;vertical-align:3px}
+  .rpm{margin-left:8px;background:var(--fill);color:var(--ink2);font-size:12px;padding:3px 8px;vertical-align:3px}
   .rpcl{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:4px;font-size:15px} .rpcl b{font-weight:700}
   .rpk{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap;vertical-align:1px}
   .rpk.in{background:var(--p);color:#fff} .rpk.out{background:var(--amber);color:var(--amber-ink)} .rpk.none{background:var(--danger-soft);color:var(--danger)}
   .rpnote{font-size:13px;margin:10px 2px 0;line-height:1.5}
   .rprecent{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--fill2);font-size:13px;color:var(--ink2);line-height:1.5} .rprecent .lb{margin-bottom:2px} .rprecent span{color:var(--muted);margin-right:6px}
-  .rptop,.rpchips{display:flex;flex-wrap:wrap;gap:7px}
-  .rpchip{padding:9px 13px;border-radius:999px;background:var(--fill);font-weight:700;font-size:13.5px;color:var(--ink2);transition:transform .15s}
+  .rptop,.rpchips{display:flex;flex-wrap:wrap;gap:8px}   /* v10.54 디자인 5-3: 칩 사이 8px */
+  .rpchip{min-height:44px;padding:9px 13px;border-radius:999px;background:var(--fill);font-weight:700;font-size:13.5px;color:var(--ink2);transition:transform .15s}   /* v10.54 디자인 5-3: 38.3 → 44px */
+  .rpchips .rpchip{background:#fff;box-shadow:inset 0 0 0 1.5px var(--edge)} .rpchips .rpchip.on{background:var(--ink);box-shadow:none}   /* 5-1: 회색 바탕 위 칩 (부품 재고) */
   .rpchip.on{background:var(--ink);color:#fff} .rpchip b{margin-left:5px;font-weight:800} .rpchip:active{transform:scale(.94)}
   .rpsrch{margin-bottom:10px} .rpsrch .input{font-size:16px}
-  .rpseg{margin-bottom:8px} .rpseg button b{margin-left:4px;font-weight:800;color:var(--muted2)} .rpseg.q button{opacity:.45}
+  .rpseg{margin-bottom:8px} .rpseg button b{margin-left:4px;font-weight:800;color:var(--muted2)} .rpseg.q button{font-weight:500}   /* v10.54 검증: 검색 중 탭 45% 흐림(1.83~1.90 · 눌러도 되는 탭) 빼고 고른 탭 없음 + 얇은 글자로만 */
   .rplist{max-height:52vh;max-height:min(50vh,430px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin:0 -6px;padding:0 6px}
   .rpit{display:flex;align-items:center;gap:8px;width:100%;min-height:48px;padding:10px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:15px;font-weight:600;color:var(--ink)}
-  .rpit:last-child{border-bottom:0} .rpit .nm{flex:1;min-width:0} .rpit .nm small{display:inline-block;margin-right:6px;font-size:11px;font-weight:800;color:var(--muted2)}
+  .rpit:last-child{border-bottom:0} .rpit .nm{flex:1;min-width:0} .rpit .nm small{display:inline-block;margin-right:6px;font-size:12px;font-weight:800;color:var(--muted)}   /* v10.54 검증: 고른 줄(연한 바탕) 위 4.37 → 4.92 */
   .rpit .bg{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;max-width:48%}
   .rpit .ck{flex:0 0 26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;background:var(--fill);color:transparent}
   .rpit .ck svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
   .rpit.on{background:var(--p-soft);border-radius:12px} .rpit.on .ck{background:var(--p);color:#fff} .rpit:active{background:var(--fill)}
-  .rpb{font-style:normal;display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap;background:var(--fill);color:var(--muted)}
+  .rpb{font-style:normal;display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap;background:var(--fill);color:var(--muted)}
   .rpb.multi{background:var(--blue-soft);color:var(--blue-ink)} .rpb.warn{background:var(--danger-soft);color:var(--danger)} .rpb.won{color:var(--ink2)}
   .rpsr{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line)} .rpsr:last-child{border-bottom:0}
   .rpsr .nm{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:15px}
-  .rpqty{display:flex;align-items:center;gap:4px} .rpqty button{width:36px;height:36px;border-radius:10px;background:var(--fill);font-size:20px;font-weight:700;color:var(--ink2)} .rpqty b{min-width:26px;text-align:center;font-size:16px}
-  .rpx{flex:0 0 auto;width:36px;height:36px;border-radius:10px;background:var(--fill);color:var(--muted);display:flex;align-items:center;justify-content:center}
+  .rpqty{display:flex;align-items:center;gap:4px} .rpqty button{width:44px;height:44px;border-radius:10px;background:var(--fill);font-size:20px;font-weight:700;color:var(--ink2)} .rpqty b{min-width:26px;text-align:center;font-size:16px}
+  .rpx{flex:0 0 auto;width:44px;height:44px;border-radius:10px;background:var(--fill);color:var(--muted);display:flex;align-items:center;justify-content:center}
   .rpx svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
   .rpvl{max-height:56vh;overflow-y:auto;margin:0 -4px} .rpvr{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:14px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:16px}
   .rpvr span{font-size:12.5px;color:var(--muted);white-space:nowrap} .rpvr:active{background:var(--fill)}
   .rpvfind{margin:0 0 12px;padding:10px;border-radius:14px;background:var(--fill2)} .rpvfind .btn{width:100%;background:var(--card)} .rpvfind span{display:block;margin-top:7px;font-size:12.5px;color:var(--muted);text-align:center;line-height:1.45}
   .rprecs{margin-bottom:6px}
   .rprec{background:var(--card);border-radius:16px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(25,31,40,.03)}
-  .rprec .rph{display:flex;align-items:center;gap:8px;width:100%;text-align:left} .rprec .tm{font-size:13px;font-weight:700;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  .rprec .rph{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;margin:-10px 0;text-align:left;border-radius:10px} .rprec .rph:active{transform:none;background:var(--fill)}   /* v10.54 디자인 5-2: 기록 여는 줄 24.8 → 44px (자리는 그대로) · 5-4 눌리면 회색 */ .rprec .tm{font-size:13px;font-weight:700;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
   .rprec .rph b{font-size:16.5px;font-weight:800;flex:1;min-width:0}
   .rprec .cl{font-size:13px;color:var(--muted);margin-top:4px} .rprec .ln{font-size:14.5px;font-weight:600;color:var(--ink2);margin-top:2px;line-height:1.45} .rprec .ln b{color:var(--p-ink)}
-  .rprec .memo{margin-top:6px;padding:7px 10px;border-radius:10px;background:var(--fill2);font-size:13px;color:var(--ink2);white-space:pre-wrap;word-break:break-all}
+  .rprec .memo{margin-top:6px;padding:7px 10px;border-radius:10px;background:var(--fill2);font-size:13px;color:var(--ink2);white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
   .rprec .mn{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:6px;font-size:15px} .rprec .vd{margin-top:6px;font-size:12.5px;color:var(--danger)}
   .rprec.void{opacity:.62} .rprec.void .ln{text-decoration:line-through} .rprec .rpact{margin-top:10px}
   .pill.rpst{background:var(--blue-soft);color:var(--blue-ink)}
@@ -812,13 +845,14 @@
   .rpsl{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:11px 2px;border-bottom:1px solid var(--line);text-align:left} .rpsl:last-child{border-bottom:0}
   .rpsl div{min-width:0} .rpsl div b{font-size:15px;margin-right:6px} .rpsl div span{display:block;font-size:12.5px;color:var(--muted);margin-top:1px} .rpsl>b{white-space:nowrap} .rpsl.void{opacity:.55}
   .rpstk{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--line)} .rpstk:last-child{border-bottom:0}
-  .rpstk .nm{flex:1;min-width:0;font-size:14.5px;font-weight:600} .rpstk .nm span{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-top:1px}
+  .rpstk[onclick]:active{background:var(--fill)}   /* v10.54 디자인 5-4: 부품 줄 눌림 */
+  .rpstk .nm{flex:1;min-width:0;font-size:14.5px;font-weight:600} .rpstk .nm span{display:block;font-size:14px;color:var(--muted);font-weight:500;margin-top:1px}
   .rpstk .q{flex:0 0 auto;text-align:right} .rpstk .q b{font-size:19px;font-weight:800} .rpstk .q span{font-size:12px;color:var(--muted);margin-left:2px}
   .rpstk.low{background:var(--danger-soft);border-radius:12px;border-bottom-color:transparent} .rpstk.low .nm,.rpstk.low .q b,.rpstk.low .nm span{color:var(--danger)}
   .rpstk .qi{flex:0 0 84px;width:84px;padding:10px;text-align:right;font-size:17px;font-weight:700}
   .brk span.rplow{background:var(--danger-soft);color:var(--danger)} .brk span.rplow b{color:var(--danger)}
   .rpcrow{display:flex;align-items:center;gap:10px;padding:12px 2px;border-bottom:1px solid var(--line)} .rpcrow:last-child{border-bottom:0}
-  .rpcrow .nm{flex:1;min-width:0} .rpcrow .nm b{font-size:15.5px;margin-right:6px} .rpcrow .sub{font-size:12.5px;color:var(--muted);margin-top:2px;word-break:break-all}
+  .rpcrow .nm{flex:1;min-width:0} .rpcrow .nm b{font-size:15.5px;margin-right:6px} .rpcrow .sub{font-size:12.5px;color:var(--muted);margin-top:2px;word-break:keep-all;overflow-wrap:anywhere}   /* v10.54 검증 2-2: 거래처 주소 '안산/시'·'광/화문빌딩' 처럼 끊기던 것 */
   /* 거래명세서 (양식 그대로 · A4 세로 · mm) — 화면은 줄여서 미리보기 · 인쇄는 #printarea */
   .stview{margin-top:14px} .stsc{position:relative;overflow:hidden;margin:0 auto 12px;border-radius:6px;background:#fff;box-shadow:0 1px 3px rgba(25,31,40,.08),0 8px 24px rgba(25,31,40,.08)}
   .stz{width:210mm;transform-origin:0 0}
@@ -901,7 +935,7 @@
     <button data-tab="me" onclick="goTab('me')"><svg viewBox="0 0 24 24"><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/><circle cx="12" cy="12" r="3.2"/></svg>환경설정</button>
   </nav>
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" onclick="toastClose()"></div>
 <div class="dim" id="dim" onclick="closeSheet()"></div>
 <div class="sheet" id="sheet"></div>
 <input type="file" id="camfile" accept="image/*" capture="environment" style="display:none">
@@ -912,7 +946,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.53';
+var APP_VER = '10.54';
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -921,7 +955,9 @@ var libsReady=false; document.addEventListener('DOMContentLoaded',function(){ li
 var STATUS_IN  = ['입고','수리대기','수리가능','재고','출고대기중'];
 var STATUS_READY='수리가능', STATUS_FINAL=['재고','출고대기중'];
 var STATUS_LEGACY={'수리완료':'수리가능','출고대기':'출고대기중','출고준비중':'출고준비완료'}; function normStatus(t){ if(t&&STATUS_LEGACY[t['상태']]) t['상태']=STATUS_LEGACY[t['상태']]; return t; }
-var STATUS_OUT = ['출고준비완료','출고완료'];   // 출고완료 = 실제로 나간 기기(배송내역)
+var STATUS_OUT = ['출고준비완료','출고완료'];
+var ST_NAME={'출고대기중':'출고대기','출고준비완료':'출고준비'};   /* v10.54 디자인 4-3: 화면에 보이는 상태 이름은 여기서만 (홈 숫자 칸·현황 필터·목록 칩·기기 상세가 같은 글자) · 저장 값·서버로 가는 값은 그대로 */
+function stName(s){ return ST_NAME[s]||s; }   // 출고완료 = 실제로 나간 기기(배송내역)
 var STATUS_SHIPPED='출고완료'; function shipped(t){ return t['상태']===STATUS_SHIPPED; }
 var STATUSES   = STATUS_IN.concat(STATUS_OUT);
 var ACC_PRESET = ['배터리','충전기','SWAP백','시동키','카드키','배터리키','헬멧','체인락','프레임락','프레임 락키','폰거치대','바구니','짐받이','레인커버'];
@@ -947,7 +983,15 @@ function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 function todayISO(off){ var d=new Date(); d.setDate(d.getDate()+(off||0)); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
 function fmtToday(){ var d=new Date(); return (d.getMonth()+1)+'월 '+d.getDate()+'일 '+'일월화수목금토'[d.getDay()]+'요일'; }
-var toastT; function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('on');},2600); }
+/* v10.54 디자인 10-2: 보이는 시간 = 2초 + 글자당 0.06초 (최대 6초 · 예전 2.6초 고정) · 오류·'앱을 닫지 마세요'는 눌러 닫을 때까지 남김 (keep · 오른쪽 × 44px) · 다음 토스트가 오면 바뀜 */
+var toastT, toastKeep=false, TOAST_KEEP=/닫지 마세요|실패|오류|못 ?함|못 했어요|안 됐어요/;
+function toast(msg,keep){ var t=$('toast'), s=String(msg==null?'':msg); t.textContent=msg; t.classList.add('on'); clearTimeout(toastT);
+  toastKeep=(keep===undefined)?TOAST_KEEP.test(s):!!keep; if(toastKeep) t.classList.add('keep'); else t.classList.remove('keep');
+  if(!toastKeep) toastT=setTimeout(function(){ t.classList.remove('on'); },Math.min(6000,2000+s.length*60)); }
+function toastClose(){ if(!toastKeep) return; toastKeep=false; clearTimeout(toastT); var t=$('toast'); t.classList.remove('on'); t.classList.remove('keep'); }
+/* v10.54 디자인 5-2: 스위치 줄(.prow · 권한 설정·품목 여러 개) = 줄 어디를 눌러도 그 줄 스위치 (아이폰 설정 앱처럼 · 스위치는 표시만) */
+function rowSwTap(e){ var t=e&&e.target; if(!t||!t.closest) return; var r=t.closest('.prow'); if(!r||t.closest('button,a,input,label,select,textarea')) return; var s=r.querySelector('.sw'); if(s&&!s.disabled) s.click(); }
+document.addEventListener('click',rowSwTap);
 function spin(msg){ var sk='<div class="sk"><i class="t"></i><i class="w8"></i><i class="w6"></i></div><div class="sk"><div class="r"><s></s><div><i class="w6"></i><i class="w8"></i></div></div><div class="r"><s></s><div><i class="w6"></i><i class="w8"></i></div></div><div class="r"><s></s><div><i class="w6"></i><i class="w8"></i></div></div></div>';
   return '<div class="loadlogo">'+curLogo()+(msg?'<span>'+esc(msg)+'</span>':'')+'</div>'+sk; }
 var LOCK_SVG='<svg viewBox="0 0 24 24"><path class="sh" d="M8 11V7a4 4 0 0 1 8 0v4"/><rect x="5" y="11" width="14" height="10" rx="2.5"/><circle cx="12" cy="16" r="1.3" fill="currentColor" stroke="none"/></svg>';
@@ -973,18 +1017,19 @@ function countUp(root,force){ root=root||document; var t0=null;
 function resetCount(v){ if(v&&v.el) v.el._cu=null; }
 function num(x,k){ return '<b class="num" data-to="'+x+'" data-k="'+k+'">'+x+'</b>'; }
 function initials(n){ n=String(n||'').trim(); return n? n.slice(0,1) : '?'; }
-/* 기기 아이콘: 모델명 짧게(S1, X5, C1…) + 기기 색상으로 배경 */
-var COLOR_MAP=[[/midnight|black|블랙|검정/i,'#23272f','#fff'],[/white|ivory|화이트|흰/i,'#f5f6f8','#333d4b'],[/sky|하늘/i,'#5cb2ff','#fff'],[/blue ?gr[ae]y|블루그레이/i,'#7f95a8','#fff'],
-  [/navy|네이비/i,'#2b3a67','#fff'],[/blue|블루|파랑/i,'#3182f6','#fff'],[/pink|핑크/i,'#ff6fa8','#fff'],[/red|레드|빨강/i,'#e5484d','#fff'],[/orange|오렌지/i,'#ff8a3d','#fff'],
-  [/yellow|옐로|노랑/i,'#f5c400','#3a2e00'],[/khaki|올리브|olive|카키/i,'#8b8b5a','#fff'],[/mint|민트/i,'#3ccfb0','#0b3d33'],[/green|그린|초록/i,'#2fbf71','#fff'],
-  [/silver|gr[ae]y|그레이|회색|실버/i,'#9aa3ad','#fff'],[/beige|sand|베이지/i,'#d9c7a5','#4a3d26'],[/purple|violet|lavender|퍼플|보라/i,'#7820e8','#fff'],[/brown|브라운|갈색/i,'#7b4b2a','#fff']];
+/* 기기 아이콘: 모델명 짧게(S1, X5, C1…) + 기기 색상으로 배경
+   v10.54 검증: 글자 대비 4.5 이상 — 흰 글자가 4.5 안 되는 밝은 색(하늘·블루그레이·분홍·주황·카키·초록)은 진한 글자 · 파랑·빨강은 한 단계 진한 색 + 흰 글자 · 표에 없는 색은 연한 색 + 진한 글자 */
+var COLOR_MAP=[[/midnight|black|블랙|검정/i,'#23272f','#fff'],[/white|ivory|화이트|흰/i,'#f5f6f8','#333d4b'],[/sky|하늘/i,'#5cb2ff','#191f28'],[/blue ?gr[ae]y|블루그레이/i,'#7f95a8','#191f28'],
+  [/navy|네이비/i,'#2b3a67','#fff'],[/blue|블루|파랑/i,'#1b64da','#fff'],[/pink|핑크/i,'#ff6fa8','#191f28'],[/red|레드|빨강/i,'#d42f3c','#fff'],[/orange|오렌지/i,'#ff8a3d','#191f28'],
+  [/yellow|옐로|노랑/i,'#f5c400','#3a2e00'],[/khaki|올리브|olive|카키/i,'#8b8b5a','#191f28'],[/mint|민트/i,'#3ccfb0','#0b3d33'],[/green|그린|초록/i,'#2fbf71','#191f28'],
+  [/silver|gr[ae]y|그레이|회색|실버/i,'#9aa3ad','#191f28'],[/beige|sand|베이지/i,'#d9c7a5','#4a3d26'],[/purple|violet|lavender|퍼플|보라/i,'#7820e8','#fff'],[/brown|브라운|갈색/i,'#7b4b2a','#fff']];
 function devColor(c){ c=String(c||''); for(var i=0;i<COLOR_MAP.length;i++){ if(COLOR_MAP[i][0].test(c)) return [COLOR_MAP[i][1],COLOR_MAP[i][2]]; }
-  if(!c.trim()) return ['var(--fill)','var(--ink2)']; var h=0; for(var k=0;k<c.length;k++) h=(h*31+c.charCodeAt(k))%360; return ['hsl('+h+',55%,62%)','#fff']; }
+  if(!c.trim()) return ['var(--fill)','var(--ink2)']; var h=0; for(var k=0;k<c.length;k++) h=(h*31+c.charCodeAt(k))%360; return ['hsl('+h+',55%,72%)','#191f28']; }   // 연한 색 + 진한 글자 = 어느 색상이든 5.7 이상
 var MODEL_SHORT=[[/urban ?comfort|comfort|어반 ?컴포트|컴포트/i,'UC'],[/urban ?sports?|sports?|어반 ?스포츠|스포츠/i,'US'],[/mate ?city|메이트 ?시티|메이트/i,'P3']];
 function devShort(m){ m=String(m||'').replace(/\(.*?\)/g,'').trim(); if(!m) return '?';
   for(var i=0;i<MODEL_SHORT.length;i++) if(MODEL_SHORT[i][0].test(m)) return MODEL_SHORT[i][1];
   var x=m.match(/^[A-Za-z]{1,2}\d{1,2}/); if(x) return x[0].toUpperCase(); return m.slice(0,4); }
-function devAv(model,color){ var c=devColor(color); var t=devShort(model); var fs=t.length<=2?'16px':(t.length===3?'14px':'11.5px');
+function devAv(model,color){ var c=devColor(color); var t=devShort(model); var fs=t.length<=2?'16px':(t.length===3?'14px':'12px');
   var border=(c[1]!=='#fff')?'box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.08);':'';
   return '<div class="av dev" style="background:'+c[0]+';color:'+c[1]+';font-size:'+fs+';'+border+'" title="'+esc(model||'')+' '+esc(color||'')+'">'+esc(t)+'</div>'; }
 /* 서버 호출: <script> 태그(JSONP) 방식 — 브라우저 CORS 제한을 받지 않아 Apps Script와 가장 잘 맞는다 */
@@ -1342,8 +1387,8 @@ function tabTo(name){ haptic(6);
 
 /* ================= 바텀시트 / 이름 ================= */
 var sheetOpen=false;
-function openSheet(html){ $('sheet').innerHTML='<div class="grab"></div>'+html; $('sheet').classList.add('on'); $('dim').classList.add('on'); if(!sheetOpen){ sheetOpen=true; hPush(); } }
-function hideSheet(){ var sh=$('sheet'); sh.classList.remove('on','drag'); sh.style.transform=''; $('dim').classList.remove('on'); }
+function openSheet(html){ $('sheet').innerHTML='<div class="grab"></div>'+html; $('sheet').classList.add('on'); $('dim').classList.add('on'); document.body.classList.add('shon'); if(!sheetOpen){ sheetOpen=true; hPush(); } }   // shon = 시트 열림 → 토스트는 화면 위로 (시트 칸을 안 가림)
+function hideSheet(){ var sh=$('sheet'); sh.classList.remove('on','drag'); sh.style.transform=''; $('dim').classList.remove('on'); document.body.classList.remove('shon'); }
 /* 시트 손잡이(회색 바)를 잡고 아래로 끌면 닫힘 */
 (function(){ var sh=$('sheet'); var sy=null, dy=0;
   sh.addEventListener('pointerdown',function(e){ if(!e.target.classList.contains('grab')) return; sy=e.clientY; dy=0; sh.classList.add('drag'); try{ sh.setPointerCapture(e.pointerId); }catch(x){} e.preventDefault(); });
@@ -1390,7 +1435,7 @@ function drawHome(v,d){ if(d&&!Array.isArray(d)&&d.locked){ drawHomeLock(v,d); r
   var n=function(x,k){ return num(x||0,k); };
   var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span class="hlogo">'+LOGO+'</span>경기남부점 입출고</h1></div>';
   h+='<div class="card sum"><div class="lb">관리 중인 기기'+(sysN?' <span class="pill sys sm" style="margin-left:6px;vertical-align:middle" onclick="push(\'status\',{filter:\'전산미완료\'})">⚠️전산미완료 '+sysN+'</span>':'')+'</div><div class="big">'+n(c.inside,'all')+'<span>대</span></div>'+
-    '<div class="stats">'+[['입고','입고'],['수리대기','수리대기'],['수리가능','수리가능'],['재고','재고'],['출고대기중','출고 대기중'],['출고준비완료','출고 준비완료']].map(function(x){
+    '<div class="stats">'+[['입고','입고'],['수리대기','수리대기'],['수리가능','수리가능'],['재고','재고'],['출고대기중',stName('출고대기중')],['출고준비완료',stName('출고준비완료')]].map(function(x){
       return '<button class="'+(x[0]==='출고준비완료'&&sum[x[0]]?'hot':'')+'" onclick="push(\'status\',{filter:\''+x[0]+'\'})"><span><i class="dot s-'+x[0]+'"></i>'+x[1]+'</span>'+n(sum[x[0]],x[0])+'</button>'; }).join('')+
     '<button onclick="push(\'status\',{filter:\'배송내역\'})"><span><i class="dot s-출고완료"></i>배송내역</span>'+n(shipN,'ship')+'</button>'+
     '<button onclick="push(\'status\',{})"><span>전체 보기</span><b style="font-size:18px;color:var(--muted)">›</b></button></div></div>';
@@ -1423,7 +1468,7 @@ function drawHomeLock(v,d){ var first=!v._homeDrawn; if(first){ v._homeDrawn=tru
   var n='<b>'+hph()+'</b>';
   var h='<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span class="hlogo">'+LOGO+'</span>경기남부점 입출고</h1></div>';
   h+='<div class="card sum hlk"><div class="lb">관리 중인 기기</div><div class="hlkz" onclick="homeLockTap()"><div class="hbl" aria-hidden="true"><div class="big">'+n+'<span>대</span></div></div>'+hlockMark(true)+
-    '<div class="hbl" aria-hidden="true"><div class="stats">'+[['입고','입고'],['수리대기','수리대기'],['수리가능','수리가능'],['재고','재고'],['출고대기중','출고 대기중'],['출고준비완료','출고 준비완료']].map(function(x){
+    '<div class="hbl" aria-hidden="true"><div class="stats">'+[['입고','입고'],['수리대기','수리대기'],['수리가능','수리가능'],['재고','재고'],['출고대기중',stName('출고대기중')],['출고준비완료',stName('출고준비완료')]].map(function(x){
       return '<button tabindex="-1"><span><i class="dot s-'+x[0]+'"></i>'+x[1]+'</span>'+n+'</button>'; }).join('')+
     '<button tabindex="-1"><span><i class="dot s-출고완료"></i>배송내역</span>'+n+'</button>'+
     '<button tabindex="-1" class="hdim"><span>전체 보기</span><b style="font-size:18px;color:var(--muted)">›</b></button></div></div></div></div>';   // 전체 보기 = 현황 목록 (잠긴 사람은 서버도 빈 목록) → 흐린 칸으로
@@ -1437,10 +1482,12 @@ function drawHomeLock(v,d){ var first=!v._homeDrawn; if(first){ v._homeDrawn=tru
   homeLockPurge('swap'); }
 function openManual(){ var c=($('manual').value||'').trim().toUpperCase(); if(!c){ toast('코드를 입력해 주세요'); return; } openCode(c); }
 function openCode(code){ push('tag',{code:code}); }
+/* v10.54 검증: 목록 부가 줄 = 앞(구분·모델·색)이 모자라면 그쪽만 '…' · 일련번호는 늘 끝까지 (라벨과 맞춰 보는 값 · 폭 360 에서 'S9-1-15…' 로 잘리던 것) — meta·sn 은 이미 esc 한 글 */
+function subSn(meta,sn){ return '<div class="sub sx"><span class="mt">'+meta+'</span>'+(sn?(meta?'<span class="dt"> · </span>':'')+'<span class="sn">'+sn+'</span>':'')+'</div>'; }
 function itemTag(t){ var sp=stOver(t['코드']), st=sp?sp.s:t['상태'];   // v10.49 전산 변경 중 → 바꿀 상태 + "변경 중"
   return '<button class="item" onclick="openCode(\''+jsa(t['코드'])+'\')">'+devAv(t['모델'],t['색상'])+
-    '<div class="bd"><div class="nm">'+esc(t['고객명'])+' <span class="pill s-'+esc(st)+'" style="font-size:11px;padding:3px 8px">'+esc(st)+'</span>'+(sp?stChip(sp,true):'')+sysBadge(t,true)+matchBadge(t,true)+'</div>'+
-    '<div class="sub">'+kindName(t['구분'])+' · '+esc(t['모델'])+' '+esc(t['색상'])+' · <span class="sn">'+esc(t['일련번호']||t['코드'])+'</span></div></div>'+
+    '<div class="bd"><div class="nm">'+esc(t['고객명'])+' <span class="pill s-'+esc(st)+'">'+esc(stName(st))+'</span>'+(sp?stChip(sp,true):'')+sysBadge(t,true)+matchBadge(t,true)+'</div>'+
+    subSn(kindName(t['구분'])+' · '+esc(t['모델'])+' '+esc(t['색상']),esc(t['일련번호']||t['코드']))+'</div>'+
     '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>';
 }
 
@@ -1616,7 +1663,7 @@ function drawStatus(v){ var f=v.state.filter; var tags=stOverList(v.state.tags||
   var cnt={}; tags.forEach(function(t){ cnt[t['상태']]=(cnt[t['상태']]||0)+1; }); var sysN=inside.filter(sysIssue).length, shipN=tags.length-inside.length;
   var h=title('입출고 현황', num(inside.length,'all')+'대 관리 중');   // v10.31: 내 작업 현황 버튼 없앰 → 추가기능 → 업무보고
   var btn=function(key,label,cls,c){ return '<button class="'+(cls||'')+(f===key?' on':'')+'" onclick="setFilter(\''+key+'\')">'+(cls?'':'<i class="dot s-'+key+'"></i>')+label+'<small>'+(c||0)+'</small></button>'; };
-  h+='<div class="fgrid">'+btn('전체','전체','all',inside.length)+STATUS_IN.map(function(x){ return btn(x,x.replace('출고대기중','출고대기'),'',cnt[x]||0); }).join('')+btn('출고준비완료','출고준비','',cnt['출고준비완료']||0)+
+  h+='<div class="fgrid">'+btn('전체','전체','all',inside.length)+STATUS_IN.map(function(x){ return btn(x,stName(x),'',cnt[x]||0); }).join('')+btn('출고준비완료',stName('출고준비완료'),'',cnt['출고준비완료']||0)+
      btn('전산미완료','⚠️전산미완료','sys',sysN)+btn('배송내역','배송내역','ship',shipN)+'</div>';
   if(f==='배송내역') h+='<p class="muted" style="margin:0 6px 10px;font-size:13px">출고완료 처리된 기기예요. 공장 안 재고에서는 빠져 있어요. 용지를 다시 쓰려면 기기 상세에서 태그 비우기.</p>';
   h+='<p class="muted" style="margin:0 6px 10px;font-weight:600">'+num(list.length,'cnt')+'건</p>';
@@ -1665,7 +1712,7 @@ function itemWork(it,idxKey){ var kinds=it.registeredKinds||[]; var isAdm=it.sou
   return '<button class="item" onclick="pickSearch(\''+idxKey+'\')">'+devAv(it.model||it.changeModel,it.color||it.changeColor)+'<div class="bd">'+
     '<div class="nm">'+esc(dispName(it))+(it.stock?'<span class="chip gray">미배정</span>':'')+(kinds.indexOf('출고')>=0?'<span class="chip" style="background:#e6f7ec;color:#1f6b3a">출고 등록됨</span>':'')+(kinds.indexOf('입고')>=0?'<span class="chip p">수거 등록됨</span>':'')+'</div>'+
     '<div class="sub">'+esc(it.type||'')+(it.date?' · '+esc(it.date):'')+(it.status?' · '+esc(it.status):'')+'</div>'+
-    '<div class="sub">'+esc([it.model,it.color].filter(Boolean).join(' '))+(it.changeModel?' → '+esc(it.changeModel)+' '+esc(it.changeColor||''):'')+(it.serial?' · <span class="sn">'+esc(it.serial)+'</span>':'')+'</div></div>'+
+    subSn(esc([it.model,it.color].filter(Boolean).join(' '))+(it.changeModel?' → '+esc(it.changeModel)+' '+esc(it.changeColor||''):''),it.serial?esc(it.serial):'')+'</div>'+
     '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>'; }
 function drawSearchRes(v){ var r=v.state.res||{tags:[],worklist:[]}; var a=v.state.adm||{}; var q=v.state.q; var h='';
   if(r.local) h+='<div class="card stkstale"><b>이 폰에 저장된 목록에서 먼저 찾았어요</b><br>'+(r.localErr?'<span style="color:var(--danger)">서버 검색 실패 · '+esc(r.localErr)+'</span><button class="btn line sm" style="margin-top:10px" onclick="doSearch(stack[stack.length-1],stack[stack.length-1].state.q)">다시 찾기</button>':'<span class="muted">서버에서 확인하는 중… 작업리스트 건은 확인이 끝나면 고를 수 있어요.</span>')+'</div>';   // v10.42
@@ -1761,13 +1808,13 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
   var stale=!!v.state.stale; v.el.classList.toggle('tagstale',stale);   // v10.34 저장된 화면 → 버튼 잠금
   if(stale) h+=v.state.staleErr?'<div class="stalebar err"><span>'+esc(v.state.staleErr)+'</span><button class="stb" onclick="tagRetry()">다시 시도</button></div>'
     :'<div class="stalebar"><i></i><span>저장된 화면이에요 · 최신 정보 불러오는 중 (잠시 버튼 잠김)</span></div>';
-  if(sp&&sp.ph==='unk') h+='<div class="stalebar err"><span>'+esc(sp.s)+(sp.u?'(으)로 바꾼 게 아직 서버에 안 보여요 · 늦게 반영될 수 있어 1분쯤 뒤 다시 확인해요':'(으)로 바꾼 게 서버에 반영됐는지 아직 확인 못 했어요 · 연결되면 자동으로 다시 확인해요')+'</span><button class="stb" onclick="stKick(true)">다시 확인</button></div>';   // v10.49 · u = Google 직접으로 보낸 게 아직 안 보임 (stJudge)
+  if(sp&&sp.ph==='unk') h+='<div class="stalebar err"><span>'+esc(stName(sp.s))+(sp.u?'(으)로 바꾼 게 아직 서버에 안 보여요 · 늦게 반영될 수 있어 1분쯤 뒤 다시 확인해요':'(으)로 바꾼 게 서버에 반영됐는지 아직 확인 못 했어요 · 연결되면 자동으로 다시 확인해요')+'</span><button class="stb" onclick="stKick(true)">다시 확인</button></div>';   // v10.49 · u = Google 직접으로 보낸 게 아직 안 보임 (stJudge)
   h+='<div class="card">'+
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'+
       '<div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:26px;font-weight:800;letter-spacing:-.8px;line-height:1.2">'+esc(t['고객명'])+'</span>'+kindBadge(t['구분'])+
         (canStockMatch(t)?'<button class="smbtn" onclick="openStockMatch()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg>고객 매칭</button>':'')+'</div>'+
       '<div class="muted" style="margin-top:3px">'+esc(t['작업타입'])+' · '+esc(t['작업예정일'])+'</div></div>'+
-      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="pill s-'+esc(t['상태'])+'">'+esc(t['상태'])+'</span>'+sysBadge(t)+matchBadge(t)+'</div></div>'+
+      '<div class="tagst" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="pill s-'+esc(t['상태'])+'">'+esc(stName(t['상태']))+'</span>'+sysBadge(t)+matchBadge(t)+'</div></div>'+
     (sysPending(t)?'<div class="note" style="margin-top:12px;background:var(--danger-soft);color:var(--danger)"><b>⚠️전산미완료</b> — 어드민 고객요청이 아직 완료 처리되지 않았어요'+(t['어드민상태']?' (현재: '+esc(t['어드민상태'])+')':' (상태 미확인)')+'. 어드민에서 완료 처리 후 "어드민 새로고침"을 누르면 사라집니다.</div>':'')+
     stockOutCard(t)+
     '<div class="block">'+
@@ -1788,30 +1835,30 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
   h+='<div class="card'+(sp?' stbusy':'')+'"><h3>상태 변경'+(sp?stChip(sp):'')+'</h3>';   // v10.49 전산 변경 중이면 이 칸 버튼만 흐리게 (다른 화면·다른 기기는 그대로 쓸 수 있음)
   var shipStage = out || STATUS_OUT.indexOf(t['상태'])>=0;   // 출고 기기이거나, 수거·재고 기기가 출고 단계(출고준비완료/출고완료)에 들어온 경우
   if(shipStage){
-    var pre = out ? '' : '<span class="done">출고대기중</span><i>›</i>';
+    var pre = out ? '' : '<span class="done">'+stName('출고대기중')+'</span><i>›</i>';
     if(shipped(t)){
-      h+='<div class="flow">'+pre+'<span class="done">출고준비완료</span><i>›</i><span class="on">출고완료</span></div>'+
+      h+='<div class="flow">'+pre+'<span class="done">'+stName('출고준비완료')+'</span><i>›</i><span class="on">출고완료</span></div>'+
          '<p class="muted" style="margin:0 0 10px">'+esc(t['최종변경시각'])+' 출고완료 · 배송내역에 있어요. 용지를 다른 기기에 쓰려면 아래 <b>태그 비우기</b>.</p>'+
-         '<button class="btn line" onclick="setStatus(\'출고준비완료\')">출고 준비완료로 되돌리기</button>';
+         '<button class="btn line" onclick="setStatus(\'출고준비완료\')">'+stName('출고준비완료')+'로 되돌리기</button>';
     } else {
-      h+='<div class="flow">'+pre+'<span class="on">출고준비완료</span><i>›</i><span>출고완료</span></div>'+
+      h+='<div class="flow">'+pre+'<span class="on">'+stName('출고준비완료')+'</span><i>›</i><span>출고완료</span></div>'+
          (out?'':'<p class="muted" style="margin:0 0 6px;font-size:13px">'+(t['작업예정일']?'출고 예정 <b>'+esc(t['작업예정일'])+'</b>':'출고 날짜 확인됨')+(t['고객요청ID']?' · 재배송 요청 '+esc(t['고객요청ID']):'')+'</p>')+
          '<p class="muted" style="margin:0 0 10px">기기가 실제로 나갔으면 <b>출고완료</b>를 눌러 주세요. 배송내역으로 옮겨져 공장 안 재고에서 빠져요.</p>'+
          '<button class="btn" style="background:var(--green)" onclick="setStatus(\'출고완료\')"><svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6"/></svg>출고완료</button>'+
-         (out?'':'<button class="btn line" style="margin-top:8px" onclick="setStatus(\'출고대기중\')">출고 대기중으로 되돌리기</button>');
+         (out?'':'<button class="btn line" style="margin-top:8px" onclick="setStatus(\'출고대기중\')">'+stName('출고대기중')+'로 되돌리기</button>');
     }
   } else {
     var curS=t['상태'], cur=STATUS_IN.indexOf(curS); var unlocked=(curS===STATUS_READY||STATUS_FINAL.indexOf(curS)>=0);
     var prevUn=v.state.unlocked; v.state.unlocked=unlocked; var lockAnim=(prevUn!==undefined&&prevUn!==unlocked)?(unlocked?'unlocking':'locking'):'';
     var steps=['입고','수리대기','수리가능']; var passed=Math.max(cur, steps.length-1);
-    h+='<div class="flow">'+steps.map(function(s,i){ return '<span class="'+(s===curS?'on':(i<cur?'done':''))+'">'+s+'</span>'; }).join('<i>›</i>')+'<i>›</i><span class="'+(STATUS_FINAL.indexOf(curS)>=0?'on':'')+'">'+(STATUS_FINAL.indexOf(curS)>=0?curS:'재고 / 출고 대기중')+'</span></div>';
+    h+='<div class="flow">'+steps.map(function(s,i){ return '<span class="'+(s===curS?'on':(i<cur?'done':''))+'">'+s+'</span>'; }).join('<i>›</i>')+'<i>›</i><span class="'+(STATUS_FINAL.indexOf(curS)>=0?'on':'')+'">'+(STATUS_FINAL.indexOf(curS)>=0?stName(curS):'재고 / '+stName('출고대기중'))+'</span></div>';
     h+='<div class="row" style="margin-top:0;flex-wrap:wrap">';
     steps.forEach(function(s,i){ if(s===curS) return; h+='<button class="btn sm '+(i===cur+1?'':'line')+'" style="min-width:30%" onclick="setStatus(\''+s+'\')">'+s+'</button>'; });
     h+='</div><div class="row">';
     STATUS_FINAL.forEach(function(s){ if(s===curS) return; var fin=(s==='재고'?'var(--green)':'var(--ink)');
       var cls=lockAnim ? (lockAnim==='unlocking'?(s==='재고'?'green':'dark'):'') + ' ' + lockAnim : (unlocked?(s==='재고'?'green':'dark'):'lock');
-      h+='<button class="btn sm fin '+cls+'" style="--fin:'+fin+'" onclick="setStatus(\''+s+'\')"><span class="lk">'+LOCK_SVG+'</span><span class="lb">'+s+'</span></button>'; });
-    h+='</div>'+(unlocked?'':'<p class="muted" style="margin:10px 0 0;font-size:13px">수리가능 상태가 되어야 재고·출고대기중으로 넘길 수 있어요.</p>');
+      h+='<button class="btn sm fin '+cls+'" style="--fin:'+fin+'" onclick="setStatus(\''+s+'\')"><span class="lk">'+LOCK_SVG+'</span><span class="lb">'+stName(s)+'</span></button>'; });
+    h+='</div>'+(unlocked?'':'<p class="muted" style="margin:10px 0 0;font-size:13px">수리가능 상태가 되어야 재고·'+stName('출고대기중')+'로 넘길 수 있어요.</p>');
     if(lockAnim){ setTimeout(function(){ if(stack.indexOf(v)<0) return; haptic(lockAnim==='unlocking'?[12,40,18]:10);
       [].forEach.call(v.el.querySelectorAll('.btn.fin.'+lockAnim),function(b){ b.classList.remove(lockAnim); if(!unlocked) b.classList.add('lock'); }); },1650); }
   }
@@ -1820,13 +1867,13 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
   if(!out && t['상태']==='출고대기중'){
     var adm=String(t['어드민상태']||''); var m=/^REDELIVERY\s+(\S+)\s+(.*)$/.exec(adm); var lm=/^LATEST\s+(\S+)\s*(.*)$/.exec(adm);
     h+='<div class="card"><h3>출고 날짜</h3>'+
-       '<p class="muted" style="margin:0 0 10px;font-size:13px">구독 상세의 <b>가장 최근 고객요청</b>이 <b>기기 재배송</b>이고 작업예정일자까지 설정돼 있으면 자동으로 <b>출고준비완료</b>로 넘어가요 (상세 열 때·1시간마다 확인 · 밤 22~07시 제외).'+
+       '<p class="muted" style="margin:0 0 10px;font-size:13px">구독 상세의 <b>가장 최근 고객요청</b>이 <b>기기 재배송</b>이고 작업예정일자까지 설정돼 있으면 자동으로 <b>'+stName('출고준비완료')+'</b>로 넘어가요 (상세 열 때·1시간마다 확인 · 밤 22~07시 제외).'+
        (m?'<br>마지막 확인: 최근 요청 = 재배송 <b>'+esc(m[1])+'</b> · '+(m[2]==='예정일없음'?'<span style="color:var(--danger)">작업예정일자 아직 없음</span>':esc(m[2])):(lm?'<br>마지막 확인: 최근 요청 '+esc(lm[1])+' = '+esc(lm[2]||'')+' (재배송 아님)':(t['어드민상태시각']?'<br>마지막 확인 '+esc(t['어드민상태시각'])+' · 고객요청 없음':'')))+'</p>'+
-       '<div class="row" style="margin-top:0"><button class="btn sm line" onclick="checkRedeliveryNow()">어드민 확인</button><button class="btn sm dark" style="background:var(--ink)" onclick="setStatus(\'출고준비완료\')">수동으로 출고준비완료</button></div></div>';
+       '<div class="row" style="margin-top:0"><button class="btn sm line" onclick="checkRedeliveryNow()">어드민 확인</button><button class="btn sm dark" style="background:var(--ink)" onclick="setStatus(\'출고준비완료\')">수동으로 '+stName('출고준비완료')+'</button></div></div>';
   }
   h+='</div>';
   h+='<div class="card"><h3>이력</h3><ul class="hist">';
-  (t.history||[]).forEach(function(x){ h+='<li'+(x._stp?' class="stph"':'')+'><span><b>'+esc(x['동작'])+'</b> · '+esc(x['상태'])+' · '+esc(x['처리자'])+(x['메모']?' <span style="color:var(--muted2)">'+esc(x['메모'])+'</span>':'')+'</span><span style="white-space:nowrap">'+(x._stp&&sp?stChip(sp,true):esc(String(x['시각']).slice(5,16)))+'</span></li>'; });   // v10.49 맨 위 줄 = 보내는 중인 상태 변경
+  (t.history||[]).forEach(function(x){ h+='<li'+(x._stp?' class="stph"':'')+'><span><b>'+esc(x['동작'])+'</b> · '+esc(stName(x['상태']))+' · '+esc(x['처리자'])+(x['메모']?' <span style="color:var(--muted)">'+esc(x['메모'])+'</span>':'')+'</span><span style="white-space:nowrap">'+(x._stp&&sp?stChip(sp,true):esc(String(x['시각']).slice(5,16)))+'</span></li>'; });   // v10.49 맨 위 줄 = 보내는 중인 상태 변경
   if(!(t.history||[]).length) h+=(stale&&!t.history)?'<li class="muted">'+(v.state.staleErr?'이력을 못 불러왔어요':'불러오는 중…')+'</li>':'<li>이력이 없습니다.</li>'; h+='</ul></div>';
   h+='<button class="btn line" style="margin-bottom:10px" onclick="rematchAsk()"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 12h8M12 8v8"/></svg>QR 교체 (라벨이 찢어졌을 때)</button>'+
      '<button class="btn danger" onclick="doRelease()">태그 비우기</button><p class="muted" style="text-align:center;margin:10px 0 0">기기가 나간 뒤 용지를 다른 기기에 다시 쓸 때 누르세요. 이력은 남습니다.</p>';
@@ -1834,7 +1881,7 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
 }
 function checkRedeliveryNow(){ if(tagStale()) return; haptic(12); needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code; v.el.innerHTML=spin('어드민에서 재배송 요청 확인 중');
   run('checkRedelivery',code,worker).then(function(res){ if(stack.indexOf(v)<0) return; if(res.tag) v.state.tag=res.tag; drawTag(v);
-    if(!res.ok) toast(res.error); else if(res.moved) { haptic([12,40,18]); toast('출고 예정 '+res.task.date+' · 출고준비완료로 넘김'); } else if(res.found) toast('최근 요청이 재배송인데 작업예정일자가 아직 없어요'); else toast(res.latest?'최근 고객요청이 재배송이 아니에요':'고객요청이 없어요'); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
+    if(!res.ok) toast(res.error); else if(res.moved) { haptic([12,40,18]); toast('출고 예정 '+res.task.date+' · '+stName('출고준비완료')+'로 넘김'); } else if(res.found) toast('최근 요청이 재배송인데 작업예정일자가 아직 없어요'); else toast(res.latest?'최근 고객요청이 재배송이 아니에요':'고객요청이 없어요'); }).catch(function(e){ v.el.innerHTML=errBox(e); }); }); }
 function setStatus(s,sure,force){ if(tagStale()) return; var v0=stack[stack.length-1], t0=v0&&v0.state.tag;   // v10.49 force = 서버가 needConfirm 으로 물어 "그래도 변경"을 누름 (아래 stConfirm)
   if(s==='출고완료'&&!sure&&t0&&t0.stockOut&&t0.matchState!=='ok'&&!v0.state.rechecked){   // 재고 출고인데 전산 매칭이 안 됨 → 어드민을 지금 다시 보고(1번), 그래도 안 되면 아래 창으로 묻는다
     v0.state.rechecked=true; verifyMatchNow(true,v0.params.code).then(function(r){ if(stack[stack.length-1]!==v0){ v0.state.rechecked=false; return; }
@@ -1861,7 +1908,7 @@ function stList(){ return Object.keys(STP).map(function(k){ return STP[k]; }); }
 function stOver(code){ return STP[String(code==null?'':code).trim().toUpperCase()]||null; }   // 이 기기가 전산 변경 중이면 그 기록
 function stHere(code){ var v=tagView(); return !!(v&&String(v.params.code||'').trim().toUpperCase()===code); }
 /* 서버(Code.gs updateStatus C:752-767 · D1 write.js 같은 규칙)와 같은 거절을 먼저 — 잠긴 버튼을 눌렀을 때 바뀌었다 되돌아가는 깜빡임 없이 같은 문구 (최종 판단은 서버) */
-function stRule(t,s){ var o=(t['구분']==='출고'), cur=t['상태'];
+function stRule(t,s){ var o=(t['구분']==='출고'), cur=t['상태'];   // 문구 = 서버(Code.gs·새 서버) 거절 문구와 글자까지 같게 둠 (v10.49 o3 · 상태 이름 표 stName 을 안 씀)
   if((o?STATUS_OUT:STATUS_IN.concat(STATUS_OUT)).indexOf(s)<0) return '이 기기에는 쓸 수 없는 상태입니다.';
   if(!o&&STATUS_OUT.indexOf(s)>=0){ var from=(s==='출고준비완료')?['출고대기중','출고완료']:['출고준비완료']; if(from.indexOf(cur)<0) return '먼저 "'+from[0]+'"이어야 '+s+'(으)로 넘길 수 있어요.'; }
   if(!o&&STATUS_OUT.indexOf(cur)>=0&&STATUS_IN.indexOf(s)>=0&&s!=='출고대기중') return '출고 단계의 기기는 "출고대기중"으로만 되돌릴 수 있어요.';
@@ -1920,7 +1967,7 @@ function stJudge(p,tag){ if(STP[p.c]!==p) return;
     var l=Math.max(p.j||0,p.g||0), w=l?l+ST_SAFE_MS-n:0;   // Google 에서 아직 기다리는 요청이 있을 수 있음 (Google 직접 · 새 서버가 Google 을 끊음) → 지금 되돌리면 다시 누른 새 변경을 늦게 돈 첫 요청이 덮을 수 있음
     if(w>0){ clearTimeout(p.tm); p.ph='unk'; p.u=1; p.due=Date.now()+w; p.tm=setTimeout(function(){ stCheck(p); },w); stSave(); stRedraw(); return; }   // "확인 안 됨"으로 두고 1분 뒤 다시 확인
     stEnd(p,tag); stFailToast(p,p.em||(p.re?'서버에 반영 안 됐어요 · 다시 해 주세요':'전산 변경이 안 됐어요 (연결이 불안정해요) · 다시 눌러 주세요')); return; }
-  stFix(p,tag); stEnd(p,tag); stFailToast(p,'그 사이 다른 곳에서 '+cur+'(으)로 바뀌었어요 · 확인해 주세요'); }   // 숫자·저장본도 서버 태그대로
+  stFix(p,tag); stEnd(p,tag); stFailToast(p,'그 사이 다른 곳에서 '+stName(cur)+'(으)로 바뀌었어요 · 확인해 주세요'); }   // 숫자·저장본도 서버 태그대로
 /* 출고대기중을 적은 뒤 getTag 가 재배송 요청을 보고 바로 출고준비완료로 넘김 (Code.gs getTag C:371-374 · 새 서버 tagCheck 도) = 이력 맨 위 '자동' 출고준비완료 줄 바로 아래가 그 출고대기중 */
 function stAuto(p,tag){ var h=(tag&&tag.history)||[], a=h[0], b=h[1];
   return p.s==='출고대기중'&&!!tag&&tag['상태']===STATUS_OUT[0]&&!!a&&!!b&&a['동작']==='상태변경'&&a['상태']===STATUS_OUT[0]&&String(a['처리자']||'')==='자동'&&b['동작']==='상태변경'&&b['상태']===p.s; }
@@ -1928,11 +1975,11 @@ function stAuto(p,tag){ var h=(tag&&tag.history)||[], a=h[0], b=h[1];
 function stEnd(p,tag){ clearTimeout(p.tm); if(STP[p.c]===p) delete STP[p.c]; stSave();
   if(tag) stack.forEach(function(x){ if(x.name==='tag'&&String(x.params.code||'').trim().toUpperCase()===p.c){ x.state.tag=tag; x.state.stale=false; x.state.staleErr=''; } });
   stRedraw(); return stHere(p.c); }
-function stOk(p,tag){ stFix(p,tag); var here=stEnd(p,tag), nt=stAuto(p,tag)?' · 재배송 요청이 있어 '+STATUS_OUT[0]+'로 넘어갔어요':'';   // 받은 답·getTag 확인 어느 쪽이든 같은 알림
-  toast((p.re?p.c+' '+p.s+' — 지난번 변경이 반영됐어요':(here?p.s+' 처리 완료':p.c+' '+p.s+' 처리 완료'))+nt); }
-function stFailToast(p,msg){ haptic([10,40,10]); toast(p.re?'지난번 '+p.c+' '+p.s+' 변경 못 함 · '+msg:(stHere(p.c)?msg:p.c+' '+p.s+' 못 함 · '+msg)); }
+function stOk(p,tag){ stFix(p,tag); var here=stEnd(p,tag), nt=stAuto(p,tag)?' · 재배송 요청이 있어 '+stName(STATUS_OUT[0])+'로 넘어갔어요':'';   // 받은 답·getTag 확인 어느 쪽이든 같은 알림
+  var sn=stName(p.s); toast((p.re?p.c+' '+sn+' — 지난번 변경이 반영됐어요':(here?sn+' 처리 완료':p.c+' '+sn+' 처리 완료'))+nt); }
+function stFailToast(p,msg){ haptic([10,40,10]); var sn=stName(p.s); toast(p.re?'지난번 '+p.c+' '+sn+' 변경 못 함 · '+msg:(stHere(p.c)?msg:p.c+' '+sn+' 못 함 · '+msg)); }
 function stConfirm(p,msg){ if(!stHere(p.c)||sheetOpen){ stFailToast(p,'확인이 필요해요 · 기기 화면에서 다시 눌러 주세요'); return; }
-  openSheet('<h3>확인이 필요해요</h3><p>'+esc(msg).replace(/\n/g,'<br>')+'</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ setStatus(\''+jsa(p.s)+'\',true,true); })">그래도 '+esc(p.s)+'</button></div>'); }
+  openSheet('<h3>확인이 필요해요</h3><p>'+esc(msg).replace(/\n/g,'<br>')+'</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="closeSheet(function(){ setStatus(\''+jsa(p.s)+'\',true,true); })">그래도 '+esc(stName(p.s))+'</button></div>'); }
 /* 성공: 저장된 홈(숫자·최근 목록)·현황 목록과 열린 홈·현황·검색 화면의 받은 데이터를 서버 태그로 고침 (다시 받기 전에 그려도 맞게) */
 function stFix(p,tag){ var to=normStatus(tag)['상태'];
   var h=lsGet('home'); if(h&&!Array.isArray(h)&&h.counts){ stCount(h.counts,stBase(h.tags,p.c,p.f),to); lsSet('home',h); }
@@ -1977,7 +2024,7 @@ function stBar(){ var cur=tagView(), here=cur?String(cur.params.code||'').trim()
   if(!b){ if(!o.length) return; b=document.createElement('div'); b.id='stbar'; b.className='stbar'; b.setAttribute('role','status'); b.onclick=stBarTap; document.body.appendChild(b); }
   if(!o.length){ b.classList.remove('on'); return; }
   b.classList.toggle('err',!!unk);
-  b.innerHTML='<i></i><span>'+(unk?'전산 변경 확인 안 됨 '+unk+'건 · 누르면 다시 확인':(o.length===1?'전산 변경 중… '+esc(o[0].c)+' → '+esc(o[0].s):'전산 변경 중… '+o.length+'대'))+'</span>';
+  b.innerHTML='<i></i><span>'+(unk?'전산 변경 확인 안 됨 '+unk+'건 · 누르면 다시 확인':(o.length===1?'전산 변경 중… '+esc(o[0].c)+' → '+esc(stName(o[0].s)):'전산 변경 중… '+o.length+'대'))+'</span>';
   b.classList.add('on'); }
 function stBarTap(){ haptic(8); if(stList().some(function(p){ return p.ph==='unk'; })){ toast('다시 확인하는 중…'); stKick(true); } }
 /* 확인 안 됨·기다리는 중 → 지금 확인 (앱으로 돌아옴 · 연결됨 · "다시 확인") */
@@ -2089,7 +2136,7 @@ function smDraw(v){ var t=v.state.t||{};
   h+='<div class="card"><div class="lb">이 기기</div><div style="display:flex;align-items:center;gap:12px;margin-top:6px">'+devAv(t['모델'],t['색상'])+'<div><b class="mono" style="font-size:17px">'+esc(t['일련번호']||'일련번호 없음')+'</b><div class="muted" style="font-size:13px">'+esc([t['모델'],t['색상']].filter(Boolean).join(' '))+' · 지금 '+esc(t['고객명']||'재고')+(t['작업타입']?' · '+esc(t['작업타입']):'')+'</div></div></div></div>';
   h+='<div class="card"><div class="lb">매칭할 고객 이름 또는 고객요청ID</div><div class="row" style="margin:6px 0 0"><input class="input" id="sm_q" value="'+esc(v.state.q||'')+'" placeholder="예: 홍길동, 0000000-T1" autocomplete="off" style="flex:1">'+
     '<button class="btn sm" style="flex:0 0 auto;padding:0 18px" onclick="smSearch()">찾기</button></div>'+
-    '<p class="muted" style="margin:10px 0 0;font-size:13px">고르면 이 기기가 그 고객요청의 <b>출고 기기</b>로 바뀌고 <b>출고준비완료</b>로 넘어가요. 예전 이용자 정보는 기록으로 남아요.</p></div><div id="sm_res"></div>';
+    '<p class="muted" style="margin:10px 0 0;font-size:13px">고르면 이 기기가 그 고객요청의 <b>출고 기기</b>로 바뀌고 <b>'+stName('출고준비완료')+'</b>로 넘어가요. 예전 이용자 정보는 기록으로 남아요.</p></div><div id="sm_res"></div>';
   v.el.innerHTML=h; $('sm_q').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.target.blur(); smSearch(); } });
   if(v.state.res) smDrawRes(v); }
 function smSearch(){ var v=smView(); if(!v) return; var q=(($('sm_q')||{}).value||'').trim(); if(q.length<2){ toast('2글자 이상 입력해 주세요'); return; }
@@ -2108,7 +2155,7 @@ function smDrawRes(v){ var r=v.state.res||{}, box=$('sm_res'); if(!box) return;
 function smPick(i){ var v=smView(); if(!v) return; var it=(v.state.res&&v.state.res.items||[])[i]; if(!it) return; var t=v.state.t||{};
   openSheet('<h3>'+esc(it.name||'고객')+' 님께 출고할까요?</h3><p><b class="mono">'+esc(t['일련번호']||'')+'</b> '+esc([t['모델'],t['색상']].filter(Boolean).join(' '))+'<br>→ '+esc(it.type||'')+' · <span class="mono">'+esc(it.reqId)+'</span>'+(it.date?' · '+esc(it.date):'')+'</p>'+
     (it.outTag?'<div class="note" style="margin:0 0 12px">이 고객요청은 이미 출고 QR <b>'+esc(it.outTag)+'</b>이 있어요.</div>':'')+
-    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm dark" onclick="closeSheet(function(){ smGo('+i+',false); })">출고준비완료로 매칭</button></div>'); }
+    '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm dark" onclick="closeSheet(function(){ smGo('+i+',false); })">'+stName('출고준비완료')+'로 매칭</button></div>'); }
 function smGo(i,force){ var v=smView(); if(!v) return; var it=(v.state.res&&v.state.res.items||[])[i]; if(!it) return; var code=v.params.code;
   var task={reqId:it.reqId,subId:it.subId||'',name:it.name||'',type:it.type||'',date:it.date||'',model:it.model||'',color:it.color||'',changeModel:it.changeModel||'',changeColor:it.changeColor||''};
   v.el.innerHTML=title('고객 매칭','')+spin('매칭 중');
@@ -2245,7 +2292,7 @@ function loadList(v,date,force){ v.state.date=date; v.state.selected=null; v.sta
 function drawStep1(v){ reanim(v); v.state.step=1; var d=v.state.date;
   var kf=v.state.kind&&!v.params.item;   // 출고/수거를 먼저 고른 흐름
   var h=title('<span class="code-badge">'+esc(v.params.code)+'</span>',kf?('2/5 · '+kindName(v.state.kind)+' 기기 · 어떤 작업인가요?'):'1/5 · 어떤 작업의 기기인가요?')+stepsBar(kf?2:1);
-  if(kf) h+='<button class="btn line sm" style="margin:0 0 12px;width:auto;padding:0 14px" onclick="drawKindFirst(regView())">‹ 출고/수거/재고 다시 고르기</button>';
+  if(kf) h+='<button class="btn line sm" style="margin:0 0 12px;width:auto" onclick="drawKindFirst(regView())">‹ 출고/수거/재고 다시 고르기</button>';
   h+='<div class="seg">'+[['어제',-1],['오늘',0],['내일',1]].map(function(x){ var iso=todayISO(x[1]); return '<button class="'+(d===iso?'on':'')+'" onclick="loadList(stack[stack.length-1],\''+iso+'\')">'+x[0]+'</button>'; }).join('')+'</div>';
   h+='<div class="row" style="margin:0 0 10px"><input type="date" class="input" style="flex:1" value="'+esc(d)+'" onchange="loadList(stack[stack.length-1],this.value)"><input class="input" style="flex:1.4" id="q" placeholder="이름·모델·일련번호" oninput="drawItems()"><button class="btn line sm" style="flex:0 0 auto;padding:0 14px" onclick="loadList(stack[stack.length-1],stack[stack.length-1].state.date,true)" title="새로고침">↻</button></div>';
   if(v.state.wlSnap) h+='<div class="card stkstale"><b>이 폰에 저장된 목록이에요</b> ('+esc(fmtAgo(v.state.wlSnap))+')<br>'+(v.state.wlSnapErr?'<span style="color:var(--danger)">최신 목록을 못 불러왔어요 · '+esc(v.state.wlSnapErr)+'</span><button class="btn line sm" style="margin-top:10px" onclick="loadList(stack[stack.length-1],stack[stack.length-1].state.date,true)">다시 시도</button>':'<span class="muted">최신 목록을 받는 중… 미리 골라 둘 수 있고, 다 받으면 다음으로 갈 수 있어요.</span>')+'</div>';   // v10.41
@@ -2264,11 +2311,15 @@ function drawItems(){ var v=stack[stack.length-1]; var q=(($('q')||{}).value||''
   if(list.length) h+='</div>';
   $('items').innerHTML=h; countUp($('items')); drawConfirm(); }
 function pick(i){ var v=stack[stack.length-1]; v.state.selected=(v.state.selected===i?null:i); v.state.dev=null; v.state.serial=''; v.state.frame=''; drawItems();   // 다른 작업을 고르면 앞 작업의 일련번호는 버림
-  if(v.state.selected!==null){ getDevCached(v.state.list[i].reqId); } }
+  if(v.state.selected!==null){ getDevCached(v.state.list[i].reqId); pickReveal(v); } }
+/* v10.54 검증 8-1: 고른 줄이 '다음' 막대 뒤에 가려지면 가려진 만큼만 올려 보여 줌 (맨 아래로 끌어내리지 않음 · 보이면 그대로) */
+function pickReveal(v){ var el=v&&v.el, q=el&&el.querySelector, row=q?el.querySelector('#items .item.sel'):null, bar=q?el.querySelector('.stickybar .card'):null;
+  if(!row||!bar||!row.getBoundingClientRect) return; var over=row.getBoundingClientRect().bottom+8-bar.getBoundingClientRect().top;
+  if(over>0){ if(el.scrollTo) el.scrollTo({top:el.scrollTop+over,behavior:'smooth'}); else el.scrollTop+=over; } }
 function drawConfirm(){ var v=stack[stack.length-1]; var box=$('confirm'); if(!box) return; if(v.state.selected===null){ box.innerHTML=''; return; } var it=v.state.list[v.state.selected];
   box.innerHTML='<div class="stickybar"><div class="card" style="margin:0;box-shadow:0 10px 36px rgba(25,31,40,.16)"><div style="font-weight:800;font-size:17px;letter-spacing:-.3px">'+esc(it.name)+' <span class="muted" style="font-weight:600">'+esc(it.type)+'</span></div>'+
     (v.state.kind&&!v.params.item?kindHint(it,v.state.kind):'')+
-    '<button class="btn" style="margin-top:12px" onclick="goFromList()"'+(v.state.wlSnap?' disabled':'')+'>'+(v.state.kind&&!v.params.item?'다음 · 일련번호':'다음 · 출고/수거 선택')+'</button></div></div>'; box.scrollIntoView({behavior:'smooth',block:'end'}); }
+    '<button class="btn" style="margin-top:12px" onclick="goFromList()"'+(v.state.wlSnap?' disabled':'')+'>'+(v.state.kind&&!v.params.item?'다음 · 일련번호':'다음 · 출고/수거 선택')+'</button></div></div>'; }   // v10.54 디자인 8-1: 맨 아래로 끌어내리기 지움 (#confirm display:contents → '다음'이 화면 아래에 붙음)
 function toStep2(){ var v=stack[stack.length-1]; var it=v.state.list[v.state.selected];
   if(!v.state.kind) v.state.kind = it.stock ? '재고' : (/주문|재배송/.test(it.type) ? '출고' : (/해지|철회|대차 진행 X/.test(it.type) ? '입고' : null));
   drawStep2(v); }
@@ -2338,7 +2389,7 @@ VIEWS.labels={ render:function(v){ v.refresh=function(){ buildLabels(); toast('�
   buildLabels(); }};
 var labelCodes=[];
 function drawQR(el,text,size){ if(typeof QRCode==='undefined'&&!libsReady){ document.addEventListener('DOMContentLoaded',function(){ if(el.isConnected) drawQR(el,text,size); }); return; }   // v10.34 defer: 아직 받는 중이면 받은 뒤 그림
-  if(typeof QRCode==='undefined'){ el.innerHTML='<div style="width:'+size+'px;height:'+size+'px;border:1.5px dashed #c9ced5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9295a0;text-align:center">QR 로드 실패<br>새로고침</div>'; return; } new QRCode(el,{text:text,width:size,height:size,correctLevel:QRCode.CorrectLevel.M}); }
+  if(typeof QRCode==='undefined'){ el.innerHTML='<div style="width:'+size+'px;height:'+size+'px;border:1.5px dashed #c9ced5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);text-align:center">QR 로드 실패<br>새로고침</div>'; return; } new QRCode(el,{text:text,width:size,height:size,correctLevel:QRCode.CorrectLevel.M}); }
 function qrUrl(c){ return WEBAPP+(WEBAPP.indexOf('?')>=0?'&':'?')+'q='+c; }
 function buildLabels(){ var pages=Math.max(1,Math.min(20,parseInt($('lpages').value,10)||1)); var per=parseInt($('lper').value,10);
   labelCodes=[]; for(var i=0;i<pages*per;i++) labelCodes.push(genCode());
@@ -2484,7 +2535,7 @@ function swSearchDrawCard(v){ var r=v.state.res; var box=$('swres'); if(!box||!r
   if(!r.found){ box.innerHTML='<div class="card"><div class="empty">"'+esc(v.state.q)+'" 기기를 향남·수원 어드민에서 못 찾았어요.'+(r.missing&&r.missing.length?'<br><span class="muted" style="font-size:12px">'+esc(r.missing.join(', '))+' 계정은 아직 설정 전</span>':'')+(r.notes&&r.notes.length?'<br><span class="muted" style="font-size:12px">'+esc(r.notes.join(' · '))+'</span>':'')+'</div></div>'; return; }
   var c=r.card; var b=c.battery; var open=v.state.open;
   box.innerHTML='<div class="devcard'+(open?' open':'')+'" id="devcard"><button class="main" onclick="swCardToggle()">'+swVehAv(c.model)+
-      '<div class="bd"><div class="nm"><b class="mono">'+esc(c.qr||c.imei)+'</b>'+(c.model?'<span class="pill" style="background:var(--fill);color:var(--ink2);font-size:11px;padding:3px 8px">'+esc(c.model)+'</span>':'')+'</div>'+
+      '<div class="bd"><div class="nm"><b class="mono">'+esc(c.qr||c.imei)+'</b>'+(c.model?'<span class="pill" style="background:var(--fill);color:var(--ink2)">'+esc(c.model)+'</span>':'')+'</div>'+
       '<div class="chips2"><span class="ch band">'+esc(c.band||'-')+'</span><span class="ch batt '+swBattClass(b)+'"><i></i>'+(b===null?'--':b+'%')+'</span><span class="ch '+(c.online?'on':'off')+'"><i></i>'+(c.online?'온라인':'오프라인')+'</span></div></div>'+
       '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>'+
       '<a class="go" href="'+esc(c.adminUrl)+'" target="_blank" rel="noopener" onclick="haptic(10)"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>어드민<br>접속</a></div>'+
@@ -2514,7 +2565,7 @@ function swQrMapPut(c){ if(!c||!c.imei) return; var m=lsGet('sw_qrmap')||{}, e={
   var ks=Object.keys(m); if(ks.length>400) ks.sort(function(a,b){ return (m[a].at||0)-(m[b].at||0); }).slice(0,ks.length-400).forEach(function(k){ delete m[k]; });
   lsSet('sw_qrmap',m); }
 function swSearchSkel(e){ return '<div class="devcard" id="devcard"><button class="main" onclick="toast(\'배터리·상태를 확인하는 중이에요\')">'+swVehAv(e.model)+
-    '<div class="bd"><div class="nm"><b class="mono">'+esc(e.qr||e.imei)+'</b>'+(e.model?'<span class="pill" style="background:var(--fill);color:var(--ink2);font-size:11px;padding:3px 8px">'+esc(e.model)+'</span>':'')+'</div>'+
+    '<div class="bd"><div class="nm"><b class="mono">'+esc(e.qr||e.imei)+'</b>'+(e.model?'<span class="pill" style="background:var(--fill);color:var(--ink2)">'+esc(e.model)+'</span>':'')+'</div>'+
     '<div class="chips2"><span class="ch band">'+esc(e.band||'-')+'</span><span class="ch"><i></i>확인 중</span></div></div></button>'+
     (e.adminUrl?'<a class="go" href="'+esc(e.adminUrl)+'" target="_blank" rel="noopener" onclick="haptic(10)"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>어드민<br>접속</a>':'')+'</div>'+
     '<p class="muted" style="margin:8px 6px 10px;font-size:12px">이 폰에 저장된 기기 정보예요 · IMEI '+esc(e.imei)+(e.account?' · '+esc(e.account)+' 계정':'')+'</p>'; }
@@ -2581,7 +2632,7 @@ function swCatBrk(c){ var h=SW_CATS.filter(function(x){ return c[x[0]]; }).map(f
 VIEWS.sw_home={ render:function(v){ reanim(v); if(!v.state.date){ v.state.date=todayISO(-1); v.state.auto=true; }   // 어제 기준 (auto = 사용자가 날짜를 안 고름)
   v.refresh=function(){ if(swHomeRoll(v)) return Promise.resolve(); return swHomeLoad(v,true,true); };   // 당겨서 새로고침 = 오늘도 지금 바로 받음 (v10.32)
   v.onResume=function(){ rpHomeKick(); if(swHomeRoll(v)) return; if(v.state.stale){ v.state.stale=false; swHomeLoad(v,true); } else swHomeDraw(v); };
-  v.dock='home';   // v10.53 [수리기기 입력]·못 보낸 기록 줄 = 뷰 밖 아래 고정 자리(#rpdock · rpDockSync) — 어떤 홈 모양(내용 긴 날·짧은 날·잠김·작업자 없음·오류)이든 같은 자리
+  // v10.54 [수리기기 입력]·못 보낸 기록 줄 = 홈 내용 안 (최근 7일 카드 바로 밑 · 내용과 같이 스크롤 · rpHomeBtn) — 아래 고정 자리(#rpdock)는 수리 내역 입력·부품 재고만 (주인 2026-10-14)
   swHomeLoad(v,false); rpHomeKick(); }};   // v10.52 수리 ERP: 내 권한(rpMe)·못 보낸 수리 기록 보내기
 /* 앱을 켜 둔 채 자정이 지나면 "어제"를 새 어제로 (사용자가 다른 날짜를 골랐으면 그대로) */
 function swHomeRoll(v){ if(!v.state.auto||v.state.date===todayISO(-1)) return false; v.state.date=todayISO(-1); resetCount(v); swHomeLoad(v,false); return true; }
@@ -2597,11 +2648,11 @@ function swHomeLoad(v,quiet,fresh){ var date=v.state.date, tok=v.state.tok=(v.st
   if(cached&&!cached.locked&&homeLockOf('swing')){ homeLockPurge('swing'); cached=null; }   // v10.51 홈 현황 권한 없음 → 예전 숫자 저장본은 그리지 않고 지움
   if(!cached&&homeLockOf('swing')&&!(v.state.res&&v.state.res.date===date)){ v.state.res={ok:true,date:date,locked:true}; swHomeDraw(v); }   // 받기 전에도 틀 + 자물쇠 (서버 답이 오면 그걸로)
   else if(cached&&cached.date===date){ v.state.res=cached; swHomeDraw(v); }
-  else if(!quiet||!v.state.res||v.state.res.date!==date){ v.state.res=null; v.el.innerHTML=swHomeHead(v)+spin('작업내역을 불러오는 중'); }
+  else if(!quiet||!v.state.res||v.state.res.date!==date){ v.state.res=null; v.el.innerHTML=swHomeHead(v)+spin('작업내역을 불러오는 중')+rpHomeBtn(); }
   if(!fresh&&cached&&cached.date===date&&SWH_AT[date]&&Date.now()-SWH_AT[date]<120000&&DIRTY_AT<SWH_AT[date]) return Promise.resolve();   // v10.41 2분 안에 받았고 그 사이 내가 바꾼 게 없으면 저장본 그대로 (홈 탭을 다시 눌러도 서버 안 부름)
   function alive(){ return stack.indexOf(v)>=0&&v.state.tok===tok; }
   function fail(e){ if(!alive()) return; if(v.state.res){ toast('새로고침 실패: '+(e&&e.message||e)); return; }
-    v.el.innerHTML=swHomeHead(v)+errBox(e)+'<button class="btn line" onclick="swHomeLoad(stack[stack.length-1],false)">다시 시도</button>'; }
+    v.el.innerHTML=swHomeHead(v)+errBox(e)+'<button class="btn line" onclick="swHomeLoad(stack[stack.length-1],false)">다시 시도</button>'+rpHomeBtn(); }
   var qsteps=0, wsteps=0;   // queued = 뒤에서 받는 중 확인(15초) · wait = 다른 쪽이 받는 중(3초) — 직접 받는 40번과 따로 셈 (v10.38)
   function step(){ if(steps>40||qsteps>80||wsteps>100) return fail(new Error('기록을 받는 데 너무 오래 걸려요. 잠시 뒤 다시 열어 주세요.'));
     var pre=(!fresh&&!steps&&!qsteps&&!wsteps&&!later)?bootTake('swh:'+date):null;   // v10.41 자동 접속 때 미리 출발한 호출
@@ -2614,22 +2665,21 @@ function swHomeLoad(v,quiet,fresh){ var date=v.state.date, tok=v.state.tok=(v.st
     .catch(function(e){ if(!alive()) return; if(e&&e.auth===false) return; if(++fails<=2) return step(); return fail(e); }); }
   return step(); }
 function swHomeDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res; if(!res){ return; } var d=v.state.date, admin=!!(AUTH&&AUTH.admin), h=swHomeHead(v);
-  if(res.locked){ v.el.innerHTML=h+swHomeLockHtml(d); homeLockPurge('swing'); return; }   // v10.51 서버가 숫자를 안 보냄 (홈 현황 권한 없음) · [수리기기 입력]은 아래 고정 자리 (v10.53)
+  if(res.locked){ v.el.innerHTML=h+swHomeLockHtml(d)+rpHomeBtn(); homeLockPurge('swing'); return; }   // v10.51 서버가 숫자를 안 보냄 (홈 현황 권한 없음) · v10.54 [수리기기 입력] = 최근 7일 카드 밑
   if(res.noWorkers){ v.el.innerHTML=h+'<div class="card"><div class="empty">아직 등록된 작업자가 없어요.<br>'+(admin?'추가기능 → 작업자 관리에서 컬렉터 아이디를 넣어 주세요.':'관리자에게 작업자 등록을 요청해 주세요.')+'</div>'+
-    (admin?'<button class="btn" onclick="push(\'sw_workers\',{})">작업자 관리</button>':'')+'</div>'; return; }
-  var day=res.day||{}, c=day.cats||{};
+    (admin?'<button class="btn" onclick="push(\'sw_workers\',{})">작업자 관리</button>':'')+'</div>'+rpHomeBtn(); return; }
+  var day=res.day||{};   // v10.54 합계 카드에서 분류 칩 줄(배터리 교체 N · 재배치 N …)·'작업내역 미확인 N명'(✓ 모두 확인했어요) 줄 뺌 (주인: 의미 없는 정보 · 분류는 아래 7일 그래프 범례·막대에 그대로)
   h+='<div class="card sum"><div class="lb">'+swDayLabel(d)+' 작업 합계'+(day.updated?' · '+esc(day.updated)+' 기준':'')+'</div>'+
-    '<div class="big">'+num(day.total||0,'swh')+'<span>건</span></div>'+swCatBrk(c)+
-    (day.unconfirmed?'<div class="swwarn" style="margin-top:12px">⚠️ 작업내역 미확인 '+day.unconfirmed+'명</div>':(day.busy?'<div class="swok" style="margin-top:12px">✓ 모두 확인했어요</div>':''))+
+    '<div class="big">'+num(day.total||0,'swh')+'<span>건</span></div>'+
     (res.ldn?'<div class="muted" style="margin-top:10px;font-size:12.5px">⏳ 새로 추가한 작업자 '+res.ldn+'명은 서버가 기록을 받는 중이라 합계에 아직 다 안 들어갔어요</div>':'')+
     (can('swing.sw_work')?'<button class="btn line" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">작업자별 자세히 보기 ›</button>'
       :'<button class="btn line lockb" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">'+LOCK_I+' 작업자별 자세히 보기</button>')+'</div>';   // 작업자 작업내역 권한이 없으면 push 가 막고 안내
-  h+=swWeekCard(res.week||[]);
-  v.el.innerHTML=h; if(!quiet) countUp(v.el); }   // 홈 하단 [수리기기 입력] (수리 기록 권한) = 아래 고정 자리 (v10.53 · rpDockSync)
-/* v10.51 SWING 홈 현황 권한 없음: 합계 카드·최근 7일 카드 틀(제목·분류 이름·날짜·범례)은 그대로 · 숫자·막대 자리만 흐리게 + 선 자물쇠 · "작업자별 자세히 보기"는 따로 (작업자 작업내역 권한) */
+  h+=swWeekCard(res.week||[])+rpHomeBtn();   // v10.54 [수리기기 입력] (수리 기록 권한) = 최근 7일 카드 바로 밑 (내용과 같이 스크롤)
+  v.el.innerHTML=h; if(!quiet) countUp(v.el); }
+/* v10.51 SWING 홈 현황 권한 없음: 합계 카드·최근 7일 카드 틀(제목·날짜·범례)은 그대로 · 숫자·막대 자리만 흐리게 + 선 자물쇠 · "작업자별 자세히 보기"는 따로 (작업자 작업내역 권한)
+   v10.54 잠긴 합계 카드도 분류 칩 줄(흐린 자리표시) 뺌 = 열린 홈과 같은 모양 */
 function swHomeLockHtml(d){ var n='<b>'+hph()+'</b>';
-  var h='<div class="card sum hlk"><div class="lb">'+swDayLabel(d)+' 작업 합계</div><div class="hlkz" onclick="homeLockTap()"><div class="hbl" aria-hidden="true"><div class="big">'+n+'<span>건</span></div></div>'+hlockMark(true)+
-    '<div class="hbl" aria-hidden="true"><div class="brk">'+SW_CATS.map(function(c){ return '<span>'+c[1]+'<b>'+hph('1.4em')+'</b></span>'; }).join('')+'</div></div></div>'+
+  var h='<div class="card sum hlk"><div class="lb">'+swDayLabel(d)+' 작업 합계</div><div class="hlkz" onclick="homeLockTap()"><div class="hbl" aria-hidden="true"><div class="big">'+n+'<span>건</span></div></div>'+hlockMark(true)+'</div>'+
     (can('swing.sw_work')?'<button class="btn line" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">작업자별 자세히 보기 ›</button>'
       :'<button class="btn line lockb" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">'+LOCK_I+' 작업자별 자세히 보기</button>')+'</div>';
   var W=340,H=190,top=22,bot=28,pl=4,pr=4,slot=(W-pl-pr)/7,bw=Math.min(30,slot*0.56),ph=H-top-bot, hs=[.55,.8,.45,.7,.95,.6,.75];   // 막대 높이는 모양만 (숫자 아님)
@@ -3299,25 +3349,26 @@ function rpMeLoad(force){ if(!AUTH||!canServer('swing')) return Promise.resolve(
 function rpMeChanged(){ rpHomeSync(); var ex=$('rpext'); if(ex) ex.innerHTML=rpExtrasRows(); }
 function rpHomeKick(){ if(!AUTH||!appStarted) return; rpMeLoad().catch(function(){}); rpFlush(); }
 
-/* ---- SWING 홈 하단 [수리기기 입력] · 못 보낸 기록 줄 (v10.53 = 아래 고정 자리 #rpdock 의 #rphome) ---- */
+/* ---- SWING 홈 [수리기기 입력] · 못 보낸 기록 줄 — v10.54 = 홈 내용 안 최근 7일 카드 바로 밑 (#rphome · 내용과 같이 스크롤 · 주인 "최근 7일 하단에 붙여 놔줘")
+        (v10.53 = 아래 고정 자리 #rpdock · v10.52 = 뷰 안 sticky) · 홈 모양마다 내용 끝에 (받는 중·오류·작업자 없음·잠긴 홈도) ---- */
+function rpHomeBtn(){ return '<div class="rphome" id="rphome">'+rpHomeInner()+'</div>'; }
 function rpHomeInner(){ var can=rpCan('repair'), o=rpOut(); if(!can&&!o.length) return '';   // 권한이 꺼져도 못 보낸 기록 줄은 보임 (보고·버릴 수 있게)
   var e=o.filter(function(j){ return j.st==='err'; }).length, s=o.length-e;
   return (can?'<button class="btn rpgo" onclick="rpStart()">'+RP_I.qr+'수리기기 입력</button>':'')+
     (o.length?'<button class="rpq'+(e||RP_OUT_MEM?' err':'')+'" onclick="push(\'rp_mine\',{})">'+(s?'<i></i>저장 중 '+s+'건':'')+(s&&e?' · ':'')+(e?'저장 못 한 수리 기록 '+e+'건 · 눌러서 확인':'')+(RP_OUT_MEM?' · 폰 저장 안 됨 (앱을 닫지 마세요)':'')+'</button>':''); }
-function rpHomeSync(){ var v=stack[stack.length-1]; if(v&&v.dock==='home') rpDockSync(); }   // v10.53 홈이 맨 위일 때만 (다른 화면 버튼은 그대로 · 홈으로 돌아오면 syncChrome 이 다시 그림)
+function rpHomeSync(){ var e=$('rphome'); if(e) e.innerHTML=rpHomeInner(); }   // v10.54 홈 뷰 안 그 자리만 다시 (못 보낸 기록·권한이 바뀔 때 · 홈이 밑에 깔려 있어도 · 아래 고정 자리 버튼은 안 건드림)
 /* ---- v10.53 아래 고정 자리 #rpdock (뷰 밖 · #stage 안 · 탭바 바로 위) ----
    예전(v10.52): 버튼이 뷰(스크롤 상자 · 아래 여백 92px · will-change:transform) 안 position:sticky → 탭바보다 ~100px 위에 뜨고, 내용이 짧으면 내용 밑에 붙어 스크롤 따라 움직임
                  (뷰 안에선 position:fixed 도 안 됨 — will-change:transform 이 기준을 뷰로 바꿈)
-   지금: 맨 위 화면의 v.dock ('home' · 'rp_new' · 'rp_stock') 대로 그 버튼만 여기에 그림 — syncChrome(쌓기·뒤로·탭) 과 그 화면이 다시 그릴 때(rpDockSet) 바꿔 끼움
-         id 는 그대로 (rphome · rpgo · rpstsave) · 그 화면 뷰 아래 여백 = 이 자리 높이 + 16px (마지막 내용이 버튼 뒤에 안 숨게) · 다른 화면·카메라 전체화면엔 없음 */
-function rpDockSync(){ var d=$('rpdock'); if(!d||rpDkT) return; var v=stack[stack.length-1], k=(v&&v.dock)||'', s=(v&&v.state)||{}, h='', e0;   // rpDkT = 뒤로 가는 중 (끝나면 다시 부름)
-  if(k==='home'&&d.getAttribute('data-k')==='home'&&(e0=$('rphome'))){ var h0=rpHomeInner(); e0.innerHTML=h0; rpDockOn(!!h0); return; }   // 이미 홈 것 = 안쪽만 (못 보낸 기록 줄이 바뀔 때)
+   지금: 맨 위 화면의 v.dock ('rp_new' · 'rp_stock') 대로 그 버튼만 여기에 그림 — syncChrome(쌓기·뒤로·탭) 과 그 화면이 다시 그릴 때(rpDockSet) 바꿔 끼움
+         id 는 그대로 (rpgo · rpstsave) · 그 화면 뷰 아래 여백 = 이 자리 높이 + 16px (마지막 내용이 버튼 뒤에 안 숨게) · 다른 화면·카메라 전체화면엔 없음
+         v10.54 SWING 홈 [수리기기 입력]은 여기서 빠짐 (홈 내용 안 · rpHomeBtn) */
+function rpDockSync(){ var d=$('rpdock'); if(!d||rpDkT) return; var v=stack[stack.length-1], k=(v&&v.dock)||'', s=(v&&v.state)||{}, h='';   // rpDkT = 뒤로 가는 중 (끝나면 다시 부름)
   d.setAttribute('data-k',k);
-  if(k==='home') h='<div class="rphome" id="rphome"></div>';
-  else if(k==='rp_new'&&s.dk) h='<button class="btn" id="rpgo" onclick="rpSubmit()"'+(s.busy?' disabled':'')+'>'+(s.busy?'저장 중…':rpGoLabel(v))+'</button>';   // 고치기 저장 중이면 그대로 막음
+  if(k==='rp_new'&&s.dk) h='<button class="btn" id="rpgo" onclick="rpSubmit()"'+(s.busy?' disabled':'')+'>'+(s.busy?'저장 중…':rpGoLabel(v))+'</button>';   // 고치기 저장 중이면 그대로 막음
   else if(k==='rp_stock'&&s.dk) h=rpStockBar(v);
   d.innerHTML=h;
-  if(k==='home'){ var hi=rpHomeInner(), e=$('rphome'); if(e) e.innerHTML=hi; rpDockOn(!!hi); } else rpDockOn(!!h); }   // 홈: 권한이 없고 못 보낸 기록도 없으면 안 보임
+  rpDockOn(!!h); }
 function rpDockOn(on){ var d=$('rpdock'), v=stack[stack.length-1]; if(!d) return; on=!!on;
   d.classList.toggle('on',on); try{ document.body.classList.toggle('rpdk',on); }catch(e){}   // rpdk = 토스트·알림 막대를 이 자리 위로
   var hh=on?(d.offsetHeight||0):0;
@@ -3331,7 +3382,7 @@ var rpDkT=0;
 function rpDockLeave(v){ var d=$('rpdock'); if(!d) return; clearTimeout(rpDkT);
   if(v&&v.dock&&d.getAttribute('data-k')===v.dock&&d.classList.contains('on')) d.classList.add('out');
   rpDkT=setTimeout(function(){ rpDkT=0; d.classList.remove('out'); rpDockSync(); },380); }
-function rpDockFit(){ var d=$('rpdock'); if(!rpDkT&&d&&d.classList&&d.classList.contains('on')){ rpDockOn(true); var a=document.activeElement; setTimeout(function(){ rpDockReveal(a); },0); } }   // 화면 크기·글꼴이 바뀌면 높이 다시 (못 보낸 기록 줄이 두 줄이 될 수 있음) · 키보드로 화면이 줄면 칸을 다시 버튼 위로
+function rpDockFit(){ var d=$('rpdock'); if(!rpDkT&&d&&d.classList&&d.classList.contains('on')){ rpDockOn(true); var a=document.activeElement; setTimeout(function(){ rpDockReveal(a); },0); } }   // 화면 크기·글꼴이 바뀌면 높이 다시 · 키보드로 화면이 줄면 칸을 다시 버튼 위로
 /* 버튼 뒤에 (반쯤) 숨은 입력 칸을 누르면 버튼 위로 올림 — 눌러서 들어온 칸은 브라우저가 안 올림 (키보드 '다음'·focus() 는 scroll-padding 으로 브라우저가 올림 · 이미 보이면 그대로) */
 function rpDockReveal(el){ var d=$('rpdock'), v=stack[stack.length-1]; if(!el||!d||rpDkT||!v||!v.dock||!v.el||!d.classList.contains('on')||el===v.el||!v.el.contains||!v.el.contains(el)) return;
   try{ if(el.getBoundingClientRect().bottom>d.getBoundingClientRect().top+0.5) el.scrollIntoView({block:'nearest'}); }catch(e){} }
@@ -3375,7 +3426,7 @@ VIEWS.rp_new={ render:function(v){ reanim(v); var p=v.params, s=v.state;
   v.dock='rp_new'; s.dk=false;   // v10.53 [입력 완료]·[고친 내용 저장] = 아래 고정 자리 (기기·항목을 받아 그린 뒤에만 · rpNewDraw)
   s.sel=s.sel||[]; s.tab=s.tab||'S9'; s.q=s.q||''; s.memo=s.memo||''; s.names=s.names||{};
   var ci=rpItemsCached(); if(ci&&!s.items) s.items=ci;
-  rpItemsLoad().then(function(r){ if(stack.indexOf(v)<0) return; var hadTop=!!(s.items&&s.items.top&&s.items.top.length), first=!s.items||s.itemsErr||hadTop!==!!(r.top&&r.top.length);
+  rpItemsLoad().then(function(r){ if(stack.indexOf(v)<0) return; var first=!s.items||s.itemsErr;   // v10.54 자주 하는 수리 카드는 감싼 자리(#rptopc)째 rpNewSync 가 바꿈 (생기고 없어지는 것도)
       s.items=r; s.itemsErr=null; if(!s.dev) return; if(first) rpNewDraw(v); else rpNewSync(v); })
     .catch(function(e){ if(stack.indexOf(v)<0) return; if(s.items){ return; } s.itemsErr=e; if(s.dev) rpNewDraw(v); });
   if(p.edit){ var go=function(x){ s.rec=x; s.dev={found:true,qr:x.qr,imei:x.imei,model:x.model,acct:x.acct}; rpTabAuto(v); s.client=x.client; s.sel=x.lines.map(function(l){ return l.code; });
@@ -3396,10 +3447,11 @@ function rpDevLoad(v){ var s=v.state, q=v.params.q;
       if(!r.found) setTimeout(function(){ if(stack[stack.length-1]===v&&!s.client&&!sheetOpen) rpVendorAsk(); },350); })   // 못 찾음 → 외주 거래처 고르기 창
     .catch(function(e){ if(stack.indexOf(v)<0) return; v.el.innerHTML=title('수리 내역 입력',esc(q))+errBox(e)+'<button class="btn line" onclick="rpDevRetry()">다시 시도</button>'; }); }
 function rpDevRetry(){ var v=rpTop('rp_new'); if(!v) return; v.el.innerHTML=title('수리 내역 입력',esc(v.params.q))+spin('기기 찾는 중'); rpDevLoad(v); }
-function rpInner(v){ var c=v.state.client; return !!c&&(c.kind==='HN'||c.kind==='SW'); }   // 내부 거래처 (내부 단가)
 /* 항목 묶음 탭 = 기기 종류대로 (W9 기기는 W9 탭으로 열림 · 직접 누른 탭은 그대로 둠) */
 function rpTabOf(model){ var m=String(model||'').toUpperCase(); return m.indexOf('W9')>=0?'W9':(m.indexOf('S9')>=0?'S9':''); }
-function rpTabAuto(v){ var s=v.state, t=rpTabOf(s.dev&&s.dev.model); if(t&&!s.tabPick) s.tab=t; }
+/* v10.54 검증: 기종 = 서버 SQL.tops 와 같은 규칙 — 모델에 W9 → W9 · S9 → S9 · 그 밖의 모델(I9 등) → 기타(ETC) · 모델 모름 = '' (I9 기기에 S9 목록이 뜨던 것) */
+function rpKindOf(model){ return rpTabOf(model)||(String(model||'').trim()?'ETC':''); }
+function rpTabAuto(v){ var s=v.state, t=rpKindOf(s.dev&&s.dev.model); if(t&&!s.tabPick) s.tab=t; }
 function rpClientChangeable(v){ var s=v.state, d=s.dev||{}, c=s.client;
   if(v.params.edit) return rpCan('admin')||!!(c&&c.kind==='vendor');   // 수리팀원은 외주끼리만 · 관리자·마스터는 아무 곳
   return !d.found&&!s.acct; }
@@ -3419,21 +3471,28 @@ function rpDevCard(v){ var s=v.state, d=s.dev||{}, c=s.client, k=c?c.kind:'', in
   return h+'</div>'; }
 function rpBodyHtml(v){ var s=v.state, it=s.items;
   if(!it) return s.itemsErr?errBox(s.itemsErr)+'<button class="btn line" onclick="rpItemsRetry()">다시 시도</button>':spin('수리 항목을 불러오는 중');
-  var h='';
-  if(it.top&&it.top.length) h+='<div class="card"><h3>많이 한 작업</h3><div class="rptop" id="rptop">'+rpTopHtml(v)+'</div></div>';
+  var h='<div id="rptopc">'+rpTopCard(v)+'</div>';   // v10.54 기종별 자주 하는 수리 (없으면 빈 자리)
   h+='<div class="card"><h3>수리 항목</h3><div class="srch rpsrch">'+RP_I.srch+'<input class="input" id="rpq" placeholder="항목 검색 (예: 컨트롤러)" value="'+esc(s.q)+'" oninput="rpSearch(this.value)" autocomplete="off"></div>'+
     '<div class="seg rpseg'+(s.q?' q':'')+'" id="rpseg">'+rpSegHtml(v)+'</div><div class="rplist" id="rplist">'+rpListHtml(v)+'</div></div>';
   h+='<div class="card"><h3 id="rpselh">'+rpSelHead(v)+'</h3><div id="rpsel">'+rpSelHtml(v)+'</div></div>';
   h+='<div class="card"><h3>특이사항</h3><textarea class="input" id="rpmemo" maxlength="500" placeholder="예: 레버 헐거움 · 다음에 다시 봄" oninput="rpMemoIn(this.value)">'+esc(s.memo)+'</textarea></div>';
-  return h; }   // [입력 완료] (id rpgo) = 아래 고정 자리 (v10.53 · rpDockSync)
+  return h; }   // [입력 완료] (id rpgo) = 아래 고정 자리 (v10.53 · rpDockSync) · v10.54 이 화면엔 금액·'내부 단가 없음' 없음 (누구든 · 금액은 명세서·수리 전산에서만)
+/* ---- v10.54 자주 하는 수리 = 기종별 상위 10개 (주인 2026-10-14: 기기별이 아니라 S9·W9 로 나눠서 · 앱이 판단해 버튼으로)
+   서버 rpItems 의 tops = {S9:[…], W9:[…], ETC:[…]} (최근 90일 수리 기록의 기기 모델 기준 · 많이 고른 순 10개)
+   기종 = 기기 판단 때 아는 모델 (SWING 기기 D1 · 어드민 검색으로 찾은 모델 · I9 같은 다른 모델 = 기타) · 모르면 (외주 기기 등) 지금 고른 묶음 탭 (S9·W9·기타)
+   예전 서버(tops 없음) = 예전처럼 전체 '많이 한 작업' (top) */
+var RP_TOP_N=10;
+function rpTopKey(v){ var s=v.state; return rpKindOf(s.dev&&s.dev.model)||s.tab||'S9'; }
+function rpTopsOk(v){ var t=v.state.items&&v.state.items.tops; return !!t&&typeof t==='object'&&!Array.isArray(t); }
+function rpTopList(v){ var it=v.state.items||{}; if(rpTopsOk(v)){ var l=it.tops[rpTopKey(v)]; return Array.isArray(l)?l.slice(0,RP_TOP_N):[]; } return it.top||[]; }
+function rpTopTitle(v){ if(!rpTopsOk(v)) return '많이 한 작업'; var k=rpTopKey(v); return (RP_GRP[k]||k)+' 자주 하는 수리'; }
+function rpTopCard(v){ return rpTopList(v).length?'<div class="card"><h3 id="rptoph">'+esc(rpTopTitle(v))+'</h3><div class="rptop" id="rptop">'+rpTopHtml(v)+'</div></div>':''; }
 function rpItemsRetry(){ var v=rpTop('rp_new'); if(!v) return; v.state.itemsErr=null; var b=$('rpbody'); if(b) b.innerHTML=spin('수리 항목을 불러오는 중');
   rpItemsLoad(true).then(function(r){ if(stack.indexOf(v)<0) return; v.state.items=r; rpNewDraw(v); }).catch(function(e){ if(stack.indexOf(v)<0) return; v.state.itemsErr=e; rpNewDraw(v); }); }
 function rpAllItems(v){ var g=(v.state.items&&v.state.items.groups)||[]; return [].concat.apply([],g.map(function(x){ return x.items||[]; })); }
-function rpItemOf(v,code){ var l=rpAllItems(v); for(var i=0;i<l.length;i++) if(l[i].code===code) return l[i]; var t=(v.state.items&&v.state.items.top)||[]; for(var k=0;k<t.length;k++) if(t[k].code===code) return t[k]; return null; }
+function rpItemOf(v,code){ var l=rpAllItems(v); for(var i=0;i<l.length;i++) if(l[i].code===code) return l[i]; var t=rpTopList(v); for(var k=0;k<t.length;k++) if(t[k].code===code) return t[k]; return null; }
 function rpNameOf(v,code){ var it=rpItemOf(v,code); return it?it.name:(v.state.names[code]||code); }
 function rpCount(v,code){ var n=0; v.state.sel.forEach(function(c){ if(c===code) n++; }); return n; }
-function rpPriceTag(v,it){ if(it.pin===undefined&&it.pout===undefined) return '';   // 금액은 수리 전산·관리자 답에만
-  var p=rpInner(v)?it.pin:it.pout; return p==null?'':'<em class="rpb won">'+rpWon(p)+'원</em>'; }
 function rpSegHtml(v){ var s=v.state, g=(s.items&&s.items.groups)||[];
   return g.map(function(x){ return '<button class="'+(!s.q&&s.tab===x.key?'on':'')+'" onclick="rpTab(\''+x.key+'\')">'+esc(x.label||RP_GRP[x.key]||x.key)+'<b>'+(x.items||[]).length+'</b></button>'; }).join(''); }
 function rpListHtml(v){ var s=v.state, q=String(s.q||'').trim().toLowerCase(), list;
@@ -3441,22 +3500,22 @@ function rpListHtml(v){ var s=v.state, q=String(s.q||'').trim().toLowerCase(), l
   else { var g=((s.items&&s.items.groups)||[]).filter(function(x){ return x.key===s.tab; })[0]; list=(g&&g.items)||[]; }
   if(!list.length) return '<div class="empty" style="padding:22px 0">'+(q?'"'+esc(s.q)+'" 에 맞는 항목이 없어요':'항목이 없어요')+'</div>';
   return list.map(function(it){ return rpItemRow(v,it,!!q); }).join(''); }
-function rpItemRow(v,it,grp){ var n=rpCount(v,it.code), bd=(it.multi?'<em class="rpb multi">여러 개</em>':'')+(rpInner(v)&&it.noIn?'<em class="rpb warn">내부 단가 없음</em>':'')+rpPriceTag(v,it);
+function rpItemRow(v,it,grp){ var n=rpCount(v,it.code), bd=it.multi?'<em class="rpb multi">여러 개</em>':'';   // v10.54 단가·'내부 단가 없음' 표시 뺌 (관리자·전산이 받아도 이 화면엔 안 그림)
   return '<button class="rpit'+(n?' on':'')+'" onclick="rpPick(\''+jsa(it.code)+'\')"><span class="nm">'+(grp?'<small>'+esc(RP_GRP[it.grp]||it.grp)+'</small>':'')+esc(it.name)+'</span>'+
     (bd?'<span class="bg">'+bd+'</span>':'')+'<span class="ck">'+(n?(it.multi?n:RP_I.ok):'')+'</span></button>'; }
-function rpTopHtml(v){ var t=(v.state.items&&v.state.items.top)||[];
+function rpTopHtml(v){ var t=rpTopList(v);
   return t.map(function(it){ var n=rpCount(v,it.code); return '<button class="rpchip'+(n?' on':'')+'" onclick="rpPick(\''+jsa(it.code)+'\')">'+esc(it.name)+(n&&it.multi?'<b>'+n+'</b>':'')+'</button>'; }).join(''); }
 function rpSelGroups(v){ var g=[], m={}; v.state.sel.forEach(function(c){ if(!m[c]){ m[c]={code:c,n:0}; g.push(m[c]); } m[c].n++; }); return g; }
 function rpSelHead(v){ return '고른 항목 '+v.state.sel.length+'개'; }
-function rpSelHtml(v){ var g=rpSelGroups(v), inn=rpInner(v);
+function rpSelHtml(v){ var g=rpSelGroups(v);
   if(!g.length) return '<div class="empty" style="padding:14px 0">위에서 수리 항목을 골라 주세요 (같은 항목 여러 개는 누를 때마다 1개씩)</div>';
   return g.map(function(x){ var it=rpItemOf(v,x.code), multi=it?!!it.multi:x.n>1;
-    return '<div class="rpsr"><div class="nm"><b>'+esc(rpNameOf(v,x.code))+'</b>'+(inn&&it&&it.noIn?'<em class="rpb warn">내부 단가 없음</em>':'')+'</div>'+
+    return '<div class="rpsr"><div class="nm"><b>'+esc(rpNameOf(v,x.code))+'</b></div>'+
       (multi?'<div class="rpqty"><button onclick="rpUnpick(\''+jsa(x.code)+'\')" aria-label="하나 빼기">−</button><b>'+x.n+'</b><button onclick="rpPick(\''+jsa(x.code)+'\')" aria-label="하나 더">+</button></div>'
         :'<button class="rpx" onclick="rpUnpick(\''+jsa(x.code)+'\')" aria-label="빼기">'+RP_I.x+'</button>')+'</div>'; }).join(''); }
 function rpGoLabel(v){ var n=v.state.sel.length; return v.params.edit?'고친 내용 저장'+(n?' · '+n+'개':''):'입력 완료'+(n?' · '+n+'개':''); }
 function rpNewSync(v){ var set=function(id,h){ var e=$(id); if(e) e.innerHTML=h; }, sg=$('rpseg');
-  set('rplist',rpListHtml(v)); set('rptop',rpTopHtml(v)); set('rpsel',rpSelHtml(v)); set('rpselh',rpSelHead(v)); set('rpgo',rpGoLabel(v)); set('rpseg',rpSegHtml(v));
+  set('rplist',rpListHtml(v)); set('rptopc',rpTopCard(v)); set('rpsel',rpSelHtml(v)); set('rpselh',rpSelHead(v)); set('rpgo',rpGoLabel(v)); set('rpseg',rpSegHtml(v));
   if(sg&&sg.classList) sg.classList.toggle('q',!!v.state.q); }
 /* 고르기: 여러 개 항목이 아니면 다시 누르면 빠짐 · 여러 개 항목은 누를 때마다 줄 하나 더 (빼기는 줄마다) · 줄 하나 = 1개 */
 function rpPick(code){ var v=rpTop('rp_new'); if(!v) return; var s=v.state, it=rpItemOf(v,code), i=s.sel.indexOf(code);
@@ -3507,6 +3566,7 @@ function rpSubmit(){ var v=rpTop('rp_new'); if(!v) return; var s=v.state, d=s.de
   var old=v.params.out?rpOutGet(v.params.out):null, rid=(old&&old.rid)||ridNew();
   var rec={rid:rid,qr:d.qr,lines:s.sel.map(function(c){ return {code:c}; }),memo:String(s.memo||'').slice(0,500),saved_ms:(old&&old.rec.saved_ms)||Date.now()};   // saved_ms = 누른 시각 (3일 안이면 그 날짜로)
   if(d.imei) rec.imei=String(d.imei);
+  if(!d.found&&d.model) rec.model=String(d.model).slice(0,10);   // v10.54 어드민 검색으로 안 기종도 기록에 (서버가 기종별 자주 하는 수리를 셈 · 찾은 기기는 서버가 앎)
   if(!d.found){ if(s.acct) rec.acct=s.acct; else rec.client_id=s.client.id; }
   var names={}; s.sel.forEach(function(c){ names[c]=rpNameOf(v,c); });
   var job={rid:rid,at:(old&&old.at)||Date.now(),st:'send',err:'',rec:rec,
@@ -3568,7 +3628,7 @@ function rpOutHtml(){ var o=rpOut(); if(!o.length) return '';
 /* ---- 수리 기록 카드 (내 기록 · 전체 기록) ---- */
 function rpLinesBrief(lines){ var g=[], m={}; (lines||[]).forEach(function(l){ if(!m[l.name]){ m[l.name]={name:l.name,n:0}; g.push(m[l.name]); } m[l.name].n++; });
   return g.map(function(x){ return esc(x.name)+(x.n>1?' <b>×'+x.n+'</b>':''); }).join(' · '); }
-function rpRecCard(x,from){ var vd=x.state==='void', money=x.total!==undefined, np=x.noPrice?'<em class="rpb warn">단가 없음 '+x.noPrice+'줄</em>':'';
+function rpRecCard(x,from){ var vd=x.state==='void', money=x.total!==undefined, np=money&&x.noPrice?'<em class="rpb warn">단가 없음 '+x.noPrice+'줄</em>':'';   // v10.54 '단가 없음'도 금액 보는 사람만 (수리 전산·관리자·마스터)
   return '<div class="rprec'+(vd?' void':'')+'"><button class="rph" onclick="rpRecOpen('+Number(x.id)+')"><span class="tm">'+esc(String(x.at||'').slice(11,16))+'</span><b class="mono">'+esc(x.qr)+'</b>'+
       '<span class="rpk '+rpKindCls(x.client.kind)+'">'+esc(rpKindLb(x.client.kind))+'</span>'+(vd?'<span class="pill sys sm">지움</span>':'')+(x.stmt?'<span class="pill rpst sm">명세서</span>':'')+'</button>'+
     '<div class="cl">'+esc(x.client.name)+(from!=='mine'?' · '+esc(x.worker.name):'')+(x.edited?' · 고침':'')+'</div><div class="ln">'+rpLinesBrief(x.lines)+'</div>'+
@@ -3611,11 +3671,11 @@ function rpRecDraw(v){ var x=v.state.rec, money=x.total!==undefined, vd=x.state=
     (x.stmt?'<dt>명세서</dt><dd>'+(rpCan('office')?'<button class="rplink" onclick="push(\'rp_stmt\',{id:'+Number(x.stmt.id)+'})">명세서 '+esc(x.stmt.serial)+' ›</button>':'명세서 '+esc(x.stmt.serial))+' <span class="muted">· 잠김</span></dd>':'')+
     (vd&&x.voided?'<dt>지움</dt><dd style="color:var(--danger)">'+esc(x.voided.by)+' · '+esc(x.voided.at)+(x.voided.why?' · '+esc(x.voided.why):'')+'</dd>':'')+'</dl></div>';
   h+='<div class="card"><h3>수리 항목 '+x.lines.length+'개</h3><div class="rplines">'+x.lines.map(function(l){
-      return '<div class="rpl"><span class="n">'+l.n+'</span><span class="nm">'+esc(l.name)+(l.noPrice?' <em class="rpb warn">단가 없음</em>':'')+'</span>'+
+      return '<div class="rpl"><span class="n">'+l.n+'</span><span class="nm">'+esc(l.name)+(money&&l.noPrice?' <em class="rpb warn">단가 없음</em>':'')+'</span>'+
         (money?'<span class="won">'+(l.amount==null?'—':rpWon(l.amount))+'</span>':'')+
         (money&&admin&&l.noPrice&&!vd&&!x.stmt?'<button class="rpsetp" onclick="rpPriceAsk('+Number(x.id)+','+Number(l.n)+')">금액 넣기</button>':'')+'</div>'; }).join('')+'</div>'+
     (money?'<div class="rptot"><span>합계'+(x.noPrice?' (단가 없음 '+x.noPrice+'줄 빼고)':'')+'</span><b>'+rpWon(x.total)+'원</b></div>':'')+'</div>';
-  if(x.memo) h+='<div class="card"><h3>특이사항</h3><p style="margin:0;white-space:pre-wrap;word-break:break-all">'+esc(x.memo)+'</p></div>';
+  if(x.memo) h+='<div class="card"><h3>특이사항</h3><p style="margin:0;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere">'+esc(x.memo)+'</p></div>';
   if(x.canEdit) h+='<div class="row"><button class="btn line sm" onclick="rpEditOpen('+Number(x.id)+')">고치기</button><button class="btn danger sm" onclick="rpVoidAsk('+Number(x.id)+')">지우기</button></div>';
   else if(vd&&admin) h+='<button class="btn line" onclick="rpRestoreAsk('+Number(x.id)+')">되살리기 (관리자)</button>';
   else if(!vd&&x.stmt) h+='<p class="muted rpnote">명세서에 들어간 기록이라 못 고쳐요. 관리자가 그 명세서를 취소한 뒤 고쳐요.</p>';
@@ -3955,7 +4015,7 @@ function swWkAddGo(){ var id=($('wk_id').value||'').trim(), name=($('wk_nm').val
   closeSheet(function(){ toast('추가하는 중…'); swWkSend('swingWorkerAdd',[id,name,br],'추가했어요 · '+(name||id)); }); }
 function swWkDelAsk(btn){ var w=swWkById(btn.getAttribute('data-id')); if(!w) return; haptic(10); swWkDelId=w.id;   // 확인 시트가 열린 동안 목록이 바뀌어도 이 사람을 지우게 아이디로 기억
   openSheet('<h3>작업자를 지울까요?</h3><p><b>'+esc(w.name||w.id)+'</b> · '+esc(w.id)+'<br>이미 모은 기록은 시트에 남지만 작업내역에는 더 이상 안 보여요. 잠깐 빼려면 스위치만 끄세요.</p>'+
-    '<div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#e5484d" onclick="closeSheet(function(){ swWkDelGo(); })">삭제</button></div>'); }
+    '<div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--danger)" onclick="closeSheet(function(){ swWkDelGo(); })">삭제</button></div>'); }
 function swWkDelGo(){ var w=swWkById(swWkDelId); swWkDelId=''; if(!w) return; toast('삭제하는 중…'); swWkSend('swingWorkerDelete',[w.id],(w.name||w.id)+' 삭제'); }
 
 /* ================= QR 스캔 ================= */
@@ -4158,7 +4218,7 @@ function reportAutoInfo(v){ var el=v.el.querySelector('#r_ainfo'); if(el) el.inn
 /* ---- 날짜 고르기 (오늘·어제·그제 + 알림이 가고 있는 날) ---- */
 function reportDatesHtml(v){ var d=v.state.date, ds=[todayISO(0),todayISO(-1),todayISO(-2)], pend=(PUSHME&&PUSHME.pend)||[];
   pend.forEach(function(x){ if(ds.indexOf(x)<0) ds.push(x); }); if(ds.indexOf(d)<0) ds.push(d); ds.sort().reverse();
-  return '<div class="days">'+ds.map(function(x){ var p=pend.indexOf(x)>=0; return '<button class="'+(x===d?'on':'')+'" onclick="reportPickDate(\''+x+'\')">'+dayLabel(x)+(p?' <b style="color:#e5484d">미보고</b>':'')+'</button>'; }).join('')+'</div>'; }
+  return '<div class="days">'+ds.map(function(x){ var p=pend.indexOf(x)>=0; return '<button class="'+(x===d?'on':'')+'" onclick="reportPickDate(\''+x+'\')">'+dayLabel(x)+(p?' <b class="pend">미보고</b>':'')+'</button>'; }).join('')+'</div>'; }
 function reportPickDate(d){ var v=stack[stack.length-1]; if(!v||v.name!=='report'||v.state.date===d) return; haptic(6); reportOpen(v,d,true); }
 /* ---- 업무시간 설정 팝업 — 한 번만 그리고, 말풍선은 DOM만 넣고 빼서 창이 깜빡이지 않게 ---- */
 function reportEndOpts(sh){ var a=[]; if(sh>=15){ for(var h=Math.max(sh+1,20);h<=32;h++) a.push(h); } else { for(var h2=Math.max(sh+1,15);h2<=24;h2++) a.push(h2); } return a; }
@@ -4205,7 +4265,7 @@ function rangeAt(v,h){ var rs=v.state.ranges||[]; for(var i=0;i<rs.length;i++){ 
 function reportHasBody(v,r){ return !!((r.text&&r.text.trim())||reportAutoIn(v,r.s,r.e).length); }
 function reportCanSend(v){ var st=v.state; return (st.ranges||[]).some(function(r){ return reportHasBody(v,r); })||!!(st.note&&st.note.trim())||reportAutoOut(v).length>0
   ||(!st.auto&&!st.autoLoading&&!!st.autoErr); }   // 자동 기록을 못 불러왔으면 보내 보게 (서버가 다시 읽어 붙임 · 정말 없으면 서버가 "작성한 내용이 없어요")
-function reportHeadBtnHtml(dirty){ return dirty ? '<button class="hbtn" style="background:#e5484d;box-shadow:0 8px 18px rgba(229,72,77,.3)" onclick="reportResetAsk()"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>초기화</button>'
+function reportHeadBtnHtml(dirty){ return dirty ? '<button class="hbtn" style="background:var(--danger);box-shadow:0 8px 18px rgba(200,30,45,.3)" onclick="reportResetAsk()"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>초기화</button>'
   : '<button class="hbtn" onclick="drawReportSetup(stack[stack.length-1])"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>업무시간</button>'; }
 function reportDirty(st){ return (st.ranges||[]).some(function(r){ return r.text&&r.text.trim(); })||!!(st.note&&st.note.trim()); }   // 사용자가 적은 게 있으면 초기화 버튼 (자동으로 생긴 빈 칸은 아님)
 function drawReport(v){ var st=v.state;
@@ -4235,7 +4295,7 @@ function drawReport(v){ var st=v.state;
   if(st.focus!==undefined){ var ta=$('rt'+st.focus); if(ta){ clearTimeout(st._focusT); st._focusT=setTimeout(function(){ ta.focus(); },380); } st.focus=undefined; } }
 function selbarHtml(sel){ return '<div class="selbar" id="selbar"><div><b>'+reportHl(sel.a)+' ~ '+reportHl(sel.b+1)+'</b><span>끌어서 늘리고, 마지막 시간을 두 번 눌러 확정</span></div><div style="display:flex;gap:6px"><button onclick="reportSelCancel()">취소</button><button class="ok" onclick="reportSelConfirm()">확정</button></div></div>'; }
 function taGrow(ta){ ta.style.height='auto'; ta.style.height=Math.max(ta.getAttribute('rows')==='1'?30:44,ta.scrollHeight)+'px'; }
-function reportResetAsk(){ haptic(10); openSheet('<h3>업무보고를 초기화할까요?</h3><p>이 날짜에 적은 시간대별 내용과 특이사항이 모두 지워지고 업무시간 설정부터 다시 시작해요. (자동 기록은 다시 들어가요)</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#e5484d" onclick="closeSheet(function(){ reportReset(); })">초기화</button></div>'); }
+function reportResetAsk(){ haptic(10); openSheet('<h3>업무보고를 초기화할까요?</h3><p>이 날짜에 적은 시간대별 내용과 특이사항이 모두 지워지고 업무시간 설정부터 다시 시작해요. (자동 기록은 다시 들어가요)</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--danger)" onclick="closeSheet(function(){ reportReset(); })">초기화</button></div>'); }
 function reportReset(){ var v=stack[stack.length-1]; var st=v.state; st.ranges=[]; st.note=''; st.sentAt=''; st.sel=null; st.cfg=null; st.noAuto={}; st.setupTouched=false;
   try{ localStorage.removeItem('swapc:'+reportKey(st.date)); localStorage.removeItem('swapc:report:'+st.date); }catch(e){} haptic([12,40,18]); toast('초기화했어요'); drawReportSetup(v); }
 function reportSendBtn(v){ var st=v.state; var can=reportCanSend(v); var btn=$('r_send'); if(btn){ btn.disabled=!can; btn.style.opacity=can?'':'.5'; } }
@@ -4337,7 +4397,7 @@ function stockZeroWhy(r){ var nz=r.items.filter(function(i){ return !i.changed&&
   return [nz?'같은 줄에서 +1·−1이 상쇄된 줄 '+nz+'개':'', fl?'시트 값이 이미 0이라 못 뺀 줄 '+fl+'개':'', G?'시트 줄이 없는 기기 '+G+'대 (그대로)':'', P?'반영 전에 들어왔다 나간 기기 '+P+'대':''].filter(String).join(' · '); }
 function stockWhy(d){ return esc(d.why||'')+(d.name?' → '+esc(d.name):'')+(d.why==='재고 출고 매칭'&&d.status?' · '+esc(d.status):''); }
 function drawStock(v){ var r=v.state.pv; var changed=r.items.filter(function(i){ return i.changed; }), devCh=stockDevChange(r), L=r.left||[], P=r.passed||[], lk=!!v.state.stale, dis=lk?' disabled':'';   // lk = 저장된 화면 (v10.40 · 반영·줄 고르기 잠금)
-  var h=title('재고 시트 반영','<a href="'+esc(r.sheetUrl)+'" target="_blank" style="color:var(--p);font-weight:700">'+esc(r.tab)+' 열기 ›</a>');
+  var h=title('재고 시트 반영','<a href="'+esc(r.sheetUrl)+'" target="_blank" style="color:var(--p);font-weight:700;display:inline-block;padding:12px 0;margin:-12px 0">'+esc(r.tab)+' 열기 ›</a>');
   if(lk) h+='<div class="card stkstale"><b>이 폰에 저장된 화면이에요</b>'+(v.state.staleAt?' ('+esc(fmtAgo(v.state.staleAt))+')':'')+'<br>'+(v.state.staleErr?'<span style="color:var(--danger)">최신 비교를 못 불러왔어요 · '+esc(v.state.staleErr)+'</span><button class="btn line sm" style="margin-top:10px" onclick="stockRetry()">다시 시도</button>':'<span class="muted">시트와 앱 재고를 다시 비교하는 중… 끝나면 바로 바뀌고 반영·줄 고르기를 할 수 있어요.</span>')+'</div>';
   h+='<div class="card sum"><div class="lb">앱에 재고로 있는 기기</div><div class="big">'+num(r.total,'st')+'<span>대</span></div>'+
      '<div class="muted" style="margin-top:6px">신품 '+num(r.newTotal,'sn')+'대 · 중고 '+num(r.total-r.newTotal,'su')+'대'+(r.updated?' · 시트 마지막 반영 '+esc(r.updated):'')+'</div>'+
@@ -4466,7 +4526,7 @@ function pushCardShow(){ return !!AUTH&&(isMaster()||!!(PUSHME&&(PUSHME.plan||PU
 function pushCardHtml(){ var me=PUSHME||{}, pl=me.plan, ok=pushOk(), perm=ok?Notification.permission:'', on=ok&&!!me.here&&perm==='granted';
   return '<h3>작업보고 알림</h3><p class="muted" style="margin:6px 0 0;font-size:13.5px">'+(pl?'마스터가 알림 대상으로 정했어요 · <b>'+esc(pushPlanTxt(pl))+'</b><br>'+pushRule(pl)
       :'알림 대상이 아니에요. 마스터가 정하면 출근일에 업무보고를 안 보냈을 때 알림이 와요.')+'</p>'+
-    ((me.pend||[]).length?'<div class="muted" style="margin:8px 0 0;font-size:13.5px;color:#e5484d"><b>'+me.pend.map(function(x){ return pushMD(x); }).join(', ')+' 작업보고를 아직 안 했어요</b> · 추가기능 → 업무보고</div>':'')+
+    ((me.pend||[]).length?'<div class="muted" style="margin:8px 0 0;font-size:13.5px;color:var(--danger)"><b>'+me.pend.map(function(x){ return pushMD(x); }).join(', ')+' 작업보고를 아직 안 했어요</b> · 추가기능 → 업무보고</div>':'')+
     '<div class="muted" style="margin:8px 0 0;font-size:13.5px">이 폰: <b>'+(!ok?'알림 못 받음'+(pushIos()?' (홈 화면 앱에서만)':''):(on?'알림 켜짐':(perm==='denied'?'알림 막힘 · 폰 설정에서 허용':'알림 꺼짐')))+'</b>'+(me.devices?' · 알림 켠 폰 '+me.devices+'대':'')+'</div>'+
     '<div class="row" style="margin-top:12px;gap:8px">'+(on?'<button class="btn line sm" onclick="pushDisable()">이 폰 알림 끄기</button><button class="btn sm" onclick="pushTestSelf()">테스트 알림</button>':'<button class="btn sm" onclick="pushEnable()">이 폰에서 알림 켜기</button>')+'</div>'; }
 function pushMeSet(me){ if(!me||me.ok===false) return; PUSHME=me; lsSet('pushme',{c:AUTH?lsCodeHash(AUTH.code):'',me:me}); }   // v10.41 코드 원문 대신 짧은 해시
@@ -4565,7 +4625,7 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
     '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:21px;letter-spacing:-.5px">'+esc(worker||'이름 없음')+(rn?' <span class="pill sys sm" style="background:var(--p-soft);color:var(--p-ink);vertical-align:middle">'+rn+'</span>':'')+'</div>'+
     '<div class="muted">접속 코드 <b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:1px;color:var(--ink2)">'+esc(AUTH&&AUTH.code||'-')+'</b>'+(fixedName?' · 이름은 마스터가 설정':'')+'</div></div></div>'+
     '<div class="row" style="margin-top:16px;gap:8px">'+(fixedName?'':'<button class="btn line sm" onclick="openNameSheet()">'+(worker?'이름 변경':'이름 입력')+'</button>')+
-    '<button class="btn line sm" style="color:#d6336c" onclick="logoutAsk()">로그아웃</button></div></div>'+
+    '<button class="btn line sm" style="color:var(--danger)" onclick="logoutAsk()">로그아웃</button></div></div>'+
     '<div class="card"><h3>서버</h3><div class="seg" style="margin:10px 0 0">'+['swap','swing'].map(function(sv){ var ok=canServer(sv); return '<button class="'+(SERVER===sv?'on':'')+'" '+(ok?'':'disabled style="opacity:.35"')+' onclick="switchServer(\''+sv+'\')">'+sv.toUpperCase()+'</button>'; }).join('')+'</div><p class="muted" style="margin:8px 0 0;font-size:13px">'+(SERVER==='swing'?'SWING 스윙과사람들 작업 화면을 쓰는 중이에요.':'SWAP 경기남부점 입출고 화면을 쓰는 중이에요.')+(canServer('swap')&&canServer('swing')?'':' 이 코드는 '+SERVER.toUpperCase()+' 서버만 쓸 수 있어요.')+'</p></div>'+
     '<div class="melb">'+(isAdminUp()?'관리':'목록')+'</div>'+mg+
     (pushCardShow()?'<div class="card" id="pushcard">'+pushCardHtml()+'</div>':'')+   // 작업보고 알림 (v10.30)
@@ -4577,11 +4637,11 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
     '<li><span><b>검색</b> → 고객명·일련번호로 등록 QR/작업리스트/어드민 찾기 → 항목 선택 → QR 찍어 매칭. 작업이 없는 기기는 <b>재고 기기</b>로 등록</span></li>'+
     '<li><span><b>현황</b> → 홈의 상태 칸이나 전체 보기</span></li>'+
     '<li><span><b>자전거 주문</b> → 출고 QR 1장 · <b>교체수리</b> → 출고 1장 + 수거 1장</span></li>'+
-    '<li><span><b>수거 기기</b> → 입고 → 수리대기 → <b>수리가능</b> → 재고 또는 출고 대기중 (수리가능을 지나야 넘어감)</span></li>'+
-    '<li><span><b>출고 기기</b> → 등록하면 바로 출고 준비완료</span></li>'+
-    '<li><span><b>출고대기중</b> → 인수형·대차 없는 고객 기기가 출고 날짜를 기다리는 상태. 구독 상세의 가장 최근 고객요청이 기기 재배송이고 작업예정일자가 설정되면 자동으로 출고준비완료 (상세의 "어드민 확인"으로 즉시, 안 되면 수동 버튼)</span></li>'+
-    '<li><span><b>출고완료</b> → 출고준비완료 기기가 실제로 나가면 상세에서 누름. 배송내역 항목으로 옮겨져 공장 안 재고에서 빠짐</span></li>'+
-    '<li><span><b>⚠️전산미완료</b> → 재고·출고준비완료 기기인데 어드민 고객요청이 완료가 아닐 때 표시. 어드민에서 완료 처리하면 사라짐(1시간마다 자동 확인 · 밤 제외, 상세 화면 열면 즉시 확인)</span></li>'+
+    '<li><span><b>수거 기기</b> → 입고 → 수리대기 → <b>수리가능</b> → 재고 또는 '+stName('출고대기중')+' (수리가능을 지나야 넘어감)</span></li>'+
+    '<li><span><b>출고 기기</b> → 등록하면 바로 '+stName('출고준비완료')+'</span></li>'+
+    '<li><span><b>'+stName('출고대기중')+'</b> → 인수형·대차 없는 고객 기기가 출고 날짜를 기다리는 상태. 구독 상세의 가장 최근 고객요청이 기기 재배송이고 작업예정일자가 설정되면 자동으로 '+stName('출고준비완료')+' (상세의 "어드민 확인"으로 즉시, 안 되면 수동 버튼)</span></li>'+
+    '<li><span><b>출고완료</b> → '+stName('출고준비완료')+' 기기가 실제로 나가면 상세에서 누름. 배송내역 항목으로 옮겨져 공장 안 재고에서 빠짐</span></li>'+
+    '<li><span><b>⚠️전산미완료</b> → 재고·'+stName('출고준비완료')+' 기기인데 어드민 고객요청이 완료가 아닐 때 표시. 어드민에서 완료 처리하면 사라짐(1시간마다 자동 확인 · 밤 제외, 상세 화면 열면 즉시 확인)</span></li>'+
     '<li><span><b>용지 재사용</b> → 기기가 나간 뒤 태그 비우기 · 라벨이 찢어지면 <b>QR 교체</b></span></li>'+
     '<li><span><b>재고 시트 반영</b> → 추가기능 → 앱의 재고 기기(신품 체크 포함)를 Swap_재고 테이블 경기남부점 탭에 기입</span></li>'+
     '<li><span><b>뒤로가기</b> → 폰 뒤로가기 버튼, 왼쪽 위 ‹, 또는 화면 왼쪽 끝에서 오른쪽으로 밀기</span></li>'+
@@ -4802,10 +4862,10 @@ function eggDraw(v){ var l=v.state.list||[], f=l[0];
      '<div class="muted" style="margin-top:6px">'+esc(f.at)+' 발견 · '+(Number(f.n)||1)+'번 봄'+(f.admin?' · 관리자':'')+(f.gone?' · 지운 코드':'')+'</div></div>';
   h+='<div class="card"><h3>찾은 순서</h3><ul class="hist">'+l.map(function(x,i){ return '<li><span><b>'+(i+1)+'. '+esc(x.name||'이름 없음')+'</b>'+(x.admin?' · 관리자':'')+(x.gone?' · 지운 코드':'')+'</span>'+
     '<span style="flex:0 0 auto">'+esc(String(x.at||'').slice(5))+' · '+(Number(x.n)||1)+'번</span></li>'; }).join('')+'</ul></div>';
-  h+='<button class="btn line" style="color:#d6336c" onclick="eggResetAsk()">기록 지우기</button>';
+  h+='<button class="btn line" style="color:var(--danger)" onclick="eggResetAsk()">기록 지우기</button>';
   v.el.innerHTML=h; }
 function eggResetAsk(){ openSheet('<h3>기록을 지울까요?</h3><p>발견한 사람 기록이 모두 지워지고, 다음에 찾는 사람이 새로 처음 발견한 사람이 돼요.</p>'+
-  '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#d6336c" onclick="closeSheet(eggResetGo)">지우기</button></div>'); }
+  '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--danger)" onclick="closeSheet(eggResetGo)">지우기</button></div>'); }
 function eggResetGo(){ var v=permView('eggs'); run('eggReset').then(function(){ toast('기록을 지웠어요'); if(v&&permView('eggs')===v){ v.state.list=[]; eggDraw(v); } })
   .catch(function(e){ toast('지우기 실패: '+e.message); }); }
 
@@ -4988,7 +5048,7 @@ function logout(msg){ if(loggingOut) return; loggingOut=true; AUTH=null; try{ lo
   // v10.46 사진 목록도 둠 — 사진 원본(IndexedDB swing-photos)은 남는데 목록만 지워져서, 사진모음에서 안 보이고 지울 수도 없게 쌓였음 (다른 코드로 들어올 때 lsOwner 도 사진은 남김)
   var u=location.pathname+(msg?'?bye='+encodeURIComponent(msg):''); kvClear().then(function(){ location.replace(u); }); }   // IndexedDB 를 다 지운 뒤에 다시 염 (지우는 중에 떠나면 남을 수 있어서)
 function logoutAsk(){ var rpn=rpOut().length;   // v10.52 못 보낸 수리 기록이 있으면 알려 줌 (로그아웃하면 이 폰에서 지워짐)
-  openSheet('<h3>로그아웃</h3><p>다시 들어오려면 접속 코드를 입력해야 해요.'+(rpn?'<br><b style="color:var(--danger)">아직 못 보낸 수리 기록 '+rpn+'건이 있어요. 로그아웃하면 지워져요.</b>':'')+'</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:#d6336c" onclick="logout()">로그아웃</button></div>'); }
+  openSheet('<h3>로그아웃</h3><p>다시 들어오려면 접속 코드를 입력해야 해요.'+(rpn?'<br><b style="color:var(--danger)">아직 못 보낸 수리 기록 '+rpn+'건이 있어요. 로그아웃하면 지워져요.</b>':'')+'</p><div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--danger)" onclick="logout()">로그아웃</button></div>'); }
 var appStarted=false;
 function startApp(){ if(appStarted) return; appStarted=true;
   stResume();   // v10.49 지난번에 끝을 못 본 상태 변경 → 홈을 그리기 전에 넣어 두고 getTag 로 확인
