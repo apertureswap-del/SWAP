@@ -526,7 +526,8 @@
      줄은 화면 끝까지 흐름 (뷰 좌우 여백 20px 밖까지 · 처음 자리 = 다른 카드와 같은 20px) · 카드 폭 = 화면에 3.5장 → 마지막 카드가 반쯤 보여 밀 수 있다는 걸 알려 줌 · 끝 여백 = ::after 10 + 사이 10 */
   .xsec{margin:0 0 14px} .view.anim .xsec,.view.anim .xone{animation:rise .42s var(--spring) both}
   .xh{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.6px;line-height:1.25;color:var(--ink)}
-  .xrow{display:flex;align-items:stretch;gap:10px;overflow-x:auto;overflow-y:hidden;margin:0 -20px;padding:6px 0 18px 20px;scroll-snap-type:x mandatory;scroll-padding:0 20px;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;-webkit-user-select:none;user-select:none}
+  .xrow{display:flex;align-items:stretch;gap:10px;overflow-x:auto;overflow-y:hidden;margin:0 -20px;padding:6px 0 18px 20px;scroll-snap-type:x mandatory;scroll-padding:0 20px;scrollbar-width:none;overscroll-behavior-x:none;-webkit-overflow-scrolling:touch;-webkit-user-select:none;user-select:none}
+  /* ↑ v10.57 overscroll-behavior-x contain → none: 브라우저 자체 끝 효과(안드로이드 늘어남·iOS 튕김) 끔 → 끝 너머는 앱 고무줄(xFx)만 (둘이 겹치지 않게 · 세로는 안 건드림) */
   /* ↑ v10.56 검증 고침: 줄 자체도 글자 선택 없음 (카드 사이 틈·카드 밑 여백에서 끌기 시작해 위아래로 나가면 섹션 제목·업무보고 글자가 잡히던 것 · 예전 = 카드만) */
   .xrow::-webkit-scrollbar{display:none} .xrow::after{content:'';flex:0 0 10px}
   .xcard{position:relative;flex:0 0 auto;width:clamp(84px,calc((min(100vw,600px) - 50px) / 3.5),132px);min-height:116px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:9px;padding:15px 6px 13px;border-radius:18px;background:#fff;text-align:center;
@@ -550,6 +551,12 @@
     .xnav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
   }
   .xrow.xdrag,.xrow.xdrag .xcard,.xrow.xdrag *{cursor:grabbing}   /* 끄는 중 (위 grab 보다 뒤) */
+  /* v10.57 슬라임 모션 (xFx · 주인 10/15): 움직이는 동안만 .xfx = 카드 will-change + transition 끔 (매 프레임 JS 가 transform 을 씀 · 끝나면 둘 다 뺌 · transform 도 지움)
+     .xjs = 누름도 JS 스프링 (CSS :active 줄어듦 끔 · 움직임 줄이기면 .xjs 없음 = 예전 :active 그대로) */
+  .xrow.xfx .xcard{will-change:transform;transition:none} .xrow.xjs .xcard:active{transform:none}
+  .xrow.xpull{scroll-snap-type:none}   /* v10.57 끝 당김·되돌아오는 동안만 snap 끔 (카드를 옮기면 브라우저가 옮긴 카드 자리로 줄을 다시 맞춰 9px 쯤 튀던 것 · 실측) · 끝나면 그 자리 = 원래 카드 자리라 안 움직임 */
+  .sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}   /* v10.57 검증 고침: 안 보이는 화면 이름 (스크린리더만 읽음 · 추가기능 h1) */
+  .view>.xsec:first-of-type{margin-top:8px}   /* v10.57 검증 고침: 앞에 안 보이는 h1 이 있어도 첫 섹션 (예전 :first-child) · v10.57 주인 4: 맨 위 '추가기능' 제목·부제 없앰 → 첫 섹션 제목 = 다른 탭 한 줄 제목 자리 (환경설정 등 .ptitle h1 = 위 2px + 높이 42 가운데 6px = 8px · 예전 SWAP 추가기능 제목 자리 그대로 · 뷰 위 여백 16px + 노치 그대로) */
   .item.cdoff{opacity:.62}   /* 고객 기기: 반납이 아닌 기기(이용 중·다른 고객)는 흐리게 */
   /* 재고 출고: 이름 옆 고객 매칭 버튼 · 말풍선 */
   .smbtn{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;background:var(--p-soft);color:var(--p-ink);font-size:12.5px;font-weight:800}
@@ -883,6 +890,7 @@
   /* 1-2 기록 목록 = 카드 전체를 눌러 상세 (› · 고치기·지우기는 상세 화면에서) */
   button.rprec{display:block;width:100%;text-align:left;color:var(--ink);transition:transform .2s var(--spring),background .15s} button.rprec:active{transform:scale(.985);background:var(--fill)}
   .rprec>span{display:block} .rprec .rph .chev{margin-left:auto;flex:0 0 auto;font-size:22px;font-weight:600;line-height:1;color:var(--muted)}
+  .rprec .rph .rped{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;color:var(--ink)} .rprec .rph .rped .lic{width:17px;height:17px;margin:0}   /* v10.57 주인 6: '고칠 수 있음' 글자 딱지 → 검은 연필 선 아이콘 17px (ic 세트 · 작은 아이콘 굵기 2.2 · 채움 없음) · › 앞 (사이 8px) */
   /* 9-3 업무보고 칸 지운 뒤 '되돌리기' (5초 · 누를 수 있는 토스트) */
   .toast.act{display:flex;align-items:center;gap:12px;padding:6px 6px 6px 18px;text-align:left} .toast.act.on{pointer-events:auto}
   .toast .tact{flex:0 0 auto;min-height:44px;padding:0 14px;border-radius:12px;background:rgba(255,255,255,.16);color:#fff;font-weight:800;font-size:14.5px}
@@ -1102,7 +1110,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.56';
+var APP_VER = '10.57';
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -1513,7 +1521,8 @@ var IC={
   cal:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.6"/><path d="M3.5 10h17M8 3v4M16 3v4M7.6 14h1.6M11.2 14h1.6M14.8 14h1.6M7.6 17.2h1.6M11.2 17.2h1.6"/>',
   clip:'<path d="M9 4.5H7A2 2 0 0 0 5 6.5v13A2 2 0 0 0 7 21.5h10a2 2 0 0 0 2-2v-13a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="3.2" rx="1"/><path d="M8.6 13.4l2.3 2.3 4.6-4.7"/>',
   users:'<circle cx="9" cy="8.2" r="3.5"/><path d="M2.8 20c.5-3.6 3.1-5.6 6.2-5.6s5.7 2 6.2 5.6"/><path d="M16 4.9a3.3 3.3 0 0 1 0 6.5M17.4 14.6c2.1.5 3.5 2.4 3.8 5.4"/>',
-  bell:'<path d="M6.2 16.6V11a5.8 5.8 0 0 1 11.6 0v5.6l1.6 1.6H4.6z"/><path d="M10 20.6a2.2 2.2 0 0 0 4 0"/>'
+  bell:'<path d="M6.2 16.6V11a5.8 5.8 0 0 1 11.6 0v5.6l1.6 1.6H4.6z"/><path d="M10 20.6a2.2 2.2 0 0 0 4 0"/>',
+  pen:'<path d="M5.5 15.5 16.5 4.5a2.1 2.1 0 0 1 3 3l-11 11-4 1z"/><path d="M14.4 6.6l3 3M5.5 15.5l3 3"/>'   // v10.57 연필 = 고칠 수 있음 (수리 기록 카드)
 };
 function ic(n,c){ return '<svg class="lic'+(c?' '+c:'')+'" viewBox="0 0 24 24" aria-hidden="true">'+(IC[n]||'')+'</svg>'; }
 var LOCK_I='<svg class="lki" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10.5" rx="2.6"/><path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7"/></svg>';
@@ -1521,7 +1530,7 @@ function makeView(name,params){ var el=document.createElement('div'); el.classNa
 function reanim(v){ if(!v||!v.el) return; v.el.classList.remove('anim'); void v.el.offsetWidth; v.el.classList.add('anim'); clearTimeout(v._at); v._at=setTimeout(function(){ v.el.classList.remove('anim'); },900); }
 function mount(v){ $('stage').insertBefore(v.el,$('back')); reanim(v); try{ viewOf(v.name).render(v); }catch(e){ v.el.innerHTML=errBox(e); } }
 function syncChrome(){ var v=stack[stack.length-1]; if(!v) return; $('back').classList.toggle('on',stack.length>1);
-  var tab=curTab(); [].forEach.call($('tabs').children,function(b){ b.classList.toggle('on',b.dataset.tab===tab); });
+  var tab=curTab(); [].forEach.call($('tabs').children,function(b){ var on=b.dataset.tab===tab; b.classList.toggle('on',on); if(on) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });   // v10.57 검증 고침: 지금 탭 = aria-current (스크린리더가 어느 화면인지 읽음)
   try{ document.body.classList.toggle('notab',flowNow()); }catch(e){}   // v10.55 9-1 흐름 화면 = 아래 메뉴 숨김 (CSS 가 화면 움직임과 같이 내림)
   stBar(); rpDockSync(); }   // v10.49 전산 변경 중 알림 (그 기기 화면에선 화면 안 표시로) · v10.53 아래 고정 자리 = 맨 위 화면 것으로 바꿔 끼움
 /* ---- v10.55 9-1 흐름 화면 (design\AUDIT.md 9-1): 아래 메뉴를 숨기고 · 입력한 게 있으면 나갈 때 물어봄 ----
@@ -2661,7 +2670,7 @@ function downloadLabels(){ var css=document.querySelector('style').textContent.s
 /* ================= 추가기능 ================= */
 var ICON_REPORT=ic('cal');   // 업무보고 (SWAP·SWING)
 /* v10.56 추가기능 공통 부품 (SWING·SWAP 같은 모양 · 주인 요청 4·5 + 'SWAP 도 SWING 처럼' · 애플 'Products' 화면처럼) — 두 화면이 같은 함수만 씀 (모양이 어긋나지 않게)
-   xPage = 맨 위 제목 → 섹션들 (xSec: 큰 굵은 제목 + 옆으로 미는 흰 카드 줄 · 화면 끝까지 흐름 · 마지막 카드가 반쯤 보여 밀 수 있다는 걸 알려 줌) → 맨 아래 따로 [업무보고] 한 줄 (xOne) → 카드 줄 PC 끌기·‹ › (xBind)
+   xPage = (v10.57 맨 위 제목 없음) 섹션들 (xSec: 큰 굵은 제목 + 옆으로 미는 흰 카드 줄 · 화면 끝까지 흐름 · 마지막 카드가 반쯤 보여 밀 수 있다는 걸 알려 줌) → 맨 아래 따로 [업무보고] 한 줄 (xOne) → 카드 줄 PC 끌기·‹ › (xBind)
    카드 (xCard) = 위 선 아이콘 타일 (지금 아이콘을 크게) · 아래 이름 (설명 글 없음) · 권한이 꺼진 카드 = 흐리게 + 작은 자물쇠 (누르면 push 가 권한을 다시 보고 안내 · 그 사이 권한이 바뀌어도 맞게) */
 function xCard(view,params,icon,name,pk,badge,lb){ var ok=can(pk);   // pk = 화면 권한 (viewPerm) · badge = 오른쪽 위 숫자 (못 보낸 수리 기록) · lb = 화면 읽기용 덧말
   return '<button type="button" class="xcard'+(ok?'':' lock')+'" onclick="push(\''+view+'\','+params+')"'+(!ok?' aria-label="'+esc(name)+' · 권한이 없어요"':(lb?' aria-label="'+esc(name+' · '+lb)+'"':''))+'>'+
@@ -2669,13 +2678,14 @@ function xCard(view,params,icon,name,pk,badge,lb){ var ok=can(pk);   // pk = 화
 function xSec(head,cards){ return cards?'<section class="xsec"><h2 class="xh">'+head+'</h2><div class="xbox"><div class="xrow">'+cards+'</div>'+XNAV+'</div></section>':''; }   // v10.56 PC: 줄 + 양쪽 끝 ‹ › (.xbox · 처음엔 숨김 → xNavRow)
 function xOne(view,params,icon,name,pk){ var ok=can(pk);   // 맨 아래 따로 가로 꽉 찬 한 줄 (업무보고 · 설명 글 없음)
   return '<button type="button" class="mitem xone'+(ok?'':' lock')+'" onclick="push(\''+view+'\','+params+')"><span class="mi">'+icon+'</span><span class="mt"><b>'+name+'</b></span><span class="ar">'+(ok?'›':LOCK_I)+'</span></button>'; }
-function xPage(v,sub,secs,rpk){ v.el.innerHTML=title('추가기능',sub)+secs+xOne('report','{}',ICON_REPORT,'업무보고',rpk); xBind(v); }   // rpk = 업무보고 권한 (SWAP swap.report · SWING swing.report)
+function xPage(v,secs,rpk){ v.el.innerHTML='<h1 class="sr">추가기능</h1>'+secs+xOne('report','{}',ICON_REPORT,'업무보고',rpk); xBind(v); }   // rpk = 업무보고 권한 (SWAP swap.report · SWING swing.report) · v10.57 주인 4: 맨 위 '추가기능' 제목·'SWING' 부제 없앰 (첫 섹션 제목이 그 자리 · CSS .view>.xsec:first-of-type) · 검증 고침: 화면 이름 = 안 보이는 h1 (스크린리더 · .sr)
 /* SWAP 추가기능 (v10.56 SWING 과 같은 부품 · 주인 '큰 제목 + 옆으로 미는 카드'): 업무기능 [QR 라벨 생성 · 차량 사진 · 사진모음 · 재고 시트 반영] (차례·권한 그대로) → 맨 아래 [업무보고]
    v10.31: 내 작업 현황 → 업무보고 · v10.56 작업보고 알림(마스터) = 환경설정 (주인 요청 6) · 예전 줄(mItem)의 설명 글 ('A4에 인쇄할 무작위 코드 라벨' 같은 작은 글)은 없앰 */
 VIEWS.extras={ render:function(v){ reanim(v);
-  xPage(v,'',xSec('업무기능',xCard('labels','{}',ic('qr'),'QR 라벨 생성','swap.labels')+xCard('sw_cam','{kind:\'vehicle\'}',ic('car'),'차량 사진','swap.vehicle')+
+  xPage(v,xSec('업무기능',xCard('labels','{}',ic('qr'),'QR 라벨 생성','swap.labels')+xCard('sw_cam','{kind:\'vehicle\'}',ic('car'),'차량 사진','swap.vehicle')+
     xCard('sw_gallery','{}',ic('image'),'사진모음','swap.gallery')+xCard('stocksync','{}',ic('table'),'재고 시트 반영','swap.stocksync')),'swap.report'); }};
 /* ---- v10.56 카드 줄 PC 끌기 (주인 10/15 · SWING·SWAP 같은 코드): 마우스(pointerType 'mouse')로 줄을 누른 채 옆으로 끌면 스크롤이 따라옴 · 터치·펜 = 그대로 (브라우저 손가락 밀기)
+   v10.57: 끝 너머로 끌면 손가락과 같은 고무줄·스프링 (아래 '슬라임 모션' · xPull) · 카드 누름 = 말랑 (xPress · 터치·마우스 다)
    5px 넘게 끌면 끌기 (끄는 동안 .xdrag = scroll-snap 잠깐 끔) → 놓으면 가장 가까운 카드 자리로 부드럽게 → 닿으면 snap 되돌림 · 그 클릭은 버림 (끌다가 화면이 열리지 않게) · 5px 이하 = 보통 클릭
    ‹ › (xNav) = 카드 한두 개만큼 · 끝에 닿으면 그쪽 숨김 · 안 넘치면 둘 다 (xNavRow · 줄 스크롤·창 크기·다시 그림 때 다시 셈) · 휠은 안 건드림 (페이지 세로 스크롤 그대로 · 터치패드 가로·Shift+휠도 원래대로)
    이벤트 = 화면(v.el) 하나에 한 번만 (안의 줄을 다시 그려도 겹쳐 안 붙음 · #rpext 도) · 창 이벤트(resize · 끄는 동안 move/up) = 화면을 떠나면(onLeave) 뗌 ---- */
@@ -2688,24 +2698,30 @@ var XNAV='<button type="button" class="xnav xprev" hidden aria-label="앞 카드
 function xBind(v){ var el=v&&v.el; if(!el) return;
   if(!v._xb){ v._xb=function(){ xNavSync(el); };   // 창 크기가 바뀌면 ‹ › 다시 셈
     el.addEventListener('pointerdown',xDown);
+    el.addEventListener('pointerup',xPressUp); el.addEventListener('pointercancel',xPressUp);   // v10.57 누름 풀기 (터치·펜 = 누른 카드에서 올라옴 · 마우스는 xUp 도)
     el.addEventListener('click',xClickEat,true);   // 끈 뒤 클릭 = 카드까지 안 감 (붙잡는 단계 = 카드 onclick 보다 먼저)
     el.addEventListener('dragstart',function(e){ if(xRowOf(e.target)) e.preventDefault(); });
     el.addEventListener('scroll',function(e){ var t=e.target; if(t&&t.classList&&t.classList.contains('xrow')) xNavRow(t); },true);   // 줄 스크롤은 위로 안 올라옴 → 붙잡는 단계
     window.addEventListener('resize',v._xb);
-    var ol=v.onLeave; v.onLeave=function(x){ window.removeEventListener('resize',v._xb); xEnd(); if(ol) ol(x); }; }
+    var ol=v.onLeave; v.onLeave=function(x){ window.removeEventListener('resize',v._xb); xEnd(); xFxStopAll(); if(ol) ol(x); }; }   // v10.57 떠나면 슬라임 움직임·손가락도 정리 (transform 안 남음)
   xNavSync(el); }
 function xRowOf(t){ return t&&t.closest?t.closest('.xrow'):null; }
-function xDown(e){ if(e.pointerType!=='mouse'||e.button!==0) return; var row=xRowOf(e.target); if(!row) return;
-  xEnd(); XD={row:row,id:e.pointerId,x0:e.clientX,l0:row.scrollLeft,on:false};
+function xDown(e){ var row=xRowOf(e.target); if(!row) return;
+  if(e.pointerType!=='mouse'||e.button===0) xPressAt(row,e.target,e.pointerType!=='mouse');   // v10.57 누름 = 말랑 (터치·펜·마우스 왼쪽 · 끌기와 따로) · 검증 고침: 터치·펜 = 0.1초 늦게 (스크롤이면 안 눌림)
+  if(e.pointerType!=='mouse'||e.button!==0) return;
+  xEnd(); XD={row:row,id:e.pointerId,x0:e.clientX,l0:row.scrollLeft,on:false,max:0};
   window.addEventListener('pointermove',xMove); window.addEventListener('pointerup',xUp); window.addEventListener('pointercancel',xUp); }
 function xMove(e){ var d=XD; if(!d||e.pointerId!==d.id) return; var dx=e.clientX-d.x0;
-  if(!d.on){ if(Math.abs(dx)<=X_SLOP) return; d.on=true; xSettleStop(d.row); d.row.classList.add('xdrag'); }   // 5px 넘음 = 끌기 시작 (snap 끔)
-  d.row.scrollLeft=Math.max(0,Math.min(xMax(d.row),d.l0-dx)); }   // 검증 고침: 안 넘친 줄 = 안 움직임 (xMax 0)
-function xUp(e){ var d=XD; if(!d||e.pointerId!==d.id) return; xEnd(); if(!d.on) return;   // 5px 이하 = 보통 클릭 (아무것도 안 함)
+  if(!d.on){ if(Math.abs(dx)<=X_SLOP) return; d.on=true; d.max=xMax(d.row); xSettleStop(d.row); d.row.classList.add('xdrag'); xPress(d.row,-1,true);   // 5px 넘음 = 끌기 시작 (snap 끔 · 눌림 풀림) · v10.57 끝 자리는 이때 한 번만 잼
+    var f=d.row._fx; if(f&&f.mode==='rel'&&f.P&&(f.P>0?d.l0<=XS.ENDPX:d.l0>=d.max-XS.ENDPX)) d.k=(f.P>0?1:-1)*xUnrub(Math.abs(f.P),f.W); }   // v10.57 검증 고침: 끝 당김이 아직 돌아오는 중 = 그 자리에서 이어 잡음 (손가락 xTM 과 같게 · 예전 = 0 부터 다시 → 17px 튐)
+  var want=d.l0-dx-(d.k||0); d.row.scrollLeft=Math.max(0,Math.min(d.max,want));   // 검증 고침: 안 넘친 줄 = 안 움직임 (xMax 0)
+  xPull(d.row,want<0?-want:(want>d.max?d.max-want:0)); }   // v10.57 끝 너머 = 고무줄 (손가락과 같은 엔진 · 안 넘친 줄도 말랑)
+function xUp(e){ var d=XD; if(!d||e.pointerId!==d.id) return; xEnd(); xPress(d.row,-1); if(!d.on) return;   // 5px 이하 = 보통 클릭 (아무것도 안 함)
   if(e.type==='pointerup'){ XNOCLICK=true; setTimeout(function(){ XNOCLICK=false; },0); }   // 바로 뒤 클릭 한 번만 버림 (클릭이 안 와도 다음 차례에 풀림)
+  xLetGo(d.row);   // v10.57 당겼으면 스프링으로 제자리
   xSettle(d.row,xSnapAt(d.row,d.row.scrollLeft)); }
 function xEnd(){ XD=null; window.removeEventListener('pointermove',xMove); window.removeEventListener('pointerup',xUp); window.removeEventListener('pointercancel',xUp); }
-function xClickEat(e){ if(!XNOCLICK) return; XNOCLICK=false; e.preventDefault(); e.stopPropagation(); }
+function xClickEat(e){ if(!XNOCLICK) return; if(XNOCLICK!==true&&xRowOf(e.target)!==XNOCLICK) return; XNOCLICK=false; e.preventDefault(); e.stopPropagation(); }   // XNOCLICK = true (마우스 끌기 · 어디든 바로 뒤 한 번) · 줄 (v10.57 터치 · 그 줄 안 클릭만 · 검증 고침)
 /* 카드 자리 = 카드 왼쪽이 처음 카드 자리(왼쪽 20px · scroll-padding)에 오는 scrollLeft (끝을 넘으면 끝 = 마지막 카드가 다 보이는 자리) · offsetLeft 차이 = 눌린 카드 줄어듦(:active)·스크롤과 상관없음 */
 function xSnaps(row){ var max=xMax(row), cs=row.children||[], x0=cs.length?cs[0].offsetLeft:0, out=[];
   for(var i=0;i<cs.length;i++){ var p=Math.max(0,Math.min(max,cs[i].offsetLeft-x0)); if(out.indexOf(p)<0) out.push(p); }
@@ -2724,10 +2740,136 @@ function xNav(btn,dir){ var box=btn&&btn.parentNode, row=box&&box.querySelector?
   if(Math.abs(t-x)<1) return;
   try{ row.scrollTo({left:t,behavior:'smooth'}); }catch(e){ row.scrollLeft=t; xNavRow(row); } }
 function xNavRow(row){ if(!row) return; var max=xMax(row), x=row.scrollLeft, ov=max>0, box=row.parentNode, p=box&&box.querySelector?box.querySelector('.xprev'):null, n=p?box.querySelector('.xnext'):null;
+  row._xl=x;   // v10.57 지금 줄 자리 (손가락 당김이 끝인지 볼 때 씀 · 스크롤 때마다 여기서 이미 읽는 값 → 손가락 움직임마다 다시 안 읽음)
   if(row.classList&&row.classList.contains('xov')!==ov) row.classList.toggle('xov',ov);   // .xov = 넘치는 줄 (마우스 커서 grab · 안 넘치는 줄 카드 = 보통 손가락 커서)
   if(!n) return; var hp=!(ov&&x>1), hn=!(ov&&x<max-1);   // 안 넘침 = 둘 다 숨김 · 처음 = ‹ 숨김 · 끝 = › 숨김
   if(p.hidden!==hp) p.hidden=hp; if(n.hidden!==hn) n.hidden=hn; }
-function xNavSync(root){ if(root&&root.querySelectorAll) [].forEach.call(root.querySelectorAll('.xrow'),xNavRow); }
+function xNavSync(root){ if(root&&root.querySelectorAll) [].forEach.call(root.querySelectorAll('.xrow'),function(r){ xArm(r); xNavRow(r); }); }   // v10.57 새 줄 = 손가락 이벤트 한 번 (xArm)
+
+/* ---- v10.57 슬라임 모션 (주인 10/15 "추가기능 항목들 너무 밋밋해 · 폰에서 왼쪽으로 쭉 땅기면 더 땅겨지고 놓으면 제자리 · 슬라임 만지는 거처럼" · 참고 iOS 고무줄 스크롤 · 안드로이드 12 늘어나는 끝 · 토스 말랑 카드)
+   SWING·SWAP 카드 줄 같은 코드 (xBind · xNavSync 가 줄마다 xArm) — 다른 화면은 안 씀
+   ① 끝에서 더 당기기: 줄 처음에서 오른쪽 · 끝에서 왼쪽으로 손가락을 더 끌면 카드들이 저항 있게 따라옴 (xRubber · 많이 당길수록 덜 · 줄 폭 30% 를 못 넘음)
+      + 슬라임처럼 늘어남: 빈자리 쪽 끝 카드가 가로로 가장 많이 (세로는 조금 줄어 부피 그대로처럼 · 빈자리 쪽으로 늘어남) · 멀수록 덜 · 카드마다 조금씩 늦게 (젤리 스프링 세기가 다름 = 물결)
+   ② 놓으면: 줄 = 감쇠 스프링으로 정확히 0 (살짝 지나쳤다 한두 번 출렁 · 0.7초쯤 · 늦어도 0.9초) · 카드 = 늘어난 게 젤리처럼 출렁이다 원래 모양 (카드마다 위상 조금씩 다름) · 끝나면 transform·will-change 지움
+   ③ 누름: 카드를 누르면 0.96 → 떼면 스프링으로 튀어 돌아옴 (CSS :active 대신 · .xjs) · 누른 채 밀면 (축이 정해지면 · 브라우저 스크롤 = pointercancel) 풀림
+      검증 고침: 손가락 누름 = 0.1초 늦게 보임 (스크롤·밀기면 아예 안 눌림 · 스크롤로 풀릴 땐 안 튐) · 짧게 톡 = 눌렸다 바로 튐 · 마우스 = 바로
+   ④ 보통 가로 스크롤·snap = 브라우저 그대로 (앱은 끝 너머만 · 그때만 preventDefault) · 세로 = 처음 8px 로 축을 정해 세로면 아무것도 안 함
+   ⑤ PC 마우스 끌기(xMove)도 같은 엔진 (xPull) · ⑥ 당기기 시작할 때 아주 약한 진동 한 번 (haptic 6ms)
+   움직임 줄이기(prefers-reduced-motion) = 늘어남·출렁임·JS 누름 없이 저항만 · 놓으면 바로 제자리 (누름 = 예전 CSS :active)
+   성능: transform(translate3d·scale)만 · requestAnimationFrame 하나 (움직이는 줄만 · 멈추면 안 돎) · 크기(줄 폭·끝 자리·처음 자리)는 시작할 때 한 번만 읽음 · 움직이는 동안만 will-change (.xfx)
+   정리: 화면을 떠나면 (onLeave) xFxStopAll · ERP 줄 다시 그림 (rpExtSync) = 옛 줄 움직임 지우고 손가락·당김은 새 줄로 (xFxSwap) ---- */
+var XS={
+  AXIS:8,          // 처음 8px 움직인 쪽으로 축을 정함 (가로일 때만 당김 · 세로면 페이지 스크롤 그대로)
+  BACK:28,         // 화면이 쌓였을 때 왼쪽 끝 28px 안에서 시작한 손가락 = '왼쪽 끝 밀기 = 뒤로' 가 이김 (그 제스처의 28px 와 같음)
+  ENDPX:3,         // v10.57 검증 고침: 줄 끝에서 3px 안이면 끝으로 봄 (카드 누름 0.96 이면 브라우저가 snap 을 다시 맞춰 줄을 1~2px 밀어 둠 · 132px 카드 × 0.04 / 2 = 2.6px)
+  PULL:0.3,        // 최대 당김 = 줄 폭의 30% (아무리 당겨도 못 넘음 · 390 폭 = 117px)
+  GIVE:0.55,       // 처음 따라오는 비율 (손가락 10px → 카드 5.5px) · 많이 당길수록 덜 따라옴 (iOS 고무줄 공식 M·(1 − 1/(1 + d·GIVE/M)))
+  STRETCH:0.24,    // 끝 카드 가로 늘어남 최대 +24% (줄 폭 30% 끝까지 당길 때 · 폰 손가락 100~330px = +8~15%) — 슬라임 느낌의 세기 (v10.57 검증 고침 0.18 → 0.24 · 0.18 은 놓은 뒤 출렁임이 2px 라 '밋밋')
+  FALL:0.4,        // 카드 하나 멀어질 때마다 늘어남 ×0.4 (끝 카드 1 · 다음 0.4 · 그다음 0.16 …) — 이웃 카드와 안 겹침 (둘째 카드 = 예전 0.5 × 0.18 과 거의 같음)
+  SQUASH:0.6,      // 세로 줄어듦 = 가로 늘어남의 60% (가로 +10% → 세로 −6% · 부피가 그대로처럼 보이게)
+  K:200, Z:0.5,    // 놓은 뒤 줄 스프링: 세기 200 · 감쇠비 0.5 (0.5 = 살짝(16%) 지나쳤다 한 번 더 아주 작게 · 0.7초쯤 멈춤 · 1 이면 안 지나침)
+  JK:320, JZ:0.25, // 카드 젤리 스프링 (끝 카드): 세기 320 · 감쇠비 0.25 (줄보다 덜 감쇠 = 출렁출렁 · 놓으면 반대로 4% 쯤 눌렸다 2% 쯤 다시 늘고 0.8초쯤 멈춤 · v10.57 검증 고침 0.32 → 0.25)
+  LAG:0.15,        // 카드 하나 멀어질 때마다 젤리 세기 −15% (늦게 따라옴 = 물결 · 출렁임 위상이 카드마다 조금씩 다름)
+  PRESS:0.96,      // 누르면 0.96 까지 줄어듦
+  PK:600, PZ:0.42, // 누름 스프링: 세기 600 · 감쇠비 0.42 (떼면 1.01 쯤 튀었다 제자리 · 0.4초 · 스크롤 때문에 풀릴 때는 감쇠비 1 = 안 튐)
+  PDLY:100,        // v10.57 검증 고침: 손가락(터치·펜) 누름은 0.1초 늦게 보임 (그 안에 세로 스크롤·가로 밀기가 시작되면 아예 안 눌림 · 크롬 ShowPress·iOS 와 같은 방식) · 그 전에 떼면 바로 눌렸다 튐 · 마우스 = 바로
+  MAXMS:900,       // 놓은 뒤 늦어도 0.9초면 끝 (그때 남은 아주 작은 값은 버리고 transform 지움)
+  HAP:6            // 당기기 시작할 때 진동 6ms 한 번 (이미 있는 haptic · 안드로이드만)
+};
+var XT=null, XNCT=0, XLIVE=[], XRAF=0, XLAST=0, XMQ=null, XPW=null;   // 지금 줄 위 손가락 · 클릭 버림 풀기 타이머 · 움직이는 줄들 · rAF · 지난 프레임 시각 · 움직임 줄이기 media · 늦춘 누름 {row,i,t} (v10.57 검증 고침)
+function xCalm(){ try{ if(!XMQ&&window.matchMedia) XMQ=window.matchMedia('(prefers-reduced-motion: reduce)'); return !!(XMQ&&XMQ.matches); }catch(e){ return false; } }
+/* 고무줄: 끝 너머로 손가락이 d px 가면 카드는 이만큼 (0 → 0 · 늘 커짐 · M = 줄 폭 30% 를 못 넘음 · 처음 기울기 GIVE) · xUnrub = 거꾸로 (출렁이던 중에 다시 잡을 때) */
+function xRubber(d,W){ if(!(d>0)) return 0; var M=Math.max(1,(W||0)*XS.PULL); return M*(1-1/(1+d*XS.GIVE/M)); }
+function xUnrub(y,W){ var M=Math.max(1,(W||0)*XS.PULL); y=Math.max(0,Math.min(y,M*0.98)); return (M/XS.GIVE)*y/(M-y); }
+/* 줄 하나의 움직임 상태 (움직이기 시작할 때 만들고 · 다 제자리면 지움) · 줄 폭은 여기서 한 번만 읽음 */
+function xFxOf(row){ var f=row._fx; if(f) return f; var cs=[].slice.call(row.children||[]), n=cs.length;
+  f=row._fx={row:row,cards:cs,n:n,W:row.clientWidth||360,M:1,side:0,raw:0,P:0,vP:0,mode:'',t0:0,pr:-1,ps:false,tap:false,on:false,run:false,calm:xCalm(),s:[],vs:[],q:[],vq:[]};   // ps = 스크롤로 풀림 (안 튐) · tap = 짧게 톡 (끝까지 눌리면 바로 놓음) · v10.57 검증 고침
+  f.M=Math.max(1,f.W*XS.PULL); for(var i=0;i<n;i++){ f.s.push(0); f.vs.push(0); f.q.push(1); f.vq.push(0); }
+  return f; }
+function xFxGo(f){ f.run=true; if(!f.on){ f.on=true; XLIVE.push(f); if(f.row.classList) f.row.classList.add('xfx'); } if(f.side&&!f.pl&&f.row.classList){ f.pl=true; f.row.classList.add('xpull'); } if(!XRAF) XRAF=requestAnimationFrame(xFxFrame); }   // 당김 = snap 끔 (.xpull)
+function xFxFrame(t){ XRAF=0; var dt=XLAST?Math.min(0.05,Math.max(0.001,(t-XLAST)/1000)):1/60, l=XLIVE.slice(), more=false; XLAST=t;
+  for(var i=0;i<l.length;i++){ var f=l[i]; if(!f.on||!f.run) continue; var r=xFxStep(f,dt,t); if(r===2) more=true; else if(r===1) f.run=false; }
+  if(more) XRAF=requestAnimationFrame(xFxFrame); else XLAST=0; }
+/* 한 프레임 (dt 초 · t = 프레임 시각 ms): 스프링 = 반암시 오일러 1/240초씩 · 0 = 끝 (transform 지움) · 1 = 멈춤 (손가락이 그대로 · 누른 채 = 다음 움직임까지 프레임 안 돎) · 2 = 계속 */
+function xFxStep(f,dt,t){ var n=f.n, i, j;
+  if(f.mode==='rel'&&f.t0<0) f.t0=t;
+  if(f.calm){ if(f.mode!=='pull'){ xFxEnd(f); return 0; } f.P=f.raw?f.side*xRubber(Math.abs(f.raw),f.W):0; xFxPaint(f); return 1; }   // 움직임 줄이기 = 저항만 · 놓으면 바로 제자리
+  if(f.mode==='pull'){ var p=f.raw?f.side*xRubber(Math.abs(f.raw),f.W):0; f.vP=(p-f.P)/dt; f.P=p; }   // 당기는 중 = 손가락 그대로 (속도 = 놓을 때 스프링 처음 속도)
+  var amt=f.side?Math.min(1,Math.max(0,f.P*f.side)/f.M):0, tg=[], kk=[], cc=[], steps=Math.max(1,Math.ceil(dt*240)), h=dt/steps, k=XS.K, c=2*XS.Z*Math.sqrt(XS.K), pk=XS.PK, pc=2*(f.ps?1:XS.PZ)*Math.sqrt(XS.PK);   // v10.57 검증 고침: 스크롤로 풀린 누름 = 감쇠비 1 (지나침 없이 제자리)
+  for(i=0;i<n;i++){ var d=f.side<0?n-1-i:i; kk.push(XS.JK*Math.max(0.3,1-XS.LAG*d)); cc.push(2*XS.JZ*Math.sqrt(kk[i])); tg.push(XS.STRETCH*amt*Math.pow(XS.FALL,d)); }   // d = 빈자리 쪽 끝에서 몇째 카드
+  for(j=0;j<steps;j++){
+    if(f.mode==='rel'){ f.vP+=(-k*f.P-c*f.vP)*h; f.P+=f.vP*h; }
+    for(i=0;i<n;i++){ f.vs[i]+=(-kk[i]*(f.s[i]-tg[i])-cc[i]*f.vs[i])*h; f.s[i]+=f.vs[i]*h;
+      var qt=i===f.pr?XS.PRESS:1; f.vq[i]+=(-pk*(f.q[i]-qt)-pc*f.vq[i])*h; f.q[i]+=f.vq[i]*h; } }
+  if(f.tap&&f.pr>=0&&f.q[f.pr]<=XS.PRESS+0.008){ f.pr=-1; f.tap=false; }   // v10.57 검증 고침: 짧게 톡 = 끝까지 눌리면 바로 놓음 (그다음 프레임부터 튐)
+  var sst=true, qst=true;
+  for(i=0;i<n;i++){ if(Math.abs(f.s[i]-tg[i])>0.0025||Math.abs(f.vs[i])>0.05) sst=false; if(Math.abs(f.q[i]-(i===f.pr?XS.PRESS:1))>0.0008||Math.abs(f.vq[i])>0.01) qst=false; }   // 늘어남 멈춤 문턱 0.25% (97px 카드 = 0.24px · 안 보임 · v10.57 검증 고침 0.15% → 0.25%: 더 출렁여도 0.9초 컷 전에 스스로 멈춤)
+  if(f.mode==='rel'&&((Math.abs(f.P)<0.4&&Math.abs(f.vP)<8&&sst)||t-f.t0>=XS.MAXMS)){ f.mode=''; f.side=0; f.P=0; f.vP=0; for(i=0;i<n;i++){ f.s[i]=0; f.vs[i]=0; } sst=true; if(f.pl){ f.pl=false; f.row.classList.remove('xpull'); } }   // 줄·젤리 끝 (늦어도 0.9초 · 남은 아주 작은 값은 버림 · snap 되돌림)
+  if(!f.mode&&f.pr<0&&qst){ xFxEnd(f); return 0; }   // 다 제자리 = transform·will-change 지움
+  xFxPaint(f);
+  return (sst&&qst&&f.mode!=='rel'&&!f.tap)?1:2; }
+/* 카드마다 transform 하나 (translate3d + scale · 늘어나는 기준 = 빈자리 반대쪽 끝 → 빈자리 쪽으로 늘어남 · 누름만 = 가운데) · 같은 글이면 안 씀 */
+function xFxPaint(f){ var o=f.side>0?'100% 50%':(f.side<0?'0% 50%':'50% 50%'), P=f.P.toFixed(2);
+  for(var i=0;i<f.n;i++){ var c=f.cards[i], st=c&&c.style; if(!st) continue; var s=f.s[i], q=f.q[i];
+    var tr='translate3d('+P+'px,0,0) scale('+((1+s)*q).toFixed(4)+','+((1-XS.SQUASH*s)*q).toFixed(4)+')';
+    if(c._xt!==tr){ st.transform=tr; c._xt=tr; } if(c._xo!==o){ st.transformOrigin=o; c._xo=o; } } }
+function xFxEnd(f){ for(var i=0;i<f.n;i++){ var c=f.cards[i]; if(!c) continue; if(c.style){ c.style.transform=''; c.style.transformOrigin=''; } c._xt=null; c._xo=null; }
+  if(f.row.classList){ f.row.classList.remove('xfx'); f.row.classList.remove('xpull'); } f.pl=false; f.on=false; f.run=false; f.mode=''; f.raw=0;
+  var j=XLIVE.indexOf(f); if(j>=0) XLIVE.splice(j,1); if(f.row._fx===f) f.row._fx=null; }
+function xFxStopAll(){ XLIVE.slice().forEach(xFxEnd); if(XRAF){ cancelAnimationFrame(XRAF); XRAF=0; } XLAST=0; XT=null; xPwStop(); }   // 화면을 떠남 = 다 지움 (남는 rAF·transform·기다리던 누름 없음)
+/* ERP 줄 다시 그림 (rpExtSync): 옛 줄 움직임 지움 · 손가락·당김은 새 줄로 이어 감 · v10.57 검증 고침: 클릭 버림도 새 줄로 · 옛 줄 기다리던 누름 지움 */
+function xFxSwap(r0,r){ var f=r0._fx, raw=f&&f.mode==='pull'?f.raw:0, side=f?f.side:0; if(f) xFxEnd(f);
+  if(XT&&XT.row===r0){ if(r){ XT.row=r; r._xl=r0._xl; } else XT=null; }
+  if(XNOCLICK===r0) XNOCLICK=r||false; if(XPW&&XPW.row===r0) xPwStop();
+  if(r&&raw){ var g=xFxOf(r); g.raw=raw; g.side=side; g.mode='pull'; xFxGo(g); } }
+/* 누름 (i = 카드 차례 · −1 = 뗌 · soft = 스크롤 때문에 풂 = 지나침 없이) */
+function xPress(row,i,soft){ if(i<0&&XPW&&XPW.row===row) xPwStop();   // v10.57 검증 고침: 아직 안 보인 누름도 지움
+  var f=row&&row._fx; if(!f){ if(!row||i<0||xCalm()) return; f=xFxOf(row); } if(f.pr===i) return; f.pr=i; f.ps=i<0&&!!soft; f.tap=false; xFxGo(f); }
+/* v10.57 검증 고침 (누름이 스크롤마다 꿀렁): 손가락(터치·펜) 누름 = 0.1초 (XS.PDLY) 늦게 → 그 안에 축이 정해지거나 (xTM) 브라우저가 스크롤을 가져가면 (pointercancel) 아예 안 눌림
+   → 첫 카드 누름 때문에 브라우저가 줄을 다시 맞추는 일 (끝 당김 손실 · xOut) 도 대부분 안 생김 · 기다리는 동안 = 타이머 하나만 (움직임 상태·will-change·프레임 없음) */
+function xPwStop(){ if(XPW){ clearTimeout(XPW.t); XPW=null; } }
+function xPressAt(row,t,late){ var c=t&&t.closest?t.closest('.xcard'):null; if(!c) return; var calm=xCalm(); if(row.classList) row.classList.toggle('xjs',!calm); if(calm) return;
+  var f=row._fx, i=(f?f.cards:[].slice.call(row.children||[])).indexOf(c); if(i<0) return;
+  if(!late){ xPress(row,i); return; }
+  xPwStop(); var w=XPW={row:row,i:i,t:0}; w.t=setTimeout(function(){ if(XPW!==w) return; XPW=null; xPress(row,i); },XS.PDLY); }
+function xPressUp(e){ var row=xRowOf(e.target), w=XPW; if(!row) return;
+  if(w&&w.row===row&&e.type==='pointerup'){ xPwStop(); xPress(row,w.i); var f=row._fx; if(f) f.tap=true; return; }   // 0.1초 전에 뗌 (짧게 톡) = 지금 눌렀다 바로 튐
+  xPress(row,-1,e.type==='pointercancel'); }   // 브라우저가 스크롤을 가져감 (pointercancel) = 지나침 없이 제자리
+/* 마우스 끌기 당김 (raw = 끝 너머 거리 · + 처음 쪽 · − 끝 쪽 · 0 = 안쪽) */
+function xPull(row,raw){ var f=row._fx; if(!raw&&!(f&&f.mode==='pull')) return; f=f||xFxOf(row);
+  if(!raw){ xBack(f); return; }   // 안쪽으로 돌아옴 = 스프링으로 마무리
+  if(f.mode!=='pull'&&!(f.mode==='rel'&&f.P*raw>0)) haptic(XS.HAP);   // 출렁이던 중 다시 잡음 = 진동 없음 (손가락 xTM 과 같음)
+  f.side=raw>0?1:-1; f.raw=raw; f.mode='pull'; xFxGo(f); }
+/* 끝 너머에서 안쪽으로 돌아옴 (손가락을 뗀 건 아님): 거의 0 이면 바로 줄 이동 끝 + snap 되돌림 (이어서 브라우저 스크롤이 snap 과 같이 · 늘어남만 출렁이다 끝) · 아니면 스프링 */
+function xBack(f){ f.raw=0; f.mode='rel'; f.t0=-1; if(Math.abs(f.P)<3){ f.P=0; f.vP=0; f.side=0; if(f.pl){ f.pl=false; f.row.classList.remove('xpull'); } } xFxGo(f); }
+/* 놓음 (손가락·마우스): 당기던 중이면 스프링 (움직임 줄이기 = 바로 제자리) · 누름도 풂 */
+function xLetGo(row){ var f=row&&row._fx; if(!f) return; if(!f.tap) f.pr=-1; if(f.mode==='pull'){ f.raw=0; f.mode='rel'; f.t0=-1; } xFxGo(f); }   // 짧게 톡(tap) = 끝까지 눌린 뒤 놓음 (크롬은 pointerup → touchend 차례)
+/* 손가락 (줄마다 한 번 · touchmove 만 passive 아님 = 끝 너머 당길 때만 preventDefault) */
+function xArm(row){ if(row._xa||!row.addEventListener) return; row._xa=1; if(row.classList&&!xCalm()) row.classList.add('xjs');
+  row.addEventListener('touchstart',xTS,{passive:true}); row.addEventListener('touchmove',xTM,{passive:false});
+  row.addEventListener('touchend',xTE,{passive:true}); row.addEventListener('touchcancel',xTE,{passive:true}); }
+function xTouch(l,id){ l=l||[]; for(var i=0;i<l.length;i++) if(l[i].identifier===id) return l[i]; return null; }
+function xOut(T,d){ var sl=T.row._xl||0; return d>0?sl<=XS.ENDPX:(d<0&&sl>=T.max-XS.ENDPX); }   // 끝에서 밖으로 (처음에서 오른쪽 · 끝에서 왼쪽) · 줄 자리 = 스크롤 이벤트가 적어 둔 값 · v10.57 검증 고침: 여유 0.5 → 3px (누름 0.96 이면 브라우저가 snap 을 다시 맞춰 1~2px 밀어 둠 → 예전엔 '끝 아님' = 첫 움직임을 안 막아 브라우저가 제스처를 가져감)
+function xTS(e){ var row=e.currentTarget, l=e.touches||[], t=l[0]; XNOCLICK=false; clearTimeout(XNCT);   // 새 손가락 = 지난 끌기의 클릭 버림 풂
+  if(l.length!==1||!row){ var T=XT; XT=null; if(T) xLetGo(T.row); return; }   // 두 손가락 = 당김 그만 (확대 등은 브라우저)
+  if(stack.length>1&&t.clientX<=XS.BACK){ XT=null; return; }   // 왼쪽 끝 밀기 = 뒤로가 이김
+  XT={row:row,id:t.identifier,x0:t.clientX,y0:t.clientY,lx:t.clientX,ax:'',max:xMax(row),moved:false}; row._xl=row.scrollLeft; }   // 끝 자리·지금 자리 = 시작할 때 한 번
+function xTM(e){ var T=XT, t=T&&xTouch(e.touches,T.id); if(!t) return;
+  var row=T.row, x=t.clientX, dx=x-T.x0, ox=Math.abs(dx), oy=Math.abs(t.clientY-T.y0), f=row._fx, d;
+  if(!T.ax){ if(Math.max(ox,oy)<XS.AXIS){ if(ox>oy&&xOut(T,dx)&&e.cancelable) e.preventDefault(); return; }   // 축 전: 끝 너머 가로면 브라우저가 먼저 스크롤을 시작하지 않게만
+    T.ax=ox>oy?'x':'y'; xPress(row,-1,true); if(T.ax==='y') return; }   // 축이 정해지면 눌림 풂 (지나침 없이 · 0.1초 전이면 아예 안 눌림) · 세로 = 아무것도 안 함
+  if(T.ax!=='x') return;
+  if(ox>X_SLOP) T.moved=true;
+  d=x-T.lx; T.lx=x;
+  if(!f||f.mode!=='pull'||!f.raw){ if(!d||!xOut(T,d)) return;   // 끝이 아님 = 브라우저 가로 스크롤 그대로
+    f=xFxOf(row); var sd=d>0?1:-1, keep=(f.mode==='rel'&&f.P*sd>0)?xUnrub(Math.abs(f.P),f.W):0;   // 아직 출렁이던 중이면 그 자리에서 이어 잡음
+    if(f.mode!=='rel'||!keep) haptic(XS.HAP);
+    f.side=sd; f.raw=sd*keep+d; f.mode='pull'; }
+  else { var r=f.raw+d; if(r*f.raw<=0){ xBack(f); if(e.cancelable&&Math.abs(r)*2<=Math.abs(d)) e.preventDefault(); return; } f.raw=r; }   // 되돌아와 0 을 지나면 당김 끝 (스프링으로 마무리 · 다음은 브라우저 스크롤) · v10.57 검증 고침: 그 움직임이 거의 다 당김 안쪽이면 (0 넘은 게 절반 이하) 그것까지 막음 (안 막으면 브라우저가 당김 안쪽 몫까지 줄을 스크롤 = 손가락 0 에서 카드가 4px 앞섬)
+  if(e.cancelable) e.preventDefault(); xFxGo(f); }
+function xTE(e){ var T=XT; if(!T||xTouch(e.touches,T.id)) return; XT=null;   // 그 손가락이 아직 있음 (다른 손가락을 뗌) = 그대로
+  if(T.moved&&e.type==='touchend'){ XNOCLICK=T.row; clearTimeout(XNCT); XNCT=setTimeout(function(){ XNOCLICK=false; },400); }   // 가로로 5px 넘게 움직임 = 바로 뒤 그 줄 클릭 버림 (당긴 뒤 놓아도 안 열림 · 짧게 누름 = 그대로) · v10.57 검증 고침: 그 줄 안 클릭만 (줄 밖 [업무보고]·‹ › 는 바로 열림)
+  xLetGo(T.row); }
 
 
 
@@ -2897,7 +3039,7 @@ function swSearchPick(serial){ var v=stack[stack.length-1]; v.state.q=serial; va
    부품 (xCard · xSec · xOne · xPage · PC 끌기 xBind) = SWAP 추가기능과 같이 씀 (위 '추가기능' 칸 · v10.56 앱 담당 3) */
 VIEWS.sw_extras={ render:function(v){ reanim(v);
   var c=function(view,params,svg,b){ return xCard(view,params,svg,b,viewPerm(view,view==='sw_cam'?{kind:/battery/.test(params)?'battery':'vehicle'}:{})); }, erp=rpExtrasRows();
-  xPage(v,'SWING',
+  xPage(v,   // v10.57 주인 4: 부제 'SWING' 없앰
     xSec('업무기능',c('sw_cam','{kind:\'battery\'}',ic('battery'),'배터리 사진')+c('sw_cam','{kind:\'vehicle\'}',ic('car'),'차량 사진')+c('sw_qr','{}',ic('scan'),'QR 스캔')+c('sw_gallery','{}',ic('image'),'사진모음'))+
     xSec('작업 정리',c('sw_work','{}',ic('clip'),'작업내역')+c('sw_sum','{}',ic('table'),'작업현황')+(AUTH&&AUTH.admin?c('sw_workers','{}',ic('users'),'작업자 관리'):''))+   // 이름 '작업자 작업내역'·'작업 현황정리' → '작업내역'·'작업현황' (주인 요청 5)
     '<div id="rpext">'+erp+'</div>',   // v10.52 수리 ERP → v10.56 ERP 섹션 (내 수리 내역 · 수리현황 · 부품 재고 · 수리항목 · 거래처 관리 — 권한 있는 것만)
@@ -3082,7 +3224,7 @@ function swWorkDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res||{}, d=v
   var h=swWorkHead(v)+swSnapBar(v);
   if(res.noWorkers){ v.el.innerHTML=h+'<div class="card"><div class="empty">아직 등록된 작업자가 없어요.<br>'+(admin?'작업자 관리에서 컬렉터 아이디를 넣어 주세요.':'관리자에게 작업자 등록을 요청해 주세요.')+'</div>'+
     (admin?'<button class="btn" onclick="push(\'sw_workers\',{})">작업자 관리</button>':'')+'</div>'; v.state.drawn=true; return; }
-  var rows=swWorkRows(v), ld=rows.filter(function(r){ return r.w.loading; }), busy=rows.filter(function(r){ return r.count&&!r.w.loading; }), idle=rows.filter(function(r){ return !r.count&&!r.w.loading; });   // ld = 새로 추가한 작업자 (서버가 뒤에서 받는 중 · v10.39) — 합계·미확인에서 뺌
+  var rows=swWorkRows(v), ld=rows.filter(function(r){ return r.w.loading; }), busy=rows.filter(function(r){ return r.count&&!r.w.loading; });   // ld = 새로 추가한 작업자 (서버가 뒤에서 받는 중 · v10.39) — 합계·미확인에서 뺌 · v10.57 주인 5: 맨 아래 '기록 없음 · 이름, 이름…' 줄 없앰 (그 줄만 쓰던 idle 도)
   var tot=0; busy.forEach(function(r){ tot+=r.count; });
   var un=busy.filter(function(r){ return !r.w.confirmed; }).length;
   // v10.55 1-1 합계 카드 (큰 숫자 · 분류 칩 · '⚠️ 작업내역 미확인 N명' = 267px) → 한 줄 '153건 · 작업자 6명 · 미확인 4명' (분류는 작업자 세부 탭에)
@@ -3098,7 +3240,6 @@ function swWorkDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res||{}, d=v
       (nt?'<i class="nt"><em>야간</em><span>'+esc(nt.replace(/^야간 /,''))+'</span></i>':'')+(w.confirmed?'<i class="wst ok">✓ 확인</i>':'<i class="wst un">미확인</i>')+(r.cats.check?'<i class="lw">'+swCatLb('check')+' '+r.cats.check+'</i>':'')+'</button>'; }).join('')+'</div>';
   if(ld.length) h+='<div class="wkbtns"'+(busy.length?' style="margin-top:8px"':'')+'>'+ld.map(function(r){ var w=r.w; return '<button class="wkb ld" onclick="swOpenWorker(\''+esc(w.key)+'\')"><b>'+esc(w.name)+'</b><span>'+(w.ldslow?'받는 중 · 늦어지는 중…':'작업내역 받는 중…')+'</span><i class="wst ld">받는 중</i></button>'; }).join('')+'</div>'+
     '<p class="muted" style="margin:8px 6px 0;font-size:13px">새로 추가한 작업자라 서버가 어제부터 기록을 뒤에서 받는 중이에요 (보통 몇 분 · 다 받으면 자동으로 보여요).'+(ld.some(function(r){ return r.w.ldslow; })?' 지금은 어드민 오류나 오늘 받기 한도 때문에 늦어지고 있어요 — 서버가 계속 다시 시도해요.':'')+'</p>';
-  if(idle.length) h+='<p class="muted" style="margin:12px 6px 0;font-size:13px">기록 없음 · '+idle.map(function(r){ return esc(r.w.name); }).join(', ')+'</p>';
   if(hid.length) h+='<div class="wfhid"><span>미확인만 보는 중 · 확인해서 숨긴 작업자 '+hid.length+'명 · '+hid.map(function(r){ return esc(r.w.name); }).join(', ')+'</span><button type="button" class="btn line sm" onclick="swWorkUn()">다 보기</button></div>';   // v10.55 검증: 빠진 까닭·이름 (누르면 [미확인만] 끔)
   v.el.innerHTML=h; v.state.drawn=true; if(!quiet) countUp(v.el); swWfSync(v); swDayPoll(v,d,res); }
 /* 야간 작업자 표시 (서버 w.night: 그 날 20시 이후 작업이 있으면 다음 날 08시 전 작업까지 그 날로) → "야간 21:10~익일 06:40" */
@@ -3712,7 +3853,8 @@ function rpMeChanged(){ rpHomeSync(); rpExtSync(); }   // v10.56 PC: 다시 그�
 function rpExtSync(){ var ex=$('rpext'); if(!ex) return; var h=rpExtrasRows(); if(ex._rpx===h) return;
   var q=function(){ return ex.querySelector?ex.querySelector('.xrow'):null; }, r0=q(), x=r0?r0.scrollLeft:0, dr=!!(XD&&r0&&XD.row===r0);
   ex.innerHTML=h; ex._rpx=h;
-  var r=q(); if(r&&r!==r0){ if(dr){ XD.row=r; if(XD.on) r.classList.add('xdrag'); } if(x) r.scrollLeft=x; }   // 끄는 중 = snap 꺼진 채로 그 자리
+  var r=q(); if(r0&&r!==r0) xFxSwap(r0,r);   // v10.57 옛 줄 슬라임 움직임 지움 (rAF·transform 안 남음) · 손가락·당김은 새 줄로
+  if(r&&r!==r0){ if(dr){ XD.row=r; if(XD.on) r.classList.add('xdrag'); } if(x) r.scrollLeft=x; }   // 끄는 중 = snap 꺼진 채로 그 자리
   xNavSync(ex); }
 function rpHomeKick(){ if(!AUTH||!appStarted) return; rpMeLoad().catch(function(){}); rpFlush(); }
 
@@ -4051,12 +4193,13 @@ function rpOutHtml(){ var o=rpOut(); if(!o.length) return '';
         :'<button class="btn line sm" onclick="rpOutRetry(\''+jsa(j.rid)+'\')">지금 다시 보내기</button>')+'</div></div>'; }).join('')+'</div>'; }
 
 /* ---- 수리 기록 카드 (내 기록 · 전체 기록) ---- */
+var RP_EDIT_I='<span class="rped" role="img" aria-label="고칠 수 있음" title="고칠 수 있음">'+ic('pen')+'</span>';   // v10.57 주인 6: '고칠 수 있음' 글자 딱지 → 연필 선 아이콘 (읽기 이름·누르고 있으면 뜨는 글 = 고칠 수 있음)
 function rpLinesBrief(lines){ var g=[], m={}; (lines||[]).forEach(function(l){ if(!m[l.name]){ m[l.name]={name:l.name,n:0}; g.push(m[l.name]); } m[l.name].n++; });
   return g.map(function(x){ return esc(x.name)+(x.n>1?' <b>×'+x.n+'</b>':''); }).join(' · '); }
 function rpRecCard(x,from){ var vd=x.state==='void', money=x.total!==undefined, np=money&&x.noPrice?'<em class="rpb warn">단가 없음 '+x.noPrice+'줄</em>':'';   // v10.54 '단가 없음'도 금액 보는 사람만 (수리 전산·관리자·마스터)
   /* v10.55 1-2: 카드 전체 = 기록 상세로 (오른쪽 ›) · 고치기·지우기는 상세 화면에서 (예전: 맨 윗줄 322x25 만 상세 · 카드마다 [고치기][지우기] 2개 = 오늘 6건이면 12개) */
   return '<button type="button" class="rprec'+(vd?' void':'')+'" onclick="rpRecOpen('+Number(x.id)+')"><span class="rph"><span class="tm">'+esc(String(x.at||'').slice(11,16))+'</span><b class="mono">'+esc(x.qr)+'</b>'+
-      '<span class="rpk '+rpKindCls(x.client.kind)+'">'+esc(rpKindLb(x.client.kind))+'</span>'+(vd?'<span class="pill sys sm">지움</span>':'')+(x.stmt?'<span class="pill rpst sm">명세서</span>':'')+(x.canEdit?'<span class="chip gray">고칠 수 있음</span>':'')+'<span class="chev" aria-hidden="true">›</span></span>'+
+      '<span class="rpk '+rpKindCls(x.client.kind)+'">'+esc(rpKindLb(x.client.kind))+'</span>'+(vd?'<span class="pill sys sm">지움</span>':'')+(x.stmt?'<span class="pill rpst sm">명세서</span>':'')+(x.canEdit?RP_EDIT_I:'')+'<span class="chev" aria-hidden="true">›</span></span>'+
     '<span class="cl">'+esc(x.client.name)+(from!=='mine'?' · '+esc(x.worker.name):'')+(x.edited?' · 고침':'')+'</span><span class="ln">'+rpLinesBrief(x.lines)+'</span>'+
     (x.memo?'<span class="memo">'+esc(x.memo)+'</span>':'')+
     (money?'<span class="mn">'+np+'<b>'+rpWon(x.total)+'원</b></span>':(np?'<span class="mn">'+np+'</span>':''))+
@@ -4130,7 +4273,7 @@ function rpPriceGo(id,n){ var x=RP_RECS[id]; if(!x) return; var i=$('rpprice'), 
 VIEWS.rp_office={ render:function(v){ reanim(v); var s=v.state; s.tab=s.tab||v.params.tab||'list'; s.days=s.days||7; s.cdays=s.cdays||30; s.st=s.st||'ok';
   v.refresh=function(){ return rpOffLoad(v,true); }; v.onResume=function(){ if(!(s.at>RP_DIRTY)) rpOffLoad(v); else rpOffDraw(v); };
   rpOffDraw(v); rpOffLoad(v); }};
-function rpOffHead(v){ var t=v.state.tab; return title('수리현황','전체 기록 · 수리 갯수 그래프 · 명세서')+   // v10.56 '수리 전산' → '수리현황' (주인 요청 5)
+function rpOffHead(v){ var t=v.state.tab; return title('수리현황')+   // v10.56 '수리 전산' → '수리현황' (주인 요청 5) · v10.57 주인 7: 부제 '전체 기록 · 수리 갯수 그래프 · 명세서' 없앰 (바로 밑 탭과 겹침)
   '<div class="seg">'+[['list','전체 기록'],['chart','그래프'],['stmt','명세서']].map(function(x){ return '<button class="'+(t===x[0]?'on':'')+'" onclick="rpOffTab(\''+x[0]+'\')">'+x[1]+'</button>'; }).join('')+'</div>'; }
 function rpOffTab(t){ var v=rpTop('rp_office'); if(!v||v.state.tab===t) return; haptic(6); v.state.tab=t; v.state.err=null; rpOffDraw(v); rpOffLoad(v); }
 function rpOffLoad(v,force){ var s=v.state, t=s.tab, tok=s.tok=(s.tok||0)+1, t0=Date.now(), alive=function(){ return stack.indexOf(v)>=0&&s.tok===tok; }, cl=function(){ return s.clients&&!force?Promise.resolve(s.clients):rpRun('rpClients',[]); }, p;
