@@ -612,6 +612,7 @@
   .pperson:active{background:var(--fill)} .pperson b{font-size:15.5px;font-weight:700} .pperson span{flex:1;min-width:0;font-size:12px;color:var(--muted)}
   .pperson em{font-style:normal;font-size:12px;color:var(--muted2)} .pperson u{text-decoration:none;color:var(--muted2);font-size:18px} .pperson.off b{color:var(--muted);text-decoration:line-through}
   .srvchips{flex-wrap:wrap} .srvchips button{white-space:nowrap;flex:0 0 auto} .srvchips button.role.on{background:var(--amber-ink);color:#fff}
+  .srvchips button.role.sub{background:var(--blue-ink);color:#fff} .srvchips button.role i{font-style:normal;font-size:12px;margin-left:4px} .srvchips button.role:disabled{opacity:1}   /* v10.59 역할 칩 (작업자 회색 · 관리자 갈색 · 부마스터 파랑 = 딱지 · 서버 칩(테마색)과 다른 색 · 흰 글 5.4) · ▾ = 누르면 고르기 */
   /* 신품 체크 */
   .chk{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:14px;font-weight:700;color:var(--ink2);cursor:pointer;user-select:none;padding:8px 12px;border-radius:12px;background:var(--fill)}   /* v10.54 검증 5-3: 체크 줄 37 → 44px (SWING 환경설정 등) */
   .chk input{position:absolute;opacity:0;width:0;height:0}
@@ -1176,7 +1177,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.58';
+var APP_VER = '10.59';
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -1194,7 +1195,7 @@ var ACC_PRESET = ['배터리','충전기','SWAP백','시동키','카드키','배
 /* 누르면 말풍선에서 하나 고르는 물품 → "바구니(프론트)", "레인커버(M)" 로 저장 */
 var ACC_OPT = {'바구니':{q:'위치',opts:['프론트','리어']}, '짐받이':{q:'위치',opts:['프론트','리어']}, '레인커버':{q:'사이즈',opts:['S','M','L']}};
 var worker = localStorage.getItem('swapWorker') || '';
-var AUTH=null; try{ AUTH=JSON.parse(localStorage.getItem('swapAuth')||'null'); }catch(e){}   // {code,name,admin,master,role,servers,perms}
+var AUTH=null; try{ AUTH=JSON.parse(localStorage.getItem('swapAuth')||'null'); }catch(e){}   // {code,name,admin,master,submaster,role,servers,perms} · v10.59 submaster (부마스터)
 if(AUTH&&AUTH.admin&&AUTH.master===undefined&&AUTH.role===undefined){ AUTH.master=true; AUTH.role='master'; }   // v10.5 때 저장된 정보: 관리자 = 마스터 하나뿐
 /* 서버(업무 영역): swap = 경기남부점 입출고, swing = SWING 관리자. 로그인 화면에서 고르고, 환경설정에서 바꿀 수 있다. */
 var SERVER='swap'; try{ SERVER=(localStorage.getItem('swapServer')==='swing')?'swing':'swap'; }catch(e){}
@@ -1557,13 +1558,20 @@ var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:
   rp_new:'',rp_mine:'',rp_rec:'',rp_stmt:'',rp_office:'extras',rp_stock:'extras',rp_clients:'extras',rp_items:'extras'};   // v10.52 수리 ERP 화면 · '' = 홈·추가기능 둘 다에서 열림 → 연 자리 탭을 따름 · v10.56 작업보고 알림 = 환경설정 탭 · 속도 기록 없앰 · 수리항목(rp_items) = 추가기능
 function curTab(){ for(var i=stack.length-1;i>=0;i--){ var t=TAB_OF[stack[i].name]; if(t!=='') return t||'home'; } return 'home'; }   // 아래 탭 불: 맨 위 화면 ('' 면 그 밑 화면 · 표에 없으면 예전처럼 홈)
 /* ---- 권한: 마스터(모든 기능 · 접속 코드 관리) / 관리자(접속 코드 관리 빼고 전부) / 일반(추가기능은 관리자가 켜고 끔 → 꺼진 건 자물쇠) ---- */
-function isMaster(){ return !!(AUTH&&AUTH.master); }
-function isAdminUp(){ return !!(AUTH&&AUTH.admin); }
+function isMaster(){ return !!(AUTH&&AUTH.master); }   // 마스터 하나 (접속 코드 관리 = 이것만)
+/* v10.59 부마스터 (주인 10/16): 접속 코드 관리만 빼고 마스터와 같음 · 서버 = 그 코드에 정한 것대로 (AUTH.servers) · 지정·해제 = 마스터만 */
+function isSubMaster(){ return !!(AUTH&&!AUTH.master&&(AUTH.submaster||AUTH.role==='submaster')); }
+function isMasterLike(){ return isMaster()||isSubMaster(); }   // v10.59 마스터급 = 마스터 || 부마스터
+function isAdminUp(){ return !!(AUTH&&(AUTH.admin||isMasterLike())); }   // v10.59 부마스터도 참
+/* v10.59 마스터급 화면: 작업현황 (보기·입력·엑셀 · 사람별 권한 키 없음 = 예전 swing.sw_sum 안 봄) */
+var MASTER_V={sw_sum:1,sw_mblk:1,sw_mday:1};
+function mlNo(t){ return title(t,'')+'<div class="card"><div class="empty">마스터·부마스터만 쓸 수 있어요.</div></div>'; }
+function mlToast(){ haptic([10,40,10]); toast('마스터·부마스터만 쓸 수 있어요'); }
 function can(k){ if(!k) return true; if(!AUTH) return false; if(AUTH.admin) return true; var p=AUTH.perms||{}; return p[k]!==false; }
 /* 화면 → 필요한 권한 (사진·갤러리는 지금 서버 기준) */
 function viewPerm(name,params){ params=params||{};
   if(name==='report') return SERVER+'.report';   // 업무보고: SWAP·SWING 둘 다 (v10.31)
-  var m={labels:'swap.labels',stocksync:'swap.stocksync',sw_work:'swing.sw_work',sw_wd:'swing.sw_work',sw_sum:'swing.sw_sum',sw_mblk:'swing.sw_sum',sw_mday:'swing.sw_sum',sw_qr:'swing.sw_qr'};   // v10.58 작업현황 블록·날짜별 = 작업현황 권한
+  var m={labels:'swap.labels',stocksync:'swap.stocksync',sw_work:'swing.sw_work',sw_wd:'swing.sw_work',sw_qr:'swing.sw_qr'};   // v10.59 작업현황(sw_sum·sw_mblk·sw_mday) = 사람별 권한 없음 → MASTER_V (마스터·부마스터만)
   if(m[name]) return m[name];
   if(name==='sw_cam') return SERVER+'.'+(params.kind==='battery'?'battery':'vehicle');
   if(name==='sw_gallery') return SERVER+'.gallery';
@@ -1636,7 +1644,8 @@ window.addEventListener('popstate',function(e){
     popView(); return; }
   var cur=stack[0]; if(cur&&cur.name!=='home'){ tabTo('home'); if(hDepth>0) hBack(hDepth); }
 });
-function push(name,params){ if(animating) return; var pk=viewPerm(name,params); if(pk&&!can(pk)){ lockToast(); return; } hPush(); pushView(name,params); }
+function push(name,params){ if(animating) return; if(MASTER_V[name]&&!isMasterLike()){ mlToast(); return; }   // v10.59 작업현황 = 마스터·부마스터만
+  var pk=viewPerm(name,params); if(pk&&!can(pk)){ lockToast(); return; } hPush(); pushView(name,params); }
 function clearInline(v){ if(v&&v.el){ v.el.style.transform=''; v.el.style.transition=''; } }
 function pushView(name,params){ haptic(6); var v=makeView(name,params); var prev=stack[stack.length-1]; clearInline(prev); stack.push(v); v.el.classList.add('enter'); mount(v);
   animating=true; requestAnimationFrame(function(){ requestAnimationFrame(function(){ v.el.classList.remove('enter'); if(prev) prev.el.classList.add('under'); setTimeout(function(){animating=false;},380); }); }); syncChrome(); }
@@ -3108,7 +3117,7 @@ VIEWS.sw_extras={ render:function(v){ reanim(v);
   var c=function(view,params,svg,b){ return xCard(view,params,svg,b,viewPerm(view,view==='sw_cam'?{kind:/battery/.test(params)?'battery':'vehicle'}:{})); }, erp=rpExtrasRows();
   xPage(v,   // v10.57 주인 4: 부제 'SWING' 없앰
     xSec('업무기능',c('sw_cam','{kind:\'battery\'}',ic('battery'),'배터리 사진')+c('sw_cam','{kind:\'vehicle\'}',ic('car'),'차량 사진')+c('sw_qr','{}',ic('scan'),'QR 스캔')+c('sw_gallery','{}',ic('image'),'사진모음'))+
-    xSec('작업 정리',c('sw_work','{}',ic('clip'),'작업내역')+c('sw_sum','{}',ic('table'),'작업현황')+(AUTH&&AUTH.admin?c('sw_workers','{}',ic('users'),'작업자 관리'):''))+   // 이름 '작업자 작업내역'·'작업 현황정리' → '작업내역'·'작업현황' (주인 요청 5)
+    xSec('작업 정리',c('sw_work','{}',ic('clip'),'작업내역')+(isMasterLike()?c('sw_sum','{}',ic('table'),'작업현황'):'')+(isAdminUp()?c('sw_workers','{}',ic('users'),'작업자 관리'):''))+   // 이름 '작업자 작업내역'·'작업 현황정리' → '작업내역'·'작업현황' (주인 요청 5) · v10.59 작업현황 카드 = 마스터·부마스터만 (다른 사람은 카드 없음 · 잠금 타일 아님)
     '<div id="rpext">'+erp+'</div>',   // v10.52 수리 ERP → v10.56 ERP 섹션 (내 수리 내역 · 수리현황 · 부품 재고 · 수리항목 · 거래처 관리 — 권한 있는 것만)
     viewPerm('report',{}));   // 맨 아래 따로 [업무보고] (xOne · 설명 글 없음 · 작업보고 알림 줄은 환경설정으로)
   var ex=$('rpext'); if(ex) ex._rpx=erp;   // v10.56 검증 고침: 지금 그린 ERP 글 (rpExtSync 가 같으면 안 다시 그림)
@@ -3811,7 +3820,9 @@ function swWdSendGo(){ var v=swWdView(); if(!v||v.state.sending||swSnapStop(v)||
 /* ---- 작업현황 (추가기능 · v10.56 이름 '작업 현황정리' → '작업현황'): 달을 골라 사무실 양식 엑셀 받기 ----
    v10.58 F-1·F-7: 들어가면 새 서버 swmInfo 먼저 (D1 작업현황 · 아래 'v10.58 작업현황 (D1)') → 답이 legacy:true 거나 오류 글이 '허용되지 않은 요청' (Worker 0.7.0) 일 때만
    이 아래 예전 화면 (swSumLoadOld·swSumDrawOld·swSumXlsxOld… = v10.57 그대로 · 이름만 바꿈 · run('swingWorkMonthInfo')) */
-VIEWS.sw_sum={ render:function(v){ reanim(v); v.state.ym=v.state.ym||todayISO(0).slice(0,7); v.refresh=function(){ return swSumLoad(v); };
+VIEWS.sw_sum={ render:function(v){ reanim(v);
+  if(!isMasterLike()){ v.refresh=function(){ return Promise.resolve(); }; v.el.innerHTML=mlNo('작업현황'); return; }   // v10.59 마스터·부마스터만 (다른 길로 열어도 · 서버 안 부름)
+  v.state.ym=v.state.ym||todayISO(0).slice(0,7); v.refresh=function(){ return swSumLoad(v); };
   v.el.innerHTML=title('작업현황','달마다 · 확인한 날 기준')+spin(); swSumLoad(v); }};
 function swSumView(){ var v=stack[stack.length-1]; return (v&&v.name==='sw_sum')?v:null; }
 function swSumLoadOld(v){ var ym=v.state.ym, tok=v.state.tok=(v.state.tok||0)+1;
@@ -3919,7 +3930,7 @@ function rpWrite(fn,args,cx){ cx=cx||runCx(); var n=0;
 
 /* ---- 내 권한 (rpMe) — 이 폰 저장 'rp_me' (다른 코드면 lsOwner 가 지움) · 받기 전엔 관리자·마스터만 됨 ---- */
 function rpMeOf(){ if(!RP_ME){ var m=lsGet('rp_me'); RP_ME=(m&&typeof m==='object'&&!Array.isArray(m))?m:null; } return RP_ME; }
-function rpCan(k){ if(!AUTH) return false; var m=rpMeOf(); if(m&&typeof m[k]==='boolean') return m[k]; return k==='master'?!!AUTH.master:!!(AUTH.admin||AUTH.master); }   // repair·office·admin·stock · v10.56 master (거래처 관리 = 마스터만 · 받기 전엔 로그인 답의 마스터)
+function rpCan(k){ if(!AUTH) return false; var m=rpMeOf(); if(k==='master'&&isMasterLike()) return true; if(m&&typeof m[k]==='boolean') return m[k]; return k==='master'?isMasterLike():!!(AUTH.admin||AUTH.master); }   // repair·office·admin·stock · v10.56 master (거래처 관리 = 마스터만 · 받기 전엔 로그인 답의 마스터) · v10.59 master = 마스터급 (부마스터도 · 서버 rpMe 가 아직 false 여도)
 function rpMeLoad(force){ if(!AUTH||!canServer('swing')) return Promise.resolve(null); if(RP_ME_P) return RP_ME_P;
   var code=AUTH.code; if(!force&&RP_ME_C===code&&Date.now()-RP_ME_AT<60000) return Promise.resolve(rpMeOf());
   RP_ME_P=rpRun('rpMe',[]).then(function(m){ RP_ME_P=null; if(!AUTH||AUTH.code!==code||!m||typeof m!=='object') return m;
@@ -4585,7 +4596,7 @@ function rpAlertTo(id,on,btn){ var v=rpTop('rp_stock'); if(!v||!v.state.cfg) ret
 
 /* ---- 거래처 관리 (v10.56 마스터만 · 주인 요청 3 · 서버 0.7.0 rpClientAdd·rpClientDel = 'master'): 외주 추가·삭제 (내부 두 곳은 못 지움 · 지운 이름을 다시 넣으면 되살림) ---- */
 VIEWS.rp_clients={ render:function(v){ reanim(v); v.refresh=function(){ return rpClientsLoad(v); };
-  if(!rpCan('master')){ v.el.innerHTML=title('거래처 관리','')+'<div class="card"><div class="empty">마스터 계정만 쓸 수 있어요.</div></div>'; v.refresh=function(){ return Promise.resolve(); }; return; }   // 관리자에겐 타일도 안 보임 (예전 화면이 남아 있거나 다른 길로 열어도)
+  if(!rpCan('master')){ v.el.innerHTML=mlNo('거래처 관리'); v.refresh=function(){ return Promise.resolve(); }; return; }   // 관리자에겐 타일도 안 보임 (예전 화면이 남아 있거나 다른 길로 열어도) · v10.59 글 = 마스터·부마스터
   v.el.innerHTML=title('거래처 관리','명세서 받는 곳 · 외주 고르기 목록')+spin(); rpClientsLoad(v); }};
 function rpClientsLoad(v){ return rpRun('rpClients',[]).then(function(r){ if(stack.indexOf(v)<0) return; v.state.r=r; rpClientsDraw(v); })
   .catch(function(e){ if(stack.indexOf(v)<0) return; if(v.state.r) toast(e.message); else v.el.innerHTML=title('거래처 관리','')+errBox(e); }); }
@@ -4812,7 +4823,7 @@ function swmDraw(v,loading){ var r=v.state.mi||{}, ym=v.state.ym, e=v.state.err,
   v.el.innerHTML=h; }
 function swmMonths(r,ym){ var ms=r.months||[]; if(!ms.length) return '';
   return '<div class="days">'+ms.map(function(m){ return '<button class="'+(m.ym===ym?'on':'')+(m.has?'':' z')+'" onclick="swSumGo(\''+jsa(m.ym)+'\')">'+esc(swYmLabel(String(m.ym)))+'</button>'; }).join('')+'</div>'; }
-/* 정산 카드 (관리자·마스터 = 금액) · 작업현황 권한만 = 포인트 카드 */
+/* 정산 카드 (금액 = 서버 can.money · v10.59 마스터·부마스터) · 금액 없는 답 = 포인트 카드 (예전 '작업현황 권한만' · v10.59 서버가 이렇게 줄 때만) */
 var SWM_DL='<svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>';
 function swmSumCard(r,cn){ var t=r.tabs||{}, s=r.sum, hn10=s?s.hn10:((t.HN&&t.HN.p10)||0), sw10=s?s.sw10:((t.SW&&t.SW.p10)||0);
   var h='<div class="card msum"><div class="mhd"><h3>'+esc(swYmLabel(String(r.ym)))+(cn.money&&s?' 정산':' 포인트')+'</h3><span>'+(r.at?esc(swmHM(r.at))+' 기준':'')+'</span></div>';
@@ -4821,7 +4832,7 @@ function swmSumCard(r,cn){ var t=r.tabs||{}, s=r.sum, hn10=s?s.hn10:((t.HN&&t.HN
       '<p class="msub">정산금 '+swmW(s.pay)+' · 공제 '+swmW(s.ded)+' · 실지급 <span'+(s.net<0?' class="neg"':'')+'>'+swmW(s.net)+'</span></p>'+
       '<p class="msub m">포인트 향남 '+swmP(s.hn10)+' · 수원 '+swmP(s.sw10)+' · 감점 '+swmP(s.pen10)+'</p>'; }
   else h+='<div class="mrow"><span>향남 기기 포인트</span><b>'+swmP(hn10)+'</b></div><div class="mrow"><span>수원 기기 포인트</span><b>'+swmP(sw10)+'</b></div>'+
-      '<p class="msub m">합 '+swmP((Number(hn10)||0)+(Number(sw10)||0))+' · 금액은 관리자만 볼 수 있어요</p>';
+      '<p class="msub m">합 '+swmP((Number(hn10)||0)+(Number(sw10)||0))+' · 금액은 마스터·부마스터만 볼 수 있어요</p>';   // v10.59
   h+='<button class="btn" id="swm_xlsx" onclick="swmXlsx()">'+SWM_DL+'엑셀로 받기 (.xlsx)</button>';
   if(cn.edit) h+='<button class="btn line" onclick="swmDayOpen()">날짜별 입력</button>';
   return h+'</div>'; }
@@ -4904,7 +4915,7 @@ function swmPsSheet(v,first){ var s=v.state.ps, r=v.state.mi, p=swmPersonOf(r,s.
     h+='<div class="tot"><span>실지급액</span><b id="swm_net"'+(c.net<0?' class="neg"':'')+'>'+swmW(c.net)+'원</b></div>';
     h+=ed?'<label class="mmo" for="swm_memo"><span>메모</span><textarea class="input" id="swm_memo" maxlength="300" rows="2" placeholder="사람 메모 (엑셀 합본 메모 칸)" oninput="swmPsIn(\'memo\',this.value)">'+esc(f.memo)+'</textarea></label>'+eh('memo')
       :(f.memo?swmPsRow('메모',esc(f.memo)):''); }
-  else h+='<p class="msh">금액·감점·공제는 관리자만 볼 수 있어요.</p>';
+  else h+='<p class="msh">금액·감점·공제는 마스터·부마스터만 볼 수 있어요.</p>';   // v10.59
   if(ed&&(p.names||[]).length){ var any=Object.keys(er).some(function(k){ return /^nmm?:/.test(k); }), f0n=JSON.parse(s.f0).nmm||{};
     h+='<details class="mfold"'+(any||!first&&s.nmOpen?' open':'')+' ontoggle="swmPsFold(this)"><summary>▸ 합본 이름 (같은 이름 = 한 사람)</summary><p class="mnote">'+(s.cur?'이번 달·다음 달부터 계속 써요 · 비우면 작업자 이름':'이 달만 · 비우면 그때 이름')+' · 같은 이름끼리 한 사람으로 합쳐요</p>'+
       (p.names||[]).map(function(n){ return '<label class="mnm" for="swm_nm_'+esc(n.wkey)+'"><span>'+esc(n.label)+'</span><input class="input" id="swm_nm_'+esc(n.wkey)+'" maxlength="30" autocomplete="off" value="'+esc(f.nm[n.wkey]||'')+'" placeholder="'+esc(p.name)+'" oninput="swmPsName(\''+jsa(n.wkey)+'\',this.value)"></label>'+eh('nm:'+n.wkey)+
@@ -5029,7 +5040,8 @@ function swmEdSave(){ var v=swmEdView(); if(!v||v.state.saving) return; var s=v.
     function(e){ s.saving=false; if(stack.indexOf(v)>=0){ swmEdSync(v); } toast('저장 실패: '+e.message); }); }
 
 /* ---- F-3 블록 화면 (sw_mblk · 블록 = (계정, 지점)) ---- */
-VIEWS.sw_mblk={ render:function(v){ reanim(v); v.dock='sw_mblk'; v.state.ed=v.state.ed||{}; v.state.cerr={}; v.state.more={}; v.state.extra=[];
+VIEWS.sw_mblk={ render:function(v){ reanim(v); if(!isMasterLike()){ v.refresh=function(){ return Promise.resolve(); }; v.el.innerHTML=mlNo('작업현황'); return; }   // v10.59 마스터·부마스터만
+  v.dock='sw_mblk'; v.state.ed=v.state.ed||{}; v.state.cerr={}; v.state.more={}; v.state.extra=[];
   v.refresh=function(){ return swmBlkLoad(v); };
   v.el.innerHTML=title(esc(v.params.label||'블록'),'')+spin(); swmBlkLoad(v); }};
 function swmBlkLoad(v){ var p=v.params, tok=v.state.tok=(v.state.tok||0)+1;
@@ -5121,7 +5133,8 @@ function swmBlkAddGo(){ var v=rpTop('sw_mblk'), el=$('swm_ad'); if(!v) return; v
   if(v.state.extra.indexOf(d)<0) v.state.extra.push(d); v.state.more[d]=1; closeSheet(); swmBlkDraw(v); setTimeout(function(){ var e=$('swmd_'+d); if(e&&e.scrollIntoView) try{ e.scrollIntoView({block:'center'}); }catch(x){} },60); }
 
 /* ---- F-3b 날짜별 한꺼번에 (sw_mday · 관리자·마스터) — 한 줄 = (계정, 그 날) · 지점은 하나만 → 저장 때 그 지점 줄에 값 · 다른 지점 같은 칸은 지움 (A-4 · 두 번 안 셈) ---- */
-VIEWS.sw_mday={ render:function(v){ reanim(v); v.dock='sw_mday'; v.state.date=v.state.date||v.params.date; v.state.cerr={};
+VIEWS.sw_mday={ render:function(v){ reanim(v); if(!isMasterLike()){ v.refresh=function(){ return Promise.resolve(); }; v.el.innerHTML=mlNo('날짜별 입력'); return; }   // v10.59 마스터·부마스터만
+  v.dock='sw_mday'; v.state.date=v.state.date||v.params.date; v.state.cerr={};
   v.refresh=function(){ return swmDayLoad(v); };
   v.el.innerHTML=title('날짜별 입력',swmDayLb(v.state.date))+spin(); swmDayLoad(v); }};
 function swmDayLoad(v,keepErr){ var tok=v.state.tok=(v.state.tok||0)+1, d=v.state.date; if(!keepErr) v.state.cerr={};
@@ -5788,7 +5801,7 @@ function pushTestSelf(){ haptic(8); toast('테스트 알림 보내는 중…');
   run('pushTestMe').then(function(r){ toast(r.devices?(r.sent?r.sent+'대에 보냈어요 · 곧 알림이 와요':'못 보냈어요')+(r.fail?' (실패 '+r.fail+' · '+(r.codes||[]).join(',')+')':''):'알림을 켠 폰이 없어요'); }).catch(function(e){ toast(e.message); }); }
 function pushNoSupport(){ openSheet('<h3>이 폰에서는 알림을 못 받아요</h3><p>'+(pushIos()?'아이폰은 <b>홈 화면에 추가한 앱</b>에서만 알림을 받을 수 있어요 (iOS 16.4 이상). 사파리 아래 <b>공유</b> → <b>홈 화면에 추가</b> 후, 홈 화면의 앱으로 열어서 다시 켜 주세요.':'이 브라우저는 웹 알림을 지원하지 않아요. 크롬으로 열거나 앱을 홈 화면에 설치해 주세요.')+'</p><button class="btn" onclick="closeSheet()">확인</button>'); }
 /* 환경설정 카드 (지정됐거나 이 코드로 알림을 켠 폰이 있거나 마스터일 때) */
-function pushCardShow(){ return !!AUTH&&(isMaster()||!!(PUSHME&&(PUSHME.plan||PUSHME.devices))); }
+function pushCardShow(){ return !!AUTH&&(isMasterLike()||!!(PUSHME&&(PUSHME.plan||PUSHME.devices))); }   // v10.59 부마스터도
 function pushCardHtml(){ var me=PUSHME||{}, pl=me.plan, ok=pushOk(), perm=ok?Notification.permission:'', on=ok&&!!me.here&&perm==='granted';
   return '<h3>작업보고 알림</h3><p class="muted" style="margin:6px 0 0;font-size:13.5px">'+(pl?'마스터가 알림 대상으로 정했어요 · <b>'+esc(pushPlanTxt(pl))+'</b><br>'+pushRule(pl)
       :'알림 대상이 아니에요. 마스터가 정하면 출근일에 업무보고를 안 보냈을 때 알림이 와요.')+'</p>'+
@@ -5816,16 +5829,16 @@ function pushGoReport(d){ if(!AUTH||!appStarted) return; d=/^\d{4}-\d{2}-\d{2}$/
   if(SERVER!==sv){ setServer(sv); tabTo('home'); if(hDepth>0) hBack(hDepth); setTimeout(function(){ go(0); },500); } else setTimeout(function(){ go(0); },250); }   // goTab('home') 은 이미 홈이면 아무것도 안 해서 다른 서버 홈이 남음 → 새로 그림
 if('serviceWorker' in navigator){ try{ navigator.serviceWorker.addEventListener('message',function(e){ if(e.data&&e.data.go==='report'){ var d=''; try{ d=new URL(e.data.url||'',location.href).searchParams.get('d')||''; }catch(x){} pushGoReport(d); } }); }catch(e){} }
 
-/* ---- 마스터: 환경설정 → 작업보고 알림 (사람마다 근무·출근 요일·날짜 예외) · v10.56 추가기능에서 환경설정 마스터 줄로 옮김 (주인 요청 6) ---- */
+/* ---- 마스터 (v10.59 + 부마스터): 환경설정 → 작업보고 알림 (사람마다 근무·출근 요일·날짜 예외) · v10.56 추가기능에서 환경설정 마스터 줄로 옮김 (주인 요청 6) ---- */
 var ICON_BELL=ic('bell');   // v10.55 그룹 C 4-1: 노란 색 그림 → 같은 세트 종
-function pushAdminRow(row){ return isMaster()?row('pushadmin',ICON_BELL,'작업보고 알림','출근일에 업무보고 안 한 사람에게 알림'):''; }   // row = 환경설정 줄 모양 (VIEWS.me)
+function pushAdminRow(row){ return isMasterLike()?row('pushadmin',ICON_BELL,'작업보고 알림','출근일에 업무보고 안 한 사람에게 알림'):''; }   // row = 환경설정 줄 모양 (VIEWS.me)
 VIEWS.pushadmin={ render:function(v){ reanim(v); v.refresh=function(){ return pushAdminLoad(v); };
-  if(!isMaster()){ v.el.innerHTML=title('작업보고 알림','')+'<div class="card"><div class="empty">마스터 계정만 쓸 수 있어요.</div></div>'; return; }   // v10.56 (서버도 막음 · 화면도 접속 코드 관리처럼)
-  v.el.innerHTML=title('작업보고 알림','마스터')+spin('불러오는 중'); pushAdminLoad(v); }};
+  if(!isMasterLike()){ v.el.innerHTML=mlNo('작업보고 알림'); v.refresh=function(){ return Promise.resolve(); }; return; }   // v10.59 마스터·부마스터   // v10.56 (서버도 막음 · 화면도 접속 코드 관리처럼)
+  v.el.innerHTML=title('작업보고 알림',roleName())+spin('불러오는 중'); pushAdminLoad(v); }};   // v10.59 부제 = 마스터 | 부마스터
 function pushAdminLoad(v){ return run('pushPlanList').then(function(r){ if(stack.indexOf(v)<0) return; v.state.r=r; pushAdminDraw(v); })
-  .catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('작업보고 알림','마스터')+errBox(e); }); }
+  .catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('작업보고 알림',roleName())+errBox(e); }); }
 function pushAdminDraw(v){ var r=v.state.r||{}, today=r.today||todayISO(0), ps=(r.people||[]).filter(function(p){ return p.active||p.plan; });
-  var h=title('작업보고 알림','마스터 · '+fmtToday());
+  var h=title('작업보고 알림',roleName()+' · '+fmtToday());
   h+='<div class="card"><p class="muted" style="margin:0;font-size:13.5px">사람마다 <b>근무</b>와 <b>출근 요일</b>(매주), 필요하면 <b>날짜 예외</b>(추가 출근·휴무)를 정해 두면 그 날짜 업무보고를 안 보낸 사람 폰으로 <b>"M월 D일 작업보고를 하지 않은 상태에요!"</b> 알림이 가요.<br>· 첫 알림: 주간 = 그 날 <b>저녁 7시</b> · 야간 = 출근한 <b>다음 날 아침 7시</b> → 그 날짜를 보고할 때까지 <b>8시간마다</b> (최대 3일)<br>· 받는 사람이 앱 <b>환경설정 → 작업보고 알림 → 알림 켜기</b>를 한 번 해야 해요 (아이폰은 홈 화면에 추가한 앱에서만).</p></div>';
   h+='<div class="card"><h3>사람 '+ps.length+'명</h3>'+(ps.length?ps.map(function(p){ var pl=p.plan, nm=p.name||('이름 없음 · '+p.no+'번 코드'), bits=[];
       bits.push(pl?esc(pushPlanTxt(pl)):'지정 안 함');
@@ -5879,15 +5892,15 @@ var ICON_KEY='<svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4.2"/><path d="
 var ICON_SHIELD='<svg viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.2c0 4.6-3.1 8.4-7.5 9.8-4.4-1.4-7.5-5.2-7.5-9.8V6z"/><path d="M8.8 12.2l2.2 2.2 4.3-4.4"/></svg>';
 var ICON_CAR='<svg viewBox="0 0 24 24"><path d="M3.5 17v-3.6L5.6 8.3A2 2 0 0 1 7.4 7h9.2a2 2 0 0 1 1.8 1.3l2.1 5.1V17z"/><path d="M3.5 13.4h17"/><circle cx="7.5" cy="17.5" r="1.8"/><circle cx="16.5" cy="17.5" r="1.8"/></svg>';
 var ICON_EGG='<svg viewBox="0 0 24 24"><path d="M12 3c3.6 0 6.5 5.2 6.5 9.8a6.5 6.5 0 0 1-13 0C5.5 8.2 8.4 3 12 3z"/><path d="M6.4 13.4l2.4-1.8 2.4 1.8 2.4-1.8 2.4 1.8 1.6-1.2"/></svg>';
-function roleName(){ return isMaster()?'마스터':(isAdminUp()?'관리자':''); }
+function roleName(){ return isMaster()?'마스터':(isSubMaster()?'부마스터':(isAdminUp()?'관리자':'')); }   // v10.59 부마스터 딱지
 VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return pushSync(); };   // 당겨서 새로고침 = 작업보고 알림 상태도 새로
   var fixedName=!!(AUTH&&!AUTH.master&&AUTH.name), rn=roleName();
   var row=function(view,svg,b,s){ return '<button class="mitem" onclick="push(\''+view+'\',{})"><span class="mi">'+svg+'</span><span class="mt"><b>'+b+'</b><span>'+s+'</span></span><span class="ar">›</span></button>'; };
-  var mg=(isMaster()?row('codes',ICON_KEY,'접속 코드 관리','코드 만들기 · 이름 · 서버 · 관리자 지정'):'')+
+  var mg=(isMaster()?row('codes',ICON_KEY,'접속 코드 관리','코드 만들기 · 이름 · 서버 · 역할 지정'):'')+   // v10.59 코드 관리 = 마스터만 (부마스터 = 이것만 빼고 마스터와 같음)
     pushAdminRow(row)+   // v10.56 작업보고 알림 (마스터만) = 추가기능(SWAP·SWING) → 여기 접속 코드 관리 옆 (주인 요청 6)
     (isAdminUp()?row('perms',ICON_SHIELD,'권한 설정','일반 작업자 추가기능 켜고 끄기 · 사람별 예외'):'')+
     row('vehicles',ICON_CAR,'차량 목록',isAdminUp()?'차량 사진에서 고르는 목록 · 모든 작업자에게 적용':'차량 사진에서 고르는 목록 · 보기만 (관리자가 고침)')+
-    (isMaster()?row('eggs',ICON_EGG,'이스터에그 발견한 사람','처음 발견한 사람 · 찾은 순서'):'');   // v10.56 '속도 기록 (이 폰)' 줄 없앰 (주인 요청 7)
+    (isMasterLike()?row('eggs',ICON_EGG,'이스터에그 발견한 사람','처음 발견한 사람 · 찾은 순서'):'');   // v10.56 '속도 기록 (이 폰)' 줄 없앰 (주인 요청 7) · v10.59 마스터·부마스터
   v.el.innerHTML=title('환경설정','')+
     '<div class="card"><div style="display:flex;align-items:center;gap:14px"><div style="flex:0 0 56px;height:56px;border-radius:18px;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px">'+esc(initials(worker))+'</div>'+
     '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:21px;letter-spacing:-.5px">'+esc(worker||'이름 없음')+(rn?' <span class="pill sys sm" style="background:var(--p-soft);color:var(--p-ink);vertical-align:middle">'+rn+'</span>':'')+'</div>'+
@@ -5918,12 +5931,12 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
     '<p class="muted mver" style="text-align:center;font-size:12px" onclick="verTap()">SWAP 입출고 v'+APP_VER+' · '+(('BarcodeDetector' in window)?'내장 스캐너':'jsQR')+' · '+(window.isSecureContext?'https':'http')+'</p>';
   }};
 /* v10.56 속도 기록 화면(VIEWS.speed · spdStats·spdText·spdCopy·spdClear · ICON_SPEED) 없앰 (주인 요청 7 · 모든 사용자) */
-/* ---- 접속 코드 관리 (마스터 전용 페이지): 이름 · 사용 · 서버 · 관리자 지정 ---- */
+/* ---- 접속 코드 관리 (마스터 전용 페이지 · v10.59 부마스터도 못 들어감): 이름 · 사용 · 서버 · 역할 지정 (작업자 · 관리자 · 부마스터) ---- */
 VIEWS.codes={ render:function(v){ v.refresh=function(){ return loadCodes(v); };
   if(!isMaster()){ v.el.innerHTML=title('접속 코드 관리','')+'<div class="card"><div class="empty">마스터 계정만 쓸 수 있어요.</div></div>'; return; }
   v.el.innerHTML=title('접속 코드 관리','마스터 전용','<button class="more" onclick="addCodeAsk()">+ 코드 추가</button>')+
-    '<div class="card"><p class="muted" style="margin:0 0 6px;font-size:13px">이름을 넣으면 그 코드로 접속한 사람의 작업자 이름이 자동으로 정해져요. 스위치를 끄면 그 코드로는 접속할 수 없어요. SWAP/SWING 칩으로 들어갈 수 있는 서버를, <b>관리자</b> 칩으로 관리자를 정해요.</p><div id="codes">'+spin()+'</div></div>'+
-    tipBox('codes','관리자 = 접속 코드 관리만 빼고 모든 기능','관리자는 접속 코드 관리만 빼고 모든 기능을 써요. 일반 작업자 권한·차량 목록·작업자 관리를 할 수 있어요.','관리자');   // v10.55 3-2
+    '<div class="card"><p class="muted" style="margin:0 0 6px;font-size:13px">이름을 넣으면 그 코드로 접속한 사람의 작업자 이름이 자동으로 정해져요. 스위치를 끄면 그 코드로는 접속할 수 없어요. SWAP/SWING 칩으로 들어갈 수 있는 서버를, <b>역할</b> 칩으로 작업자·관리자·부마스터를 정해요.</p><div id="codes">'+spin()+'</div></div>'+
+    tipBox('codes','<b>부마스터</b> = 접속 코드 관리만 빼고 마스터와 같아요','<b>부마스터</b>는 접속 코드 관리만 빼고 마스터와 같아요 (작업현황 · 작업보고 알림 · 거래처 관리 · 권한 설정 · 작업자 관리 · 이스터에그). 들어갈 서버는 SWAP/SWING 칩대로예요. <b>관리자</b>는 일반 작업자 권한·차량 목록·작업자 관리·수리 화면을 써요 (작업현황·작업보고 알림·거래처 관리는 못 봐요).','역할');   // v10.55 3-2 · v10.59 부마스터
   loadCodes(v); }};
 function loadCodes(v){ return run('listCodes').then(function(list){ if(stack.indexOf(v)<0) return; v.state.codes=list; drawCodes(v); }).catch(function(e){ var el=$('codes'); if(el) el.innerHTML='<p class="muted">'+esc(e.message)+'</p>'; }); }
 function drawCodes(v){ var el=$('codes'); if(!el) return; var list=v.state.codes||[];
@@ -5932,16 +5945,30 @@ function drawCodes(v){ var el=$('codes'); if(!el) return; var list=v.state.codes
     '<div class="cn"><input class="input" value="'+esc(c.name)+'" placeholder="이름 (예: 홍길동)" data-code="'+esc(c.code)+'" onchange="saveCodeName(this)" onkeydown="if(event.key===\'Enter\') this.blur()">'+
     '<div class="cm">'+(c.last?'최근 접속 '+esc(String(c.last).slice(5,16))+' · '+(c.count||0)+'회':'아직 접속 안 함')+'</div>'+
     '<div class="srvchips">'+['swap','swing'].map(function(sv){ var on=(c.servers||['swap','swing']).indexOf(sv)>=0; return '<button class="'+(on?'on':'')+'" onclick="toggleCodeServer(\''+esc(c.code)+'\',\''+sv+'\',this)">'+sv.toUpperCase()+'</button>'; }).join('')+
-    '<button class="role'+(c.role==='admin'?' on':'')+'" onclick="toggleCodeRole(\''+esc(c.code)+'\','+(c.role==='admin'?'false':'true')+',this)">관리자</button></div></div>'+
+    codeRoleChip(c)+'</div></div>'+   // v10.59 '관리자' 켜고 끄기 → 역할 칩 (누르면 역할 고르기 시트 · 부마스터 = 딱지 색)
     '<button class="sw'+(c.active?' on':'')+'" aria-label="사용" onclick="toggleCode(\''+esc(c.code)+'\','+(c.active?'false':'true')+',this)"></button></div>'; }).join(''); }
 function toggleCodeServer(code,sv,btn){ var v=codeView(); var c=(v&&v.state.codes||[]).filter(function(x){ return x.code===code; })[0]; var cur=(c&&c.servers)?c.servers.slice():['swap','swing'];
   var i=cur.indexOf(sv); if(i>=0){ if(cur.length===1){ toast('서버를 하나 이상 남겨두세요'); return; } cur.splice(i,1); } else cur.push(sv);
   btn.classList.toggle('on',i<0); haptic(8);
   run('setCodeServers',code,cur).then(function(res){ if(!res.ok){ toast(res.error); } if(v){ v.state.codes=res.codes; drawCodes(v); } if(res.ok) toast(code+' → '+cur.map(function(x){ return x.toUpperCase(); }).join('+')); }).catch(function(e){ btn.classList.toggle('on',i>=0); toast('변경 실패: '+e.message); }); }
 function codeView(){ var v=stack[stack.length-1]; return (v&&v.name==='codes')?v:null; }
-function toggleCodeRole(code,admin,btn){ var v=codeView(); btn.classList.toggle('on',admin); haptic(8);
-  run('setCodeRole',code,admin).then(function(list){ if(v){ v.state.codes=list; drawCodes(v); } var c=list.filter(function(x){ return x.code===code; })[0]; toast((c&&c.name||code)+(admin?' → 관리자':' → 일반 작업자')); })
-    .catch(function(e){ btn.classList.toggle('on',!admin); toast('변경 실패: '+e.message); }); }
+/* v10.59 역할 고르기 (주인 10/16 · 마스터만): 작업자 · 관리자 · 부마스터 — 시트에서 하나 → setCodeRole(code, false | true | 'submaster')
+   작업자·관리자 = 예전 false/true 그대로 (구글 길 Apps Script 도 앎) · 부마스터 = 'submaster' (새 서버) — 답 목록에서 부마스터가 아니면 안 됐다고 알림 (옛 서버는 관리자로 둠) */
+var CODE_ROLES=[['worker','작업자','추가기능은 권한 설정대로'],['admin','관리자','권한 설정 · 차량 목록 · 작업자 관리 · 수리 화면 (작업현황 · 작업보고 알림 · 거래처 관리 없음)'],['submaster','부마스터','접속 코드 관리만 빼고 마스터와 같아요 · 서버는 SWAP/SWING 칩대로']];
+function codeRoleOf(c){ var r=c&&c.role; return (r==='submaster'||r==='admin'||r==='master')?r:'worker'; }
+function codeRoleLb(r){ return r==='master'?'마스터':(r==='submaster'?'부마스터':(r==='admin'?'관리자':'작업자')); }
+function codeRoleChip(c){ var r=codeRoleOf(c), lb=codeRoleLb(r);
+  if(r==='master') return '<button class="role on sub" disabled>'+lb+'</button>';
+  return '<button class="role'+(r==='admin'?' on':(r==='submaster'?' on sub':''))+'" aria-label="역할 '+lb+' · 바꾸기" onclick="codeRoleAsk(\''+jsa(c.code)+'\')">'+lb+'<i aria-hidden="true">▾</i></button>'; }
+function codeRoleAsk(code){ var v=codeView(); if(!v||sheetOpen) return; var c=(v.state.codes||[]).filter(function(x){ return x.code===code; })[0]; if(!c) return; var cur=codeRoleOf(c); haptic(6);
+  openSheet('<h3>역할 고르기</h3><p class="muted" style="margin:4px 0 0;font-size:14px">'+esc(c.name||'이름 없음')+' · <span class="mono">'+esc(code)+'</span></p>'+CODE_ROLES.map(function(o){ var on=cur===o[0];
+    return '<button type="button" class="actrow pick'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="closeSheet(function(){ setCodeRoleGo(\''+jsa(code)+'\',\''+o[0]+'\') })"><b>'+(on?'✓ ':'')+o[1]+'</b><span>'+o[2]+'</span></button>'; }).join('')); }
+function setCodeRoleGo(code,role){ var v=codeView(), c=v&&(v.state.codes||[]).filter(function(x){ return x.code===code; })[0]; if(c&&codeRoleOf(c)===role) return; haptic(8); toast('바꾸는 중…');
+  run('setCodeRole',code,role==='submaster'?'submaster':role==='admin').then(function(list){ list=list||[]; if(v){ v.state.codes=list; drawCodes(v); }
+      var c2=list.filter(function(x){ return x.code===code; })[0], got=codeRoleOf(c2);
+      if(role==='submaster'&&got!=='submaster'){ toast('부마스터로 못 바꿨어요 · 서버가 아직 부마스터를 몰라요 (지금 '+codeRoleLb(got)+')'); return; }
+      toast((c2&&c2.name||code)+' → '+codeRoleLb(got)); })
+    .catch(function(e){ toast('변경 실패: '+e.message); }); }
 function saveCodeName(inp){ var v=codeView(); var code=inp.getAttribute('data-code'); var name=inp.value.trim();
   run('setCodeName',code,name).then(function(list){ if(v){ v.state.codes=list; } toast(code+' 이름 저장'); if(v) drawCodes(v); }).catch(function(e){ toast('저장 실패: '+e.message); }); }
 function toggleCode(code,active,btn){ var v=codeView(); btn.classList.toggle('on',active); if(navigator.vibrate) navigator.vibrate(8);
@@ -5951,11 +5978,12 @@ function addCodeAsk(){ openSheet('<h3>새 접속 코드</h3><p>코드는 자동�
 function addCodeGo(){ var name=($('ncn').value||'').trim(); var v=codeView(); closeSheet(function(){ toast('코드 만드는 중…');
   run('addCode',name).then(function(list){ if(v){ v.state.codes=list; drawCodes(v); } var nw=list[list.length-1]; toast('새 코드: '+(nw?nw.code:'')); }).catch(function(e){ toast('추가 실패: '+e.message); }); }); }
 
-/* ---- 권한 설정 (관리자·마스터): 일반 작업자 기본값 + 사람별 예외. 관리자·마스터는 항상 전부 켜짐 ---- */
+/* ---- 권한 설정 (관리자·마스터 · v10.59 부마스터도): 일반 작업자 기본값 + 사람별 예외. 관리자·부마스터·마스터는 항상 전부 켜짐 (작업현황은 사람별 권한 없음 · 마스터·부마스터만) ---- */
 var permMem=null;   // 마지막으로 받은 permInfo (권한 설정 → 사람별 페이지가 같이 씀)
 function permLoad(v,draw){ return run('permInfo').then(function(r){ permMem=r; if(stack.indexOf(v)>=0) draw(v); })
   .catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title(v.name==='perms'?'권한 설정':'사람별 권한','')+errBox(e); }); }
-function permGroups(fs,servers){ var out=[];
+var PERM_GONE={'swing.sw_sum':1};   // v10.59 작업현황 = 마스터·부마스터만 → 사람별 권한 줄 없음 (옛 서버·구글 길이 줘도 안 그림)
+function permGroups(fs,servers){ var out=[]; fs=(fs||[]).filter(function(f){ return !PERM_GONE[f.k]; });
   ['swap','swing'].filter(function(sv){ return !servers||servers.indexOf(sv)>=0; }).forEach(function(sv){ var l=fs.filter(function(f){ return f.server===sv; }), rp=l.filter(rpPermKey), o=l.filter(function(f){ return !rpPermKey(f); });
     if(o.length||!rp.length) out.push({sv:sv,list:o}); if(rp.length) out.push({sv:sv,list:rp,rp:true}); });   // v10.52 수리 기록·수리 전산 두 줄은 따로 무리 (새 서버가 수리 ERP 를 켰을 때만 줌)
   return out; }
@@ -5969,7 +5997,7 @@ VIEWS.perms={ render:function(v){ v.refresh=function(){ return permLoad(v,permDr
 function permView(n){ var v=stack[stack.length-1]; return (v&&v.name===n)?v:null; }
 function permDraw(v){ var r=permMem||{}, fs=r.features||[], d=r.defaults||{}, ppl=r.people||[];
   var h=title('권한 설정','일반 작업자')+
-    tipBox('perms','끈 기능은 일반 작업자에게 <b>자물쇠</b>로 보이고 못 들어가요','관리자·마스터는 모든 기능을 써요. 여기서 끈 기능은 일반 작업자 추가기능에 <b>자물쇠</b>로 보이고 못 들어가요.'+
+    tipBox('perms','끈 기능은 일반 작업자에게 <b>자물쇠</b>로 보이고 못 들어가요','관리자·부마스터·마스터는 모든 기능을 써요 (<b>작업현황</b>은 마스터·부마스터만). 여기서 끈 기능은 일반 작업자 추가기능에 <b>자물쇠</b>로 보이고 못 들어가요.'+
     (fs.some(function(f){ return /\.home$/.test(f.k); })?' <b>홈 현황 보기</b>를 끄면 홈 화면 숫자가 흐리게 + 자물쇠로 보여요 (서버도 숫자를 안 보냄).':'')+
     (fs.some(rpPermKey)?' <b>수리 기록</b> = 홈 [수리기기 입력]·내 수리 내역 (그날 것만 고침) · <b>수리현황</b> = 명세서·전체 기록·그래프 보기 (고치기 없음) · 둘 다 처음엔 꺼짐 → 사람별 예외로 켜 주세요.':'')+   // v10.52
     ' 바꾸면 작업자가 앱을 다시 열 때 적용돼요.','권한 설정');   // v10.55 3-2 (9줄 → 처음 한 번 펼침 · 닫으면 한 줄)
@@ -5979,7 +6007,7 @@ function permDraw(v){ var r=permMem||{}, fs=r.features||[], d=r.defaults||{}, pp
     (!ppl.length?'<div class="empty" style="padding:14px 0">일반 작업자 코드가 없어요.</div>':'<div class="plist">'+ppl.map(function(p){ var n=Object.keys(p.perms||{}).length;
       return '<button class="pperson'+(p.active?'':' off')+'" onclick="push(\'perm_person\',{key:\''+esc(p.key)+'\'})"><b>'+esc(p.name||'이름 없음')+'</b><span>'+(p.active?'':'사용 중지 · ')+(p.servers||[]).map(function(x){ return x.toUpperCase(); }).join('·')+'</span>'+
         (n?'<i>예외 '+n+'</i>':'<em>기본값</em>')+'<u>›</u></button>'; }).join('')+'</div>')+'</div>';
-  if((r.admins||[]).length) h+='<p class="muted" style="margin:0 4px 16px;font-size:13px">관리자 '+r.admins.length+'명: '+r.admins.map(function(a){ return esc(a.name)+(a.active?'':'(중지)'); }).join(', ')+' — 모든 기능 사용 (마스터가 접속 코드 관리에서 지정)</p>';
+  if((r.admins||[]).length) h+='<p class="muted" style="margin:0 4px 16px;font-size:13px">관리자 '+r.admins.length+'명: '+r.admins.map(function(a){ return esc(a.name)+(a.submaster===true||a.role==='submaster'?'(부마스터)':'')+(a.active?'':'(중지)'); }).join(', ')+' — 추가기능 모두 사용 (작업현황·작업보고 알림·거래처 관리는 마스터·부마스터만 · 마스터가 접속 코드 관리에서 지정)</p>';   // v10.59 서버가 부마스터를 같이 주면 표시
   v.el.innerHTML=h; }
 function permSetDefault(k,on,btn){ var v=permView('perms'); btn.classList.toggle('on',on); haptic(8);
   run('setPermDefault',k,on).then(function(r){ permMem=r; if(v&&permView('perms')===v) permDraw(v); var f=(r.features||[]).filter(function(x){ return x.k===k; })[0]; toast((f?f.label:k)+(on?' 켜기':' 끄기')+' · 일반 작업자 전체'); })
@@ -6092,14 +6120,14 @@ function eggFx(me,cv){ var ctx=cv.getContext('2d'); if(!ctx) return; var dpr=Mat
     pt=pt.filter(function(p){ p.vx*=dr; p.vy=p.vy*dr+.045*k; p.x+=p.vx*k; p.y+=p.vy*k; p.a-=p.d*k; if(p.a<=0) return false;
       ctx.globalAlpha=p.a; ctx.strokeStyle=p.c; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p.x-p.vx*2.5,p.y-p.vy*2.5); ctx.lineTo(p.x,p.y); ctx.stroke(); return true; });
     ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over'; }); }
-/* ---- 이스터에그 발견한 사람 (마스터 전용 페이지) ---- */
+/* ---- 이스터에그 발견한 사람 (마스터 전용 페이지 · v10.59 부마스터도) ---- */
 VIEWS.eggs={ render:function(v){ v.refresh=function(){ return eggLoad(v); };
-  if(!isMaster()){ v.el.innerHTML=title('이스터에그 발견한 사람','')+'<div class="card"><div class="empty">마스터 계정만 쓸 수 있어요.</div></div>'; return; }
-  v.el.innerHTML=title('이스터에그 발견한 사람','마스터 전용')+spin(); eggLoad(v); }};
+  if(!isMasterLike()){ v.el.innerHTML=mlNo('이스터에그 발견한 사람'); v.refresh=function(){ return Promise.resolve(); }; return; }   // v10.59 마스터·부마스터 (서버 eggList·eggReset 도)
+  v.el.innerHTML=title('이스터에그 발견한 사람','마스터·부마스터')+spin(); eggLoad(v); }};
 function eggLoad(v){ return run('eggList').then(function(list){ if(stack.indexOf(v)<0) return; v.state.list=list||[]; eggDraw(v); })
   .catch(function(e){ if(stack.indexOf(v)>=0) v.el.innerHTML=title('이스터에그 발견한 사람','')+errBox(e); }); }
 function eggDraw(v){ var l=v.state.list||[], f=l[0];
-  var h=title('이스터에그 발견한 사람','마스터 전용'+(l.length?' · '+l.length+'명':''))+
+  var h=title('이스터에그 발견한 사람','마스터·부마스터'+(l.length?' · '+l.length+'명':''))+
     tipBox('egg','<b>버전</b>을 빠르게 10번 누르면 나와요 · 먼저 찾은 순서','환경설정 맨 아래 <b>버전</b>을 빠르게 10번 누르면 영상과 폭죽이 나와요. 먼저 찾은 순서대로 기록해요. 마스터가 연 건 기록하지 않아요.','이스터에그');   // v10.55 3-2
   if(!f){ v.el.innerHTML=h+'<div class="card"><div class="empty">아직 아무도 못 찾았어요.</div></div>'; return; }
   h+='<div class="card sum"><div class="lb">처음 발견한 사람</div><div class="big"><b style="word-break:break-all">'+esc(f.name||'이름 없음')+'</b></div>'+
@@ -6181,11 +6209,13 @@ function autoLogin(){ showLogin('',AUTH.code); $('lbtn').disabled=true; $('glitc
     lanimDone(function(){ if(SERVER!==sv) setServer(sv); $('glitch').classList.remove('wild'); hideLogin(); startApp(); }); }); }
 function applyAuth(a,auto,saved){ var legacy=(a.role===undefined&&a.master===undefined);   // 서버(Code.gs)가 아직 v10.5 → 관리자 = 마스터 하나뿐 · saved = 이 폰에 저장된 코드로 다시 확인한 것
   lsOwner(a.code,!!saved);   // v10.41 다른 코드면 앞사람 저장본 지움
-  AUTH={code:a.code,name:a.name||'',admin:!!a.admin,master:legacy?!!a.admin:!!a.master,role:a.role||(a.admin?(legacy?'master':'admin'):'worker'),auto:!!auto,
-    servers:(a.servers&&a.servers.length)?a.servers:['swap','swing'],perms:a.perms||{}}; try{ localStorage.setItem('swapAuth',JSON.stringify(AUTH)); }catch(e){}
+  var sub=!legacy&&!a.master&&(a.submaster===true||a.role==='submaster');   // v10.59 부마스터 (서버 submaster:true · role 'submaster') = 관리자 일 전부 + 마스터 일 (코드 관리 빼고)
+  AUTH={code:a.code,name:a.name||'',admin:!!a.admin||sub,master:legacy?!!a.admin:!!a.master,role:sub?'submaster':(a.role||(a.admin?(legacy?'master':'admin'):'worker')),auto:!!auto,
+    servers:(a.servers&&a.servers.length)?a.servers:['swap','swing'],perms:a.perms||{}}; if(sub) AUTH.submaster=true;   // v10.59 부마스터일 때만 키 (다른 코드는 저장 모양 그대로)
+  try{ localStorage.setItem('swapAuth',JSON.stringify(AUTH)); }catch(e){}
   if(a.vehicles!==undefined) vehSet(a.vehicles);   // 공용 차량 목록 (null = 아직 없음 → 폰 목록)
-  if(a.name&&!a.master&&worker!==a.name){ worker=a.name; localStorage.setItem('swapWorker',a.name); }
-  homeLkMe(a); homeLockPurge();   // v10.51 perms 에 홈 현황 키가 있으면 잠김 기억 · 권한이 없으면 폰에 남은 예전 홈 숫자 저장본을 지움
+  if(a.name&&!a.master&&worker!==a.name){ worker=a.name; localStorage.setItem('swapWorker',a.name); }   // 부마스터 = 이름 있는 코드 → 마스터가 정한 이름 (관리자와 같음)
+  homeLkMe(sub&&!a.admin?Object.assign({},a,{admin:true}):a); homeLockPurge();   // v10.59 부마스터 = 홈 잠금 안 걸림 (관리자처럼 · homeLkMe·homeLockOf 는 그대로)   // v10.51 perms 에 홈 현황 키가 있으면 잠김 기억 · 권한이 없으면 폰에 남은 예전 홈 숫자 저장본을 지움
   api2Me(a); }   // v10.47 새 서버 주소(api2)·최소 버전(minVer) — 지금 서버는 안 보냄 (그대로)
 /* 앱으로 돌아올 때(1분 넘게 지났으면) 권한·차량 목록을 다시 받아 추가기능 화면에 바로 반영 */
 var meAt=Date.now();
