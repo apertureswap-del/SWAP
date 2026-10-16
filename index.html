@@ -724,6 +724,10 @@
   .wkq i{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:1px}
   .wkq small{display:block;font-size:12px;color:var(--ink2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .wkq b.im{white-space:normal;word-break:break-all;font-size:12px;line-height:1.3}   /* QR 없이 IMEI로 나오는 기기 */
+  .wkq u.brt{display:inline-block;margin-left:4px;padding:0 5px;border-radius:5px;font-size:12px;font-weight:800;line-height:1.5;text-decoration:none;vertical-align:1px}   /* v10.58 F-6 기기 지점 딱지 (시간·기종 뒤) */
+  .wkq u.brt.bhn{background:#e3e9f8;color:#1e3a8a}   /* 대비 8.52 */
+  .wkq u.brt.bsw{background:#ffe6d8;color:#9a3412}   /* 대비 6.11 */
+  .wkq u.brt.bno{background:#fff;color:var(--muted)}   /* #5b6573 on 흰 = 5.25 (설계 var(--fill) = 카드 바탕과 같은 회색이라 딱지가 안 보여 흰 바탕) */
   .wkq>div.low{background:#fdecec;box-shadow:inset 0 0 0 1.5px var(--danger)} .wkq .bt{display:block;font-style:normal;font-size:14px;font-weight:800;color:var(--ink2);margin-top:2px} .wkq .low .bt{color:var(--danger)}   /* 3-5 ② '교체 96%' (교체 때 잰 값 · 이름 붙임) */
   .wkq>div[data-i]{cursor:pointer;transition:transform .15s} .wkq>div[data-i]:active{transform:scale(.96)}
   .wkq em.of,.wkq em.jd,.wkq em.pw,.wkq em.pd,.wkq em.pn{display:inline-block;margin-top:3px;padding:1px 6px;border-radius:6px;font-style:normal;font-size:12px;font-weight:800;line-height:1.5}
@@ -772,9 +776,9 @@
   .exbtn i{font-style:normal;font-size:12px;color:var(--muted);flex:0 0 auto} .exbtn:active{transform:scale(.98)}
   .exbtn.on{background:var(--p-soft);color:var(--p-ink)} .exbtn.on small,.exbtn.on i{color:var(--p-ink)}
   .exseg{position:relative;display:flex;gap:4px;background:#fff;border-radius:10px;padding:3px;margin-bottom:6px}
-  .exseg button{position:relative;flex:1;height:32px;border-radius:8px;font-size:13.5px;font-weight:700;color:var(--muted)}
+  .exseg button{position:relative;flex:1;height:44px;border-radius:8px;font-size:13.5px;font-weight:700;color:var(--muted)}   /* v10.58 F-8 누름 44px (예전 32px)*/
   .exseg button.on{background:var(--p);color:#fff}
-  .exseg button i{position:absolute;top:7px;right:10px;width:6px;height:6px;border-radius:50%;background:var(--p)} .exseg button.on i{background:#fff}   /* 넣은 대수가 있는 탭 */
+  .exseg button i{position:absolute;top:10px;right:10px;width:6px;height:6px;border-radius:50%;background:var(--p)} .exseg button.on i{background:#fff}   /* 넣은 대수가 있는 탭 */
   .i9bub{position:relative;margin-top:12px;background:var(--p-soft);border-radius:14px;padding:12px 14px 10px}
   .i9bub::before{content:'';position:absolute;top:-7px;left:22px;width:14px;height:14px;background:var(--p-soft);transform:rotate(45deg);border-radius:2px}
   .i9row{position:relative;display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:15px;font-weight:700;color:var(--ink)}
@@ -782,6 +786,68 @@
   .i9row .stp button{width:44px;height:44px;border-radius:11px;background:#fff;color:var(--p-ink);font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center}
   .i9row .stp button:disabled{opacity:.35} .i9row .stp button:active{transform:scale(.92)}
   .i9bub p{position:relative;margin:6px 0 0;font-size:12.5px;color:var(--muted);line-height:1.45}
+  .exbr{position:relative;display:flex;align-items:center;gap:10px;margin:0 0 4px;font-size:14px;font-weight:700;color:var(--ink)}   /* v10.58 F-9 지점 [향남|수원] (44px) */
+  .exbr>span{flex:0 0 auto} .exbr .seg{flex:1;margin:0;background:#fff} .exbr .seg button{min-height:44px;padding:0 8px;font-size:14.5px} .exbr .seg button.on{background:var(--p);color:#fff}
+  .exseg button em{font-style:normal;font-size:12px;font-weight:800}
+  .wdnpv{margin:0 0 14px;padding:12px 14px;border-radius:14px;background:var(--fill);color:var(--ink2);font-size:15px;line-height:1.5;white-space:pre-wrap;word-break:break-word;max-height:30vh;overflow-y:auto}   /* v10.58 작업현황 메모 보기 시트 (탭 메모·정산 안 함·날짜 메모) */
+  /* v10.58 작업현황 (D1 · design/MONTH-WORKER.md F-1~F-4·F-8): 가장 작은 글 12px · 누르는 곳 44px 이상 (줄 56px) · 숫자 tabular-nums · 360 폭 가로 넘침 없음 */
+  .msum .mhd{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 6px} .msum .mhd h3{margin:0} .msum .mhd span{font-size:13px;color:var(--muted);white-space:nowrap}
+  .mrow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:4px 0;font-size:14px;color:var(--ink2)} .mrow span{min-width:0}
+  .mrow b{font-size:20px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .msub{margin:6px 0 0;font-size:13px;color:var(--ink2);line-height:1.5;font-variant-numeric:tabular-nums} .msub.m{color:var(--muted)} .msub .neg{color:#c92a2a;font-weight:800}
+  .msum .btn{margin-top:14px;min-height:50px} .msum .btn+.btn{margin-top:8px}
+  .mtab{margin:4px 0 12px} .mtab button b{font-weight:800}
+  .mlist{padding:4px 16px}
+  .mrw{display:flex;align-items:center;gap:10px;width:100%;min-height:56px;padding:10px 2px;border-top:1px solid var(--fill);text-align:left;color:var(--ink);font-size:14px}
+  .mrw:first-child{border-top:0} .mrw:active{background:var(--fill2)}
+  .mrw .tx{flex:1;min-width:0} .mrw .nm{display:block;font-size:15px;font-weight:800;overflow-wrap:anywhere}
+  .mrw .sb{display:block;margin-top:2px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+  .mrw .v{flex:0 0 auto;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap} .mrw .v.neg{color:#c92a2a}
+  .mrw .ch{flex:0 0 auto;font-style:normal;font-size:18px;color:var(--muted)}
+  .mrw.same{box-shadow:inset 3px 0 0 #c92a2a;padding-left:10px}
+  .mrw .mw{display:inline-block;margin-top:4px;padding:1px 7px;border-radius:6px;background:#fdecec;color:#c92a2a;font-size:12px;font-weight:800;font-style:normal}   /* 대비 4.78 */
+  .mred{color:#c92a2a;font-weight:800}
+  .mbar{display:flex;align-items:center;gap:6px;margin-top:5px} .mbar i{display:block;flex:0 1 120px;height:8px;border-radius:4px;background:#e8590c;overflow:hidden} .mbar i s{display:block;height:100%;background:#3b5bdb}
+  .mbar em{font-style:normal;font-size:12px;color:var(--muted);white-space:nowrap}
+  .mtm{display:flex;align-items:center;gap:10px;min-height:56px;margin:0 0 12px;padding:6px 6px 6px 16px;border-radius:var(--r2);background:#fff;font-size:14px}
+  .mtm .l{flex:0 0 auto;font-weight:800} .mtm .t{flex:1;min-width:0;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .mtm .t.z{color:var(--muted)} .mtm .edit{flex:0 0 auto}
+  .sheet .msh{margin:-2px 44px 10px 0;font-size:13px} .sheet .mwarn{margin:0 0 12px;padding:8px 12px;border-radius:10px;background:#fdecec;color:#c92a2a;font-size:13.5px;font-weight:700}
+  fieldset.mkv{border:0;margin:0 0 4px;padding:0;min-width:0}
+  .mkv>div,.mkv>label{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:40px;padding:4px 0;border-top:1px solid var(--fill);font-size:14px;color:var(--ink2)} .mkv>:first-child{border-top:0}
+  .mkv>div>span,.mkv>label>span:first-child{min-width:0} .mkv b{font-size:15px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap} .mkv small{display:block;font-size:12px;color:var(--muted);font-weight:600} .mkv b small{display:inline}
+  .mkv .tot b{font-size:20px} .mkv b.neg{color:#c92a2a}
+  .mkv .mi{min-height:56px} .mkv .mi .f{display:flex;align-items:center;gap:6px;flex:0 0 auto} .mkv .mi i{font-style:normal;font-weight:700;color:var(--ink2)}
+  .mkv .mi input{width:128px;padding:11px 12px;text-align:right;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+  .mkv .mmo,.mdx .mmo{display:block;padding:8px 0} .mmo span{display:block;margin-bottom:6px;font-size:13px;font-weight:800;color:var(--muted)} .mmo textarea,.sheet .mta{display:block;font-size:16px;line-height:1.5;resize:vertical}
+  .merr{margin:2px 0 8px;font-size:13px;font-weight:700;color:#c92a2a;line-height:1.45}
+  .mfold{border-top:1px solid var(--fill)} .mfold summary{display:flex;align-items:center;min-height:44px;font-size:14px;font-weight:800;color:var(--ink2);cursor:pointer;list-style:none} .mfold summary::-webkit-details-marker{display:none}
+  .mnote{margin:4px 0 0;font-size:12.5px;color:var(--muted);line-height:1.45}
+  .mnm{display:flex;align-items:center;gap:8px;margin:8px 0} .mnm span{flex:0 1 44%;min-width:0;font-size:13px;font-weight:700;color:var(--ink2);overflow-wrap:anywhere} .mnm input{flex:1;min-width:0;padding:11px 12px;font-size:16px}
+  .mpt{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums} .mpt td{padding:7px 0;border-top:1px solid var(--fill);color:var(--ink2)} .mpt tr:first-child td{border-top:0}
+  .mpt td+td{padding-left:8px;text-align:right;white-space:nowrap} .mpt td:last-child{color:var(--ink);font-weight:700}
+  .madj{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px;padding:10px 0;border-top:1px solid var(--fill);font-size:14px;font-weight:700} .madj>span{min-width:0} .madj small{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+  .mstp{display:flex;align-items:center;gap:4px;flex:0 0 auto} .mstp button{width:44px;height:44px;border-radius:11px;background:var(--fill);font-size:20px;font-weight:700;color:var(--ink)} .mstp button:active{transform:scale(.92)}
+  .mstp input{width:60px;padding:10px 2px;text-align:center;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+  .mtot{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0 0;border-top:1px solid var(--line);font-size:15px;font-weight:800} .mtot b{font-size:18px;font-variant-numeric:tabular-nums}
+  .mday{padding:12px 0;border-top:1px solid var(--fill);min-height:56px} .card h3+.mday{border-top:0}
+  .mdh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:15px} .mdh b{font-weight:800} .mdh span{font-weight:800;font-variant-numeric:tabular-nums}
+  .mchips{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:6px} .mchips em{font-style:normal;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--fill);color:var(--ink2)} .mchips em.x{color:var(--muted)}
+  .mcut{display:inline-flex;align-items:center;min-height:44px;margin-top:6px;padding:0 12px;border-radius:10px;background:#fdecec;color:#c92a2a;font-size:13px;font-weight:800}
+  .mfld{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:14px;font-weight:700} .mfld>span{flex:1;min-width:0} .mfld small{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+  .mback{margin-top:6px} .mday .edit{margin-right:6px}
+  .mmemo{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;margin-top:8px;padding:0 12px;border-radius:10px;background:var(--fill);font-size:13.5px;color:var(--ink2);text-align:left}
+  .mmemo b{flex:0 0 auto} .mmemo span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mnav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 6px;padding:4px;border-radius:999px;background:#fff}
+  .mnav button{width:44px;height:44px;border-radius:50%;font-size:22px;font-weight:700;color:var(--ink)} .mnav button:disabled{color:var(--line2)} .mnav b{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+  .mdsum{margin:0 6px 12px}
+  .mdr{padding:12px 0;border-top:1px solid var(--fill)} .mdr:first-child{border-top:0}
+  .mdn{display:flex;align-items:center;gap:8px;font-size:15px} .mdn b{font-weight:800;overflow-wrap:anywhere;min-width:0} .mdn em{flex:0 0 auto;font-style:normal;font-size:12px;font-weight:700;padding:1px 7px;border-radius:6px;background:var(--amber);color:var(--amber-ink)}
+  .mdl{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:14px;font-weight:700} .mdl label{flex:1 1 auto;min-width:0}
+  .mdl .mdi{flex:0 0 56px;width:56px;padding:10px 4px;text-align:center;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+  .mdl .mbs{flex:0 0 116px;margin:0} .mdl .mbs button{flex:1 1 0;min-height:44px;padding:0 4px;font-size:14px} .mdl .mbs button.on{background:var(--p);color:#fff}
+  .mdl .mbr{flex:0 0 116px;font-size:12.5px;font-weight:600;color:var(--muted);text-align:center}
+  .mfold2{display:flex;align-items:center;width:100%;min-height:44px;margin-top:4px;padding:0 2px;font-size:13.5px;font-weight:700;color:var(--ink2);text-align:left}
+  .mdx{padding:2px 0 4px}
   .swold{margin-top:12px;font-size:12.5px;font-weight:700;color:var(--danger);background:#fdecec;border-radius:10px;padding:8px 10px;line-height:1.45}
   /* 작업자 세부 */
   .wdst{margin:-6px 4px 12px;font-size:13.5px;font-weight:700} .wdst.ok{color:var(--green-ink)} .wdst.un{color:#b45309} .wdst.ld{color:var(--muted)}
@@ -1110,7 +1176,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.57';
+var APP_VER = '10.58';
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -1487,7 +1553,7 @@ function isOut(t){ return t['구분']==='출고'; }
 
 /* ================= 네비게이션 ================= */
 var stack=[]; var animating=false; var VIEWS={};
-var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',pushadmin:'me',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',eggs:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',search:'search',
+var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:'extras',report:'extras',sw_work:'extras',sw_wd:'extras',sw_sum:'extras',sw_mblk:'extras',sw_mday:'extras',sw_workers:'extras',sw_qr:'extras',sw_cam:'extras',sw_gallery:'extras',pushadmin:'me',me:'me',codes:'me',perms:'me',perm_person:'me',vehicles:'me',eggs:'me',custdev:'search',stockmatch:'home',tag:'home',register:'home',scan:'home',search:'search',
   rp_new:'',rp_mine:'',rp_rec:'',rp_stmt:'',rp_office:'extras',rp_stock:'extras',rp_clients:'extras',rp_items:'extras'};   // v10.52 수리 ERP 화면 · '' = 홈·추가기능 둘 다에서 열림 → 연 자리 탭을 따름 · v10.56 작업보고 알림 = 환경설정 탭 · 속도 기록 없앰 · 수리항목(rp_items) = 추가기능
 function curTab(){ for(var i=stack.length-1;i>=0;i--){ var t=TAB_OF[stack[i].name]; if(t!=='') return t||'home'; } return 'home'; }   // 아래 탭 불: 맨 위 화면 ('' 면 그 밑 화면 · 표에 없으면 예전처럼 홈)
 /* ---- 권한: 마스터(모든 기능 · 접속 코드 관리) / 관리자(접속 코드 관리 빼고 전부) / 일반(추가기능은 관리자가 켜고 끔 → 꺼진 건 자물쇠) ---- */
@@ -1497,7 +1563,7 @@ function can(k){ if(!k) return true; if(!AUTH) return false; if(AUTH.admin) retu
 /* 화면 → 필요한 권한 (사진·갤러리는 지금 서버 기준) */
 function viewPerm(name,params){ params=params||{};
   if(name==='report') return SERVER+'.report';   // 업무보고: SWAP·SWING 둘 다 (v10.31)
-  var m={labels:'swap.labels',stocksync:'swap.stocksync',sw_work:'swing.sw_work',sw_wd:'swing.sw_work',sw_sum:'swing.sw_sum',sw_qr:'swing.sw_qr'};
+  var m={labels:'swap.labels',stocksync:'swap.stocksync',sw_work:'swing.sw_work',sw_wd:'swing.sw_work',sw_sum:'swing.sw_sum',sw_mblk:'swing.sw_sum',sw_mday:'swing.sw_sum',sw_qr:'swing.sw_qr'};   // v10.58 작업현황 블록·날짜별 = 작업현황 권한
   if(m[name]) return m[name];
   if(name==='sw_cam') return SERVER+'.'+(params.kind==='battery'?'battery':'vehicle');
   if(name==='sw_gallery') return SERVER+'.gallery';
@@ -1542,10 +1608,11 @@ function flowNow(){ var v=stack[stack.length-1]; return !!(v&&FLOW_V[v.name]&&st
 function viewDirty(v){ if(!v||v._leaveOk||!v.state) return false; var s=v.state;
   if(v.name==='rp_new') return !s.sent&&!!s.dirty&&(!!v.params.edit||!!v.params.out||(s.sel||[]).length>0||!!String(s.memo||'').trim());   // 고른 항목·특이사항 (고치기·못 보낸 기록 고치기 = 바꾼 게 있으면)
   if(v.name==='register') return (typeof s.step==='number'&&s.step>=3)||!!String(s.acc||'').trim()||!!String(s.note||'').trim();   // 일련번호 단계부터 (작업·구분을 고른 뒤 적는 중) · 적어 둔 액세서리·특이사항
+  if(v.name==='sw_mblk'||v.name==='sw_mday') return !s.saving&&swmEdCount(v)>0;   // v10.58 작업현황 블록·날짜별: 저장 안 한 칸
   return false; }
 var LEAVE={go:null,v:null};
 function leaveAsk(go){ var v=stack[stack.length-1]; if(!viewDirty(v)||sheetOpen) return false; haptic([10,40,10]); LEAVE.go=go; LEAVE.v=v;
-  openSheet('<h3>입력한 내용을 버릴까요?</h3><p>지금 나가면 '+(v.name==='rp_new'?(v.params.edit?'고친 내용이':'고른 수리 항목과 특이사항이'):'등록하던 내용이')+' 저장되지 않아요.</p>'+
+  openSheet('<h3>입력한 내용을 버릴까요?</h3><p>지금 나가면 '+(v.name==='rp_new'?(v.params.edit?'고친 내용이':'고른 수리 항목과 특이사항이'):((v.name==='sw_mblk'||v.name==='sw_mday')?'고친 작업현황 칸이':'등록하던 내용이'))+' 저장되지 않아요.</p>'+
     '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">계속 입력</button><button class="btn sm" style="background:var(--danger)" onclick="leaveGo()">버리기</button></div>');
   return true; }
 function leaveGo(){ var v=LEAVE.v, go=LEAVE.go; LEAVE.go=null; LEAVE.v=null; if(v) v._leaveOk=true; closeSheet(function(){ if(go&&stack[stack.length-1]===v) go(); }); }
@@ -3408,8 +3475,13 @@ function swWdTile(v,t,cat,srch){ var tm=(t.d1?'익일 ':'')+t.t1+(t.t2&&(t.t2!==
   var small=srch?'<small>'+esc(swWdTabsText(t))+'</small>':((cat==='check'||cat==='off'||res)?'<small>'+esc(catName)+'</small>':(t.n?'<small>'+esc(t.n)+'</small>':''));
   // v10.55 3-5 타일 = ① QR 16px ② '교체 96%' (그 작업 뒤 잰 값 · 예전 '🔋 96%' 이름 없음) ③ '● 지금 64% · 온라인' (다시 확인했을 때만 · 초록·빨강 점 · 예전 '지금 온라인 64%')
   var lv=(v.state.live||{})[t.i], live=lv?'<em class="lv'+(lv.on==='N'?' no':(lv.on==='Y'?'':' unk'))+'"><i></i>지금 '+(lv.b!==null&&lv.b!==undefined?esc(lv.b)+'% · ':'')+(lv.on==='Y'?'온라인':(lv.on==='N'?'오프라인':'?'))+(lv.st?'<span> · '+esc(lv.st)+'</span>':'')+'</em>':'';   // 다시 확인 결과 (보여주기만)
-  return '<div class="'+cls.slice(1)+'" data-i="'+esc(t.i||'')+'" onclick="swQrTap(this)" role="button" tabindex="0"'+(t.n?' title="'+esc(t.n)+'"':'')+'><b'+(/^\d{12,}$/.test(t.q)?' class="im"':'')+'>'+esc(t.q)+'</b><i>'+esc(tm)+((v.state.model==='all'||srch)&&t.m?' · '+esc(t.m):'')+'</i>'+
+  return '<div class="'+cls.slice(1)+'" data-i="'+esc(t.i||'')+'" onclick="swQrTap(this)" role="button" tabindex="0"'+(t.n?' title="'+esc(t.n)+'"':'')+'><b'+(/^\d{12,}$/.test(t.q)?' class="im"':'')+'>'+esc(t.q)+'</b><i>'+esc(tm)+((v.state.model==='all'||srch)&&t.m?' · '+esc(t.m):'')+swBrTag(t)+'</i>'+   // v10.58 F-6 기기 지점 딱지 (시간·기종 뒤)
     (t.b!==null&&t.b!==undefined?'<em class="bt">'+swBatLb(t)+' '+esc(t.b)+'%</em>':'')+badge+(t._sv?'<em class="sv">저장 중</em>':'')+live+small+'</div>'; }
+/* v10.58 F-6 (주인 9번): QR 카드 기기 지점 = 서버 t.a ('HN'|'SW' · 정산 지점과 같은 값 · swingWorkDay·판정 답·미리받기) → 없으면 (구글 길·옛 캐시) 폰 기기 목록 swIxGet().account → 그래도 없으면 '지점?' */
+function swTaskBr(t){ if(!t) return ''; if(t.a==='HN'||t.a==='SW') return t.a; var x=null; try{ x=swIxGet(String(t.q||'').trim().toUpperCase())||(t.i?swIxGet(String(t.i)):null); }catch(e){} var a=x&&x.account; return a==='향남'?'HN':(a==='수원'?'SW':''); }
+function swBrName(b){ return b==='SW'?'수원':(b==='HN'?'향남':''); }
+function swBrTag(t){ var b=swTaskBr(t); return '<u class="brt '+(b==='HN'?'bhn':(b==='SW'?'bsw':'bno'))+'">'+(swBrName(b)||'지점?')+'</u>'; }   // 딱지 이름 bhn·bsw·bno (설계 hn·sw·no → .sw = 켜고 끄는 스위치 CSS 와 부딪혀 b 를 붙임)
+function swAcctBr(w){ return (w&&String(w.branch||'').trim()==='수원')?'SW':'HN'; }   // v10.58 작업자 계정 지점 (서버 brOf 와 같음: '수원' → SW · 그 밖 HN)
 /* v10.55 3-5 타일 ② 배터리 값 이름 = 그 작업 뒤에 잰 값 (배터리 교체·교체 후 재배치 = 교체 · 재배치 · 배치) */
 function swBatLb(t){ var c=t&&t.c; return (c==='swap'||c==='swapRe')?'교체':(c==='re'?'재배치':(c==='place'?'배치':'작업 뒤')); }
 /* 그 기기가 있는 탭: 판정해서 옮겼으면 고장수거·작업 불량, 60% 미만 판정 전이면 확인필요, 아니면 분류 (+ 오프라인 확인) */
@@ -3450,30 +3522,36 @@ function swWdNote(val){ var v=swWdView(); if(v) v.state.note=val; }
 var SW_EX={i9:{label:'I9',f:[['s','I9 교체'],['c','I9 민원']]},tr:{label:'타리요',f:[['s','타리요 교체'],['r','타리요 재배치']]}};
 function swWdExState(v,w){ var k=v.state.key+'|'+v.state.date, st=v.state.ex;
   if(!st||st.k!==k) st=v.state.ex={k:k,open:false,tab:'i9',g:{}};
+  var acct=swAcctBr(w);   // v10.58 F-9 지점 기본 = 저장된 값(confirmed.i9.b·tr.b) → 계정 지점
   Object.keys(SW_EX).forEach(function(gk){ var c=(w&&w.confirmed&&w.confirmed[gk])||null, base=JSON.stringify(c), g=st.g[gk];
-    if(!g||(!g.dirty&&g.base!==base)){ g=st.g[gk]={base:base,dirty:false}; SW_EX[gk].f.forEach(function(f){ g[f[0]]=(c&&c[f[0]])||0; }); }   // 안 건드렸으면 새로 받은(다른 사람이 저장한) 값으로 다시
+    if(!g||(!g.dirty&&g.base!==base)){ g=st.g[gk]={base:base,dirty:false,b:(c&&(c.b==='HN'||c.b==='SW'))?c.b:acct}; SW_EX[gk].f.forEach(function(f){ g[f[0]]=(c&&c[f[0]])||0; }); }   // 안 건드렸으면 새로 받은(다른 사람이 저장한) 값으로 다시
     g.saved=!!(c&&SW_EX[gk].f.some(function(f){ return c[f[0]]; })); });
-  return st; }
+  st.acct=acct; return st; }
 function swWdExHas(gk,g){ return SW_EX[gk].f.some(function(f){ return g[f[0]]; }); }
-function swWdExVal(gk,g){ var o={}; SW_EX[gk].f.forEach(function(f){ o[f[0]]=g[f[0]]||0; }); return o; }
+/* v10.58 F-9: b = 고른 지점 ('HN'|'SW') · 계정 지점과 같으면 안 넣음 (옛 서버·구글 길은 b 를 모름 → 계정 지점 · 해 없음) */
+function swWdExVal(gk,g,acct){ var o={}; SW_EX[gk].f.forEach(function(f){ o[f[0]]=g[f[0]]||0; }); if((g.b==='HN'||g.b==='SW')&&g.b!==(acct||'HN')) o.b=g.b; return o; }
 /* 서버로 보낼 값(그룹마다) */
-function swWdExPayload(v,gk){ var g=swWdExState(v,swWdWorker(v)).g[gk]; if(!g.dirty) return null; return (swWdExHas(gk,g)||g.saved)?swWdExVal(gk,g):null; }
+function swWdExPayload(v,gk){ var st=swWdExState(v,swWdWorker(v)), g=st.g[gk]; if(!g.dirty) return null; return (swWdExHas(gk,g)||g.saved)?swWdExVal(gk,g,st.acct):null; }
 /* 화면에 보이는(= 복사·슬랙에 들어갈) 값 */
-function swWdExShown(v,gk){ var g=swWdExState(v,swWdWorker(v)).g[gk]; return swWdExHas(gk,g)?swWdExVal(gk,g):null; }
-/* 서버 swwI9Lines_·swwTrLines_ 와 같게: ['I9 작업','I9 교체 2','I9 민원 1'] (다 0 이면 []) */
-function swWdExLines(gk,val){ if(!val||!SW_EX[gk].f.some(function(f){ return val[f[0]]; })) return []; var o=[SW_EX[gk].label+' 작업']; SW_EX[gk].f.forEach(function(f){ if(val[f[0]]) o.push(f[1]+' '+val[f[0]]); }); return o; }
-function swWdExSummary(v,w){ var st=swWdExState(v,w), a=[]; Object.keys(SW_EX).forEach(function(gk){ a=a.concat(swWdExLines(gk,swWdExHas(gk,st.g[gk])?swWdExVal(gk,st.g[gk]):null).slice(1)); }); return a; }
+function swWdExShown(v,gk){ var st=swWdExState(v,swWdWorker(v)), g=st.g[gk]; return swWdExHas(gk,g)?swWdExVal(gk,g,st.acct):null; }
+/* 서버 swwI9Lines_·swwTrLines_ 와 같게: ['I9 작업','I9 교체 2','I9 민원 1'] (다 0 이면 []) · v10.58 F-9 계정 지점과 다른 지점이면 'I9 작업 (수원)' (서버 슬랙 글과 같게) */
+function swWdExLines(gk,val){ if(!val||!SW_EX[gk].f.some(function(f){ return val[f[0]]; })) return []; var o=[SW_EX[gk].label+' 작업'+(val.b?' ('+swBrName(val.b)+')':'')]; SW_EX[gk].f.forEach(function(f){ if(val[f[0]]) o.push(f[1]+' '+val[f[0]]); }); return o; }
+function swWdExSummary(v,w){ var st=swWdExState(v,w), a=[]; Object.keys(SW_EX).forEach(function(gk){ a=a.concat(swWdExLines(gk,swWdExHas(gk,st.g[gk])?swWdExVal(gk,st.g[gk],st.acct):null).slice(1)); }); return a; }
 function swWdExHtml(v,w){ var st=swWdExState(v,w), sum=swWdExSummary(v,w), g=st.g[st.tab];
   var h='<div class="card i9card" id="wd_i9"><button type="button" class="exbtn'+(st.open?' on':'')+'" data-f="ex" aria-expanded="'+st.open+'" onclick="swWdExOpen()">'+
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><b>추가작업</b><small>'+(sum.length?esc(sum.join(' · ')):'I9 · 타리요 대수')+'</small><i>'+(st.open?'▴':'▾')+'</i></button>';
-  if(st.open){ h+='<div class="i9bub"><div class="exseg" role="tablist">'+Object.keys(SW_EX).map(function(gk){ var on=st.tab===gk, has=swWdExHas(gk,st.g[gk]);
-      return '<button type="button" role="tab" data-f="tab-'+gk+'" aria-selected="'+on+'" class="'+(on?'on':'')+'" onclick="swWdExTab(\''+gk+'\')">'+SW_EX[gk].label+(has?'<i></i>':'')+'</button>'; }).join('')+'</div>'+
+  if(st.open){ h+='<div class="i9bub"><div class="exseg" role="tablist">'+Object.keys(SW_EX).map(function(gk){ var on=st.tab===gk, has=swWdExHas(gk,st.g[gk]), ob=st.g[gk].b!==st.acct;
+      return '<button type="button" role="tab" data-f="tab-'+gk+'" aria-selected="'+on+'" class="'+(on?'on':'')+'" onclick="swWdExTab(\''+gk+'\')">'+SW_EX[gk].label+(ob?'<em> · '+swBrName(st.g[gk].b)+'</em>':'')+(has?'<i></i>':'')+'</button>'; }).join('')+'</div>'+   // v10.58 F-9 계정 지점과 다르면 탭 이름 옆 '· 수원'
+    '<div class="exbr"><span>지점</span><div class="seg" role="group" aria-label="'+SW_EX[st.tab].label+' 작업 지점">'+['HN','SW'].map(function(b){ var on=g.b===b;   // v10.58 F-9 (주인 5번): 이 작업을 한 지점 = 정산 지점 (기본 = 계정 지점)
+      return '<button type="button" data-f="br-'+b+'" aria-pressed="'+on+'" class="'+(on?'on':'')+'" onclick="swWdExBr(\''+b+'\')">'+swBrName(b)+'</button>'; }).join('')+'</div></div>'+
     SW_EX[st.tab].f.map(function(x){ var n=g[x[0]]||0, df=st.tab+'-'+x[0];
       return '<div class="i9row"><span>'+x[1]+'</span><div class="stp">'+
         '<button type="button" data-f="'+df+'-" aria-label="'+x[1]+' 하나 빼기" onclick="swWdExStep(\''+x[0]+'\',-1)"'+(n?'':' disabled')+'>−</button><b aria-live="polite" aria-label="'+x[1]+' '+n+'대">'+n+'</b>'+
         '<button type="button" data-f="'+df+'+" aria-label="'+x[1]+' 하나 더하기" onclick="swWdExStep(\''+x[0]+'\',1)"'+(n>=99?' disabled':'')+'>+</button></div></div>'; }).join('')+
-    '<p>'+(st.tab==='i9'?'보내거나 복사하면 작업현황 <b>I9 교체</b>(앱이 센 수에 더해)·<b>I9 민원</b>(이 숫자로) 칸에 들어가요.':'보내거나 복사하면 작업현황 <b>타리요 탭</b>에 들어가요 (교체 ×0.7 · 재배치 ×1.3, 합본 포인트 합계에도).')+'</p></div>'; }
+    '<p>'+(st.tab==='i9'?'보내거나 복사하면 작업현황 <b>I9 교체</b>(앱이 센 수에 더해)·<b>I9 민원</b>(이 숫자로) 칸에 들어가요.':'보내거나 복사하면 작업현황 <b>타리요 탭</b>에 들어가요 (교체 ×0.7 · 재배치 ×1.3, 합본 포인트 합계에도).')+' 지점 = 정산이 들어갈 곳 (일한 지점 · 기본 = 계정 지점).</p></div>'; }
   return h+'</div>'; }
+/* v10.58 F-9 지점 고르기 (I9·타리요 탭마다 · 바꾸면 보낼 값에 b) */
+function swWdExBr(b){ var v=swWdView(); if(!v||swSnapStop(v)||(b!=='HN'&&b!=='SW')) return; var st=swWdExState(v,swWdWorker(v)), g=st.g[st.tab]; if(g.b===b) return; g.b=b; g.dirty=true; haptic(4); swWdExRedraw(v); }
 function swWdExRedraw(v){ var el=v.el.querySelector('#wd_i9'), w=swWdWorker(v); if(!el||!w) return;
   var a=document.activeElement, f=(a&&el.contains(a)&&a.getAttribute('data-f'))||'';   // 누르던 칸에 포커스를 다시 (키보드·화면 읽기)
   el.outerHTML=swWdExHtml(v,w);
@@ -3526,7 +3604,7 @@ function swQrTap(el){ var v=swWdView(); if(!v) return; var id=el.getAttribute('d
   var sub=[t.m, t.off&&!swOffDone(t)?'오프라인 · '+SW_OFF_TXT[t.off]:'', t.j?SW_JUDGE[t.j]+(t.jb?' ('+t.jb+')':''):''].filter(Boolean).map(esc).join(' · ');
   // v10.55 8-2 판정 버튼이 위 (예전: 맨 위 흰 채움 '어드민 열기' = 밖으로 나가기가 제일 눈에 띔) · '어드민 열기'는 맨 아래 작은 글자 링크 (누르는 칸 44px · 같은 새 탭 · 같은 swQrAdmin)
   var adm=im?'<a class="abad lk" href="'+esc(SW_ADMIN+im)+'" target="_blank" rel="noopener" onclick="swQrAdmin()">어드민 열기 ›</a>':'<div class="abno lk">IMEI 를 몰라 어드민을 못 열어요</div>';
-  var h='<div class="abh">'+esc(t.q)+(sub?' · '+sub:'')+'</div>';
+  var bn=swBrName(swTaskBr(t)), h='<div class="abh">'+esc(t.q)+(sub?' · '+sub:'')+(bn?' · '+bn+' 기기':'')+'</div>';   // v10.58 F-6 말풍선 머리에도 기기 지점 (모르면 안 붙임)
   if(t.rc) h+='<div class="abn warn">배치(재배치)한 뒤에 다시 재배치수거를 찍어서 수거됨(배치 없음)으로 왔어요 · 고장수거면 <b>고장수거</b>를 골라 주세요</div>';   // v10.33
   if(t.cg) h+='<div class="abn warn">배터리 교체만 찍고 수거는 안 찍었는데 창고에 들어왔어요 · 수거대상 '+(t.cg.wn?'익일 ':'')+esc(t.cg.w)+' → 창고 '+(t.cg.cn?'익일 ':'')+esc(t.cg.c)+
     (t.cg.a?'<br>그래서 <b>고장수거</b>로 자동 처리했어요 (정산 수거 +1)':'')+(t.cm?'<br>어드민 기기 코멘트 남김 ('+esc(String(t.cm).slice(5))+')':(t.j==='broken'?'<br>어드민 기기 코멘트는 15분 안에 남겨요':''))+'</div>';   // v10.21
@@ -3730,34 +3808,36 @@ function swWdSendGo(){ var v=swWdView(); if(!v||v.state.sending||swSnapStop(v)||
       if(/응답 없음|네트워크/.test(msg)) openSheet('<h3>응답이 늦어요</h3><p>서버에서는 보내졌을 수도 있어요. <b>슬랙 채널에 이미 올라왔는지 먼저 확인</b>한 뒤, 없으면 다시 보내 주세요.</p><button class="btn" onclick="closeSheet()">확인</button>');   // 다시 눌러 두 번 가는 것 방지
       else toast('전송 실패: '+msg); }); }
 
-/* ---- 작업현황 (추가기능 · v10.56 이름 '작업 현황정리' → '작업현황'): 달을 골라 사무실 양식 엑셀 받기 ---- */
+/* ---- 작업현황 (추가기능 · v10.56 이름 '작업 현황정리' → '작업현황'): 달을 골라 사무실 양식 엑셀 받기 ----
+   v10.58 F-1·F-7: 들어가면 새 서버 swmInfo 먼저 (D1 작업현황 · 아래 'v10.58 작업현황 (D1)') → 답이 legacy:true 거나 오류 글이 '허용되지 않은 요청' (Worker 0.7.0) 일 때만
+   이 아래 예전 화면 (swSumLoadOld·swSumDrawOld·swSumXlsxOld… = v10.57 그대로 · 이름만 바꿈 · run('swingWorkMonthInfo')) */
 VIEWS.sw_sum={ render:function(v){ reanim(v); v.state.ym=v.state.ym||todayISO(0).slice(0,7); v.refresh=function(){ return swSumLoad(v); };
-  v.el.innerHTML=title('작업현황','달마다 · 확인한 작업자 기준')+spin(); swSumLoad(v); }};
+  v.el.innerHTML=title('작업현황','달마다 · 확인한 날 기준')+spin(); swSumLoad(v); }};
 function swSumView(){ var v=stack[stack.length-1]; return (v&&v.name==='sw_sum')?v:null; }
-function swSumLoad(v){ var ym=v.state.ym, tok=v.state.tok=(v.state.tok||0)+1;
+function swSumLoadOld(v){ var ym=v.state.ym, tok=v.state.tok=(v.state.tok||0)+1;
   function fail(e){ if(stack.indexOf(v)<0||v.state.tok!==tok) return;
-    if(v.state.info&&v.state.info.months){ v.state.err=e; swSumDraw(v); }   // 달 버튼은 그대로 두고 카드 안에 오류
-    else v.el.innerHTML=title('작업현황','')+errBox(e)+'<button class="btn line" onclick="swSumRetry()">다시 시도</button>'; }
+    if(v.state.info&&v.state.info.months){ v.state.err=e; swSumDrawOld(v); }   // 달 버튼은 그대로 두고 카드 안에 오류
+    else v.el.innerHTML=title('작업현황','')+errBox(e)+'<button class="btn line" onclick="swSumRetryOld()">다시 시도</button>'; }
   return run('swingWorkMonthInfo',ym).then(function(r){ if(stack.indexOf(v)<0||v.state.tok!==tok) return;
-      if(!r||r.ok===false) return fail(new Error((r&&r.error)||'오류')); v.state.err=null; v.state.info=r; swSumDraw(v);
-      clearTimeout(v.state.splitT); if(r.v2&&r.split===false&&(v.state.splitN=(v.state.splitN||0)+1)<=8) v.state.splitT=setTimeout(function(){ if(swSumView()===v&&v.state.tok===tok&&!document.hidden) swSumLoad(v); },40000); })   // v10.44 나누는 중이면 40초마다 다시 확인 (최대 8번)
+      if(!r||r.ok===false) return fail(new Error((r&&r.error)||'오류')); v.state.err=null; v.state.info=r; swSumDrawOld(v);
+      clearTimeout(v.state.splitT); if(r.v2&&r.split===false&&(v.state.splitN=(v.state.splitN||0)+1)<=8) v.state.splitT=setTimeout(function(){ if(swSumView()===v&&v.state.tok===tok&&!document.hidden) swSumLoadOld(v); },40000); })   // v10.44 나누는 중이면 40초마다 다시 확인 (최대 8번)
     .catch(fail); }
-function swSumRetry(){ var v=swSumView(); if(!v) return; v.state.err=null; if(v.state.info) swSumDraw(v); swSumLoad(v); }
+function swSumRetryOld(){ var v=swSumView(); if(!v) return; v.state.err=null; if(v.state.info) swSumDrawOld(v); swSumLoadOld(v); }
 function swYmLabel(ym){ var p=ym.split('-'); return (+p[1])+'월'+(p[0]!==todayISO(0).slice(0,4)?' '+p[0].slice(2)+'년':''); }
-function swSumGo(ym){ var v=swSumView(); if(!v||v.state.ym===ym) return; haptic(6); v.state.ym=ym; v.state.err=null;
-  if(v.state.info){ v.state.info.ym=ym; v.state.info.workers=null; v.state.info.url=''; v.state.info.left=0; swSumDraw(v); } swSumLoad(v); }
-function swSumDraw(v){ var r=v.state.info||{}, ym=v.state.ym, cur=(r.months||[]).filter(function(m){ return m.ym===ym; })[0]||{};
+function swSumGoOld(ym){ var v=swSumView(); if(!v||v.state.ym===ym) return; haptic(6); v.state.ym=ym; v.state.err=null;
+  if(v.state.info){ v.state.info.ym=ym; v.state.info.workers=null; v.state.info.url=''; v.state.info.left=0; swSumDrawOld(v); } swSumLoadOld(v); }
+function swSumDrawOld(v){ var r=v.state.info||{}, ym=v.state.ym, cur=(r.months||[]).filter(function(m){ return m.ym===ym; })[0]||{};
   var h=title('작업현황','달마다 · 확인한 작업자 기준');
   h+=tipBox('sum_keep','달마다 파일 하나 · 최대 1년 보관 · <b>백업 필수</b>','사무실 엑셀 양식 그대로 <b>달마다 파일 하나</b>로 만들어져요. <b>최대 1년</b> 보관(12달 지나면 휴지통) · <b>백업 필수</b> — 달이 끝나면 엑셀로 받아 두세요.','작업현황 보관',true);   // v10.55 3-2 · v10.56 이름 '작업현황'
-  h+='<div class="days">'+(r.months||[]).map(function(m){ return '<button class="'+(m.ym===ym?'on':'')+(m.has?'':' z')+'" onclick="swSumGo(\''+m.ym+'\')">'+swYmLabel(m.ym)+'</button>'; }).join('')+'</div>';
+  h+='<div class="days">'+(r.months||[]).map(function(m){ return '<button class="'+(m.ym===ym?'on':'')+(m.has?'':' z')+'" onclick="swSumGoOld(\''+m.ym+'\')">'+swYmLabel(m.ym)+'</button>'; }).join('')+'</div>';
   var ws=r.workers;
   h+='<div class="card"><h3>'+esc(swYmLabel(ym))+' 작업현황</h3>';
-  if(v.state.err) h+=errBox(v.state.err)+'<button class="btn line" onclick="swSumRetry()">다시 시도</button>';
+  if(v.state.err) h+=errBox(v.state.err)+'<button class="btn line" onclick="swSumRetryOld()">다시 시도</button>';
   else if(!cur.has) h+='<div class="empty" style="padding:18px 0">이 달은 아직 확인한 작업자가 없어요.<br>작업자 세부에서 슬랙 전송이나 내용 복사로 확인하면 만들어져요.</div>';
   else h+=tipBox('sum_how',(r.v2?'향남·수원 탭 · ':'')+'확인한 작업자마다 한 블록 (날짜별 개수 + 포인트)',(r.v2?'<b>향남·수원 탭</b>으로 나뉘어요 (맨 위에 지점 포인트 합계 · S9·W9·I9·타리요 배터리 쓴 개수). ':'')+'확인한 작업자마다 한 블록(날짜별 개수 + 포인트). 다시 확인하면 그 날짜의 앱이 세는 칸만 새로 써져요. 작업자 세부 <b>추가작업</b>에서 I9 를 넣은 날은 I9 교체·I9 민원도 앱이 쓰고, 타리요는 '+(r.v2?'작업자 블록의 <b>타리요 줄</b>(교체 ×0.7 · 재배치 ×1.3 포인트 포함)과 <b>타리요 탭</b>(모아 보기)에':'<b>타리요 탭</b>(교체 ×0.7 · 재배치 ×1.3, 합본 포인트 합계에도)에')+' 들어가요. 그 밖의 I9 민원·금액은 시트에서 직접 넣어 주세요.','엑셀 모양')+   // v10.55 3-2 설명 202px → 한 줄 + ⓘ (주 버튼 '엑셀로 받기'가 위로)
     (r.v2&&r.split===false&&r.ym===ym?nbar('<b>향남·수원 탭으로 나누는 중이에요</b> (보통 1~2분) — 끝나면 이 화면이 바뀌어요. 엑셀은 그 뒤에 받아 주세요.',true):'')+   // v10.44 이미 채운 달(합본)을 서버가 나누는 중 · v10.55 3-2 상태 알림 = 배너
     (r.left&&r.ym===ym?nbar('시트에 아직 안 들어간 확인 <b>'+r.left+'건</b> — 엑셀로 받을 때나 15분 안에 채워져요.'):'')+
-    '<button class="btn" onclick="swSumXlsx()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>엑셀로 받기 (.xlsx)</button>'+
+    '<button class="btn" onclick="swSumXlsxOld()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>엑셀로 받기 (.xlsx)</button>'+
     (r.url&&r.ym===ym?'<a class="btn line" style="margin-top:8px;text-decoration:none" href="'+esc(r.url)+'" target="_blank" rel="noopener">구글 시트 열기</a>':'');
   h+='</div>';
   if(cur.has&&!v.state.err){ var li=function(list){ return '<ul class="hist">'+list.map(function(x){ return '<li><span><b>'+esc(x.name)+'</b> · '+x.days+'일</span><span>마지막 '+esc(String(x.last).slice(5))+'</span></li>'; }).join('')+'</ul>'; };
@@ -3766,14 +3846,14 @@ function swSumDraw(v){ var r=v.state.info||{}, ym=v.state.ym, cur=(r.months||[])
     (grp?grp.map(function(g){ return '<div class="sec" style="margin:10px 0 4px">'+g.b+' '+g.l.length+'명</div>'+li(g.l); }).join(''):li(ws))))+'</div>'; }
   v.el.innerHTML=h; }
 /* 서버가 만든 xlsx(base64)를 파일로 내려받기 — 구글 계정 공유 없이 앱에서 바로 */
-function swSumXlsx(){ var v=swSumView(); if(!v||v.state.busy) return; var ym=v.state.ym; v.state.busy=true; haptic(10); toast('엑셀 만드는 중…');
+function swSumXlsxOld(){ var v=swSumView(); if(!v||v.state.busy) return; var ym=v.state.ym; v.state.busy=true; haptic(10); toast('엑셀 만드는 중…');
   run('swingWorkMonthXlsx',ym).then(function(r){ v.state.busy=false; $('toast').classList.remove('on');
     if(!r||!r.ok){ openSheet('<h3>엑셀을 못 만들었어요</h3><p>'+esc((r&&r.error)||'오류')+'</p>'+(r&&r.url?'<a class="btn" style="text-decoration:none" href="'+esc(r.url)+'" target="_blank" rel="noopener" onclick="closeSheet()">구글 시트 열어서 받기</a>':'<button class="btn" onclick="closeSheet()">확인</button>')); return; }
     try { var bin=atob(r.b64), arr=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
       var blob=new Blob([arr],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), url=URL.createObjectURL(blob), a=document.createElement('a');
       a.href=url; a.download=r.name||('작업현황_'+ym+'.xlsx'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(url); },30000);
       haptic([12,40,18]); toast(r.splitting?'받았어요 · 아직 향남·수원으로 나누는 중이라 이번 파일은 예전 합본이에요 — 1~2분 뒤 다시 받아 주세요':(r.left?'받았어요 · 아직 반영 중인 확인 '+r.left+'건은 15분 뒤 다시 받아 주세요':'받았어요 · '+(r.name||''))); } catch(e){ toast('저장 실패: '+e.message); }
-    if(swSumView()===v&&v.state.ym===ym) swSumLoad(v); })   // 받기 전에 빠진 칸을 채웠을 수 있으니 목록 새로
+    if(swSumView()===v&&v.state.ym===ym) swSumLoadOld(v); })   // 받기 전에 빠진 칸을 채웠을 수 있으니 목록 새로
     .catch(function(e){ v.state.busy=false; toast('엑셀 만들기 실패: '+e.message); }); }
 
 /* ================= v10.52 SWING 수리 ERP (erp/SPEC.md · 새 서버만) =================
@@ -3820,7 +3900,7 @@ function rpPermKey(f){ return !!f&&/^swing\.repair/.test(String(f.k||'')); }   /
 /* ---- 새 서버 부르기: rp* 는 늘 새 서버(fetch) · 브레이커·?api2=off 도 안 봄 (다른 길이 없음) · 서버가 api2 '' (주인 비상 스위치)면 못 씀 ---- */
 function rpUrl(){ if(!window.fetch) return ''; var s=api2Get('swapApi2Srv'), w=(s!==null)?s:(WORKER_URL||API2_ON); w=String(w||'').replace(/\/+$/,''); return API2_RE.test(w)?w:''; }
 function rpRun(fn,args,cx){ cx=cx||runCx(); var w=rpUrl();
-  if(!w){ var eo=new Error('수리 기록은 새 서버로만 보내요. 인터넷 연결을 확인하고 앱을 다시 열어 주세요.'); eo.off=true; return Promise.reject(eo); }   // off = 잠깐 못 감 (보낼 목록은 그대로 두고 다시)
+  if(!w){ var eo=new Error(/^swm/.test(String(fn))?'작업현황은 새 서버로만 봐요. 인터넷 연결을 확인하고 앱을 다시 열어 주세요.':'수리 기록은 새 서버로만 보내요. 인터넷 연결을 확인하고 앱을 다시 열어 주세요.'); eo.off=true; return Promise.reject(eo); }   // off = 잠깐 못 감 (보낼 목록은 그대로 두고 다시) · v10.58 고침: swm* = 작업현황 글
   if(!cx.rid) cx.rid=ridNew();   // 쓰기 = 다시 보낼 때도 같은 rid (서버가 한 번만 처리)
   return new Promise(function(res,rej){ var done=false, t0=Date.now(), ac=AUTH&&AUTH.code, ctl=null, ms=RP_SLOW[fn]||20000, t; try{ ctl=new AbortController(); }catch(e){}
     function fail(r,msg,k){ if(done) return; done=true; clearTimeout(t); try{ if(ctl) ctl.abort(); }catch(e){} var er=new Error(msg); er[k]=true; rej(er); }
@@ -3888,7 +3968,7 @@ function rpDockOn(on){ var d=$('rpdock'), v=stack[stack.length-1]; if(!d) return
 /* 그 화면이 다시 그릴 때: 버튼을 보일지 (입력 화면 = 기기·항목을 받아 그린 뒤 · 부품 재고 = 수량을 받은 "부품 재고" 탭) */
 function rpDockSet(v,on){ v.state.dk=!!on; if(stack[stack.length-1]===v) rpDockSync(); }
 /* v10.55 8-1 하단 고정 액션 바 — 같은 아래 자리(#rpdock)를 다른 화면도 씀 (v.dock = 'tag' · 'sw_wd' · 'report') · 한 화면 메인 액션 1개 (채운 버튼 하나) */
-function viewDockHtml(k,v){ if(k==='tag') return tagDockHtml(v); if(k==='sw_wd') return swWdDockHtml(v); if(k==='report') return reportDockHtml(v); return ''; }
+function viewDockHtml(k,v){ if(k==='tag') return tagDockHtml(v); if(k==='sw_wd') return swWdDockHtml(v); if(k==='report') return reportDockHtml(v); if(k==='sw_mblk'||k==='sw_mday') return swmEdBar(v,swmEdCount(v)); return ''; }   // v10.58 작업현황 블록·날짜별 = 고친 칸이 있을 때 [그만][저장 · N개]
 var SEND_I='<svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>', MORE_I='<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
 function moreBtn(fn,label){ return '<button type="button" class="mbtn stb" onclick="'+fn+'" aria-label="'+esc(label||'더보기')+'">'+MORE_I+'</button>'; }   // stb = 저장된 화면(잠김)에서도 눌림 (링크·새로고침은 됨)
 /* 아래 시트 메뉴: rows = [{lb, sub, fn(누르면 시트를 닫고 부를 코드) | href(새 탭), danger, off(못 누름 · sub = 이유)}] · lb·sub 는 이미 esc 한 글 */
@@ -4652,6 +4732,477 @@ function rpiSave(act){ var v=rpiV(); if(!v) return; var s=v.state, f=s.f, ed=!!f
       if(stack.indexOf(v)>=0) rpiDraw(v); },
     function(e){ s.busy=false; if(!rpSoft(e)){ s.cx=null; s.cxB=''; } if(rpTop('rp_items')===v) rpiBusy(v); toast(e.message); }); }
 /* ================= v10.52 SWING 수리 ERP 끝 ================= */
+/* ================= v10.58 작업현황 (D1) =================
+   design/MONTH-WORKER.md F-1~F-4·F-7·F-8 · 서버 0.8.0 swmInfo·swmBlock·swmDay·swmSet·swmXlsx (D-2 답 모양) — rpRun (새 서버만 · 구글 길 없음)
+   화면: 작업현황 (swmDraw · 정산 카드·합본/향남/수원 목록) → 사람 시트 (F-2 · 감점·공제·메모·합본 이름) · 블록 화면 (F-3 · sw_mblk) · 날짜별 한꺼번에 (F-3b · sw_mday) · 탭 메모 (F-4)
+   금액·입력은 서버가 준 can (money·edit) 대로 · ro (비상·정리 중) = 보기만 · 그림자 (미리 보기) = 입력 없음
+   숫자: 포인트 = 0.1포인트 정수 (p10) · 돈 = 원 정수 · 정산금 식 = 서버 pay.js 와 같음 (사람 시트에서 넣는 대로 다시 셈 · 저장 뒤엔 서버 값)
+   이 폰에 남기는 것 없음 (이름·금액은 화면 상태에만) */
+var SWM_K=(3000000/2020-1100)/2020, SWM_U800=1100+SWM_K*800;   // B-7 별첨 상수 (800 아래 = 800포인트 단가)
+var SWM_ROWS=['','S9 교체','W9 교체','수거','S9 재배치','S9 교체 후 재배치','S9 배치','W9 재배치','W9 교체 후 재배치','W9 배치','I9 교체','I9 민원','타리요 교체','타리요 재배치','합계','교체 후 수거','교체오류'];   // 블록 줄 0~16 (B-4)
+var SWM_OFF={i9c:'I9 민원',i9s:'I9 교체 추가',trs:'타리요 교체',trr:'타리요 재배치'};   // 사무실 덮어쓰기 칸 (A-4)
+var SWM_RI={i9s:10,i9c:11,trs:12,trr:13};   // 그 칸이 들어가는 블록 줄
+RP_SLOW.swmXlsx=45000; RP_SLOW.swmSet=30000; RP_SLOW.swmDay=30000; RP_SLOW.swmInfo=25000;
+function swmP(p10){ var n=Math.round(Number(p10)||0), s=n<0?'-':''; n=Math.abs(n); return s+rpWon(Math.floor(n/10))+'.'+(n%10); }   // 0.1포인트 정수 → '1,234.5'
+function swmW(n){ n=Math.round(Number(n)||0); return (n<0?'-':'')+rpWon(Math.abs(n)); }   // 원 → '1,234' (음수 그대로)
+function swmPct(r){ return (Math.round((Number(r)||0)*1000)/10).toFixed(1)+'%'; }
+function swmHM(ms){ if(!ms) return ''; var d=new Date(Number(ms)); return pad2(d.getHours())+':'+pad2(d.getMinutes()); }
+function swmDayNavLb(d){ var p=String(d||'').split('-'); if(p.length!==3) return esc(d); return (+p[1])+'/'+pad2(+p[2])+' ('+'일월화수목금토'[new Date(+p[0],+p[1]-1,+p[2],12).getDay()]+')'; }
+function swmCurYm(ym){ return ym===todayISO(0).slice(0,7); }
+function swmDays(ym){ var p=String(ym).split('-'); return new Date(+p[0],+p[1],0).getDate(); }
+function swmDayLb(d){ var p=String(d||'').split('-'); if(p.length!==3) return esc(d); return (+p[1])+'/'+pad2(+p[2])+' '+'일월화수목금토'[new Date(+p[0],+p[1]-1,+p[2],12).getDay()]; }
+function swmNum(o){ return (o&&o.num!=null&&o.num!=='')?Number(o.num):null; }   // 사무실 칸 {num,ver} → 숫자 | null (지운 칸 = num null · ver 는 남음)
+function swmVer(o){ return (o&&o.ver)?Number(o.ver)||0:0; }
+/* 정산금 (B-7 · 서버 pay.js payOf 와 같은 식): 정산 대상 q10 → 정산 포인트 pf · 정산금 pay (원 미만 반올림) */
+function swmPayOf(q10){ q10=Math.round(Number(q10)||0); var pf;
+  if(q10<=0) return {pf:0,pay:0};
+  if(q10<200){ pf=q10/10; return {pf:pf,pay:Math.round(pf*SWM_U800)}; }   // 20 미만 = 그 포인트 × 800포인트 단가
+  if(q10<500) return {pf:20,pay:Math.round(20*SWM_U800)};                 // 20~49.9 = 20칸
+  pf=Math.floor(q10/500)*50;                                                // 50 단위 버림
+  return {pf:pf,pay:Math.round(pf<800?pf*SWM_U800:pf*(1100+SWM_K*Math.min(pf,2700)))}; }
+/* B-8 몫: 비율 = 기기 포인트 (감점 안 넣음 · 음수는 0) · 향남 = 반올림 · 수원 = 나머지 (두 몫 합 = 정산금) */
+function swmShareOf(pay,hn10,sw10){ var h=Math.max(Number(hn10)||0,0)/10, s=Math.max(Number(sw10)||0,0)/10, r=(h+s)===0?0:h/(h+s), hn=Math.round(pay*r); return {rateHn:r,hn:hn,sw:pay-hn}; }
+function swmPersonPay(hn10,sw10,pen10){ var q10=Math.max((Number(hn10)||0)+(Number(sw10)||0)-(Number(pen10)||0),0), p=swmPayOf(q10), sh=swmShareOf(p.pay,hn10,sw10);
+  return {q10:q10,pf:p.pf,pay:p.pay,rateHn:sh.rateHn,hn:sh.hn,sw:sh.sw}; }
+function swmPfTxt(pf){ return (pf%1)?(Math.round(pf*10)/10).toFixed(1):rpWon(pf); }   // 정산 포인트 (20 미만은 소수 1자리)
+
+/* ---- 불러오기 (F-7: legacy · '허용되지 않은 요청' = 예전 화면 · 그 밖의 실패 = 오류 + 다시 시도 · 구글로 안 감) ---- */
+function swSumLoad(v,auto){ var ym=v.state.ym, tok=v.state.tok=(v.state.tok||0)+1;
+  clearTimeout(v.state.splitT); clearTimeout(v.state.leftT); if(!auto) v.state.leftN=0;
+  function bad(e){ if(stack.indexOf(v)<0||v.state.tok!==tok) return; v.state.mode='d1'; v.state.err=e; swmDraw(v); }
+  return rpRun('swmInfo',[ym]).then(function(r){ if(stack.indexOf(v)<0||v.state.tok!==tok) return;
+      if(r&&r.legacy){ v.state.mode='legacy'; v.state.err=null; return swSumLoadOld(v); }   // 스위치 꺼짐 (그림자 땐 관리자 말고) = 예전 구글 작업현황 그대로
+      if(!r||r.ok===false) return bad(new Error((r&&r.error)||'오류'));
+      v.state.mode='d1'; v.state.err=null; if(r.ym) v.state.ym=r.ym; v.state.mi=r; swmDraw(v); swmLeftPoll(v,tok); })
+    .catch(function(e){ if(stack.indexOf(v)<0||v.state.tok!==tok) return;
+      if(/^허용되지 않은 요청/.test(String(e&&e.message||''))){ v.state.mode='legacy'; v.state.err=null; return swSumLoadOld(v); }   // Worker 0.7.0 (swm* 를 모름) = 예전 길
+      if(e&&e.auth===false) return;
+      bad(e); }); }
+/* 계산 기다리는 확인이 있으면 5초 뒤 한 번 다시 (F-1 · 시트가 떠 있으면 안 함) */
+function swmLeftPoll(v,tok){ var r=v.state.mi; if(!r||!r.left||v.state.leftN) return; v.state.leftN=1;
+  v.state.leftT=setTimeout(function(){ if(swSumView()===v&&v.state.tok===tok&&!document.hidden&&!sheetOpen) swSumLoad(v,true); },5000); }
+function swSumRetry(){ var v=swSumView(); if(!v) return; haptic(6); v.state.err=null; if(v.state.mi) swmDraw(v,true); else v.el.innerHTML=title('작업현황','달마다 · 확인한 날 기준')+spin(); swSumLoad(v); }
+function swSumGo(ym){ var v=swSumView(); if(!v||v.state.ym===ym) return; haptic(6); v.state.ym=ym; v.state.err=null; swmDraw(v,true); swSumLoad(v); }
+
+/* ---- 그리기 ---- */
+function swmCan(r){ var c=(r&&r.can)||{}; return {money:!!c.money,edit:!!c.edit&&!(r&&r.ro)&&!(r&&r.shadow)}; }
+function swmDraw(v,loading){ var r=v.state.mi||{}, ym=v.state.ym, e=v.state.err, cn=swmCan(r), ro=r.ro||null;
+  var h=title('작업현황','달마다 · 확인한 날 기준');
+  h+=tipBox('swm_keep','1년 보관 · 백업 필수 (달이 끝나면 엑셀로 받아 두세요)','작업현황은 새 서버에 달마다 <b>최대 1년</b> 보관돼요 (그 뒤엔 지워져요) · <b>백업 필수</b> — 달이 끝나면 엑셀로 받아 두세요.','작업현황 보관',true);
+  h+=swmMonths(r,ym);
+  if(e){ h+=errBox(e)+'<button class="btn line" onclick="swSumRetry()">다시 시도</button>'; v.el.innerHTML=h; return; }
+  if(loading||r.ym!==ym){ v.el.innerHTML=h+spin(); return; }   // 다른 달을 받는 중
+  if(r.d1===false){ h+='<div class="card"><h3>'+esc(swYmLabel(ym))+' 작업현황</h3><div class="empty" style="padding:14px 0">이 달은 예전 구글 파일이에요.</div>'+   // F-1 9월 이전 달 = 구글 파일 링크만
+      (r.url?'<a class="btn" style="text-decoration:none" href="'+esc(r.url)+'" target="_blank" rel="noopener">구글 시트 열기</a>':'<p class="muted" style="margin:0;text-align:center">이 달 구글 파일이 없어요.</p>')+'</div>';
+    v.el.innerHTML=h; return; }
+  if(ro) h+=nbar(ro.why==='freeze'?'잠깐 서버 정리 중이에요 — 1~2분 뒤 입력돼요':'비상 중이라 보기만 돼요'+(ro.at?' · '+esc(swmHM(ro.at))+' 기준':''),true);
+  if(r.shadow) h+=nbar('<b>미리 보기</b> — 아직 구글 파일이 원본이에요');
+  h+=swmSumCard(r,cn);
+  h+=tipBox('swm_xlsx','엑셀은 받을 때마다 새로 만들어요 · 엑셀에서 고친 값은 안 남아요 · 사무실 값은 여기서 넣어 주세요','엑셀은 받을 때마다 지금 값으로 <b>새로</b> 만들어요. 엑셀에서 고친 값은 서버에 안 남아요 — I9 민원·타리요·감점·공제·메모 같은 <b>사무실 값은 이 화면에서</b> 넣어 주세요 (합본 사람 · 블록 · 날짜별 입력).','작업현황 엑셀');
+  var w=r.warn||{};
+  if(r.left) h+=nbar('계산 중 확인 <b>'+Number(r.left)+'건</b> — 잠시 뒤 바뀌어요');
+  if(w.guess) h+=nbar('기기 지점을 못 찾은 작업 <b>'+Number(w.guess)+'건</b> → 계정 지점으로',true);
+  if((w.same||[]).length) h+=nbar(swmSameTxt(r),true);
+  if(w.err) h+=nbar('계산 안 되는 확인 <b>'+Number(w.err)+'건</b> — 관리자에게 알려 주세요',true);
+  if((w.noname||[]).length) h+=nbar('이름 없는 계정 <b>'+w.noname.length+'개</b> — 가린 아이디로 보이고 따로 정산해요 · 작업자 관리에서 이름을 넣어 주세요',true);   // v10.58 고침 (서버 0.8.0 warn.noname)
+  var tab=v.state.tab||'P', ps=r.persons||[], bl=r.blocks||{};
+  h+='<div class="seg mtab" role="tablist">'+[['P','합본',ps.length],['HN','향남',(bl.HN||[]).length],['SW','수원',(bl.SW||[]).length]].map(function(t){
+    return '<button type="button" role="tab" aria-selected="'+(tab===t[0])+'" class="'+(tab===t[0]?'on':'')+'" onclick="swmTab(\''+t[0]+'\')">'+t[1]+' <b>'+t[2]+'</b></button>'; }).join('')+'</div>';
+  h+=tab==='P'?swmPersonList(r,cn):swmBlockList(r,tab,cn);
+  v.el.innerHTML=h; }
+function swmMonths(r,ym){ var ms=r.months||[]; if(!ms.length) return '';
+  return '<div class="days">'+ms.map(function(m){ return '<button class="'+(m.ym===ym?'on':'')+(m.has?'':' z')+'" onclick="swSumGo(\''+jsa(m.ym)+'\')">'+esc(swYmLabel(String(m.ym)))+'</button>'; }).join('')+'</div>'; }
+/* 정산 카드 (관리자·마스터 = 금액) · 작업현황 권한만 = 포인트 카드 */
+var SWM_DL='<svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>';
+function swmSumCard(r,cn){ var t=r.tabs||{}, s=r.sum, hn10=s?s.hn10:((t.HN&&t.HN.p10)||0), sw10=s?s.sw10:((t.SW&&t.SW.p10)||0);
+  var h='<div class="card msum"><div class="mhd"><h3>'+esc(swYmLabel(String(r.ym)))+(cn.money&&s?' 정산':' 포인트')+'</h3><span>'+(r.at?esc(swmHM(r.at))+' 기준':'')+'</span></div>';
+  if(cn.money&&s){ h+='<div class="mrow"><span>스윙과사람들 → 향남</span><b>'+swmW(s.hn)+'원</b></div><div class="mrow"><span>스윙과사람들 → 수원</span><b>'+swmW(s.sw)+'원</b></div>'+
+      '<p class="msub">향남 '+swmPct(s.rateHn)+' · 수원 '+swmPct(s.rateSw)+' (정산금 기준)</p>'+
+      '<p class="msub">정산금 '+swmW(s.pay)+' · 공제 '+swmW(s.ded)+' · 실지급 <span'+(s.net<0?' class="neg"':'')+'>'+swmW(s.net)+'</span></p>'+
+      '<p class="msub m">포인트 향남 '+swmP(s.hn10)+' · 수원 '+swmP(s.sw10)+' · 감점 '+swmP(s.pen10)+'</p>'; }
+  else h+='<div class="mrow"><span>향남 기기 포인트</span><b>'+swmP(hn10)+'</b></div><div class="mrow"><span>수원 기기 포인트</span><b>'+swmP(sw10)+'</b></div>'+
+      '<p class="msub m">합 '+swmP((Number(hn10)||0)+(Number(sw10)||0))+' · 금액은 관리자만 볼 수 있어요</p>';
+  h+='<button class="btn" id="swm_xlsx" onclick="swmXlsx()">'+SWM_DL+'엑셀로 받기 (.xlsx)</button>';
+  if(cn.edit) h+='<button class="btn line" onclick="swmDayOpen()">날짜별 입력</button>';
+  return h+'</div>'; }
+/* same 경고 글: '홍길동 (향남 2)' — 계정 지점별 계정 수 (블록 목록의 acct) */
+function swmAcctOf(r){ var m={}; ['HN','SW'].forEach(function(b){ ((r.blocks||{})[b]||[]).forEach(function(x){ if(x&&x.wkey&&!m[x.wkey]) m[x.wkey]={acct:x.acct,label:x.label,name:x.name}; }); }); return m; }
+/* [＋ 계정 추가] 후보 = 서버 accts (이 달에 넣을 수 있는 계정 · 확인 안 한 켜진 작업자도 · v10.58 고침) + 블록 목록 */
+function swmAcctAll(r){ var m=swmAcctOf(r||{}); ((r&&r.accts)||[]).forEach(function(x){ if(x&&x.wkey&&!m[x.wkey]) m[x.wkey]={acct:x.acct,label:x.label,name:x.name}; }); return m; }
+function swmSameTxt(r){ var am=swmAcctOf(r), out=[];
+  (r.persons||[]).forEach(function(p){ if(p.shape!=='same') return; var n={HN:0,SW:0}; (p.wkeys||[]).forEach(function(k){ var a=(am[k]||{}).acct; if(a==='HN'||a==='SW') n[a]++; });
+    var a=[]; if(n.HN>1) a.push('향남 '+n.HN); if(n.SW>1) a.push('수원 '+n.SW); if(!a.length) a.push('계정 '+(p.wkeys||[]).length); out.push(esc(p.name)+' ('+a.join(' · ')+')'); });
+  if(!out.length) out=(r.warn.same||[]).map(esc);
+  return '같은 이름 계정이 같은 지점에 둘 이상: <b>'+out.join(', ')+'</b> — 같은 사람이 아니면 \'합본 이름\'으로 떼 주세요'; }
+function swmBar(hn10,sw10,rate){ var h=Math.max(Number(hn10)||0,0), s=Math.max(Number(sw10)||0,0); if(!(h+s)) return '';
+  var r=(typeof rate==='number')?rate:h/(h+s), pc=Math.round(r*100);
+  return '<span class="mbar" aria-label="향남 '+pc+'% · 수원 '+(100-pc)+'%"><i><s style="width:'+pc+'%"></s></i><em>향남 '+pc+'%</em></span>'; }
+function swmPersonList(r,cn){ var ps=r.persons||[]; if(!ps.length) return '<div class="card"><div class="empty" style="padding:18px 0">이 달은 아직 확인한 작업이 없어요.<br>작업자 세부에서 슬랙 전송이나 내용 복사로 확인하면 들어와요.</div></div>';
+  return '<div class="card mlist">'+ps.map(function(p){ var m=cn.money&&typeof p.pay==='number', same=p.shape==='same';
+    var sub=m?swmP(p.p10)+'p → '+swmPfTxt(p.pf)+' · 정산 '+swmW(p.pay):'향남 '+swmP(p.hn10)+' · 수원 '+swmP(p.sw10);
+    return '<button type="button" class="mrw'+(same?' same':'')+'" onclick="swmPersonOpen(\''+jsa(p.pk)+'\')"><span class="tx"><b class="nm">'+esc(p.name)+'</b><span class="sb">'+sub+'</span>'+swmBar(p.hn10,p.sw10,m?p.rateHn:null)+
+      (same?'<em class="mw">'+ic('warn')+'같은 지점 계정 '+(p.wkeys||[]).length+'개 — 확인</em>':'')+'</span>'+
+      '<span class="v'+(m&&p.net<0?' neg':'')+'">'+(m?swmW(p.net)+'원':swmP(p.p10)+'p')+'</span><i class="ch" aria-hidden="true">›</i></button>'; }).join('')+'</div>'; }
+function swmBlockList(r,br,cn){ var bl=(r.blocks||{})[br]||[], t=(r.tabs||{})[br]||{}, mo=t.memo&&t.memo.txt, h='';
+  if(cn.edit||mo) h+='<div class="mtm"><span class="l">탭 메모</span><span class="t'+(mo?'':' z')+'">'+(mo?esc(String(mo).split('\n')[0]):'없음')+'</span>'+(cn.edit?'<button type="button" class="edit" onclick="swmTabMemo(\''+br+'\')">편집</button>':(mo?'<button type="button" class="edit" onclick="swmTabMemo(\''+br+'\')">보기</button>':''))+'</div>';   // F-4
+  if(!bl.length) return h+'<div class="card"><div class="empty" style="padding:18px 0">'+(br==='HN'?'향남':'수원')+' 탭 블록이 없어요.</div></div>';
+  return h+'<div class="card mlist">'+bl.map(function(b){ var a=[Number(b.days||0)+'일'];
+      if(b.cut) a.push('<span class="mred">●빨간 '+Number(b.cut)+'</span>');
+      if(b.guess) a.push('지점 추정 '+Number(b.guess));
+      if(b.acct&&b.acct!==br) a.push('('+swBrName(b.acct)+' 계정 · '+swBrName(br)+' 기기)');
+      return '<button type="button" class="mrw" onclick="swmBlockOpen(\''+jsa(b.wkey)+'\',\''+br+'\')"><span class="tx"><b class="nm">'+esc(b.label)+'</b><span class="sb">'+a.join(' · ')+'</span></span><span class="v">'+swmP(b.p10)+'p</span><i class="ch" aria-hidden="true">›</i></button>'; }).join('')+'</div>'; }
+function swmTab(t){ var v=swSumView(); if(!v||v.state.tab===t) return; haptic(6); v.state.tab=t; swmDraw(v); }
+
+/* ---- 엑셀 받기 (swmXlsx · 금액 = 서버가 부른 사람 권한대로) ---- */
+function swmSaveB64(b64,name){ var bin=atob(b64), arr=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+  var blob=new Blob([arr],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(url); },30000); }
+function swmXlsx(){ var v=swSumView(); if(!v||v.state.busy) return; var ym=v.state.ym; v.state.busy=true; haptic(10); toast('엑셀 만드는 중…');
+  rpRun('swmXlsx',[ym]).then(function(r){ v.state.busy=false; $('toast').classList.remove('on');
+      if(!r||!r.ok){ if(r&&r.legacy){ toast('지금은 예전(구글) 작업현황이에요 · 화면을 다시 불러와요'); if(swSumView()===v) swSumLoad(v); return; }
+        openSheet('<h3>엑셀을 못 만들었어요</h3><p>'+esc((r&&r.error)||'오류')+'</p><button class="btn" onclick="closeSheet()">확인</button>'); return; }
+      try{ swmSaveB64(r.b64,r.name||('작업현황_'+ym+'.xlsx')); }catch(e){ toast('저장 실패: '+e.message); return; }
+      haptic([12,40,18]); toast(r.left?'받았어요 · 아직 계산 중인 확인 '+r.left+'건은 잠시 뒤 다시 받아 주세요':'받았어요 · '+(r.name||'')); })
+    .catch(function(e){ v.state.busy=false; toast('엑셀 만들기 실패: '+e.message); }); }
+
+/* ---- 저장 (swmSet · edits 100칸씩 · 같은 내용 다시 = 같은 rid · 답 = saved·conflict·bad 를 칸마다) ---- */
+function swmKey(e){ return e.f+'|'+(e.wkey||'')+'|'+(e.br||'')+'|'+(e.d||''); }
+function swmSend(ym,edits,st){ var parts=[]; for(var i=0;i<edits.length;i+=100) parts.push(edits.slice(i,i+100));
+  var body=JSON.stringify([ym,edits]); if(!st.cxs||st.cxB!==body){ st.cxs=[]; st.cxB=body; }
+  var all={ok:true,saved:[],conflict:[],bad:[],at:0}, k=0;
+  var next=function(){ if(k>=parts.length) return Promise.resolve(all); var cx=st.cxs[k]=st.cxs[k]||runCx();
+    return rpWrite('swmSet',[ym,parts[k]],cx).then(function(r){
+      if(!r||(r.ok===false&&!r.conflict&&!r.bad)){ var e=new Error(r&&r.legacy?'지금은 예전(구글) 작업현황이에요. 작업현황을 다시 열어 주세요.':((r&&r.error)||'저장 실패')); if(r&&r.ro) e.ro=true; throw e; }
+      all.saved=all.saved.concat(r.saved||[]); all.conflict=all.conflict.concat(r.conflict||[]); all.bad=all.bad.concat(r.bad||[]); all.at=r.at||all.at; k++; return next(); }); };
+  return next().then(function(r){ st.cxs=null; st.cxB=''; return r; },function(e){ if(!rpSoft(e)){ st.cxs=null; st.cxB=''; } throw e; }); }
+function swmConflictTxt(c,fmt){ var u=(c&&c.cur)||{}; return '다른 관리자가 먼저 고쳤어요: '+(u.v==null||u.v===''?'빈칸':fmt(u.v))+(u.by||u.at?' ('+esc(u.by||'')+(u.at?' '+esc(swmHM(u.at)):'')+')':''); }
+
+/* ---- F-2 사람 시트 (합본 줄) ---- */
+function swmPersonOf(r,pk){ var ps=(r&&r.persons)||[]; for(var i=0;i<ps.length;i++) if(ps[i].pk===pk) return ps[i]; return null; }
+function swmP10In(o){ var n=swmNum(o); return n==null?'':(Math.round(n)/10).toFixed(1); }   // 감점 칸 글 (0.1포인트 정수 → '5.0')
+function swmWonIn(o){ var n=swmNum(o); return n==null?'':String(Math.round(n)); }
+function swmPersonOpen(pk){ var v=swSumView(); if(!v||!v.state.mi) return; var p=swmPersonOf(v.state.mi,pk); if(!p) return; haptic(6);
+  var cur=swmCurYm(v.state.ym), f={pen:swmP10In(p.pen),bat:swmWonIn(p.ded&&p.ded.bat),bad:swmWonIn(p.ded&&p.ded.bad),memo:(p.memo&&p.memo.txt)||'',nm:{}};
+  f.nmm={}; (p.names||[]).forEach(function(n){ var o=cur?n.link:n.month; f.nm[n.wkey]=(o&&o.txt)||''; if(cur&&n.month&&n.month.txt) f.nmm[n.wkey]=n.month.txt; });   // nmm = 이번 달에 있는 '이 달만 이름' (v10.58 고침)
+  v.state.ps={pk:pk,cur:cur,f:f,f0:JSON.stringify(f),err:{},busy:false}; swmPsSheet(v,true); }
+function swmPsV(){ var v=swSumView(); return v&&v.state.ps?v:null; }
+function swmPsCalc(v){ var s=v.state.ps, p=swmPersonOf(v.state.mi,s.pk)||{}, pen=swmPenOf(s.f.pen), x=swmPersonPay(p.hn10,p.sw10,pen==null?0:pen), ded=(Number(s.f.bat)||0)+(Number(s.f.bad)||0);
+  return {pf:x.pf,pay:x.pay,rateHn:x.rateHn,hn:x.hn,sw:x.sw,ded:ded,net:x.pay-ded}; }
+function swmPenOf(t){ t=String(t==null?'':t).trim(); if(t==='') return null; var n=Number(t); return isFinite(n)?Math.round(n*10):null; }
+function swmPsRow(lb,val,id,cls){ return '<div'+(cls?' class="'+cls+'"':'')+'><span>'+lb+'</span><b'+(id?' id="'+id+'"':'')+'>'+val+'</b></div>'; }
+function swmPsSheet(v,first){ var s=v.state.ps, r=v.state.mi, p=swmPersonOf(r,s.pk); if(!p){ closeSheet(); return; } var cn=swmCan(r), m=cn.money&&typeof p.pay==='number', ed=cn.edit&&m, f=s.f, c=swmPsCalc(v), er=s.err;
+  var eh=function(k){ return er[k]?'<p class="merr" role="alert">'+er[k]+'</p>':''; };
+  var h='<button type="button" class="shx" onclick="sheetTapOut()" aria-label="닫기">×</button><h3>'+esc(p.name)+'</h3><p class="msh">계정: '+(p.labels||[]).map(esc).join(' · ')+'</p>';
+  if(p.shape==='same') h+='<p class="mwarn">'+ic('warn')+'같은 지점 계정 '+(p.wkeys||[]).length+'개 — 같은 사람이 맞는지 확인</p>';
+  h+='<fieldset class="mkv" id="swm_psf"'+(s.busy?' disabled':'')+'>'+swmPsRow('향남 기기 포인트',swmP(p.hn10))+swmPsRow('수원 기기 포인트',swmP(p.sw10))+swmPsRow('포인트 합계',swmP(p.p10));
+  if(m){
+    h+=ed?'<label class="mi" for="swm_pen"><span>감점 (포인트)<small>별첨 제2조 · 작업 실수 −5 · 계약일 미이행 −100 …</small></span><span class="f"><input class="input" id="swm_pen" type="text" inputmode="decimal" maxlength="7" autocomplete="off" value="'+esc(f.pen)+'" placeholder="0.0" oninput="swmPsPen(this)"><i>p</i></span></label>'+eh('pen')
+      :swmPsRow('감점 (포인트)',f.pen?esc(f.pen)+'p':'없음');
+    h+=swmPsRow('정산 포인트','<span id="swm_pf">'+swmPfTxt(c.pf)+'</span> <small>(50 단위 버림)</small>')+swmPsRow('정산금',swmW(c.pay)+'원','swm_pay')+
+      swmPsRow('스윙과사람들 → 향남',swmW(c.hn)+'원 ('+swmPct(c.rateHn)+')','swm_hn')+swmPsRow('스윙과사람들 → 수원',swmW(c.sw)+'원 ('+swmPct(c.pay?1-c.rateHn:0)+')','swm_sw');
+    h+=ed?swmPsMoney('bat','배터리 분실 (공제)',f.bat)+eh('bat')+swmPsMoney('bad','작업 불량 (공제)',f.bad)+eh('bad'):swmPsRow('배터리 분실 (공제)',f.bat?swmW(f.bat)+'원':'없음')+swmPsRow('작업 불량 (공제)',f.bad?swmW(f.bad)+'원':'없음');
+    h+='<div class="tot"><span>실지급액</span><b id="swm_net"'+(c.net<0?' class="neg"':'')+'>'+swmW(c.net)+'원</b></div>';
+    h+=ed?'<label class="mmo" for="swm_memo"><span>메모</span><textarea class="input" id="swm_memo" maxlength="300" rows="2" placeholder="사람 메모 (엑셀 합본 메모 칸)" oninput="swmPsIn(\'memo\',this.value)">'+esc(f.memo)+'</textarea></label>'+eh('memo')
+      :(f.memo?swmPsRow('메모',esc(f.memo)):''); }
+  else h+='<p class="msh">금액·감점·공제는 관리자만 볼 수 있어요.</p>';
+  if(ed&&(p.names||[]).length){ var any=Object.keys(er).some(function(k){ return /^nmm?:/.test(k); }), f0n=JSON.parse(s.f0).nmm||{};
+    h+='<details class="mfold"'+(any||!first&&s.nmOpen?' open':'')+' ontoggle="swmPsFold(this)"><summary>▸ 합본 이름 (같은 이름 = 한 사람)</summary><p class="mnote">'+(s.cur?'이번 달·다음 달부터 계속 써요 · 비우면 작업자 이름':'이 달만 · 비우면 그때 이름')+' · 같은 이름끼리 한 사람으로 합쳐요</p>'+
+      (p.names||[]).map(function(n){ return '<label class="mnm" for="swm_nm_'+esc(n.wkey)+'"><span>'+esc(n.label)+'</span><input class="input" id="swm_nm_'+esc(n.wkey)+'" maxlength="30" autocomplete="off" value="'+esc(f.nm[n.wkey]||'')+'" placeholder="'+esc(p.name)+'" oninput="swmPsName(\''+jsa(n.wkey)+'\',this.value)"></label>'+eh('nm:'+n.wkey)+
+        (s.cur&&(f0n[n.wkey]!==undefined||(f.nmm||{})[n.wkey]!==undefined)?'<label class="mnm" for="swm_nmm_'+esc(n.wkey)+'"><span>이 달만 이름<small>있으면 위 이름보다 먼저 · 비우면 위 이름</small></span><input class="input" id="swm_nmm_'+esc(n.wkey)+'" maxlength="30" autocomplete="off" value="'+esc((f.nmm||{})[n.wkey]||'')+'" placeholder="(없음)" oninput="swmPsNameM(\''+jsa(n.wkey)+'\',this.value)"></label>'+eh('nmm:'+n.wkey):''); }).join('')+'</details>'; }
+  h+='</fieldset>';
+  h+=ed?'<div class="row"><button class="btn line sm" onclick="sheetTapOut()">그만</button><button class="btn sm" id="swm_pssave" onclick="swmPsSave()"'+(s.busy?' disabled':'')+'>'+(s.busy?'저장 중…':'저장')+'</button></div>'
+    :'<button class="btn" onclick="closeSheet()">확인</button>';
+  openSheet(h); if(first){ var sh=$('sheet'); if(sh) sh.scrollTop=0; }
+  SHEET_ASK=swmPsAsk; }
+function swmPsMoney(k,lb,val){ return '<label class="mi" for="swm_'+k+'"><span>'+lb+'</span><span class="f"><input class="input" id="swm_'+k+'" type="text" inputmode="numeric" pattern="[0-9,]*" maxlength="9" autocomplete="off" value="'+rpWon(val)+'" placeholder="0" oninput="swmPsMoneyIn(this,\''+k+'\')"><i>원</i></span></label>'; }
+function swmPsFold(el){ var v=swmPsV(); if(v&&el) v.state.ps.nmOpen=!!el.open; }
+function swmPsIn(k,val){ var v=swmPsV(); if(!v||v.state.ps.busy) return; v.state.ps.f[k]=String(val==null?'':val); }
+function swmPsName(wk,val){ var v=swmPsV(); if(!v||v.state.ps.busy) return; v.state.ps.f.nm[wk]=String(val==null?'':val); }
+function swmPsNameM(wk,val){ var v=swmPsV(); if(!v||v.state.ps.busy) return; var f=v.state.ps.f; f.nmm=f.nmm||{}; f.nmm[wk]=String(val==null?'':val); }
+/* 감점 칸: 숫자·점 하나·소수 1자리 · 9999.9 까지 */
+function swmPsPen(el){ var v=swmPsV(); if(!el) return; var t=String(el.value||'').replace(/[^0-9.]/g,''), i=t.indexOf('.');
+  if(i>=0) t=t.slice(0,i+1)+t.slice(i+1).replace(/\./g,'').slice(0,1); t=t.replace(/^0+(?=\d)/,''); if(Number(t)>9999.9) t='9999.9';
+  if(t!==el.value) el.value=t; if(v&&!v.state.ps.busy){ v.state.ps.f.pen=t; swmPsLive(v); } }
+/* 공제 칸: 숫자만 · 7자리 · 천 단위 쉼표 (rpiMoney 와 같은 방식 · 커서 그대로) */
+function swmPsMoneyIn(el,k){ var v=swmPsV(); if(!el) return; var raw=String(el.value||''), at=(typeof el.selectionStart==='number')?el.selectionStart:raw.length;
+  var nb=raw.slice(0,at).replace(/\D/g,'').length, d=raw.replace(/\D/g,'').replace(/^0+(?=\d)/,'').slice(0,7), out=rpWon(d);
+  if(raw!==out){ el.value=out; var n=Math.min(nb,d.length), i=0, c=0; while(i<out.length&&c<n){ if(out.charAt(i)!==',') c++; i++; } try{ if(el.setSelectionRange) el.setSelectionRange(i,i); }catch(e){} }
+  if(v&&!v.state.ps.busy){ v.state.ps.f[k]=d; swmPsLive(v); } }
+/* 넣는 대로 정산 포인트·정산금·몫·실지급액 다시 (서버 pay.js 와 같은 식) */
+function swmPsLive(v){ var c=swmPsCalc(v), set=function(id,t){ var e=$(id); if(e) e.textContent=t; };
+  set('swm_pf',swmPfTxt(c.pf)); set('swm_pay',swmW(c.pay)+'원'); set('swm_hn',swmW(c.hn)+'원 ('+swmPct(c.rateHn)+')'); set('swm_sw',swmW(c.sw)+'원 ('+swmPct(c.pay?1-c.rateHn:0)+')'); set('swm_net',swmW(c.net)+'원');
+  var n=$('swm_net'); if(n&&n.classList) n.classList.toggle('neg',c.net<0); }
+function swmPsDirty(s){ return !!s&&JSON.stringify(s.f)!==s.f0; }
+function swmPsAsk(){ var v=swmPsV(); if(!v) return false; var s=v.state.ps;
+  if(s.busy){ haptic([10,40,10]); return true; }
+  if(!swmPsDirty(s)){ v.state.ps=null; return false; }
+  haptic([10,40,10]);
+  openSheet('<h3>저장 안 하고 닫을까요?</h3><p>고친 감점·공제·메모·이름이 저장되지 않아요.</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="swmPsBack()">계속 고치기</button><button class="btn sm" style="background:var(--danger)" onclick="swmPsDrop()">닫기</button></div>');
+  SHEET_ASK=function(){ swmPsBack(); return true; }; return true; }
+function swmPsBack(){ var v=swmPsV(); if(v) swmPsSheet(v); }
+function swmPsDrop(){ var v=swSumView(); if(v) v.state.ps=null; closeSheet(); }
+/* 보낼 칸: 사람 단위(감점·공제·메모) = 대표 계정 한 줄 (서버가 그 사람 다른 계정 같은 칸을 지움) · 합본 이름 = 계정마다 (이번 달 = plink 계속 · 지난달 = pname 이 달만) */
+function swmPsEdits(v){ var s=v.state.ps, r=v.state.mi, p=swmPersonOf(r,s.pk), f=s.f, f0=JSON.parse(s.f0), out=[]; if(!p) return out;
+  var mk=p.main, cn=swmCan(r), ver=function(o){ return (o&&(!o.wkey||o.wkey===mk))?swmVer(o):0; };
+  var one=function(fld,val,o){ out.push({f:fld,wkey:mk,br:'',d:'',v:val,ver:ver(o)}); };
+  if(cn.edit&&cn.money){
+    if(f.pen!==f0.pen) one('pen',swmPenOf(f.pen),p.pen);
+    if(f.bat!==f0.bat) one('bat',f.bat===''?null:Number(f.bat),p.ded&&p.ded.bat);
+    if(f.bad!==f0.bad) one('bad',f.bad===''?null:Number(f.bad),p.ded&&p.ded.bad);
+    if(String(f.memo).trim()!==String(f0.memo).trim()) one('pmemo',String(f.memo).trim()||null,p.memo);
+    (p.names||[]).forEach(function(n){ var a=String(f.nm[n.wkey]||'').replace(/\s+/g,' ').trim(), b=String(f0.nm[n.wkey]||'').replace(/\s+/g,' ').trim(); if(a===b) return; var o=s.cur?n.link:n.month;
+      out.push({f:s.cur?'plink':'pname',wkey:n.wkey,br:'',d:'',v:a||null,ver:swmVer(o)}); });
+    if(s.cur) (p.names||[]).forEach(function(n){ var a=String((f.nmm||{})[n.wkey]||'').replace(/\s+/g,' ').trim(), b=String((f0.nmm||{})[n.wkey]||'').replace(/\s+/g,' ').trim(); if(a===b) return;   // 이번 달 '이 달만 이름' (pname) 고침·지움
+      out.push({f:'pname',wkey:n.wkey,br:'',d:'',v:a||null,ver:swmVer(n.month)}); }); }
+  return out; }
+function swmPsField(k,cur){ var f=String(k).split('|'); return f[0]==='pmemo'?'memo':(f[0]==='plink'||(f[0]==='pname'&&!cur)?'nm:'+f[1]:(f[0]==='pname'?'nmm:'+f[1]:f[0])); }   // cur = 이번 달 (pname = 이 달만 이름 칸 nmm)
+function swmPsFmt(fld){ return function(x){ return fld==='pen'?swmP(x)+'p':((fld==='bat'||fld==='bad')?swmW(x)+'원':esc(String(x))); }; }
+function swmPsSave(ok){ var v=swmPsV(); if(!v) return; var s=v.state.ps; if(s.busy) return;
+  var ed=swmPsEdits(v); if(!ed.length){ v.state.ps=null; closeSheet(); toast('바꾼 내용이 없어요'); return; }
+  if(!ok&&ed.some(function(e){ return e.f==='plink'||e.f==='pname'; })){ haptic(8);   // 합본 이름 = 묶음·정산금이 바뀜 → 한 번 묻기
+    openSheet('<h3>이름을 바꿀까요?</h3><p>이름을 바꾸면 합본 묶음과 정산금이 바뀌어요. 저장할까요?</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="swmPsBack()">취소</button><button class="btn sm" onclick="swmPsBack();swmPsSave(true)">저장</button></div>');
+    SHEET_ASK=function(){ swmPsBack(); return true; }; return; }
+  s.busy=true; s.err={}; var b=$('swm_pssave'), fs=$('swm_psf'); if(b){ b.disabled=true; b.textContent='저장 중…'; } if(fs) fs.disabled=true; haptic(8);
+  var names=ed.some(function(e){ return e.f==='plink'||e.f==='pname'; });
+  swmSend(v.state.ym,ed,s).then(function(res){ s.busy=false; var f0=JSON.parse(s.f0), p=swmPersonOf(v.state.mi,s.pk), sv=res.saved.length;
+      res.saved.forEach(function(x){ var k=swmPsField(x.k,s.cur); if(k.indexOf('nmm:')===0){ f0.nmm=f0.nmm||{}; f0.nmm[k.slice(4)]=s.f.nmm[k.slice(4)]; } else if(k.indexOf('nm:')===0) f0.nm[k.slice(3)]=s.f.nm[k.slice(3)]; else f0[k]=s.f[k]; });
+      res.conflict.forEach(function(x){ var k=swmPsField(x.k,s.cur), fld=String(x.k).split('|')[0], u=(x.cur||{}); s.err[k]=swmConflictTxt(x,swmPsFmt(fld));
+        var val=u.v==null?'':(fld==='pen'?(Math.round(Number(u.v))/10).toFixed(1):String(u.v));   // 칸 값 = 먼저 고친 값 · ver 도 그 값으로 (다시 [저장] 하게)
+        if(k.indexOf('nmm:')===0){ s.f.nmm[k.slice(4)]=val; f0.nmm=f0.nmm||{}; f0.nmm[k.slice(4)]=val; } else if(k.indexOf('nm:')===0){ s.f.nm[k.slice(3)]=val; f0.nm[k.slice(3)]=val; } else { s.f[k]=fld==='pmemo'?val:val.replace(/,/g,''); f0[k]=s.f[k]; }
+        if(p){ var wk=String(x.k).split('|')[1], o={num:u.v,txt:u.v,ver:u.ver,wkey:wk}; if(fld==='pen') p.pen=o; else if(fld==='bat'||fld==='bad'){ p.ded=p.ded||{}; p.ded[fld]=o; } else if(fld==='pmemo') p.memo=o;
+          else (p.names||[]).forEach(function(n){ if(n.wkey===wk){ if(s.cur&&fld==='plink') n.link={txt:u.v,ver:u.ver}; else n.month={txt:u.v,ver:u.ver}; } }); } });
+      res.bad.forEach(function(x){ s.err[swmPsField(x.k,s.cur)]=esc(x.why||'저장할 수 없는 값이에요'); });
+      s.f0=JSON.stringify(f0);
+      if(!res.conflict.length&&!res.bad.length){ v.state.ps=null; if(swSumView()===v) closeSheet(); haptic([12,40,18]); toast(names?'저장했어요 · 합본 묶음을 다시 불러와요':'저장했어요'); }
+      else { haptic([10,40,10]); toast(sv?'일부만 저장했어요 · 빨간 칸을 확인해 주세요':'저장 못 했어요 · 빨간 칸을 확인해 주세요'); if(sheetOpen&&swmPsV()===v) swmPsSheet(v); }
+      if(sv&&stack.indexOf(v)>=0) swSumLoad(v); },
+    function(e){ s.busy=false; toast(e.message); if(sheetOpen&&swmPsV()===v) swmPsSheet(v); }); }
+
+/* ---- F-4 탭 메모 (지점 탭 맨 위 · 500자 · 관리자·마스터) ---- */
+function swmTabMemo(br){ var v=swSumView(); if(!v||!v.state.mi) return; var r=v.state.mi, t=(r.tabs||{})[br]||{}, mo=(t.memo&&t.memo.txt)||'', cn=swmCan(r); haptic(6);
+  v.state.tm={br:br,txt:mo,t0:mo,ver:swmVer(t.memo),busy:false};
+  if(!cn.edit){ openSheet('<h3>'+swBrName(br)+' 탭 메모</h3><p class="wdnpv">'+esc(mo)+'</p><button class="btn" onclick="closeSheet()">확인</button>'); return; }
+  swmTmSheet(v); }
+function swmTmSheet(v){ var s=v.state.tm; openSheet('<h3>'+swBrName(s.br)+' 탭 메모</h3><p>엑셀 '+swBrName(s.br)+' 탭 맨 위 메모 칸에 들어가요.</p>'+
+    '<textarea class="input mta" id="swm_tm" maxlength="500" rows="5" placeholder="탭 메모" oninput="swmTmIn(this.value)">'+esc(s.txt)+'</textarea>'+(s.err?'<p class="merr" role="alert">'+s.err+'</p>':'')+
+    '<div class="row"><button class="btn line sm" onclick="sheetTapOut()">그만</button><button class="btn sm" id="swm_tmsave" onclick="swmTmSave()"'+(s.busy?' disabled':'')+'>'+(s.busy?'저장 중…':'저장')+'</button></div>');
+  SHEET_ASK=function(){ var x=swSumView(), t=x&&x.state.tm; if(!t) return false; if(t.busy){ haptic([10,40,10]); return true; } if(String(t.txt).trim()===String(t.t0).trim()) return false;
+    haptic([10,40,10]); openSheet('<h3>저장 안 하고 닫을까요?</h3><p>고친 탭 메모가 저장되지 않아요.</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="swmTmBack()">계속 고치기</button><button class="btn sm" style="background:var(--danger)" onclick="closeSheet()">닫기</button></div>');
+    SHEET_ASK=function(){ swmTmBack(); return true; }; return true; }; }
+function swmTmBack(){ var v=swSumView(); if(v&&v.state.tm) swmTmSheet(v); }
+function swmTmIn(t){ var v=swSumView(); if(v&&v.state.tm&&!v.state.tm.busy) v.state.tm.txt=String(t==null?'':t); }
+function swmTmSave(){ var v=swSumView(); if(!v||!v.state.tm) return; var s=v.state.tm; if(s.busy) return; var t=String(s.txt).trim();
+  if(t===String(s.t0).trim()){ closeSheet(); toast('바꾼 내용이 없어요'); return; }
+  s.busy=true; s.err=''; var b=$('swm_tmsave'); if(b){ b.disabled=true; b.textContent='저장 중…'; }
+  swmSend(v.state.ym,[{f:'tabmemo',wkey:'',br:s.br,d:'',v:t||null,ver:s.ver}],s).then(function(res){ s.busy=false;
+      if(res.saved.length){ v.state.tm=null; if(swSumView()===v) closeSheet(); toast('탭 메모를 저장했어요'); if(stack.indexOf(v)>=0) swSumLoad(v); return; }
+      var c=res.conflict[0], bd=res.bad[0]; if(c){ s.txt=String((c.cur&&c.cur.v)||''); s.t0=s.txt; s.ver=swmVer(c.cur); s.err=swmConflictTxt(c,function(x){ return '"'+esc(String(x).slice(0,40))+'"'; }); } else s.err=esc((bd&&bd.why)||'저장 못 했어요');
+      if(sheetOpen) swmTmSheet(v); },
+    function(e){ s.busy=false; toast(e.message); if(sheetOpen) swmTmSheet(v); }); }
+
+/* ---- 블록·날짜별 화면에서 쓰는 것 ---- */
+function swmMiTop(){ for(var i=stack.length-1;i>=0;i--) if(stack[i].name==='sw_sum'&&stack[i].state.mi) return stack[i].state.mi; return null; }
+function swmBlockOpen(wkey,br){ var v=swSumView(); if(!v) return; var b=(((v.state.mi||{}).blocks||{})[br]||[]).filter(function(x){ return x.wkey===wkey; })[0]||{};
+  push('sw_mblk',{ym:v.state.ym,wkey:wkey,br:br,label:b.label||''}); }
+function swmDayOpen(){ var v=swSumView(); if(!v||!v.state.mi) return; var ym=v.state.ym, t=todayISO(0), d=(t.slice(0,7)===ym)?t:(ym+'-'+pad2(swmDays(ym)));
+  push('sw_mday',{ym:ym,date:d}); }
+/* 고친 칸 (블록·날짜별 공통) = v.state.ed {키: {f,wkey,br,d,v,ver}} · 저장 = swmSend · 아래 고정 자리 [그만][저장 · N개] */
+function swmEdBar(v,n){ var s=v.state; if(!n) return '';
+  return '<div class="row" style="margin:0"><button class="btn line sm" onclick="swmEdStop()">그만</button><button class="btn sm" id="swm_edsave" onclick="swmEdSave()"'+(s.saving?' disabled':'')+'>'+(s.saving?'저장 중…':'저장 · '+n+'개')+'</button></div>'; }
+function swmEdView(){ var v=stack[stack.length-1]; return (v&&(v.name==='sw_mblk'||v.name==='sw_mday'))?v:null; }
+function swmEdStop(){ var v=swmEdView(); if(!v||v.state.saving) return; haptic(6); v.state.ed={}; v.state.cerr={}; if(v.name==='sw_mday') swmDayReset(v); swmEdRedraw(v); }
+function swmEdRedraw(v){ if(v.name==='sw_mblk') swmBlkDraw(v); else swmDayDraw(v); }
+function swmEdCount(v){ return v.name==='sw_mday'?swmDayEdits(v).length:Object.keys(v.state.ed||{}).length; }
+function swmEdSync(v){ if(stack[stack.length-1]===v) rpDockSync(); }
+function swmEdSave(){ var v=swmEdView(); if(!v||v.state.saving) return; var s=v.state, ed=v.name==='sw_mday'?swmDayEdits(v):Object.keys(s.ed).map(function(k){ return s.ed[k]; });
+  if(!ed.length){ toast('바꾼 칸이 없어요'); return; }
+  s.saving=true; s.cerr={}; rpDockSync(); haptic(8);
+  var ym=v.params.ym;
+  swmSend(ym,ed,s).then(function(res){ s.saving=false;
+      res.conflict.forEach(function(x){ var p=String(x.k).split('|'); s.cerr[v.name==='sw_mday'?p[1]:(p[0]+'|'+p[3])]=swmConflictTxt(x,function(y){ return esc(String(y)); })+(SWM_OFF[p[0]]?' · '+SWM_OFF[p[0]]:''); });
+      res.bad.forEach(function(x){ var p=String(x.k).split('|'); s.cerr[v.name==='sw_mday'?p[1]:(p[0]+'|'+p[3])]=esc(x.why||'저장할 수 없는 값이에요'); });
+      var keep={}; if(v.name==='sw_mblk') res.bad.forEach(function(x){ var p=String(x.k).split('|'), k=p[0]+'|'+p[3]; if(s.ed[k]) keep[k]=s.ed[k]; });   // 틀린 칸만 남김 (고쳐서 다시) · 저장·충돌 칸 = 서버 값으로 다시 받음
+      s.ed=keep; swmEdSync(v);
+      if(!res.conflict.length&&!res.bad.length){ haptic([12,40,18]); toast('저장했어요 · '+res.saved.length+'칸'); }
+      else { haptic([10,40,10]); toast((res.saved.length?'일부만 저장했어요':'저장 못 했어요')+' · 빨간 글을 확인해 주세요'); }
+      if(stack.indexOf(v)>=0){ if(v.name==='sw_mblk') swmBlkLoad(v); else swmDayLoad(v,true); } },
+    function(e){ s.saving=false; if(stack.indexOf(v)>=0){ swmEdSync(v); } toast('저장 실패: '+e.message); }); }
+
+/* ---- F-3 블록 화면 (sw_mblk · 블록 = (계정, 지점)) ---- */
+VIEWS.sw_mblk={ render:function(v){ reanim(v); v.dock='sw_mblk'; v.state.ed=v.state.ed||{}; v.state.cerr={}; v.state.more={}; v.state.extra=[];
+  v.refresh=function(){ return swmBlkLoad(v); };
+  v.el.innerHTML=title(esc(v.params.label||'블록'),'')+spin(); swmBlkLoad(v); }};
+function swmBlkLoad(v){ var p=v.params, tok=v.state.tok=(v.state.tok||0)+1;
+  return rpRun('swmBlock',[p.ym,p.wkey,p.br]).then(function(r){ if(stack.indexOf(v)<0||v.state.tok!==tok) return;
+      if(!r||r.ok===false) throw new Error(r&&r.legacy?'지금은 예전(구글) 작업현황이에요. 작업현황을 다시 열어 주세요.':((r&&r.error)||'오류'));
+      v.state.r=r; swmBlkDraw(v); })
+    .catch(function(e){ if(stack.indexOf(v)<0||v.state.tok!==tok) return; if(e&&e.auth===false) return;
+      if(v.state.r){ toast(e.message); return; }
+      v.el.innerHTML=title(esc(p.label||'블록'),'')+errBox(e)+'<button class="btn line" onclick="swmBlkRetry()">다시 시도</button>'; rpDockSet(v,false); }); }
+function swmBlkRetry(){ var v=rpTop('sw_mblk'); if(!v) return; v.el.innerHTML=title(esc(v.params.label||'블록'),'')+spin(); swmBlkLoad(v); }
+function swmBlkCan(v){ var r=v.state.r||{}; return !!(r.can&&r.can.edit)&&!r.ro&&!r.shadow; }
+/* 칸 하나의 지금 값: 고친 값 → 사무실 값 → (다른 지점에 사무실 값이 있으면 0) → 앱 값 (A-4 · 서버 B-4 X 와 같음) */
+function swmXv(x){ if(!x) return 0; var o=swmNum(x.off); if(o!=null) return o; return x.any?0:(Number(x.app)||0); }
+function swmBlkVal(v,day,f){ var k=f+'|'+day.d, e=v.state.ed[k], x=(day.x||{})[f]; if(e) return e.v==null?((x&&x.any)?0:Number(x&&x.app)||0):e.v; return swmXv(x); }
+function swmBlkDraw(v){ var r=v.state.r||{}, p=v.params, ed=swmBlkCan(v), s=v.state;
+  var adj0=swmNum(r.adj)||0, adjE=s.ed['adj|'], adj=adjE?(adjE.v==null?0:adjE.v):adj0, tot=(Number(r.p10)||0)-adj0+adj;
+  var h=title(esc(r.label||p.label||'블록'),esc(swYmLabel(String(p.ym)))+' · '+swBrName(p.br)+' 탭 · '+swmP(tot)+'p');
+  if(r.ro) h+=nbar(r.ro.why==='freeze'?'잠깐 서버 정리 중이에요 — 1~2분 뒤 입력돼요':'비상 중이라 보기만 돼요',true);
+  if(r.shadow) h+=nbar('<b>미리 보기</b> — 아직 구글 파일이 원본이에요');
+  if(r.acct&&r.acct!==p.br) h+=nbar(swBrName(r.acct)+' 계정이 '+swBrName(p.br)+' 기기로 한 작업이에요 (정산 = '+swBrName(p.br)+')');
+  // 포인트 표 (줄 j 개수 × 가중치 · 0 줄은 숨김)
+  var pts=(r.pts||[]).filter(function(x){ return Number(x.n)||Number(x.p10); });
+  h+='<div class="card"><h3>포인트</h3>'+(pts.length?'<table class="mpt"><tbody>'+pts.map(function(x){ return '<tr><td>'+esc(x.name)+'</td><td>'+rpWon(x.n)+'개 × '+(Number(x.w10)/10)+'</td><td>'+swmP(x.p10)+'</td></tr>'; }).join('')+'</tbody></table>':'<div class="empty" style="padding:10px 0">아직 포인트가 없어요</div>');
+  h+='<div class="madj"><span>포인트 조정<small>개수 고침용 · 이 지점 포인트</small></span>'+(ed?swmStp('adj','',adj,'swmAdjStep','swmAdjIn','decimal',(adj/10).toFixed(1)):'<b>'+swmP(adj)+'</b>')+'</div>'+(s.cerr['adj|']?'<p class="merr" role="alert">'+s.cerr['adj|']+'</p>':'');
+  h+='<div class="mtot"><span>포인트 합계</span><b>'+swmP(tot)+'</b></div></div>';
+  // 날짜별
+  var days=(r.days||[]).slice(), seen={}; days.forEach(function(d){ seen[d.d]=1; });
+  (s.extra||[]).forEach(function(d){ if(!seen[d]){ days.push({d:d,r:[],x:{},p10:0,added:true}); seen[d]=1; } }); days.sort(function(a,b){ return a.d<b.d?-1:1; });
+  h+='<div class="card"><h3>날짜별</h3>'+(days.length?days.map(function(d){ return swmBlkDay(v,d,ed); }).join(''):'<div class="empty" style="padding:10px 0">확인한 날이 없어요</div>')+
+    (ed?'<button type="button" class="btn line" style="margin-top:12px" onclick="swmBlkAddDay()">날짜 추가</button>':'')+'</div>';
+  v.el.innerHTML=h; rpDockSet(v,true); }
+function swmStp(f,d,val,step,inp,mode,txt){ var id='swm_'+f+(d?'_'+d:''), dec=mode==='decimal';
+  return '<div class="mstp"><button type="button" aria-label="하나 빼기" onclick="'+step+'(\''+f+'\',\''+d+'\',-1)">−</button>'+
+    '<input class="input" id="'+id+'" type="text" inputmode="'+mode+'" maxlength="'+(dec?8:2)+'" autocomplete="off" aria-label="'+(SWM_OFF[f]||'포인트 조정')+'" value="'+esc(txt!=null?txt:String(val))+'" onchange="'+inp+'(\''+f+'\',\''+d+'\',this)">'+
+    '<button type="button" aria-label="하나 더하기" onclick="'+step+'(\''+f+'\',\''+d+'\',1)">+</button></div>'; }
+function swmBlkDay(v,d,ed){ var s=v.state, rr=d.r||[], x=d.x||{}, h='<div class="mday" id="swmd_'+esc(d.d)+'"><div class="mdh"><b>'+swmDayLb(d.d)+'</b><span>'+swmP(d.p10)+'p</span></div>';
+  var ch=[]; [1,2,3,4,5,6,7,8,9,10,12,13].forEach(function(i){ if(Number(rr[i])) ch.push('<em>'+SWM_ROWS[i]+' '+Number(rr[i])+'</em>'); });
+  if(!ed&&Number(rr[11])) ch.push('<em>I9 민원 '+Number(rr[11])+'</em>');
+  [15,16].forEach(function(i){ if(Number(rr[i])) ch.push('<em class="x">'+SWM_ROWS[i]+' '+Number(rr[i])+'</em>'); });
+  if(ch.length) h+='<div class="mchips">'+ch.join('')+'</div>';
+  if(d.cut) h+='<button type="button" class="mcut" onclick="swmCutOpen(\''+jsa(d.d)+'\')">●정산 안 함 '+swmCutN(d.cut)+'</button>';
+  if(d.guess) h+='<p class="mnote">기기 지점 모름 '+Number(d.guess)+'건 → 계정 지점으로</p>';
+  if(d.other) h+='<p class="mnote">'+esc(String(d.other).split('\n')[0])+'</p>';
+  if(ed){ var fs=['i9c'].concat(['i9s','trs','trr'].filter(function(f){ var xx=x[f]; return s.more[d.d]||s.ed[f+'|'+d.d]||(xx&&(Number(xx.app)||swmNum(xx.off)!=null||xx.any)); }));
+    fs.forEach(function(f){ var xx=x[f]||{}, val=swmBlkVal(v,d,f), off=swmNum(xx.off), e=s.ed[f+'|'+d.d];
+      h+='<div class="mfld"><span>'+SWM_OFF[f]+'<small>'+(e&&e.v==null?'앱 값으로':(off!=null||e?'사무실 값':'앱 값'))+(xx.app!=null&&xx.app!==''?' · 앱 '+Number(xx.app):'')+'</small></span>'+swmStp(f,d.d,val,'swmBlkStep','swmBlkIn','numeric')+'</div>';
+      if(xx.any&&off==null&&!e) h+='<p class="mnote">다른 지점 블록에 사무실 값이 있어 여긴 0 으로 셈 (두 번 안 셈)</p>';
+      if((off!=null&&!(e&&e.v==null))||(e&&e.v!=null)) h+='<button type="button" class="edit mback" onclick="swmBlkApp(\''+f+'\',\''+jsa(d.d)+'\')">앱 값으로 ('+(xx.any&&!(off!=null)?0:Number(xx.app)||0)+')</button>';
+      if(s.cerr[f+'|'+d.d]) h+='<p class="merr" role="alert">'+s.cerr[f+'|'+d.d]+'</p>'; });
+    if(fs.length<4) h+='<button type="button" class="edit mback" onclick="swmBlkMore(\''+jsa(d.d)+'\')">＋ I9 교체 추가 · 타리요</button>'; }
+  var mo=s.ed['memo|'+d.d]?(s.ed['memo|'+d.d].v||''):((d.memo&&d.memo.txt)||'');
+  if(ed||mo) h+='<button type="button" class="mmemo" onclick="swmMemoOpen(\''+jsa(d.d)+'\')"><b>메모 ✎</b><span>'+(mo?esc(String(mo).split('\n')[0]):'없음')+'</span></button>'+(s.cerr['memo|'+d.d]?'<p class="merr" role="alert">'+s.cerr['memo|'+d.d]+'</p>':'');
+  return h+'</div>'; }
+function swmCutN(t){ var n=0, re=/(\d+)건(?=\n|$)/g, m; t=String(t||''); while((m=re.exec(t))) n+=Number(m[1])||0; return n||1; }   // payNote '작업 불량 2건\n…' 의 건수 합
+function swmBlkDayOf(v,d){ var ds=(v.state.r&&v.state.r.days)||[]; for(var i=0;i<ds.length;i++) if(ds[i].d===d) return ds[i]; return {d:d,r:[],x:{},p10:0}; }
+function swmCutOpen(d){ var v=rpTop('sw_mblk'); if(!v) return; var day=swmBlkDayOf(v,d); haptic(6);
+  openSheet('<h3>'+swmDayLb(d)+' · 정산 안 함</h3><p class="wdnpv">'+esc(day.cut||'')+'</p><button class="btn" onclick="closeSheet()">확인</button>'); }
+/* 고친 값 넣기: 사무실 값이 없던 칸에 앱 값 그대로면 안 보냄 · 처음 값으로 돌아오면 지움 */
+function swmBlkSet(v,f,d,val){ var s=v.state, k=f+'|'+d, day=swmBlkDayOf(v,d), x=(day.x||{})[f]||{};
+  val=Math.max(0,Math.min(99,Math.round(Number(val)||0)));
+  if(val===swmXv(x)) delete s.ed[k]; else s.ed[k]={f:f,wkey:v.params.wkey,br:v.params.br,d:d,v:val,ver:swmVer(x.off)};   // 지금 값(사무실 → 앱) 그대로면 안 보냄
+  delete s.cerr[k]; }
+function swmBlkStep(f,d,dir){ var v=rpTop('sw_mblk'); if(!v||v.state.saving) return; var day=swmBlkDayOf(v,d); haptic(4); swmBlkSet(v,f,d,swmBlkVal(v,day,f)+dir); swmBlkDraw(v); }   // 버튼 = 칸에 포커스 안 줌 (폰 키보드 안 뜸)
+function swmBlkIn(f,d,el){ var v=rpTop('sw_mblk'); if(!v||!el||v.state.saving) return; var t=String(el.value||'').replace(/\D/g,'').slice(0,2); swmBlkSet(v,f,d,t===''?0:Number(t)); swmBlkDraw(v); }
+function swmBlkApp(f,d){ var v=rpTop('sw_mblk'); if(!v||v.state.saving) return; var s=v.state, k=f+'|'+d, day=swmBlkDayOf(v,d), x=(day.x||{})[f]||{}; haptic(6);
+  if(swmNum(x.off)!=null) s.ed[k]={f:f,wkey:v.params.wkey,br:v.params.br,d:d,v:null,ver:swmVer(x.off)}; else delete s.ed[k]; swmBlkDraw(v); }
+function swmBlkMore(d){ var v=rpTop('sw_mblk'); if(!v) return; haptic(6); v.state.more[d]=1; swmBlkDraw(v); }
+/* 포인트 조정 (adj · 0.1포인트 정수 · −9,999.9 ~ 9,999.9 · 버튼 = 1포인트씩) */
+function swmAdjSet(v,p10){ var s=v.state, r=s.r||{}, a0=swmNum(r.adj)||0; p10=Math.max(-99999,Math.min(99999,Math.round(Number(p10)||0)));
+  if(p10===a0) delete s.ed['adj|']; else s.ed['adj|']={f:'adj',wkey:v.params.wkey,br:v.params.br,d:'',v:p10===0?null:p10,ver:swmVer(r.adj)};   // 0 = 지움
+  delete s.cerr['adj|']; }
+function swmAdjStep(f,d,dir){ var v=rpTop('sw_mblk'); if(!v||v.state.saving) return; var e=v.state.ed['adj|'], cur=e?(e.v||0):(swmNum(v.state.r.adj)||0); haptic(4); swmAdjSet(v,cur+dir*10); swmBlkDraw(v); }
+function swmAdjIn(f,d,el){ var v=rpTop('sw_mblk'); if(!v||!el||v.state.saving) return; var t=String(el.value||'').replace(/[^0-9.\-]/g,''), n=Number(t); if(t===''||t==='-') n=0; if(!isFinite(n)){ toast('숫자로 적어 주세요 (예: -12.5)'); swmBlkDraw(v); return; }
+  swmAdjSet(v,Math.round(n*10)); swmBlkDraw(v); }
+/* 날짜 메모 (그 블록 그 날 · 500자 · 엑셀 날짜 칸 메모에 앱 글 뒤로) */
+function swmMemoOpen(d){ var v=rpTop('sw_mblk'); if(!v) return; var day=swmBlkDayOf(v,d), e=v.state.ed['memo|'+d], t=e?(e.v||''):((day.memo&&day.memo.txt)||''); haptic(6);
+  if(!swmBlkCan(v)){ openSheet('<h3>'+swmDayLb(d)+' 메모</h3><p class="wdnpv">'+esc(t)+'</p><button class="btn" onclick="closeSheet()">확인</button>'); return; }
+  openSheet('<h3>'+swmDayLb(d)+' 메모</h3><p>엑셀 그 날짜 칸 메모에 들어가요 (저장은 아래 [저장]).</p><textarea class="input mta" id="swm_dm" maxlength="500" rows="4" placeholder="날짜 메모">'+esc(t)+'</textarea>'+
+    '<div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="swmMemoOk(\''+jsa(d)+'\')">확인</button></div>'); }
+function swmMemoOk(d){ var v=rpTop('sw_mblk'), ta=$('swm_dm'); if(!v) return; var t=String(ta?ta.value:'').trim(), day=swmBlkDayOf(v,d), m0=String((day.memo&&day.memo.txt)||'').trim(), k='memo|'+d;
+  if(t===m0) delete v.state.ed[k]; else v.state.ed[k]={f:'memo',wkey:v.params.wkey,br:v.params.br,d:d,v:t||null,ver:swmVer(day.memo)};
+  closeSheet(); swmBlkDraw(v); }
+/* [날짜 추가]: 그 달 날짜 고르기 → 빈 날 줄 (확인 안 한 날에 사무실 값 넣기) */
+function swmBlkAddDay(){ var v=rpTop('sw_mblk'); if(!v) return; var ym=v.params.ym, n=swmDays(ym); haptic(6);
+  openSheet('<h3>날짜 추가</h3><p>'+esc(swYmLabel(ym))+' 안 날짜를 골라요.</p><input class="input" id="swm_ad" type="date" min="'+ym+'-01" max="'+ym+'-'+pad2(n)+'" value="'+ym+'-01">'+
+    '<div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" onclick="swmBlkAddGo()">추가</button></div>'); }
+function swmBlkAddGo(){ var v=rpTop('sw_mblk'), el=$('swm_ad'); if(!v) return; var d=String(el?el.value:''), ym=v.params.ym;
+  if(d.slice(0,7)!==ym||!/^\d{4}-\d\d-\d\d$/.test(d)||+d.slice(8)<1||+d.slice(8)>swmDays(ym)){ toast(swYmLabel(ym)+' 안 날짜를 골라 주세요'); return; }
+  if(v.state.extra.indexOf(d)<0) v.state.extra.push(d); v.state.more[d]=1; closeSheet(); swmBlkDraw(v); setTimeout(function(){ var e=$('swmd_'+d); if(e&&e.scrollIntoView) try{ e.scrollIntoView({block:'center'}); }catch(x){} },60); }
+
+/* ---- F-3b 날짜별 한꺼번에 (sw_mday · 관리자·마스터) — 한 줄 = (계정, 그 날) · 지점은 하나만 → 저장 때 그 지점 줄에 값 · 다른 지점 같은 칸은 지움 (A-4 · 두 번 안 셈) ---- */
+VIEWS.sw_mday={ render:function(v){ reanim(v); v.dock='sw_mday'; v.state.date=v.state.date||v.params.date; v.state.cerr={};
+  v.refresh=function(){ return swmDayLoad(v); };
+  v.el.innerHTML=title('날짜별 입력',swmDayLb(v.state.date))+spin(); swmDayLoad(v); }};
+function swmDayLoad(v,keepErr){ var tok=v.state.tok=(v.state.tok||0)+1, d=v.state.date; if(!keepErr) v.state.cerr={};
+  return rpRun('swmDay',[v.params.ym,d]).then(function(r){ if(stack.indexOf(v)<0||v.state.tok!==tok) return;
+      if(!r||r.ok===false) throw new Error(r&&r.legacy?'지금은 예전(구글) 작업현황이에요. 작업현황을 다시 열어 주세요.':((r&&r.error)||'오류'));
+      v.state.r=r; swmDayReset(v); swmDayDraw(v); })
+    .catch(function(e){ if(stack.indexOf(v)<0||v.state.tok!==tok) return; if(e&&e.auth===false) return;
+      v.state.r=null; v.el.innerHTML=title('날짜별 입력',swmDayLb(d))+swmDayNav(v)+errBox(e)+'<button class="btn line" onclick="swmDayRetry()">다시 시도</button>'; rpDockSet(v,false); }); }
+function swmDayRetry(){ var v=rpTop('sw_mday'); if(!v) return; v.el.innerHTML=title('날짜별 입력',swmDayLb(v.state.date))+spin(); swmDayLoad(v); }
+/* 줄마다 화면 상태: I9 지점(bI)·타리요 지점(bT)·메모 지점(bM) · 칸 글 (c·s·ts·tr·memo) · 처음 값 (o) */
+function swmOffAny(off,k){ return ['HN','SW'].filter(function(b){ return swmNum(off&&off[b]&&off[b][k])!=null; }); }
+function swmDayRowInit(x){ var acct=x.acct==='SW'?'SW':'HN', i9=x.i9||{}, tr=x.tr||{}, io=i9.off||{}, to=tr.off||{}, mm=x.memo||{};
+  var ib=swmOffAny(io,'c').concat(swmOffAny(io,'s')), tb=swmOffAny(to,'s').concat(swmOffAny(to,'r'));
+  var bI=ib.length?ib[0]:((i9.app&&(i9.app.b==='HN'||i9.app.b==='SW'))?i9.app.b:acct), bT=tb.length?tb[0]:((tr.app&&(tr.app.b==='HN'||tr.app.b==='SW'))?tr.app.b:acct);
+  var val=function(off,app,b,k,ak){ var any=swmOffAny(off,k); if(any.length) return String(swmNum(off[any.indexOf(b)>=0?b:any[0]][k])); var a=app&&Number(app[ak]); return a?String(a):''; };
+  var bM=(mm.HN&&mm.HN.txt)?'HN':((mm.SW&&mm.SW.txt)?'SW':bI);
+  var o={bI:bI,bT:bT,bM:bM,c:val(io,i9.app,bI,'c','c'),s:val(io,i9.app,bI,'s','s'),ts:val(to,tr.app,bT,'s','s'),tr:val(to,tr.app,bT,'r','r'),memo:(mm[bM]&&mm[bM].txt)||''};
+  return {o:o,f:JSON.parse(JSON.stringify(o)),open:!!(o.s||o.ts||o.tr||o.memo)}; }
+function swmDayReset(v){ var r=v.state.r||{}, rs={}; (r.rows||[]).concat(v.state.add||[]).forEach(function(x){ if(!rs[x.wkey]) rs[x.wkey]=swmDayRowInit(x); }); v.state.rs=rs; }
+function swmDayRows(v){ var r=v.state.r||{}, out=(r.rows||[]).slice(), seen={}; out.forEach(function(x){ seen[x.wkey]=1; }); (v.state.add||[]).forEach(function(x){ if(!seen[x.wkey]){ out.push(x); seen[x.wkey]=1; } }); return out; }
+function swmDayNav(v){ var d=v.state.date, ym=v.params.ym, n=swmDays(ym), day=+String(d).slice(8);
+  return '<div class="mnav"><button type="button" aria-label="전날" onclick="swmDayGo(-1)"'+(day<=1?' disabled':'')+'>‹</button><b>'+swmDayNavLb(d)+'</b><button type="button" aria-label="다음 날" onclick="swmDayGo(1)"'+(day>=n?' disabled':'')+'>›</button></div>'; }
+function swmDayGo(dir){ var v=rpTop('sw_mday'); if(!v||v.state.saving) return; if(swmDayEdits(v).length){ toast('먼저 저장하거나 [그만]을 눌러 주세요'); return; }
+  var ym=v.params.ym, n=swmDays(ym), day=+String(v.state.date).slice(8)+dir; if(day<1||day>n) return; haptic(6); v.state.date=ym+'-'+pad2(day); v.state.add=[]; v.state.r=null;
+  v.el.innerHTML=title('날짜별 입력',swmDayLb(v.state.date))+swmDayNav(v)+spin(); rpDockSet(v,false); swmDayLoad(v); }
+function swmDaySeg(wk,g,b){ return '<div class="seg mbs" role="group" aria-label="지점">'+['HN','SW'].map(function(x){ return '<button type="button" aria-pressed="'+(b===x)+'" class="'+(b===x?'on':'')+'" onclick="swmDayBr(\''+jsa(wk)+'\',\''+g+'\',\''+x+'\')">'+swBrName(x)+'</button>'; }).join('')+'</div>'; }
+function swmDayInp(wk,k,val,lb){ return '<input class="input mdi" id="swmi_'+esc(wk)+'_'+k+'" data-k="'+k+'" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" enterkeyhint="next" aria-label="'+lb+'" value="'+esc(val)+'" placeholder="0" oninput="swmDayIn(\''+jsa(wk)+'\',\''+k+'\',this)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();swmDayNext(this);}">'; }
+function swmDayDraw(v){ var r=v.state.r||{}, rows=swmDayRows(v), s=v.state, offN=0;
+  rows.forEach(function(x){ var i9=x.i9||{}, tr=x.tr||{}; if(swmOffAny(i9.off,'c').length||swmOffAny(i9.off,'s').length||swmOffAny(tr.off,'s').length||swmOffAny(tr.off,'r').length||(x.memo&&((x.memo.HN&&x.memo.HN.txt)||(x.memo.SW&&x.memo.SW.txt)))) offN++; });
+  var h=title('날짜별 입력',esc(swYmLabel(String(v.params.ym))))+swmDayNav(v);
+  h+='<p class="mnote mdsum">그 날 확인한 계정 '+rows.filter(function(x){ return x.confirmed; }).length+' · 사무실 입력 '+offN+'</p>';
+  if(!rows.length) h+='<div class="card"><div class="empty" style="padding:18px 0">이 날 확인한 계정이 없어요.<br>아래 [＋ 계정 추가]로 넣을 수 있어요.</div></div>';
+  else h+='<div class="card mlist">'+rows.map(function(x){ var st=s.rs[x.wkey]||(s.rs[x.wkey]=swmDayRowInit(x)), f=st.f, i9=x.i9||{}, tr=x.tr||{}, wk=x.wkey;
+      var ap=i9.app?'앱 '+(Number(i9.app.c)||0)+(i9.app.b&&i9.app.b!==(x.acct||'HN')?' ('+swBrName(i9.app.b)+')':''):'';
+      var hh='<div class="mdr"><div class="mdn"><b>'+esc(x.label)+'</b>'+(x.confirmed?'':'<em>확인 안 함</em>')+'</div>'+
+        '<div class="mdl"><label for="swmi_'+esc(wk)+'_c">I9 민원</label>'+swmDayInp(wk,'c',f.c,'I9 민원')+swmDaySeg(wk,'I',f.bI)+'</div>'+(ap?'<p class="mnote">'+ap+'</p>':'');
+      hh+='<button type="button" class="mfold2" aria-expanded="'+st.open+'" onclick="swmDayFold(\''+jsa(wk)+'\')">'+(st.open?'▾':'▸')+' 타리요 · I9 교체 추가 · 메모</button>';
+      if(st.open) hh+='<div class="mdx"><div class="mdl"><label for="swmi_'+esc(wk)+'_s">I9 교체 추가</label>'+swmDayInp(wk,'s',f.s,'I9 교체 추가')+'<span class="mbr">'+swBrName(f.bI)+'</span></div>'+
+        '<div class="mdl"><label for="swmi_'+esc(wk)+'_ts">타리요 교체</label>'+swmDayInp(wk,'ts',f.ts,'타리요 교체')+swmDaySeg(wk,'T',f.bT)+'</div>'+
+        '<div class="mdl"><label for="swmi_'+esc(wk)+'_tr">타리요 재배치</label>'+swmDayInp(wk,'tr',f.tr,'타리요 재배치')+'<span class="mbr">'+swBrName(f.bT)+'</span></div>'+
+        (tr.app?'<p class="mnote">앱 타리요 교체 '+(Number(tr.app.s)||0)+' · 재배치 '+(Number(tr.app.r)||0)+'</p>':'')+
+        '<label class="mmo" for="swmi_'+esc(wk)+'_memo"><span>메모 ('+swBrName(f.bM)+' 블록)</span><textarea class="input" id="swmi_'+esc(wk)+'_memo" maxlength="500" rows="2" placeholder="날짜 메모" oninput="swmDayMemo(\''+jsa(wk)+'\',this.value)">'+esc(f.memo)+'</textarea></label></div>';
+      hh+=swmDayBoth(x,f);
+      if(s.cerr[wk]) hh+='<p class="merr" role="alert">'+s.cerr[wk]+'</p>';
+      return hh+'</div>'; }).join('')+'</div>';
+  h+='<button type="button" class="btn line" onclick="swmDayAddAsk()">＋ 계정 추가</button>';
+  v.el.innerHTML=h; rpDockSet(v,true); }
+function swmDayView(){ return rpTop('sw_mday'); }
+/* 두 지점에 사무실 값이 다 있는 칸 → 이 화면은 지점 하나라 고치면 다른 지점 값이 지워짐 → 미리 알림 (v10.58 고침 · 나눠 넣기는 블록 화면) */
+function swmDayBoth(x,f){ var out=[], g=function(off,b,pairs){ var O=b==='HN'?'SW':'HN', mine=pairs.some(function(p){ return swmNum(off&&off[b]&&off[b][p[1]])!=null; }), oth=pairs.filter(function(p){ return swmNum(off&&off[O]&&off[O][p[1]])!=null; });
+    if(!mine||!oth.length) return; out.push(swBrName(O)+' 블록에도 사무실 값 '+oth.map(function(p){ return p[0]+' '+swmNum(off[O][p[1]]); }).join(' · ')); };
+  g((x.i9||{}).off,f.bI,[['I9 민원','c'],['I9 교체 추가','s']]); g((x.tr||{}).off,f.bT,[['타리요 교체','s'],['타리요 재배치','r']]);
+  return out.length?'<p class="merr mboth" role="note">'+ic('warn')+out.map(esc).join(' / ')+' — 여기서 고쳐 저장하면 그 값은 지워져요 (나눠 넣으려면 블록 화면에서)</p>':''; }
+function swmDayIn(wk,k,el){ var v=swmDayView(); if(!v||!el) return; var st=v.state.rs[wk]; if(!st||v.state.saving) return;
+  var t=String(el.value||'').replace(/\D/g,'').replace(/^0+(?=\d)/,'').slice(0,2); if(t!==el.value) el.value=t; st.f[k]=t; delete v.state.cerr[wk]; swmEdSync(v); }
+function swmDayMemo(wk,t){ var v=swmDayView(); if(!v) return; var st=v.state.rs[wk]; if(!st||v.state.saving) return; st.f.memo=String(t==null?'':t); swmEdSync(v); }
+function swmDayBr(wk,g,b){ var v=swmDayView(); if(!v||v.state.saving) return; var st=v.state.rs[wk]; if(!st) return; haptic(4); if(g==='I'){ st.f.bI=b; if(!st.o.memo) st.f.bM=b; } else st.f.bT=b; swmDayDraw(v); }
+function swmDayFold(wk){ var v=swmDayView(); if(!v) return; var st=v.state.rs[wk]; if(!st) return; haptic(4); st.open=!st.open; swmDayDraw(v); }
+function swmDayNext(el){ var v=swmDayView(); if(!v||!v.el||!v.el.querySelectorAll) return; var l=[].slice.call(v.el.querySelectorAll('input.mdi[data-k="c"]')), i=l.indexOf(el);
+  if(i>=0&&l[i+1]){ try{ l[i+1].focus(); l[i+1].select(); }catch(e){} } else if(el&&el.blur) el.blur(); }
+/* 보낼 칸 (A-4): 값·지점이 바뀐 칸만 · 고른 지점 줄 = 그 값 ('' = 지움) · 다른 지점에 사무실 값이 있으면 그 줄 = 지움 */
+function swmDayEdits(v){ var out=[], r=v.state.r; if(!r) return out; var d=v.state.date, rows=swmDayRows(v);
+  rows.forEach(function(x){ var st=v.state.rs[x.wkey]; if(!st) return; var f=st.f, o=st.o, i9=x.i9||{}, tr=x.tr||{};
+    var grp=function(off,b,b0,pairs){ var bc=b!==b0; pairs.forEach(function(pq){ var fld=pq[0], k=pq[1], ok=pq[2];
+        if(f[k]===o[k]&&!bc) return; var val=f[k]===''?null:Number(f[k]), O=b==='HN'?'SW':'HN', cell=off&&off[b]&&off[b][ok];
+        if(val!=null||swmNum(cell)!=null) out.push({f:fld,wkey:x.wkey,br:b,d:d,v:val,ver:swmVer(cell)});
+        var oc=off&&off[O]&&off[O][ok]; if(swmNum(oc)!=null) out.push({f:fld,wkey:x.wkey,br:O,d:d,v:null,ver:swmVer(oc)}); }); };
+    grp(i9.off,f.bI,o.bI,[['i9c','c','c'],['i9s','s','s']]); grp(tr.off,f.bT,o.bT,[['trs','ts','s'],['trr','tr','r']]);
+    var mt=String(f.memo).trim(); if(mt!==String(o.memo).trim()||(f.bM!==o.bM&&mt)){ var mm=x.memo||{}, mc=mm[f.bM];
+      if(mt||(mc&&mc.txt)) out.push({f:'memo',wkey:x.wkey,br:f.bM,d:d,v:mt||null,ver:swmVer(mc)});
+      var mO=f.bM==='HN'?'SW':'HN'; if(f.bM!==o.bM&&mm[mO]&&mm[mO].txt) out.push({f:'memo',wkey:x.wkey,br:mO,d:d,v:null,ver:swmVer(mm[mO])}); } });
+  return out; }
+/* [＋ 계정 추가] = 그 날 확인 안 한 계정에 넣을 때 (이 달 계정 · 확인이 하나도 없는 계정도 = 서버 accts) */
+function swmDayAddAsk(){ var v=swmDayView(); if(!v) return; var mi=swmMiTop(), have={}; swmDayRows(v).forEach(function(x){ have[x.wkey]=1; });
+  var am=mi?swmAcctAll(mi):{}, ks=Object.keys(am).filter(function(k){ return !have[k]; }).sort(function(a,b){ return String(am[a].label).localeCompare(String(am[b].label),'ko'); });
+  if(!ks.length){ toast(mi?'더 넣을 계정이 없어요':'작업현황을 다시 열어 주세요'); return; } haptic(6);
+  actSheet('계정 추가 · '+swmDayLb(v.state.date),ks.map(function(k){ return {lb:esc(am[k].label),sub:swBrName(am[k].acct)+' 계정',fn:'swmDayAdd(\''+jsa(k)+'\')'}; })); }
+function swmDayAdd(wk){ var v=swmDayView(); if(!v) return; var mi=swmMiTop(), a=(mi?swmAcctAll(mi):{})[wk]; if(!a) return;
+  var x={wkey:wk,label:a.label,name:a.name,acct:a.acct,confirmed:false,i9:{app:null,off:{}},tr:{app:null,off:{}},memo:{}};
+  (v.state.add=v.state.add||[]).push(x); v.state.rs[wk]=swmDayRowInit(x); swmDayDraw(v); setTimeout(function(){ var e=$('swmi_'+wk+'_c'); if(e) try{ e.focus(); }catch(z){} },60); }
+/* ================= v10.58 작업현황 (D1) 끝 ================= */
 
 /* ================= 작업자 관리 (관리자 전용) ================= */
 /* 작업내역에 모을 컬렉터 로그인 아이디(어드민 기기 기록의 "등록인")를 관리. 서버 시트 "SWING작업자" 탭에 저장된다. */
