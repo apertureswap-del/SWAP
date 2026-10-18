@@ -914,6 +914,15 @@
   .days button.on.z{color:#fff}   /* v10.61 고침 (d17 실측): 고른 달이 빈 달이면 .z 회색이 검정 칩 위에 남아 대비 2.8 → 흰 글 */
   .wlgo .wlgr{color:#c92a2a;font-weight:800} .wlgo .nw{white-space:nowrap}
   .wlck>div{padding:8px 0;border-top:1px solid var(--fill);font-size:13.5px;color:var(--ink2)} .wlck b{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--ink)} .wlck span{display:block;font-size:12.5px;color:#c92a2a;font-weight:700}
+  /* v10.62 내 포인트 더 보임 (주인 10/18 · 서버 0.9.1 이 숫자를 셈): 공제·실지급 줄 · 달말 예상 카드 ('예상' 딱지 #5b6573 on #f2f4f6 5.36) · 응원 줄 (#1e3a8a on #e3e9f8 8.52 · 14px) · 지난달 한 줄 (카드 버튼 64px) · 글 12px 이상 */
+  .mded{margin-top:10px;padding-top:6px;border-top:1px solid var(--fill)} .mrow.ms{font-size:13.5px} .mrow.ms b{font-size:15px;font-weight:700;color:var(--ink2)} .mrow.mnet b{font-size:20px} .mrow b.neg{color:#c92a2a}
+  .mfore h3.mfh{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:16px;font-weight:800} .mest{font-style:normal;font-size:12px;font-weight:800;padding:2px 8px;border-radius:999px;background:#f2f4f6;color:#5b6573}
+  .mcheer{margin:12px 0 4px;padding:10px 12px;border-radius:12px;background:#e3e9f8;color:#1e3a8a;font-size:14px;line-height:1.5;font-variant-numeric:tabular-nums} .mcheer b{font-weight:800}
+  .mpt.mmore{margin-top:6px} .mpt.mmore td.z{color:var(--muted);font-weight:600}
+  .card.mlast{display:block;width:100%;min-height:64px;padding:14px 18px;text-align:left;color:var(--ink)} .card.mlast:active{transform:scale(.98)}
+  .mlv{display:block;margin-top:4px;font-size:13.5px;color:var(--ink2);font-variant-numeric:tabular-nums} .mclp2{font-style:normal;font-size:12px;font-weight:800;margin-left:6px;padding:2px 8px;border-radius:999px;background:#e3e9f8;color:#1e3a8a}
+  .mclp2.o{background:#f2f4f6;color:#5b6573}   /* v10.62 검증 고침: 지난달 '마감 전' 딱지 (#5b6573 on #f2f4f6 5.36 · 예상 딱지와 같은 회색) */
+  .msub .nw,.mhn .nw{white-space:nowrap} .mhn.mhf{margin-top:2px} .mhn.mhf b{font-weight:800;color:var(--ink)}
   @media (prefers-reduced-motion:reduce){ .mpbar i{transition:none} .wlst li.on i{animation:none} }
   .swold{margin-top:12px;font-size:12.5px;font-weight:700;color:var(--danger);background:#fdecec;border-radius:10px;padding:8px 10px;line-height:1.45}
   /* 작업자 세부 */
@@ -1243,7 +1252,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.61';   // v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
+var APP_VER = '10.62';   // v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -5548,10 +5557,13 @@ function mineLoad(force){ if(!mineCan()) return Promise.resolve(null);
   return SWMINE.p; }
 function mineOn(){ var r=SWMINE.r; return !!(mineCan()&&r&&SWMINE.code===AUTH.code&&r.on&&!r.off&&!r.legacy); }
 function swMineHome(){ var r=SWMINE.r; if(!mineOn()||!r.linked||!(r.me||[]).length) return '';
-  var m=r.me[0], nx=m.next;
+  var m=r.me[0], nx=m.next, f=m.fore, cur=swmCurYm(r.ym)&&!r.closed;
+  // v10.62 (뜻 바뀜 · 주인 10/18): 달말 예상(지금 속도면)이 생겨 지금 금액 = '지금까지' (예전 '예상') · 다음 구간 = 작업 몇 개 · 달말 예상 한 줄
   return '<div id="swmhome"><button type="button" class="card mhome" onclick="push(\'sw_mine\',{})"><span class="mht"><b>내 포인트 · '+swmMonLb(r.ym)+(r.closed?' 마감':'')+'</b><i aria-hidden="true">›</i></span>'+
-    '<span class="mhv"><b>'+swmP(m.p10)+'p</b><span>예상 '+swmW(m.pay)+'원</span></span>'+swMineBar(m)+
-    (nx?'<span class="mhn">다음 '+swmPfTxt(nx.pf)+'p 까지 '+swmP(nx.need10)+'p</span>':'')+(r.me.length>1?'<span class="mhn">정산에서 '+r.me.length+'명으로 나뉘어요 · 눌러서 보기</span>':'')+'</button></div>'; }
+    '<span class="mhv"><b>'+swmP(m.p10)+'p</b><span>'+(cur?'지금까지 ':'')+swmW(m.pay)+'원</span></span>'+swMineBar(m)+
+    (nx?'<span class="mhn">다음 '+swmPfTxt(nx.pf)+'p 까지 '+swmP(nx.need10)+'p'+swMineTasks(m,nx)+'</span>':'')+
+    (cur&&f&&!f.early&&f.pay!=null?'<span class="mhn mhf">지금 속도면 달말 <b>'+swmW(f.pay)+'원</b></span>':'')+
+    (r.me.length>1?'<span class="mhn">정산에서 '+r.me.length+'명으로 나뉘어요 · 눌러서 보기</span>':'')+'</button></div>'; }
 function swMineKick(v){ if(!mineCan()) return; var before=swMineHome();
   mineLoad(false).then(function(){ if(stack[stack.length-1]!==v||v.name!=='home'||SERVER!=='swing') return; var h=swMineHome(); if(h===before) return;
     var el=$('swmhome'); if(el&&h){ el.innerHTML=h.slice('<div id="swmhome">'.length,h.length-6); return; }
@@ -5589,22 +5601,57 @@ function swMineDraw(v){ var r=v.state.r, e=v.state.err, h=swMineHeadHtml(v);
   if(e) h+=nbar('새로고침 실패 · '+esc(e.message),true);
   if(r.closed) h+=nbar('<b>마감한 달이에요</b> · '+esc(swmAtTxt(r.closed.at))+' 기준 숫자');
   if(!(r.me||[]).length) h+='<div class="card"><div class="empty">'+(swmCurYm(r.ym)?'이번 달':swmMonLb(r.ym))+'은 아직 확인한 작업이 없어요.<br>작업자 세부에서 확인하면 포인트가 들어가요.</div></div>';
-  (r.me||[]).forEach(function(m){ h+=swMinePerson(r,m); });
-  h+=tipBox('swm_mine','확인한 날 기준 예상 · 공제 전 금액 · 정산은 익월 10일',esc(r.note||'확인한 날 기준 예상이에요 · 판정·감점·마감에 따라 바뀔 수 있어요 · 공제(배터리 분실 등) 전 금액')+' · 정산은 익월 10일이에요.','내 포인트');
+  (r.me||[]).forEach(function(m,i){ h+=swMinePerson(r,m,i); });
+  if(!(r.me||[]).length) h+=swMineLast(r);   // v10.62 이번 달 일 없음이어도 지난달 한 줄
+  h+=tipBox('swm_mine','확인한 날 기준 · 달말 예상 = 지금 속도면 · 정산은 익월 10일',esc(r.note||'확인한 날 기준이에요 · 판정·감점·공제·마감에 따라 바뀔 수 있어요')+' · 정산은 익월 10일이에요.','내 포인트');   // v10.62 (뜻 바뀜): 공제를 보여 '공제 전 금액' 글 뺌
   v.el.innerHTML=h; }
 function swMineSub(m){ var a=[]; if(Number(m.pen10)) a.push('감점 −'+swmP(m.pen10)+'p'); if(Number(m.rate)) a.push('성과 가산 '+swmRtTxt(m.rate)+' (+'+swmP(m.add10)+'p)'); a.push('정산 포인트 '+swmPfTxt((Number(m.pf10)||0)/10)); return a.join(' · '); }
-function swMinePerson(r,m){ var nx=m.next, ds=(m.days||[]).slice().sort(function(a,b){ return a.d<b.d?1:(a.d>b.d?-1:0); }), pre=ds.filter(function(d){ return d.pre; }).length, h='';
+function swMinePerson(r,m,i){ var nx=m.next, ds=(m.days||[]).slice().sort(function(a,b){ return a.d<b.d?1:(a.d>b.d?-1:0); }), pre=ds.filter(function(d){ return d.pre; }).length, h='', lb=swMineLb(r);
   if(r.me.length>1) h+='<div class="sec"><span>'+esc(m.name||'')+'</span><span>'+esc((m.labels||[]).join(' · '))+'</span></div>';
   h+='<div class="card mmine"><div class="mrow"><span>'+(swmCurYm(r.ym)?'이번 달':swmMonLb(r.ym))+' 포인트</span><b class="mbig">'+swmP(m.p10)+'p</b></div>'+
-    '<div class="mrow"><span>예상 정산금</span><b>'+swmW(m.pay)+'원</b></div>'+swMineBar(m)+
-    (nx?'<p class="msub">다음 구간 '+swmPfTxt(nx.pf)+'p 까지 <b>'+swmP(nx.need10)+'p</b> · 그 구간 '+swmW(nx.pay)+'원</p>':'')+
-    '<p class="msub m">'+swMineSub(m)+'</p></div>';
+    '<div class="mrow"><span>'+lb.pay+'</span><b>'+swmW(m.pay)+'원</b></div>'+swMineBar(m)+   // v10.62 (뜻 바뀜): '예상 정산금' → 지금까지 · 마감 전 · 정산금 (달말 예상은 아래 카드)
+    (nx?'<p class="msub">다음 구간 '+swmPfTxt(nx.pf)+'p 까지 <b>'+swmP(nx.need10)+'p</b>'+swMineTasks(m,nx)+' · <span class="nw">그 구간 '+swmW(nx.pay)+'원</span></p>':'')+
+    '<p class="msub m">'+swMineSub(m)+'</p>'+swMineDed(m,lb)+'</div>';
+  h+=swMineFore(r,m);   // v10.62 달말 예상 (이번 달만)
+  if(!i) h+=swMineLast(r);   // v10.62 지난달 한 줄 (첫 사람 카드 아래 한 번)
   if(pre) h+=nbar('확인 전인 날 <b>'+pre+'일</b> — 확인하면 포인트가 들어가요');
   if(Number(m.left)) h+=nbar('계산 중 확인 <b>'+Number(m.left)+'건</b> — 잠시 뒤 바뀌어요');
-  h+='<div class="card mlist"><h3 class="mdh3">날짜별</h3>'+(ds.length?ds.map(function(d){ return '<div class="mdr2"><span class="d">'+swmDayLb(d.d)+'</span>'+(d.pre?'<em class="mpre">확인 전</em>':(d.cut?'<em class="mcutp">●정산 안 함 있음</em>':''))+'<b>'+(d.pre?'':swmP(d.p10)+'p')+'</b></div>'; }).join(''):'<div class="empty" style="padding:12px 0">이 달은 아직 확인한 날이 없어요.</div>')+'</div>';
+  // v10.62 검증 고침: off = 사무실 입력만 있는 날 (서버 0.9.1 · 확인한 날로 안 셈 · 포인트만) · 확인 전 날에 사무실 포인트가 있으면 포인트도
+  h+='<div class="card mlist"><h3 class="mdh3">날짜별</h3>'+(ds.length?ds.map(function(d){ return '<div class="mdr2"><span class="d">'+swmDayLb(d.d)+'</span>'+(d.pre?'<em class="mpre">확인 전</em>':(d.off?'<em class="mpre">사무실 입력</em>':(d.cut?'<em class="mcutp">●정산 안 함 있음</em>':'')))+'<b>'+(d.pre&&!Number(d.p10)?'':swmP(d.p10)+'p')+'</b></div>'; }).join(''):'<div class="empty" style="padding:12px 0">이 달은 아직 확인한 날이 없어요.</div>')+'</div>';
   var rows=(m.rows||[]).filter(function(x){ return Number(x.n)||Number(x.p10); });
   if(rows.length) h+='<details class="mfold mrowf"><summary>▸ 작업별 ('+rows.length+'가지)</summary><table class="mpt">'+rows.map(function(x){ return '<tr><td>'+esc(x.name)+'</td><td>'+rpWon(x.n)+'개</td><td>'+swmP(x.p10)+'p</td></tr>'; }).join('')+'</table></details>';
   return h; }
+/* v10.62 내 포인트 더 보임 (주인 10/18 '1달 평균치 정산금 · 하루 몇 개 더 하면 얼마 더') — 숫자는 서버 0.9.1 swmMine 이 다 셈 (pay.js 같은 식) · 앱은 그리기만
+   공제·실지급 (본인 · 마감한 달 = 사진) · 달말 예상 = '지금 속도면' (이번 달만 · 확인한 날 3일 전 = 아직 일러요) · 하루 1·3·5개 더 · 다음 구간 작업 수 · 지난달 한 줄 (마감이면 딱지) */
+function swmMan(n){ n=Math.max(0,Math.floor(Number(n)||0)); if(n<10000) return rpWon(n)+'원'; var a=Math.floor(n/10000), c=Math.floor((n%10000)/1000); return rpWon(a)+'만'+(c?' '+c+'천':'')+' 원'; }   // 42,350 → '4만 2천 원' (천 아래 버림 · 정확한 값은 옆 표)
+function swmMd(d){ var p=String(d||'').split('-'); return p.length===3?(+p[1])+'/'+p[2]:esc(d); }
+function swMineLb(r){ var cur=swmCurYm(r.ym)&&!r.closed, cl=!!r.closed;   // 이번 달 = 지금까지 · 끝난 달 마감 전 · 마감한 달 = 정산금 그대로
+  return cur?{pay:'지금까지 정산금',net:'지금까지 실지급'}:(cl?{pay:'정산금',net:'실지급액'}:{pay:'정산금 (마감 전)',net:'실지급 (마감 전)'}); }
+function swMineTasks(m,nx){ var n=Number(nx&&nx.n)||0; return n&&m.top&&m.top.name?' · <span class="nw">'+esc(m.top.name)+' '+rpWon(n)+'개</span>':''; }
+function swMineDed(m,lb){ if(m.ded==null||m.net==null) return '';   // 옛 서버 (0.9.0) = 공제 칸 없음 → 안 그림
+  var bat=Number(m.dedBat)||0, bad=Number(m.dedBad)||0, ded=Number(m.ded)||0, rs=[];
+  if(bat) rs.push(['공제 · 배터리 분실',bat]); if(bad) rs.push(['공제 · 작업 불량',bad]);
+  if(!rs.length||bat+bad!==ded) rs=[['공제',ded]];   // 사진 합이 칸 합과 다르면 합 하나만 (실지급 = 정산금 − 이 값)
+  return '<div class="mded">'+rs.map(function(x){ return '<div class="mrow ms"><span>'+x[0]+'</span><b>'+(x[1]>0?'−'+swmW(x[1]):(x[1]<0?'+'+swmW(-x[1]):'0'))+'원</b></div>'; }).join('')+
+    '<div class="mrow mnet"><span>'+lb.net+'</span><b'+(Number(m.net)<0?' class="neg"':'')+'>'+swmW(m.net)+'원</b></div></div>'; }
+function swMineHow(f){ var w=f.win||[], rg=w.length===2?swmMd(w[0])+'~'+swmMd(w[1]):'';
+  return f.how==='week'?'최근 근무 요일('+rg+')로 셈':(f.how==='rate'?'일한 날('+rg+') 평일·주말 비율로 셈':'최근 4주에 일한 날이 없어 더하지 않았어요'); }   // v10.62 검증 고침 (뜻 바뀜): 서버가 안 겪은 요일 = 평일·주말 따로 (주말 일한 적 없으면 0)
+function swMineFore(r,m){ var f=m.fore; if(!f||!swmCurYm(r.ym)||r.closed) return '';   // 서버도 이번 달만 줌
+  var h='<div class="card mfore"><h3 class="mfh">지금 속도면 이번 달<em class="mest">예상</em></h3>';
+  if(f.early) return h+'<p class="msub">아직 일러요 — 확인한 날이 '+(Number(f.need)||3)+'일 되면 달말 예상을 보여 드려요 (지금 '+(Number(f.n)||0)+'일)</p></div>';
+  var t=(m.top&&m.top.name)||'배터리 교체', more=f.more||[], hd=null, nx=f.next;
+  h+='<div class="mrow"><span>달말 예상 포인트</span><b>'+swmP(f.p10)+'p</b></div><div class="mrow"><span>예상 정산금</span><b>'+swmW(f.pay)+'원</b></div>'+
+    (Number(m.ded)?'<div class="mrow"><span>예상 실지급</span><b'+(Number(f.net)<0?' class="neg"':'')+'>'+swmW(f.net)+'원</b></div>':'')+
+    '<p class="msub m">하루 평균 '+swmP(f.avg10)+'p × 남은 약 '+swmP(f.e10)+'일'+(Number(f.known)?' (확인 전 '+Number(f.known)+'일 포함)':'')+' · '+swMineHow(f)+'</p>';
+  more.forEach(function(x){ if(!hd&&x.n===3&&x.plus>0) hd=x; }); more.forEach(function(x){ if(!hd&&x.plus>0) hd=x; });
+  if(hd) h+='<p class="mcheer">'+esc(t)+' 하루 <b>'+hd.n+'개</b>만 더 하면 이번 달 <b>+'+swmMan(hd.plus)+'</b></p>';
+  else if(nx&&Number(nx.n)>0&&Number(nx.plus)>0) h+='<p class="mcheer">'+esc(t)+' <b>'+rpWon(nx.n)+'개</b>만 더 하면 다음 구간 <b>+'+swmMan(nx.plus)+'</b></p>';
+  if(more.length) h+='<table class="mpt mmore">'+more.map(function(x){ return '<tr><td>하루 '+x.n+'개 더</td><td>'+swmP(x.p10)+'p</td>'+(x.plus>0?'<td>+'+swmW(x.plus)+'원</td>':'<td class="z">구간 그대로</td>')+'</tr>'; }).join('')+'</table>';
+  if(nx&&Number(nx.n)>0) h+='<p class="msub">달말 예상에서 다음 구간 '+swmPfTxt(nx.pf)+'p 까지 '+esc(t)+' <b>'+rpWon(nx.n)+'개</b> · 그 구간 '+swmW(nx.pay)+'원</p>';
+  return h+'</div>'; }
+function swMineLast(r){ var L=r.last; if(!L||!(L.me||[]).length||!swmCurYm(r.ym)) return '';   // v10.62 검증 고침: 마감 안 한 달 = '마감 전' 딱지 (확정처럼 안 읽히게 · 그 달 화면 '(마감 전)' 과 같은 뜻)
+  return '<button type="button" class="card mlast" onclick="swMineGo(\''+jsa(L.ym)+'\')"><span class="mht"><b>지난달 '+swmMonLb(L.ym)+' 결과'+(L.closed?'<em class="mclp2">마감</em>':'<em class="mclp2 o">마감 전</em>')+'</b><i aria-hidden="true">›</i></span>'+
+    L.me.map(function(x){ return '<span class="mlv">'+(L.me.length>1?esc(x.name)+' · ':'')+swmP(x.p10)+'p · 정산금 '+swmW(x.pay)+'원 · 실지급 '+swmW(x.net)+'원</span>'; }).join('')+'</button>'; }
 function mineRowShow(){ return mineOn(); }   // 환경설정 '내 포인트' 줄 = 서버 스위치 켜짐일 때만 (연결 없음이어도 = 화면에서 안내)
 function meMineKick(v){ if(!mineCan()) return; var b=mineRowShow(); mineLoad(false).then(function(){ if(stack[stack.length-1]===v&&v.name==='me'&&mineRowShow()!==b) VIEWS.me.render(v); }); }
 
