@@ -936,7 +936,9 @@
   .wlst li.skip{color:var(--muted)} .wlst li.skip i{box-shadow:inset 0 0 0 2px var(--line)}
   .rpdock .wlbar{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:#fff;box-shadow:0 10px 26px rgba(0,0,0,.16);pointer-events:auto}
   .wlbm{flex:1;min-width:0} .wlbt{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
-  .wlbl{min-width:0;font-size:15px;font-weight:800;color:#1c1f24;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .wlbp{flex:0 0 auto;font-size:15px;font-weight:800;color:#1c1f24;font-variant-numeric:tabular-nums}
+  .wlbl{min-width:0;font-size:15px;font-weight:800;color:#1c1f24;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wlbl.w2{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}   /* v10.64 '08:30 자동 · 재고리스트 · {단계}' = 360 에서 두 줄까지 (한 줄이면 단계가 … 로 잘림) */
+  .wlbp{flex:0 0 auto;font-size:15px;font-weight:800;color:#1c1f24;font-variant-numeric:tabular-nums}
   .wlbtr{height:10px;border-radius:5px;background:#e3e7ec;overflow:hidden} .wlbtr i{display:block;height:100%;width:0;border-radius:5px;background:var(--p);transition:width .4s ease-out}
   .wlbar.ok .wlbtr i{background:#18693a} .wlbar.ok .wlbp{color:#18693a} .wlbar.bad .wlbtr i{background:#c92a2a} .wlbar.bad .wlbl,.wlbar.bad .wlbp{color:#c92a2a} .wlbar.wait .wlbtr i{animation:wlpulse 1s ease-in-out infinite alternate}
   .rpdock .wlbar .btn.wlbb{flex:0 0 auto;width:auto;min-height:44px;padding:10px 16px;font-size:15px;box-shadow:none}
@@ -1274,7 +1276,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.63';   // v10.63 작업 리스트 (재고리스트·배송리스트 PDF · 아래 진행 막대) · 추가기능 줄 정리 · SWING '내 작업 확인' (Worker 0.9.2 짝) · v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
+var APP_VER = '10.64';   // v10.64 평일 08:30 자동 = 재고리스트 흐름 (결과 카드·막대·이름 '08:30 자동 · 재고리스트' · Worker 0.9.3 짝) · v10.63 작업 리스트 (재고리스트·배송리스트 PDF · 아래 진행 막대) · 추가기능 줄 정리 · SWING '내 작업 확인' (Worker 0.9.2 짝) · v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -5827,8 +5829,9 @@ function wlStepsHtml(rr,run){ var st=rr.state, ix=st==='done'?5:(st==='queued'?-
     if(i===0&&noDates) c='skip';
     return '<li class="'+c+'"><i aria-hidden="true"></i><span>'+x[1]+(c==='skip'?' · 안 함':'')+'</span></li>'; }).join('')+'</ol>'; }
 function wlRunBox(rr,run,ctl){ if(!rr) return '<p class="msub m">불러오는 중…</p>';
-  var h='<div class="wlbox"><div class="wlhd"><b>'+esc(WL_KIND[rr.kind]||'실행')+(rr.dry?' · 미리보기':'')+' · '+wlStHtml(rr)+'</b><span>'+(rr.at?esc(rpHM(rr.at)):'')+(rr.by?' · '+esc(rr.by):'')+'</span></div>';
-  h+=wlStepsHtml(rr,run);
+  var au=wllAutoR(rr), h='<div class="wlbox"><div class="wlhd"><b>'+esc(au?WLL_AUTO_NM:(WL_KIND[rr.kind]||'실행'))+(rr.dry?' · 미리보기':'')+' · '+wlStHtml(rr)+'</b><span>'+(rr.at?esc(rpHM(rr.at)):'')+(rr.by&&!au?' · '+esc(rr.by):'')+'</span></div>';
+  h+=au?wllStepsHtml(rr,run):wlStepsHtml(rr,run);   // v10.64 08:30 자동 (재고 흐름) = 재고 걸음 (PDF 까지)
+  if(au&&rr.state==='done'&&wllPdfsOf(rr).length) h+='<p class="msub m">재고리스트 PDF '+(wllPages(rr)?wllPages(rr)+'쪽 ':'')+'· 추가기능 › 작업 리스트에서 받아요</p>';   // PDF 받기는 작업 리스트 화면 (이 화면은 시트 결과)
   if(wlRunLive(rr)) h+='<p class="msub">'+(rr.state==='queued'?'곧 시작해요…':'진행 중이에요 — 화면을 나가도 서버가 계속해요')+'</p>'+(rr.error?'<p class="msub m">잠깐 막혀 다시 해요 · '+esc(wlErrTxt(rr.error,rr.report))+(rr.tries?' ('+Number(rr.tries)+'번째)':'')+'</p>':'')+(ctl?'<button class="btn line" id="wl_stop" onclick="wlStop()">멈추기</button>':'');
   else if(rr.state==='failed') h+='<p class="merr" role="alert">'+esc(wlErrTxt(rr.error||rr.line,rr.report))+'</p>';
   if(run&&run.perr) h+='<p class="msub m">상태를 못 받았어요 · '+esc(run.perr)+' (다시 받는 중)</p>';
@@ -6007,16 +6010,16 @@ function wlNextIso(a,la,nowMs){ var d=new Date(nowMs||Date.now()), today=rpIso(d
 function wlNextTxt(a,la,nowMs){ a=a||{}; var iso=/^\d{4}-\d\d-\d\d$/.test(String(a.next||''))?String(a.next):wlNextIso(a,la,nowMs);
   return (iso===rpIso(new Date(nowMs||Date.now()))?'오늘':wlDayTxt(iso))+' '+esc(a.at||'08:30'); }
 function wlAutoInner(v){ var i=v.state.info||{}, a=i.auto||{}, can=!!i.canSwitch&&isMasterLike(), la=i.lastAuto, at=esc(a.at||'08:30');
-  var h='<div class="prow"'+(can?' onclick="rowSwTap(event)"':'')+'><div class="pl"><b>평일(월~금) '+at+' 자동</b><span>작업예정일 설정 → 가져오기 → 결과 슬랙 #워크플러스 (건수만)'+(can?'':' · 마스터·부마스터가 켜요')+'</span></div>'+
+  var h='<div class="prow"'+(can?' onclick="rowSwTap(event)"':'')+'><div class="pl"><b>평일(월~금) '+at+' 자동</b><span>'+esc(WLL_AUTO_SUB)+' · 결과 슬랙 #워크플러스 (건수만)'+(can?'':' · 마스터·부마스터가 켜요')+'</span></div>'+   // v10.64 (주인 10/18): 자동 = 재고리스트 흐름 (예전 '작업예정일 설정 → 가져오기')
     '<button type="button" class="sw'+(a.on?' on':'')+'" id="wl_autosw" aria-label="평일 자동" aria-pressed="'+(!!a.on)+'" onclick="wlAutoSw()"'+(can&&!v.state.autoBusy?'':' disabled')+'></button></div>';
   h+='<p class="msub">'+(a.on?'다음: '+wlNextTxt(a,la):'꺼져 있어요')+(a.by?' · '+esc(a.by)+(a.ms?' '+esc(rpHM(a.ms)):'')+' '+(a.on?'켬':'끔'):'')+'</p>';
   h+='<p class="mnote">토·일은 안 돌아요 (공휴일은 따로 안 봐요) · 위 버튼은 언제든 돼요 · 고객 이름·고객요청ID 는 슬랙에 안 가고 여기서만 보여요</p>';
-  if(la) h+='<button type="button" class="mrw" onclick="wlRecOpen('+Number(la.id)+')"><span class="tx"><b class="nm">마지막 자동 · '+esc(rpHM(la.at))+'</b><span class="sb">'+wlStHtml(la)+(wlLnTxt(la)?' · '+esc(wlLnTxt(la)):'')+'</span></span><i class="ch" aria-hidden="true">›</i></button>';   // v10.61 검증 고침 wlStHtml
+  if(la) h+='<button type="button" class="mrw" onclick="wlRecOpen('+Number(la.id)+')"><span class="tx"><b class="nm">마지막 자동'+(wllAutoR(la)?' · 재고리스트':'')+' · '+esc(rpHM(la.at))+'</b><span class="sb">'+wlStHtml(la)+(wlLnTxt(la)?' · '+esc(wlLnTxt(la)):'')+'</span></span><i class="ch" aria-hidden="true">›</i></button>';   // v10.61 검증 고침 wlStHtml · v10.64 재고 흐름 자동 = '· 재고리스트'
   return h; }
 function wlAutoSw(){ var v=wlView(); if(!v||!v.state.info||v.state.autoBusy) return; var i=v.state.info, a=i.auto||{};
   if(!i.canSwitch||!isMasterLike()){ haptic([10,40,10]); toast('마스터·부마스터만 바꿀 수 있어요'); return; }
   if(a.on){ wlAutoGo(false); return; } haptic(8);
-  openSheet('<h3>평일 '+esc(a.at||'08:30')+' 자동을 켤까요?</h3><p>평일(월~금) 아침마다 작업예정일 미지정 건을 안내일로 맞추고, 일주일치를 가져와 시트 맨 아래에 붙이고 중복을 정리해요. 결과는 슬랙 #워크플러스로 건수만 와요 (이름·고객요청ID 는 이 화면에서).</p><p class="mnote">먼저 [가져오기]를 한 번 눌러 결과(붙인 줄·지운 줄)를 확인한 뒤 켜 주세요. 오늘 '+esc(a.at||'08:30')+'이 지났으면 다음 평일부터 돌아요 · 토·일은 안 돌아요.</p>'+
+  openSheet('<h3>평일 '+esc(a.at||'08:30')+' 자동을 켤까요?</h3><p>평일(월~금) 아침마다 작업예정일 미지정 건을 안내일로 맞추고, 일주일치를 가져와 시트 맨 아래에 붙이고 중복을 정리한 뒤 <b>재고리스트 PDF 까지</b> 만들어 둬요 (추가기능 › 작업 리스트에서 받기). 결과는 슬랙 #워크플러스로 건수만 와요 (이름·고객요청ID 는 이 화면에서).</p><p class="mnote">먼저 [재고리스트]를 한 번 눌러 결과(붙인 줄·지운 줄·PDF)를 확인한 뒤 켜 주세요. 오늘 '+esc(a.at||'08:30')+'이 지났으면 다음 평일부터 돌아요 · 토·일은 안 돌아요.</p>'+   // v10.64 (주인 10/18): 자동 = 재고리스트 PDF 까지 · 먼저 [재고리스트] (예전 [가져오기])
     '<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">그만</button><button class="btn sm" onclick="closeSheet(function(){ wlAutoGo(true); })">켜기</button></div>'); }
 function wlAutoGo(on){ var v=wlView(); if(!v||!v.state.info) return; var i=v.state.info; v.state.autoBusy=true; wlPart(v,'wlauto',wlAutoInner); haptic(8);
   rpWrite('wlAutoSet',[{on:!!on}]).then(function(a){ v.state.autoBusy=false; if(a&&a.auto){ i.auto=a.auto; wlGoPut(i); haptic([12,40,18]); toast(a.auto.on?'평일 '+(a.auto.at||'08:30')+' 자동을 켰어요':'평일 자동을 껐어요 (진행 중인 실행은 끝까지)'); } else toast((a&&a.error)||'못 바꿨어요'); if(wlView()===v) wlPart(v,'wlauto',wlAutoInner); },
@@ -6031,6 +6034,7 @@ function wlGoWhen(ms){ var d=new Date(Number(ms)), di=rpIso(d), hm=pad2(d.getHou
   if(di===todayISO(0)) return '오늘 '+hm; if(di===todayISO(-1)) return '어제 '+hm; for(var k=2;k<7;k++) if(di===todayISO(-k)) return '일월화수목금토'.charAt(d.getDay())+' '+hm; return rpMd(di)+' '+hm; }
 function wlGoInner(){ var la=wlGoLa(); if(!la) return '작업리스트 가져오기 ›';
   var ln=String(la.line||''), m=/확인 필요 ([\d,]+)/.exec(ln), ck=la.check!=null?Number(la.check)||0:(m?Number(m[1].replace(/,/g,''))||0:0), seg=[esc(wlGoWhen(la.at))+' 자동'];
+  if(wllAutoR(la)&&la.sheetAdd!=null) ln='추가 '+(Number(la.sheetAdd)||0)+' · 정리 '+(Number(la.sheetDup)||0);   // v10.64 검증 고침: 자동 재고 line = 재고 줄 → 시트 수 (서버 0.9.3 sheetAdd·sheetDup · 설계 G5 '그대로') · 확인 필요 = check (예전과 같은 셈)
   ln=ln.replace(/ · 행 수 확인$/,'').replace(/^가져오기 [\d,]+ · /,'').replace(/ · 확인 필요 [\d,]+건?$/,'');
   if(la.state==='failed') seg.push('<span class="wlgr">실패</span>'); else if(wlRunLive(la)) seg.push('진행 중'); else String(ln||WL_ST[la.state]||'').split(' · ').forEach(function(x){ if(x) seg.push(esc(x)); });
   if(la.state==='done'&&ck>0) seg.push('<span class="wlgr">확인 필요 '+ck+'</span>');
@@ -6046,7 +6050,7 @@ function wlGoLoad(){ var code=(AUTH&&AUTH.code)||''; if(!wlCanUse()||!rpUrl()||W
 
 /* 5 최근 기록 (5개 · 누르면 결과) */
 function wlRecentCard(v){ var l=(v.state.info&&v.state.info.recent)||[]; if(!l.length) return '';
-  return '<div class="card mlist" id="wlrec"><h3 class="mdh3">최근 기록</h3>'+l.slice(0,5).map(function(x){ return '<button type="button" class="mrw" onclick="wlRecOpen('+Number(x.id)+')"><span class="tx"><b class="nm">'+esc(WL_KIND[x.kind]||x.kind||'')+(x.dry?' · 미리보기':'')+' · '+wlStHtml(x)+'</b><span class="sb">'+esc(x.at?rpHM(x.at):'')+(x.by?' · '+esc(x.by):'')+(wlLnTxt(x)?' · '+esc(wlLnTxt(x)):'')+'</span></span><i class="ch" aria-hidden="true">›</i></button>'; }).join('')+'</div>'; }
+  return '<div class="card mlist" id="wlrec"><h3 class="mdh3">최근 기록</h3>'+l.slice(0,5).map(function(x){ return '<button type="button" class="mrw" onclick="wlRecOpen('+Number(x.id)+')"><span class="tx"><b class="nm">'+esc(wllAutoR(x)?WLL_AUTO_NM:(WL_KIND[x.kind]||x.kind||''))+(x.dry?' · 미리보기':'')+' · '+wlStHtml(x)+'</b><span class="sb">'+esc(x.at?rpHM(x.at):'')+(x.by?' · '+esc(x.by):'')+(wlLnTxt(x)?' · '+esc(wlLnTxt(x)):'')+'</span></span><i class="ch" aria-hidden="true">›</i></button>'; }).join('')+'</div>'; }
 function wlRecOpen(id){ var v=wlView(); if(!v) return; haptic(6); openSheet('<h3>실행 기록</h3>'+spin());
   rpRun('wlStatus',[id]).then(function(a){ if(!sheetOpen||wlView()!==v) return; var d=a&&a.run; openSheet('<button type="button" class="shx" onclick="closeSheet()" aria-label="닫기">×</button><h3>실행 기록</h3>'+(d?wlRunBox(d,null,false):'<p>기록이 없어요.</p>')+'<button class="btn" onclick="closeSheet()">확인</button>'); },
     function(e){ if(sheetOpen) openSheet('<h3>실행 기록</h3><p>'+esc(e.message)+'</p><button class="btn" onclick="closeSheet()">확인</button>'); }); }
@@ -6066,16 +6070,27 @@ var WLL_PCT={stock:{dates:2,fetch:25,append:40,dedupe:50,'import':60,pdf:62,repo
 var WLL_LB={dates:'작업예정일 지정',fetch:'어드민에서 받기',append:'시트에 붙이기',dedupe:'중복 정리','import':'앱 반영',lfetch:'어드민에서 받기',pdf:'PDF 만들기',slack:'슬랙 #swap 올리기',report:'마무리'};
 function wllView(){ return rpTop('wllist'); }
 function wllName(k){ return WLL_NM[k]||('작업리스트 '+(WL_KIND[k]||'실행')); }
+/* v10.64 평일 08:30 자동 = 재고리스트 흐름 (주인 10/18 · 서버 0.9.3: kind 'auto' 그대로 · 요약 list 'stock' · pdfs · prog · 상세 opt.list 'stock')
+   재고 결과 카드·걸음·막대·[다시] = 재고리스트 (종류 = wllKey) · 이름 '08:30 자동 · 재고리스트' · 0.9.2 서버 (list 칸 없음) = kind 'stock' 만 재고 (옛 자동 = PDF 없는 가져오기 · 그 밖 카드 그대로) */
+var WLL_AUTO_NM='08:30 자동 · 재고리스트', WLL_AUTO_SUB='평일 08:30 · 작업예정일 → 시트 → 재고리스트 PDF';
+function wllIsStock(x){ return !!x&&(x.kind==='stock'||x.list==='stock'||!!(x.opt&&x.opt.list==='stock')); }
+function wllAutoR(x){ return !!x&&x.kind==='auto'&&wllIsStock(x); }
+function wllKey(x){ return wllIsStock(x)?'stock':String((x&&x.kind)||''); }
+function wllRunK(run){ return !run?'':(run.r?wllKey(run.r):String(run.kind||'')); }
+/* 재고 결과 카드 = 마지막 재고리스트 실행 (버튼 · 08:30 자동) — 서버 lists.last.stock 과 lastAuto·최근 기록 중 list 'stock' 가장 새것 (0.9.2 = last.stock 만 맞음) */
+function wllLast(i,k){ var b=(i&&i.lists&&i.lists.last&&i.lists.last[k])||null; if(k!=='stock'||!i) return b;
+  [i.lastAuto].concat(i.recent||[]).forEach(function(x){ if(x&&x.id&&wllIsStock(x)&&(!b||Number(x.id)>Number(b.id))) b=x; }); return b; }
 function wllLiveR(rr){ return !!rr&&(rr.state==='queued'||rr.state==='running'); }
 function wllLive(v){ var r=v&&v.state.run; return !!(r&&wllLiveR(r.r)); }
 function wllPct(rr){ if(!rr) return 0; if(rr.state==='done') return 100; var p=rr.prog&&rr.prog.pct;
-  if(p!=null&&p!==''&&isFinite(Number(p))) return Math.max(0,Math.min(100,Math.round(Number(p)))); if(rr.state==='queued') return 0; return (WLL_PCT[rr.kind]||{})[rr.step]||0; }
+  if(p!=null&&p!==''&&isFinite(Number(p))) return Math.max(0,Math.min(100,Math.round(Number(p)))); if(rr.state==='queued') return 0; return (WLL_PCT[wllKey(rr)]||{})[rr.step]||0; }   // v10.64 자동 = 재고 %
 function wllFailStep(rr){ var e=rr&&rr.report&&rr.report.error, k=(e&&e.step)||(rr&&rr.step)||''; return WLL_LB[k]||''; }
 function wllWaitR(rr){ return !!rr&&rr.state==='running'&&(!!rr.error||/기다리는 중/.test(String((rr.prog&&rr.prog.label)||''))); }   // soft 오류 = 다음 틱에 다시 (서버 label 끝 '기다리는 중')
 function wllLabel(rr,run){ if(!rr) return ''; if(rr.state==='queued') return '준비'; if(rr.state==='failed') return '실패'+(wllFailStep(rr)?' · '+wllFailStep(rr):'');
   if(rr.state==='done'&&wllSlkR(rr,run)) return WLL_SLK[wllSlkSt(rr)]||'끝';   // v10.63 검증 고침: 슬랙 시험 글 = 올림·실패·답 없음
-  if(rr.state==='done'){ var pg=wllPages(rr); return pg?pg+'쪽':'다 됐어요'; }   // 360 에서 [PDF 열기] 옆에 다 보이게 (d19 실측)
-  var l=String((rr.prog&&rr.prog.label)||WLL_LB[rr.step]||'진행 중'); return wllWaitR(rr)&&!/기다리는 중/.test(l)?l+' · 기다리는 중':l; }
+  if(rr.state==='done'){ var pg=wllPages(rr); return pg?pg+'쪽':'다 됐어요'; }   // 360 에서 [PDF 열기] 옆에 다 보이게 (v10.64 검증 고침: 한 줄이면 360 에서 '재고리스트 · 2…' 로 잘렸음 → 끝 막대 두 줄까지 · d19 btnDone2)
+  var l=String((rr.prog&&rr.prog.label)||WLL_LB[rr.step]||'진행 중');
+  return wllWaitR(rr)?l.replace(/ · 기다리는 중.*$/,'').replace(/ \d+\/\d+$/,'')+' · 기다리는 중':l; }   // v10.64 검증 고침: 기다림 막대 = '(20초 뒤 다시)'·'12/30' 뺌 (자동 360 두 줄 넘침 · d19 실측 · 카드에 '잠깐 막혀 다시 해요')
 function wllPdfsOf(rr){ var p=(rr&&rr.report)||{}, a=(rr&&rr.pdfs)||[], ob=function(l){ return (l||[]).filter(function(x){ return x&&typeof x==='object'; }); };
   if(!a.length) a=ob(p.pdfs);   // v10.63 검증 고침: 진짜 0.9.2 = report.pdfs (물건) · report.deliv.pdfs = id 숫자만
   if(!a.length&&p.stock&&p.stock.pdf&&p.stock.pdf.id) a=[Object.assign({kind:'stock'},p.stock.pdf)];
@@ -6094,7 +6109,7 @@ function wllSlkR(rr,run){ return !!rr&&rr.kind==='try'&&!!((rr.opt&&rr.opt.slack
 function wllSlkSt(rr){ var p=(rr&&rr.report)||{}, sl=(p['try']&&p['try'].slack)||p.slack; return String((sl&&sl.st)||''); }
 function wllSlkBad(rr,run){ return !!rr&&rr.state==='done'&&wllSlkR(rr,run)&&wllSlkSt(rr)!=='sent'; }   // 올림 말고 다 (실패·답 없음·웹훅 없음) = 빨강
 var WLL_SLK={sent:'올림',fail:'실패',unknown:'답 없음',nohook:'웹훅 없음',dup:'같은 글'};
-function wllNameR(rr,k,run){ return wllSlkR(rr,run)?'슬랙 시험 글':wllName(k); }
+function wllNameR(rr,k,run){ return wllSlkR(rr,run)?'슬랙 시험 글':(wllAutoR(rr)?WLL_AUTO_NM:wllName(k)); }   // v10.64 자동 = '08:30 자동 · 재고리스트'
 function wllFold(sum,body,open){ return '<details class="mfold"'+(open?' open':'')+'><summary><span>'+sum+'</span></summary>'+body+'</details>'; }
 
 VIEWS.wllist={ render:function(v){ reanim(v); var s=v.state, t=title('작업 리스트','',moreBtn('wllMore()','작업 리스트 메뉴')); v.dock='wllist';
@@ -6112,8 +6127,8 @@ function wllLoad(v){ var s=v.state, tok=s.tok=(s.tok||0)+1;
     .catch(function(e){ if(stack.indexOf(v)<0||s.tok!==tok) return; s.err=rpUnk(e)?new Error('새 서버가 아직 작업 리스트를 몰라요 (Worker 0.9.2 필요)'):e; wllDraw(v); }); }
 function wllRetry(){ var v=wllView(); if(!v) return; haptic(6); v.el.innerHTML=title('작업 리스트','')+spin(); wllLoad(v); }
 /* 결과 카드 = 종류마다 마지막 실행 (lists.last) · 자세한 숫자 (report.stock·deliv) 는 wlStatus 한 번 (화면 상태에 기억 · 끝난 실행만) */
-function wllDetLoad(v){ var s=v.state, L=(s.info&&s.info.lists&&s.info.lists.last)||{};
-  ['stock','deliv'].forEach(function(k){ var x=L[k]; if(!x||!x.id||wllLiveR(x)) return; var d=s.det[x.id]; if(d&&d.state===x.state) return; if(s.run&&s.run.id===x.id&&s.run.r&&s.run.r.report) return;
+function wllDetLoad(v){ var s=v.state;
+  ['stock','deliv'].forEach(function(k){ var x=wllLast(s.info,k); if(!x||!x.id||wllLiveR(x)) return; var d=s.det[x.id]; if(d&&d.state===x.state) return; if(s.run&&s.run.id===x.id&&s.run.r&&s.run.r.report) return;   // v10.64 재고 = 08:30 자동도
     s.detBusy=s.detBusy||{}; if(s.detBusy[x.id]) return; s.detBusy[x.id]=1;
     rpRun('wlStatus',[x.id]).then(function(a){ s.detBusy[x.id]=0; if(stack.indexOf(v)<0||!a||!a.run) return; s.det[x.id]=a.run; wllPart(v,k); },function(){ s.detBusy[x.id]=0; }); }); }
 function wllDraw(v){ var s=v.state, r=s.info, h=title('작업 리스트','',moreBtn('wllMore()','작업 리스트 메뉴'));
@@ -6124,26 +6139,26 @@ function wllDraw(v){ var s=v.state, r=s.info, h=title('작업 리스트','',more
   else { if(r.bridge&&r.bridge.ok===false) h+=nbar('<b>구글 다리를 먼저 올려 주세요 (v10.61)</b> — 재고리스트의 시트 붙이기가 안 돼요',true);
     if(L.pdf==='print') h+=nbar('PDF 는 지금 <b>예비 인쇄</b>로 만들어요 (쪽 나누기 추정) — [인쇄해서 PDF 로 저장]을 눌러 주세요'); }
   h+='<div class="wllb" id="wllbtns">'+wllBtnsHtml(v)+'</div>';
-  var rk=s.run&&s.run.kind; if(s.run&&s.run.r&&rk!=='stock'&&rk!=='deliv') h+='<div class="card wlc" id="wll_c_x">'+wllCardInner(v,'x')+'</div>';
+  var rk=wllRunK(s.run); if(s.run&&s.run.r&&rk!=='stock'&&rk!=='deliv') h+='<div class="card wlc" id="wll_c_x">'+wllCardInner(v,'x')+'</div>';   // v10.64 08:30 자동 (재고 흐름) = 재고 카드
   h+='<div class="card wlc" id="wll_c_stock">'+wllCardInner(v,'stock')+'</div><div class="card wlc" id="wll_c_deliv">'+wllCardInner(v,'deliv')+'</div>';
-  h+=tipBox('wll_how','버튼 하나 = 끝까지 · 화면을 나가도 서버가 계속해요','<b>재고리스트</b> = 작업예정일 지정 → 어드민에서 일주일치 받기 → 시트 맨 아래에 붙이고 중복 정리 → 출고할 기기 PDF (A4 가로 · 제외·미납 보류는 맨 아래). <b>배송리스트</b> = 다음 배송 날 (금요일 = 월요일 + 주말 작업) 을 어드민에서 받아 PDF + 슬랙 #swap (시트는 안 건드려요). 미납 고객은 두 리스트에서 빼고 PDF 아래 \'미납 보류\'에 적어요. PDF 는 하루 보관 (배송리스트는 그 배송 날까지).','작업 리스트');
+  h+=tipBox('wll_how','버튼 하나 = 끝까지 · 화면을 나가도 서버가 계속해요','<b>재고리스트</b> = 작업예정일 지정 → 어드민에서 일주일치 받기 → 시트 맨 아래에 붙이고 중복 정리 → 출고할 기기 PDF (A4 가로 · 제외·미납 보류는 맨 아래). <b>배송리스트</b> = 다음 배송 날 (금요일 = 월요일 + 주말 작업) 을 어드민에서 받아 PDF + 슬랙 #swap (시트는 안 건드려요). 미납 고객은 두 리스트에서 빼고 PDF 아래 \'미납 보류\'에 적어요. PDF 는 하루 보관 (배송리스트는 그 배송 날까지). <b>평일 08:30 자동</b>이 켜져 있으면 아침마다 재고리스트를 같은 흐름으로 만들어 둬요 (결과 카드 머리 \'08:30 자동\').','작업 리스트');   // v10.64 자동 = 재고리스트 흐름
   v.el.innerHTML=h; wllDockUpd(v); }
 /* 두 큰 버튼 (각 반 폭 · 112px 이상) · 진행 중 = 둘 다 막힘 (돌고 있는 쪽 '진행 중') · 추가기능에서 누른 쪽 = 테두리 */
-function wllBtnsHtml(v){ var s=v.state, L=s.info&&s.info.lists, live=wllLive(v), rk=live?s.run.kind:'';
+function wllBtnsHtml(v){ var s=v.state, L=s.info&&s.info.lists, live=wllLive(v), rk=live?wllRunK(s.run):'';   // v10.64 자동 진행 중 = 재고 버튼 '진행 중'
   var b=function(k,icon,sub){ var dis=!L||live||!!s.busy, on=(live&&rk===k)||s.busy===k;
     return '<button type="button" class="wllbtn'+(s.go===k?' go':'')+(on?' run':'')+'" id="wll_'+k+'" onclick="wllGo(\''+k+'\')"'+(dis?' disabled':'')+'><span class="wlli">'+ic(icon)+'</span><b>'+WLL_NM[k]+'</b>'+sub+(on?'<em class="wllrun">진행 중</em>':'')+'</button>'; };
   var st=L&&L.stock, dv=L&&L.deliv, wk=(dv&&dv.weekend)||[], nh=!!L&&L.swapHook===false;
   return b('stock','list',(st&&st.from?'<span>'+esc(wllRg(st.from,st.to))+'</span>':'')+'<small>작업예정일 → 시트 → PDF</small>')+
     b('deliv','truck',(dv&&dv.target?'<span>'+esc(wlDayTxt(dv.target))+' 배송</span>'+(wk.length?'<span>+ 주말 '+esc(wllWk(wk))+'</span>':''):'')+'<small>'+(nh?'슬랙 웹훅 없음 · PDF 만':'PDF → 슬랙 #swap')+'</small>'); }
 /* 결과 카드 (종류마다 · 진행 중 = 걸음) — k = 'stock'·'deliv'·'x' (그 밖 실행 = 시험 · 08:30 자동 · 다른 사람 가져오기) */
-function wllCardInner(v,k){ var s=v.state, run=s.run, L=(s.info&&s.info.lists)||{}, rr=null;
-  if(k==='x') rr=run&&run.r; else if(run&&run.kind===k&&run.r) rr=run.r; else rr=(L.last||{})[k]||null;
+function wllCardInner(v,k){ var s=v.state, run=s.run, rr=null;
+  if(k==='x') rr=run&&run.r; else if(run&&wllRunK(run)===k&&run.r) rr=run.r; else rr=wllLast(s.info,k);   // v10.64 재고 = 마지막 재고리스트 (버튼 · 08:30 자동)
   if(rr&&!wllLiveR(rr)&&!rr.report&&s.det[rr.id]&&s.det[rr.id].state===rr.state) rr=s.det[rr.id];
   return wllCardBody(rr,k==='x'?String((rr&&rr.kind)||''):k,{ctl:true,run:run&&rr&&run.id===rr.id?run:null}); }
 function wllCardBody(rr,k,o){ o=o||{}; var nm=wllNameR(rr,k,o.run), h;
   if(!rr) return '<div class="wlhd"><b>'+esc(nm)+'</b></div><p class="msub m">아직 만든 리스트가 없어요 — 위 버튼을 누르면 바로 시작해요</p>';
   var live=wllLiveR(rr), st=rr.state;
-  h='<div class="wlhd"><b>'+esc(nm)+(rr.dry&&k!=='try'?' · 미리보기':'')+' · '+(live?'진행 중':(wllSlkBad(rr,o.run)?'<span class="mred">슬랙 확인 필요</span>':wlStHtml(rr)))+'</b><span>'+(rr.at?esc(wlGoWhen(rr.at)):'')+(rr.by?' · '+esc(rr.by):'')+'</span></div>';
+  h='<div class="wlhd"><b>'+esc(nm)+(rr.dry&&k!=='try'?' · 미리보기':'')+' · '+(live?'진행 중':(wllSlkBad(rr,o.run)?'<span class="mred">슬랙 확인 필요</span>':wlStHtml(rr)))+'</b><span>'+(rr.at?esc(wlGoWhen(rr.at)):'')+(rr.by&&!wllAutoR(rr)?' · '+esc(rr.by):'')+'</span></div>';   // v10.64 자동 = 머리 '08:30 자동' (누가 '자동' 은 뺌)
   if(live){ h+=wllStepsHtml(rr,o.run)+'<p class="msub">'+(st==='queued'?'곧 시작해요…':'진행 중이에요 — 화면을 나가도 서버가 계속해요')+'</p>';
     if(wllWaitR(rr)) h+='<p class="msub m">잠깐 막혀 다시 해요'+(rr.error?' · '+esc(wlErrTxt(rr.error,rr.report)):'')+'</p>';
     if(o.run&&o.run.perr) h+='<p class="msub m">상태를 못 받았어요 · '+esc(o.run.perr)+' (다시 받는 중)</p>';
@@ -6157,7 +6172,7 @@ function wllCardBody(rr,k,o){ o=o||{}; var nm=wllNameR(rr,k,o.run), h;
   if(k==='try') return h+wllSlackHtml(((rr.report||{})['try']||rr.report||{}).slack,rr.dry)+wllPdfBtns(wllPdfsOf(rr));
   return h+(rr.report?wlReportHtml(rr.report,rr.dry):'<p class="msub">'+esc(wlLnTxt(rr))+'</p>'); }
 /* 걸음 (✓ 끝 · ● 지금 · ○ 남음 · 안 함) — 재고 fetch 는 '받기'(25) → '시트에 붙이기'(40) 를 % 로 나눔 */
-function wllStepsHtml(rr,run){ var k=rr.kind, L=WLL_STEPS[k]; if(!L) return wlStepsHtml(rr,run);
+function wllStepsHtml(rr,run){ var k=wllKey(rr), L=WLL_STEPS[k]; if(!L) return wlStepsHtml(rr,run);   // v10.64 08:30 자동 = 재고 걸음 (PDF 까지)
   var st=rr.state, sp=rr.step||'', p=rr.report||{}, pct=Math.max(wllPct(rr),(run&&run.pct)||0), ix=-1, slk=(rr.opt&&rr.opt.slackTest)||(run&&run.slk);
   if(k==='stock'&&sp==='fetch'&&pct>=40) sp='append';
   if(st==='done'||sp==='report'||sp==='done') ix=L.length; else if(st!=='queued') L.forEach(function(x,i){ if(x[0]===sp) ix=i; });
@@ -6237,9 +6252,9 @@ function wllPollGo(v){ var s=v.state, run=s.run; if(!run||stack.indexOf(v)<0) re
       if(wllLiveR(run.r)){ wllUpd(v); wllPoll(v,run.n>200?WLL_POLL[2]:WLL_POLL[1]); return; }
       if(run.r.state==='done') run.pct=100; s.det[run.id]=run.r; wllEnd(v,run); },
     function(e){ if(stack.indexOf(v)<0||s.run!==run) return; run.perr=e.message; wllUpd(v); wllPoll(v,WLL_POLL[3]); }); }
-function wllUpd(v){ var s=v.state, k=s.run&&s.run.kind, id=k==='stock'||k==='deliv'?'wll_c_'+k:'wll_c_x';
+function wllUpd(v){ var s=v.state, k=wllRunK(s.run), id=k==='stock'||k==='deliv'?'wll_c_'+k:'wll_c_x';   // v10.64 자동 = 재고 카드
   if(!$(id)||!$('wllbtns')){ wllDraw(v); return; } wllPart(v,id.slice(6)); wllBtnsSync(v); wllDockUpd(v); }
-function wllEnd(v,run){ var rr=run.r, k=rr.kind||run.kind, nm=wllNameR(rr,k,run), pg=wllPages(rr);
+function wllEnd(v,run){ var rr=run.r, k=wllKey(rr)||run.kind, nm=wllNameR(rr,k,run), pg=wllPages(rr);   // v10.64 자동 = '08:30 자동 · 재고리스트 PDF 를 만들었어요'
   if(rr.state==='done'&&wllSlkR(rr,run)){ var ss=wllSlkSt(rr); haptic(ss==='sent'?[12,40,18]:[10,40,10]);
     toast(ss==='sent'?'#swap 에 시험 글을 올렸어요 — 왔는지 봐 주세요':(ss==='nohook'?'슬랙 웹훅이 없어요 (SLACK_SWAP_WEBHOOK)':(ss==='unknown'?'시험 글을 올렸는지 답을 못 받았어요 — #swap 을 봐 주세요':'시험 글을 못 올렸어요 — 웹훅을 확인해 주세요'))); }   // v10.63 검증 고침
   else if(rr.state==='done'){ var dsl=k==='deliv'?wllSlkSt(rr):''; haptic(dsl==='fail'||dsl==='unknown'?[10,40,10]:[12,40,18]); toast((WLL_NM[k]?(k==='try'?'시험 PDF 를 만들었어요':nm+' PDF 를 만들었어요')+(pg?' ('+pg+'쪽)':''):nm+' 끝났어요')+(dsl==='fail'||dsl==='unknown'?' · 슬랙 확인 필요':'')); }
@@ -6248,12 +6263,14 @@ function wllEnd(v,run){ var rr=run.r, k=rr.kind||run.kind, nm=wllNameR(rr,k,run)
 /* 아래 고정 진행 막대 (#rpdock · 이 화면만) — 진행 중 · 이 화면에서 끝난 직후 (끝·실패 그대로 · 다음 실행이나 화면 나갈 때까지)
    줄1 = '{종류} · {단계}' + '{%}' · 줄2 = 가로 막대 (줄어들지 않음 · 0.4초 늘어남) · 끝 = 초록 + [PDF 열기] · 실패 = 빨강 + [다시] · 글 바뀜 알림 = 10% 마다만 */
 function wllBarSt(rr){ return rr.state==='done'?(wllSlkBad(rr)?'bad':'ok'):(rr.state==='failed'?'bad':(wllWaitR(rr)?'wait':'live')); }   // v10.63 검증 고침: 슬랙 시험 글 실패 = 빨강
-function wllBarParts(run){ var rr=run.r, k=rr.kind||run.kind, pct=rr.state==='done'?100:Math.max(run.pct||0,wllPct(rr)), st=wllBarSt(rr), nm=wllNameR(rr,k,run);
-  return {st:st,pct:pct,lb:nm+' · '+wllLabel(rr,run),pt:(st==='ok'?'끝 · ':'')+pct+'%',live:nm+' '+(st==='ok'?'끝':(st==='bad'?'실패':(Math.floor(pct/10)*10)+'%'))}; }
-function wllDockHtml(v){ var run=v.state.run; if(!run||!run.r) return ''; var P=wllBarParts(run), rr=run.r, k=rr.kind||run.kind;
+function wllBarParts(run){ var rr=run.r, k=wllKey(rr)||run.kind, pct=rr.state==='done'?100:Math.max(run.pct||0,wllPct(rr)), st=wllBarSt(rr), nm=wllNameR(rr,k,run);
+  var vn=wllAutoR(rr)&&(rr.state==='done'||rr.state==='failed')?wllName(k):nm;   // v10.64 검증 고침: 자동 끝·실패 막대 = 짧은 이름 '재고리스트' ([PDF 열기]·[다시] 옆 107px · 360 · 버튼 실행과 같은 글 · 토스트·카드 머리·읽어 주기는 '08:30 자동')
+  return {st:st,pct:pct,lb:vn+' · '+wllLabel(rr,run),pt:(st==='ok'?'끝 · ':'')+pct+'%',live:nm+' '+(st==='ok'?'끝':(st==='bad'?'실패':(Math.floor(pct/10)*10)+'%'))}; }
+function wllDockHtml(v){ var run=v.state.run; if(!run||!run.r) return ''; var P=wllBarParts(run), rr=run.r, k=wllKey(rr)||run.kind, au=wllAutoR(rr);   // v10.64 자동 = '08:30 자동 · 재고리스트 · {단계}' (두 줄까지) · [다시] = 재고리스트
+  // v10.64 검증 고침: 끝·실패 막대 = 두 줄까지 (버튼 실행도 · 360 [PDF 열기]·[다시] 옆 107px 에서 '재고리스트 · 2쪽'·'… 다 됐어요'·'실패 · 단계' 가 … 로 잘렸음 · d19 실측) · 진행 중 버튼 실행 = 한 줄 그대로 (높이 흔들림 없음)
   var btn=P.st==='ok'&&wllPdfsOf(rr).length?'<button type="button" class="btn sm wlbb" id="wll_dkopen" onclick="wllDockOpen()">PDF 열기</button>':(P.st==='bad'&&WLL_NM[k]?'<button type="button" class="btn sm wlbb" id="wll_dkagain" onclick="wllAgain()">다시</button>':'');
-  return '<div class="wlbar '+P.st+'" id="wlbar" data-st="'+P.st+'"><div class="wlbm"><div class="wlbt"><b class="wlbl" id="wlbl">'+esc(P.lb)+'</b><b class="wlbp" id="wlbp">'+P.pt+'</b></div>'+
-    '<div class="wlbtr" id="wlbtr" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+P.pct+'" aria-label="'+esc(wllName(k))+' 진행"><i id="wlbi" style="width:'+P.pct+'%"></i></div></div>'+btn+
+  return '<div class="wlbar '+P.st+'" id="wlbar" data-st="'+P.st+'"><div class="wlbm"><div class="wlbt"><b class="wlbl'+(au||(WLL_NM[k]&&(rr.state==='done'||rr.state==='failed'))?' w2':'')+'" id="wlbl">'+esc(P.lb)+'</b><b class="wlbp" id="wlbp">'+P.pt+'</b></div>'+
+    '<div class="wlbtr" id="wlbtr" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+P.pct+'" aria-label="'+esc(au?WLL_AUTO_NM:wllName(k))+' 진행"><i id="wlbi" style="width:'+P.pct+'%"></i></div></div>'+btn+
     '<span class="sr" id="wlblive" aria-live="polite">'+esc(P.live)+'</span></div>'; }
 function wllDockUpd(v){ var s=v.state, on=!!(s.run&&s.run.r), bar=$('wlbar'), d=$('rpdock'), P, e;
   if(on&&s.dk&&stack[stack.length-1]===v&&bar&&d&&d.getAttribute('data-k')==='wllist'&&bar.getAttribute('data-st')===wllBarSt(s.run.r)){   // 같은 모양 = 그 자리만 (막대가 부드럽게 늘어남)
@@ -6262,7 +6279,7 @@ function wllDockUpd(v){ var s=v.state, on=!!(s.run&&s.run.r), bar=$('wlbar'), d=
     if((e=$('wlblive'))&&e.textContent!==P.live) e.textContent=P.live;
     return; }
   rpDockSet(v,on); }
-function wllAgain(){ var v=wllView(), r=v&&v.state.run, rr=r&&r.r; if(!rr||wllLive(v)) return; var k=rr.kind||r.kind; if(!WLL_NM[k]) return; wllGo(k,rr.dry?1:0,(rr.opt&&rr.opt.slackTest)||r.slk?1:0); }
+function wllAgain(){ var v=wllView(), r=v&&v.state.run, rr=r&&r.r; if(!rr||wllLive(v)) return; var k=wllKey(rr)||r.kind; if(!WLL_NM[k]) return; wllGo(k,rr.dry?1:0,(rr.opt&&rr.opt.slackTest)||r.slk?1:0); }   // v10.64 자동 실패 [다시] = 재고리스트 (같은 흐름 · 버튼 실행)
 function wllDockOpen(){ var v=wllView(), r=v&&v.state.run, a=r&&r.r?wllPdfsOf(r.r):[]; if(!a.length) return; wllPdf(Number(a[0].id),a[0].mime==='text/html'?'print':'open'); }
 /* PDF 받기 (wlPdf 조각 차례로 → Blob · 이 화면 메모리만 · 떠나면 버림) · 열기 = 새 창 (막히면 토스트 [열기] = 새 누름) · 예비 인쇄 = HTML 새 창 → 인쇄 창 */
 function wllPdf(id,how){ var v=wllView(); if(!v||!id) return; var s=v.state, b=s.blob[id];
@@ -6287,16 +6304,16 @@ function wllMore(){ var v=wllView(); if(!v) return; var s=v.state, i=s.info||{},
     {lb:'미리보기 · 재고리스트',sub:off?why:'어드민 작업예정일·시트 안 바꿈 · PDF 만 (제목에 미리보기)',fn:"wllGo('stock',1)",off:off},
     {lb:'미리보기 · 배송리스트',sub:off?why:'슬랙 안 보냄 · PDF 만',fn:"wllGo('deliv',1)",off:off},
     {lb:'지난 실행',sub:'최근 5개 · 누르면 결과',fn:'wllRecent()'},
-    {lb:'평일 08:30 자동 · '+(au.on?'켜짐':'꺼짐'),sub:ml?'작업예정일 → 가져오기 (시트만 · PDF 없음)':'보기만 · 마스터·부마스터가 켜고 꺼요',fn:"push('wlauto',{sec:'auto'})"},
+    {lb:'평일 08:30 자동 · '+(au.on?'켜짐':'꺼짐'),sub:WLL_AUTO_SUB+(ml?'':' (보기만 · 마스터·부마스터가 켜고 꺼요)'),fn:"push('wlauto',{sec:'auto'})"},   // v10.64 (주인 10/18): 자동도 재고리스트 PDF 까지 (예전 '시트만 · PDF 없음')
     {lb:'엑셀 파일 고르기 (예비)',sub:'어드민에서 받은 파일·붙여 넣기로 시트에 붙이기',fn:"push('wlauto',{sec:'file'})"},
     {lb:'작업리스트 관리',sub:'작업예정일 목록 · 가져오기만 (PDF 없음)',fn:"push('wlauto',{})"},
     ml?{lb:'시험 PDF (가짜 이름)',sub:off?why:'재고·배송 PDF 를 가짜 이름으로 · 어드민·시트·슬랙 안 건드림',fn:"wllGo('try',0)",off:off}:null,
     ml?{lb:'슬랙 #swap 시험 글',sub:off?why:(L&&L.swapHook===false?'웹훅 없음 — 서버 비밀값 SLACK_SWAP_WEBHOOK 을 먼저':'가짜 글 한 줄 · #swap 에 왔는지 확인'),fn:"wllGo('try',0,1)",off:off||(!!L&&L.swapHook===false)}:null]); }
 function wllRecent(){ var v=wllView(); if(!v) return; var l=((v.state.info&&v.state.info.recent)||[]).slice(0,5);
-  openSheet('<button type="button" class="shx" onclick="closeSheet()" aria-label="닫기">×</button><h3>지난 실행</h3>'+(l.length?l.map(function(x){ return '<button type="button" class="mrw" onclick="wllRecOpen('+Number(x.id)+')"><span class="tx"><b class="nm">'+esc(wllName(x.kind))+(x.dry?' · 미리보기':'')+' · '+wlStHtml(x)+'</b><span class="sb">'+esc(x.at?rpHM(x.at):'')+(x.by?' · '+esc(x.by):'')+(wlLnTxt(x)?' · '+esc(wlLnTxt(x)):'')+'</span></span><i class="ch" aria-hidden="true">›</i></button>'; }).join(''):'<p>기록이 없어요.</p>')+'<button class="btn" onclick="closeSheet()">닫기</button>'); }
+  openSheet('<button type="button" class="shx" onclick="closeSheet()" aria-label="닫기">×</button><h3>지난 실행</h3>'+(l.length?l.map(function(x){ return '<button type="button" class="mrw" onclick="wllRecOpen('+Number(x.id)+')"><span class="tx"><b class="nm">'+esc(wllNameR(x,wllKey(x)))+(x.dry?' · 미리보기':'')+' · '+wlStHtml(x)+'</b><span class="sb">'+esc(x.at?rpHM(x.at):'')+(x.by?' · '+esc(x.by):'')+(wlLnTxt(x)?' · '+esc(wlLnTxt(x)):'')+'</span></span><i class="ch" aria-hidden="true">›</i></button>'; }).join(''):'<p>기록이 없어요.</p>')+'<button class="btn" onclick="closeSheet()">닫기</button>'); }
 function wllRecOpen(id){ var v=wllView(); if(!v) return; haptic(6); openSheet('<h3>실행 기록</h3>'+spin());
-  rpRun('wlStatus',[id]).then(function(a){ if(!sheetOpen||wllView()!==v) return; var d=a&&a.run;
-      openSheet('<button type="button" class="shx" onclick="closeSheet()" aria-label="닫기">×</button><h3>실행 기록</h3>'+(!d?'<p>기록이 없어요.</p>':(WLL_NM[d.kind]?'<div class="wlbox">'+wllCardBody(d,d.kind,{ctl:false})+'</div>':wlRunBox(d,null,false)))+'<button class="btn" onclick="closeSheet()">확인</button>'); },
+  rpRun('wlStatus',[id]).then(function(a){ if(!sheetOpen||wllView()!==v) return; var d=a&&a.run, dk=wllKey(d);   // v10.64 08:30 자동 (재고 흐름) = 재고 결과 카드 (PDF 받기·열기)
+      openSheet('<button type="button" class="shx" onclick="closeSheet()" aria-label="닫기">×</button><h3>실행 기록</h3>'+(!d?'<p>기록이 없어요.</p>':(WLL_NM[dk]?'<div class="wlbox">'+wllCardBody(d,dk,{ctl:false})+'</div>':wlRunBox(d,null,false)))+'<button class="btn" onclick="closeSheet()">확인</button>'); },
     function(e){ if(sheetOpen) openSheet('<h3>실행 기록</h3><p>'+esc(e.message)+'</p><button class="btn" onclick="closeSheet()">확인</button>'); }); }
 /* ================= v10.63 끝 ================= */
 
