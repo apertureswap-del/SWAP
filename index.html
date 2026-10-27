@@ -1277,7 +1277,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.67';   // v10.67 환경설정: 서버 칸 '… 화면을 쓰는 중이에요' · 관리 줄 부제목 · 작업보고 알림 카드 부제목 없앰 (주인 10/26) · v10.66 작업자 관리: 제목 아래 설명 없앰 · '기록 시트' 링크 없앰 · 작업자 찾기 (주인 10/25 · Worker 0.9.6 그대로) · v10.65 등록 출고·수거 = 작업리스트에 없는 건도 어드민에서 찾아 고름 (Worker 0.9.3 그대로) · v10.64 평일 08:30 자동 = 재고리스트 흐름 (결과 카드·막대·이름 '08:30 자동 · 재고리스트' · Worker 0.9.3 짝) · v10.63 작업 리스트 (재고리스트·배송리스트 PDF · 아래 진행 막대) · 추가기능 줄 정리 · SWING '내 작업 확인' (Worker 0.9.2 짝) · v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
+var APP_VER = '10.68';   // v10.68 접속 코드 관리: 코드 삭제 · 이름으로 찾기 (주인 10/27 · Worker 0.9.6 그대로) · v10.67 환경설정: 서버 칸 '… 화면을 쓰는 중이에요' · 관리 줄 부제목 · 작업보고 알림 카드 부제목 없앰 (주인 10/26) · v10.66 작업자 관리: 제목 아래 설명 없앰 · '기록 시트' 링크 없앰 · 작업자 찾기 (주인 10/25 · Worker 0.9.6 그대로) · v10.65 등록 출고·수거 = 작업리스트에 없는 건도 어드민에서 찾아 고름 (Worker 0.9.3 그대로) · v10.64 평일 08:30 자동 = 재고리스트 흐름 (결과 카드·막대·이름 '08:30 자동 · 재고리스트' · Worker 0.9.3 짝) · v10.63 작업 리스트 (재고리스트·배송리스트 PDF · 아래 진행 막대) · 추가기능 줄 정리 · SWING '내 작업 확인' (Worker 0.9.2 짝) · v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -7102,23 +7102,37 @@ VIEWS.me={ render:function(v){ v.refresh=function(){ VIEWS.me.render(v); return 
 VIEWS.codes={ render:function(v){ v.refresh=function(){ return loadCodes(v); };
   if(!isMaster()){ v.el.innerHTML=title('접속 코드 관리','')+'<div class="card"><div class="empty">마스터 계정만 쓸 수 있어요.</div></div>'; return; }
   v.el.innerHTML=title('접속 코드 관리','마스터 전용','<button class="more" onclick="addCodeAsk()">+ 코드 추가</button>')+
-    '<div class="card"><p class="muted" style="margin:0 0 6px;font-size:13px">이름을 넣으면 그 코드로 접속한 사람의 작업자 이름이 자동으로 정해져요. 스위치를 끄면 그 코드로는 접속할 수 없어요. SWAP/SWING 칩으로 들어갈 수 있는 서버를, <b>역할</b> 칩으로 작업자·관리자·부마스터를 정해요.</p><div id="codes">'+spin()+'</div></div>'+
+    '<div class="card"><p class="muted" style="margin:0 0 6px;font-size:13px">이름을 넣으면 그 코드로 접속한 사람의 작업자 이름이 자동으로 정해져요. 스위치를 끄면 그 코드로는 접속할 수 없어요. SWAP/SWING 칩으로 들어갈 수 있는 서버를, <b>역할</b> 칩으로 작업자·관리자·부마스터를 정해요.</p>'+
+    '<div class="srch" style="margin:10px 0 4px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input class="input" id="code_q" placeholder="이름으로 찾기" value="'+esc(codeQ)+'" autocomplete="off" oninput="codeFind(this.value)"></div>'+   // v10.68 찾기 (이름·코드 · 이 폰에서만 · 칸은 #codes 밖)
+    '<div id="codes">'+spin()+'</div></div>'+
     tipBox('codes','<b>부마스터</b> = 접속 코드 관리만 빼고 마스터와 같아요','<b>부마스터</b>는 접속 코드 관리만 빼고 마스터와 같아요 (작업현황 · 작업보고 알림 · 거래처 관리 · 권한 설정 · 작업자 관리 · 이스터에그). 들어갈 서버는 SWAP/SWING 칩대로예요. <b>관리자</b>는 일반 작업자 권한·차량 목록·작업자 관리·수리 화면을 써요 (작업현황·작업보고 알림·거래처 관리는 못 봐요).','역할');   // v10.55 3-2 · v10.59 부마스터
   loadCodes(v); }};
 function loadCodes(v){ return run('listCodes').then(function(list){ if(stack.indexOf(v)<0) return; v.state.codes=list; drawCodes(v); }).catch(function(e){ var el=$('codes'); if(el) el.innerHTML='<p class="muted">'+esc(e.message)+'</p>'; }); }
 function drawCodes(v){ var el=$('codes'); if(!el) return; var list=v.state.codes||[];
   if(!list.length){ el.innerHTML='<div class="empty">코드가 없어요. 오른쪽 위 + 코드 추가</div>'; return; }
+  var q=codeKey(codeQ); if(q){ list=list.filter(function(c){ return codeKey(c.name).indexOf(q)>=0||codeKey(c.code).indexOf(q)>=0; });   // v10.68 이름(또는 코드) 일부 · 대소문자·띄어쓰기 무시
+    if(!list.length){ el.innerHTML='<div class="empty">"'+esc(codeQ.trim())+'" 이름의 코드가 없어요.</div>'; return; } }
   el.innerHTML=list.map(function(c){ return '<div class="crow'+(c.active?'':' off')+'"><div class="cc">'+esc(c.code)+'</div>'+
     '<div class="cn"><input class="input" value="'+esc(c.name)+'" placeholder="이름 (예: 홍길동)" data-code="'+esc(c.code)+'" onchange="saveCodeName(this)" onkeydown="if(event.key===\'Enter\') this.blur()">'+
     '<div class="cm">'+(c.last?'최근 접속 '+esc(String(c.last).slice(5,16))+' · '+(c.count||0)+'회':'아직 접속 안 함')+'</div>'+
     '<div class="srvchips">'+['swap','swing'].map(function(sv){ var on=(c.servers||['swap','swing']).indexOf(sv)>=0; return '<button class="'+(on?'on':'')+'" onclick="toggleCodeServer(\''+esc(c.code)+'\',\''+sv+'\',this)">'+sv.toUpperCase()+'</button>'; }).join('')+
-    codeRoleChip(c)+'</div></div>'+   // v10.59 '관리자' 켜고 끄기 → 역할 칩 (누르면 역할 고르기 시트 · 부마스터 = 딱지 색)
+    codeRoleChip(c)+(codeRoleOf(c)==='master'?'':'<button class="wdel" aria-label="'+esc(c.code)+' 코드 삭제" onclick="codeDelAsk(\''+jsa(c.code)+'\')">삭제</button>')+'</div></div>'+   // v10.68 삭제 (마스터 코드는 없음) · v10.59 '관리자' 켜고 끄기 → 역할 칩 (누르면 역할 고르기 시트 · 부마스터 = 딱지 색)
     '<button class="sw'+(c.active?' on':'')+'" aria-label="사용" onclick="toggleCode(\''+esc(c.code)+'\','+(c.active?'false':'true')+',this)"></button></div>'; }).join(''); }
 function toggleCodeServer(code,sv,btn){ var v=codeView(); var c=(v&&v.state.codes||[]).filter(function(x){ return x.code===code; })[0]; var cur=(c&&c.servers)?c.servers.slice():['swap','swing'];
   var i=cur.indexOf(sv); if(i>=0){ if(cur.length===1){ toast('서버를 하나 이상 남겨두세요'); return; } cur.splice(i,1); } else cur.push(sv);
   btn.classList.toggle('on',i<0); haptic(8);
   run('setCodeServers',code,cur).then(function(res){ if(!res.ok){ toast(res.error); } if(v){ v.state.codes=res.codes; drawCodes(v); } if(res.ok) toast(code+' → '+cur.map(function(x){ return x.toUpperCase(); }).join('+')); }).catch(function(e){ btn.classList.toggle('on',i>=0); toast('변경 실패: '+e.message); }); }
 function codeView(){ var v=stack[stack.length-1]; return (v&&v.name==='codes')?v:null; }
+/* v10.68 주인 10/27: 이름으로 찾기 · 코드 삭제 (서버 deleteCode = 그 코드 줄 + 알림 구독·근무 지정 지움 · 이스터에그 기록은 남음 · 되돌릴 수 없음) */
+var codeQ='';
+function codeKey(s){ return String(s==null?'':s).toLowerCase().replace(/\s+/g,''); }
+function codeFind(q){ codeQ=String(q==null?'':q); var v=codeView(); if(v) drawCodes(v); }
+function codeDelAsk(code){ var v=codeView(); if(!v||sheetOpen) return; var c=(v.state.codes||[]).filter(function(x){ return x.code===code; })[0]; if(!c) return; haptic(10);
+  openSheet('<h3>접속 코드를 지울까요?</h3><p><b>'+esc(c.name||'이름 없음')+'</b> · <span class="mono">'+esc(code)+'</span><br>이 코드로는 더 접속할 수 없고 되돌릴 수 없어요. 잠깐 막으려면 스위치만 끄세요.</p>'+
+    '<div class="row"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--danger)" onclick="closeSheet(function(){ codeDelGo(\''+jsa(code)+'\') })">삭제</button></div>'); }
+function codeDelGo(code){ var v=codeView(); toast('삭제하는 중…');
+  run('deleteCode',code).then(function(list){ if(list&&list.ok===false){ toast(list.error||'삭제 실패'); return; } if(v&&Array.isArray(list)){ v.state.codes=list; drawCodes(v); } toast(code+' 삭제'); })
+    .catch(function(e){ toast('삭제 실패: '+e.message); }); }
 /* v10.59 역할 고르기 (주인 10/16 · 마스터만): 작업자 · 관리자 · 부마스터 — 시트에서 하나 → setCodeRole(code, false | true | 'submaster')
    작업자·관리자 = 예전 false/true 그대로 (구글 길 Apps Script 도 앎) · 부마스터 = 'submaster' (새 서버) — 답 목록에서 부마스터가 아니면 안 됐다고 알림 (옛 서버는 관리자로 둠) */
 var CODE_ROLES=[['worker','작업자','추가기능은 권한 설정대로'],['admin','관리자','권한 설정 · 차량 목록 · 작업자 관리 · 수리 화면 (작업현황 · 작업보고 알림 · 거래처 관리 없음)'],['submaster','부마스터','접속 코드 관리만 빼고 마스터와 같아요 · 서버는 SWAP/SWING 칩대로']];
