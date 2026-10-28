@@ -1280,7 +1280,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.70';   // v10.70 전산 DAILY = 추가기능 따로 섹션 (기기입고·미배치·기록 카드 · 주인 10/28) · v10.69 SWING 추가기능 ERP '전산 DAILY' (기기입고 · 미배치 · 기록 · 주인 10/28 · Worker 0.9.7 짝) · v10.68 접속 코드 관리: 코드 삭제 · 이름으로 찾기 (주인 10/27 · Worker 0.9.6 그대로) · v10.67 환경설정: 서버 칸 '… 화면을 쓰는 중이에요' · 관리 줄 부제목 · 작업보고 알림 카드 부제목 없앰 (주인 10/26) · v10.66 작업자 관리: 제목 아래 설명 없앰 · '기록 시트' 링크 없앰 · 작업자 찾기 (주인 10/25 · Worker 0.9.6 그대로) · v10.65 등록 출고·수거 = 작업리스트에 없는 건도 어드민에서 찾아 고름 (Worker 0.9.3 그대로) · v10.64 평일 08:30 자동 = 재고리스트 흐름 (결과 카드·막대·이름 '08:30 자동 · 재고리스트' · Worker 0.9.3 짝) · v10.63 작업 리스트 (재고리스트·배송리스트 PDF · 아래 진행 막대) · 추가기능 줄 정리 · SWING '내 작업 확인' (Worker 0.9.2 짝) · v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
+var APP_VER = '10.71';   // v10.71 전산 DAILY 섹션 = 업무기능 다음 · 작업 정리 위 (주인 10/28) · v10.70 전산 DAILY = 추가기능 따로 섹션 (기기입고·미배치·기록 카드 · 주인 10/28) · v10.69 SWING 추가기능 ERP '전산 DAILY' (기기입고 · 미배치 · 기록 · 주인 10/28 · Worker 0.9.7 짝) · v10.68 접속 코드 관리: 코드 삭제 · 이름으로 찾기 (주인 10/27 · Worker 0.9.6 그대로) · v10.67 환경설정: 서버 칸 '… 화면을 쓰는 중이에요' · 관리 줄 부제목 · 작업보고 알림 카드 부제목 없앰 (주인 10/26) · v10.66 작업자 관리: 제목 아래 설명 없앰 · '기록 시트' 링크 없앰 · 작업자 찾기 (주인 10/25 · Worker 0.9.6 그대로) · v10.65 등록 출고·수거 = 작업리스트에 없는 건도 어드민에서 찾아 고름 (Worker 0.9.3 그대로) · v10.64 평일 08:30 자동 = 재고리스트 흐름 (결과 카드·막대·이름 '08:30 자동 · 재고리스트' · Worker 0.9.3 짝) · v10.63 작업 리스트 (재고리스트·배송리스트 PDF · 아래 진행 막대) · 추가기능 줄 정리 · SWING '내 작업 확인' (Worker 0.9.2 짝) · v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -3283,13 +3283,14 @@ function swSearchPick(serial){ var v=stack[stack.length-1]; v.state.q=serial; va
    ① 업무기능 = 배터리 사진·차량 사진·QR 스캔·사진모음 ② 작업 정리 = 작업내역·작업현황·작업자 관리(관리자) ③ ERP = 권한 있는 수리 화면만 (#rpext · rpMe 를 받으면 다시 그림 · 하나도 없으면 섹션째 없음)
    부품 (xCard · xSec · xOne · xPage · PC 끌기 xBind) = SWAP 추가기능과 같이 씀 (위 '추가기능' 칸 · v10.56 앱 담당 3) */
 VIEWS.sw_extras={ render:function(v){ reanim(v);
-  var c=function(view,params,svg,b){ return xCard(view,params,svg,b,viewPerm(view,view==='sw_cam'?{kind:/battery/.test(params)?'battery':'vehicle'}:{})); }, erp=rpExtrasRows();
+  var c=function(view,params,svg,b){ return xCard(view,params,svg,b,viewPerm(view,view==='sw_cam'?{kind:/battery/.test(params)?'battery':'vehicle'}:{})); }, erp=rpExtrasRows(), sd=sdExtRows();
   xPage(v,   // v10.57 주인 4: 부제 'SWING' 없앰
     xSec('업무기능',c('sw_cam','{kind:\'battery\'}',ic('battery'),'배터리 사진')+c('sw_cam','{kind:\'vehicle\'}',ic('car'),'차량 사진')+c('sw_qr','{}',ic('scan'),'QR 스캔')+c('sw_gallery','{}',ic('image'),'사진모음'))+
+    '<div id="sdext">'+sd+'</div>'+   // v10.71 전산 DAILY = 작업 정리 위 (rpMe 를 받으면 rpExtSync 가 다시 그림)
     xSec('작업 정리',c('sw_work','{}',ic('clip'),'작업내역')+c('sw_mine','{}',ic('chart'),'내 작업 확인')+(isMasterLike()?c('sw_sum','{}',ic('table'),'작업현황'):'')+(isAdminUp()?c('sw_workers','{}',ic('users'),'작업자 관리'):''))+   // 이름 '작업자 작업내역'·'작업 현황정리' → '작업내역'·'작업현황' (주인 요청 5) · v10.59 작업현황 카드 = 마스터·부마스터만 (다른 사람은 카드 없음 · 잠금 타일 아님) · v10.63 '내 작업 확인' = 모든 사람 (각자 자기 것만 · 잠금 없음)
     '<div id="rpext">'+erp+'</div>',   // v10.52 수리 ERP → v10.56 ERP 섹션 (내 수리 내역 · 수리현황 · 부품 재고 · 수리항목 · 거래처 관리 — 권한 있는 것만)
     viewPerm('report',{}));   // 맨 아래 따로 [업무보고] (xOne · 설명 글 없음 · 작업보고 알림 줄은 환경설정으로)
-  var ex=$('rpext'); if(ex) ex._rpx=erp;   // v10.56 검증 고침: 지금 그린 ERP 글 (rpExtSync 가 같으면 안 다시 그림)
+  var ex=$('rpext'); if(ex) ex._rpx=erp; var se=$('sdext'); if(se) se._rpx=sd;   // v10.56 검증 고침: 지금 그린 ERP 글 (rpExtSync 가 같으면 안 다시 그림)
   rpMeLoad().catch(function(){}); }};
 
 /* ================= 작업내역 (SWING 홈 간단 보고 · 작업자 작업내역 · 작업자 세부 · 작업 현황정리) ================= */
@@ -4112,7 +4113,8 @@ function rpMeChanged(){ rpHomeSync(); rpExtSync(); }   // v10.56 PC: 다시 그�
 /* v10.56 검증 고침: 추가기능 ERP 줄(#rpext) 다시 그리기 — 글이 지난번과 같으면 안 그림 (못 보낸 기록을 3·6·12…60초마다 다시 보낼 때 · rpMe 를 다시 받을 때 = 배지·권한 그대로)
    바뀌면 줄 스크롤 자리를 읽어 두고 다시 그린 뒤 되돌림 (옆으로 밀어 둔 자리가 처음으로 튀던 것 · v10.55 세로 줄엔 없던 일) · 마우스로 끄는 중이면 새 줄로 이어 감 → ‹ › 다시 셈
    지난 글 = 그 자리 ex._rpx (화면을 그릴 때 sw_extras 가 넣음) */
-function rpExtSync(){ var ex=$('rpext'); if(!ex) return; var h=rpExtrasRows(); if(ex._rpx===h) return;
+function rpExtSync(){ xExtSync('rpext',rpExtrasRows()); xExtSync('sdext',sdExtRows()); }   // v10.71 전산 DAILY 섹션(#sdext)도 같은 방식
+function xExtSync(id,h){ var ex=$(id); if(!ex||ex._rpx===h) return;
   var q=function(){ return ex.querySelector?ex.querySelector('.xrow'):null; }, r0=q(), x=r0?r0.scrollLeft:0, dr=!!(XD&&r0&&XD.row===r0);
   ex.innerHTML=h; ex._rpx=h;
   var r=q(); if(r0&&r!==r0) xFxSwap(r0,r);   // v10.57 옛 줄 슬라임 움직임 지움 (rAF·transform 안 남음) · 손가락·당김은 새 줄로
@@ -4184,8 +4186,10 @@ function rpExtrasRows(){ var r=function(view,svg,b,n){ return xCard(view,'{}',sv
     (rpCan('stock')?r('rp_stock',RP_I.box,'부품 재고'):'')+
     (rpCan('admin')?r('rp_items',ic('wrench'),'수리항목'):'')+
     (rpCan('master')?r('rp_clients',RP_I.bld,'거래처 관리'):'');
-  var d=function(tab,svg,b){ return xCard('sw_daily','{tab:\''+tab+'\'}',svg,b,''); };
-  return xSec('ERP',h)+(rpCan('daily')?xSec('전산 DAILY',d('cargo',ic('box'),'기기입고')+d('place',ic('car'),'미배치')+d('log',ic('cal'),'기록')):''); }   // v10.70 전산 DAILY = ERP 밑 따로 섹션 (관리자 이상 + 사람별) · 카드 = 기기입고·미배치·기록 (주인 10/28 · 화면 안 탭 줄 없앰)
+  return xSec('ERP',h); }
+/* v10.70 전산 DAILY 섹션 (관리자 이상 + 사람별) · 카드 = 기기입고·미배치·기록 (화면 안 탭 줄 없음) · v10.71 자리 = 업무기능 다음 · 작업 정리 위 (#sdext · 주인 10/28) */
+function sdExtRows(){ var d=function(tab,svg,b){ return xCard('sw_daily','{tab:\''+tab+'\'}',svg,b,''); };
+  return rpCan('daily')?xSec('전산 DAILY',d('cargo',ic('box'),'기기입고')+d('place',ic('car'),'미배치')+d('log',ic('cal'),'기록')):''; }
 
 /* ================= v10.69 전산 DAILY (주인 10/28 · 새 서버 rpDaily* · 관리자 이상 + 사람별 '전산 DAILY') =================
    기기입고 = 실물 입고 기기 QR 붙여넣기 → [기기 찾기] (향남·수원 지금 상태 · 안 바꿈) → [N대 입고됨으로 바꾸기] (10대씩 · 수거대상이 아니면 서버가 수거대상 먼저 → 입고됨 · 이미 입고됨 건너뜀)
