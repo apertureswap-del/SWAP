@@ -1281,7 +1281,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.74';   // v10.74 '미리 받아 두기 (이 폰)' 없앰 (환경설정 카드·열 때·15분마다·서버 바꿀 때 syncPull · 기기 목록 swix · 주인 10/31) · v10.73 SWING 검색 기기 상태 변경 = 관리자 이상만 (주인 10/31 · Worker 0.9.8 짝) · v10.72 미배치 = 향남·수원 탭 (주인 10/31) · v10.71 전산 DAILY 섹션 = 업무기능 다음 · 작업 정리 위 (주인 10/28) · v10.70 전산 DAILY = 추가기능 따로 섹션 (기기입고·미배치·기록 카드 · 주인 10/28) · v10.69 SWING 추가기능 ERP '전산 DAILY' (기기입고 · 미배치 · 기록 · 주인 10/28 · Worker 0.9.7 짝) · v10.68 접속 코드 관리: 코드 삭제 · 이름으로 찾기 (주인 10/27 · Worker 0.9.6 그대로) · v10.67 환경설정: 서버 칸 '… 화면을 쓰는 중이에요' · 관리 줄 부제목 · 작업보고 알림 카드 부제목 없앰 (주인 10/26) · v10.66 작업자 관리: 제목 아래 설명 없앰 · '기록 시트' 링크 없앰 · 작업자 찾기 (주인 10/25 · Worker 0.9.6 그대로) · v10.65 등록 출고·수거 = 작업리스트에 없는 건도 어드민에서 찾아 고름 (Worker 0.9.3 그대로) · v10.64 평일 08:30 자동 = 재고리스트 흐름 (결과 카드·막대·이름 '08:30 자동 · 재고리스트' · Worker 0.9.3 짝) · v10.63 작업 리스트 (재고리스트·배송리스트 PDF · 아래 진행 막대) · 추가기능 줄 정리 · SWING '내 작업 확인' (Worker 0.9.2 짝) · v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
+var APP_VER = '10.75';   // v10.75 작업 리스트 PDF 출력 기록 (누가·언제 열었는지 · 주인 11/02 · Worker 0.9.10 짝) · v10.74 '미리 받아 두기 (이 폰)' 없앰 (환경설정 카드·열 때·15분마다·서버 바꿀 때 syncPull · 기기 목록 swix · 주인 10/31) · v10.73 SWING 검색 기기 상태 변경 = 관리자 이상만 (주인 10/31 · Worker 0.9.8 짝) · v10.72 미배치 = 향남·수원 탭 (주인 10/31) · v10.71 전산 DAILY 섹션 = 업무기능 다음 · 작업 정리 위 (주인 10/28) · v10.70 전산 DAILY = 추가기능 따로 섹션 (기기입고·미배치·기록 카드 · 주인 10/28) · v10.69 SWING 추가기능 ERP '전산 DAILY' (기기입고 · 미배치 · 기록 · 주인 10/28 · Worker 0.9.7 짝) · v10.68 접속 코드 관리: 코드 삭제 · 이름으로 찾기 (주인 10/27 · Worker 0.9.6 그대로) · v10.67 환경설정: 서버 칸 '… 화면을 쓰는 중이에요' · 관리 줄 부제목 · 작업보고 알림 카드 부제목 없앰 (주인 10/26) · v10.66 작업자 관리: 제목 아래 설명 없앰 · '기록 시트' 링크 없앰 · 작업자 찾기 (주인 10/25 · Worker 0.9.6 그대로) · v10.65 등록 출고·수거 = 작업리스트에 없는 건도 어드민에서 찾아 고름 (Worker 0.9.3 그대로) · v10.64 평일 08:30 자동 = 재고리스트 흐름 (결과 카드·막대·이름 '08:30 자동 · 재고리스트' · Worker 0.9.3 짝) · v10.63 작업 리스트 (재고리스트·배송리스트 PDF · 아래 진행 막대) · 추가기능 줄 정리 · SWING '내 작업 확인' (Worker 0.9.2 짝) · v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -6329,7 +6329,7 @@ function wllCardBody(rr,k,o){ o=o||{}; var nm=wllNameR(rr,k,o.run), h;
   if(rr.dry&&k!=='try') h+=nbar('<b>미리보기</b> — 어드민·시트·슬랙은 안 바뀌었어요 · PDF 는 만들었어요');   // 시험 = 늘 dry (슬랙 시험 글은 감)
   if(k==='stock') return h+wllStockHtml(rr);
   if(k==='deliv') return h+wllDelivHtml(rr);
-  if(k==='try') return h+wllSlackHtml(((rr.report||{})['try']||rr.report||{}).slack,rr.dry)+wllPdfBtns(wllPdfsOf(rr));
+  if(k==='try') return h+wllSlackHtml(((rr.report||{})['try']||rr.report||{}).slack,rr.dry)+wllPdfBtns(wllPdfsOf(rr),rr.printed);
   return h+(rr.report?wlReportHtml(rr.report,rr.dry):'<p class="msub">'+esc(wlLnTxt(rr))+'</p>'); }
 /* 걸음 (✓ 끝 · ● 지금 · ○ 남음 · 안 함) — 재고 fetch 는 '받기'(25) → '시트에 붙이기'(40) 를 % 로 나눔 */
 function wllStepsHtml(rr,run){ var k=wllKey(rr), L=WLL_STEPS[k]; if(!L) return wlStepsHtml(rr,run);   // v10.64 08:30 자동 = 재고 걸음 (PDF 까지)
@@ -6342,7 +6342,7 @@ function wllStepsHtml(rr,run){ var k=wllKey(rr), L=WLL_STEPS[k]; if(!L) return w
     return '<li class="'+c+'"><i aria-hidden="true"></i><span>'+x[1]+(c==='ok'&&cnt[x[0]]?' '+cnt[x[0]]:'')+(skip?' · 안 함':'')+'</span></li>'; }).join('')+'</ol>'; }
 /* 재고리스트 결과 (설계 2-7 report.stock) · 앞 걸음 결과 = 관리 화면 결과 모양 그대로 (wlReportHtml) */
 function wllStockHtml(rr){ var p=rr.report||null, sk=p&&p.stock, pdfs=wllPdfsOf(rr), h='';
-  if(!sk) return '<p class="wlln">'+esc(wlLnTxt(rr)||'다 됐어요')+'</p>'+wllPdfBtns(pdfs);   // 요약만 (자세히 받는 중)
+  if(!sk) return '<p class="wlln">'+esc(wlLnTxt(rr)||'다 됐어요')+'</p>'+wllPdfBtns(pdfs,rr.printed);   // 요약만 (자세히 받는 중)
   var ex=sk.exc||{}, nx=wllSum(ex), hold=sk.hold||[], dt=p.dates, ck=Array.isArray(sk.need)?sk.need:(dt?(dt.skip||[]).filter(function(x){ return x.kind!=='exclude'; }):[]), w=sk.warn||{}, ty=w.types||[], gr=w.grades||[];   // v10.63 검증 고침: need = 지정 실패도
   h+='<p class="wlln">받은 '+rpWon(sk.n)+'건 → 출고 '+rpWon(sk.inc)+'건 · 제외 '+rpWon(nx)+'건'+(hold.length?' · <span class="mred">미납 보류 '+hold.length+'건</span>':'')+'</p>';
   if(sk.range&&sk.range.from) h+='<p class="msub m">작업 예정일 '+esc(wllRg(sk.range.from,sk.range.to))+'</p>';
@@ -6351,7 +6351,7 @@ function wllStockHtml(rr){ var p=rr.report||null, sk=p&&p.stock, pdfs=wllPdfsOf(
   if(ty.length||gr.length) h+='<p class="merr" role="alert">처음 보는 '+[ty.length?'유형 '+ty.map(function(x){ return esc(x&&typeof x==='object'?(x.type||'')+(x.name?' ('+x.name+')':''):x); }).join(', '):'',gr.length?'기기등급 '+gr.map(function(x){ return esc(x&&typeof x==='object'?(String(x.grade||'').trim()||'빈칸')+(x.name?' ('+x.name+')':''):x); }).join(', '):''].filter(Boolean).join(' · ')+' — 확인해 주세요</p>';   // 스킬 5절 = 사람 확인
   if(wlSheetBad(rr)) h+='<p class="merr" role="alert">시트 행 수가 예상과 달라요 — 관리 화면 결과를 확인해 주세요</p>';
   if(sk.pdf&&sk.pdf.font==='system') h+='<p class="msub m">글꼴을 못 받아 PDF 가 커요 (그대로 써도 돼요)</p>';
-  h+=wllPdfBtns(pdfs);
+  h+=wllPdfBtns(pdfs,rr.printed);
   var bd=sk.byDate||{}, ds=Object.keys(bd).sort(), tl=sk.tally||{}, ms=Object.keys(tl).sort(function(a,b){ return (Number(tl[b])||0)-(Number(tl[a])||0)||(a<b?-1:(a>b?1:0)); }), xs=Object.keys(ex);
   if(ds.length) h+=wllFold('▸ 날짜별 ('+ds.length+'일)','<div class="wldel">'+ds.map(function(d){ return '<div><b>'+esc(wlDayTxt(d))+'</b> 출고 '+rpWon(bd[d])+'건</div>'; }).join('')+'</div>');
   if(ms.length) h+=wllFold('▸ 모델 ('+ms.length+'가지)','<div class="wldel">'+ms.map(function(m){ return '<div><b>'+esc(m)+'</b> '+rpWon(tl[m])+'대</div>'; }).join('')+'</div>');
@@ -6361,7 +6361,7 @@ function wllStockHtml(rr){ var p=rr.report||null, sk=p&&p.stock, pdfs=wllPdfsOf(
   return h; }
 /* 배송리스트 결과 (설계 3-10 report.deliv) — 꼭 확인할 것 = 슬랙 ⚠️ 와 같은 줄 · 이름 전부 (스킬 1절 '행 수를 먼저 · 이름 전부') */
 function wllDelivHtml(rr){ var p=rr.report||null, d=p&&p.deliv, pdfs=wllPdfsOf(rr), h='';
-  if(!d) return '<p class="wlln">'+esc(wlLnTxt(rr)||'다 됐어요')+'</p>'+wllPdfBtns(pdfs);
+  if(!d) return '<p class="wlln">'+esc(wlLnTxt(rr)||'다 됐어요')+'</p>'+wllPdfBtns(pdfs,rr.printed);
   var pg=(d.pages||[]).length, hold=d.hold||[], wk=d.weekend, w=d.warn||{}, ck=d.check||[], nm=d.names||[];
   h+='<p class="wlln">'+esc(d.title||(wlDayTxt(d.target)+' 배송 리스트'))+' · '+rpWon(d.n)+'건 · '+pg+'쪽</p>';
   if(wk) h+='<p class="msub">+ 주말 작업 '+esc(wllRg(wk.from,wk.to))+' · '+rpWon(wk.n)+'건 · '+(wk.pages||[]).length+'쪽</p>';
@@ -6371,7 +6371,7 @@ function wllDelivHtml(rr){ var p=rr.report||null, d=p&&p.deliv, pdfs=wllPdfsOf(r
   if(wllTxt(w.outside)) h+='<p class="msub m">관할 외 지역 '+esc(wllTxt(w.outside))+' — 권역 확인</p>';
   if(wllTxt(w.keys)) h+='<p class="msub m">동봉 키 확인 필요 ('+esc(wllTxt(w.keys))+')</p>';
   if(wllTxt(w.types)) h+='<p class="merr" role="alert">처음 보는 유형 ('+esc(wllTxt(w.types))+') — 체크 항목 확인</p>';
-  h+=wllPdfBtns(pdfs);
+  h+=wllPdfBtns(pdfs,rr.printed);
   if(ck.length) h+=wlListFold('▸ 꼭 확인할 것 '+ck.length+'건',ck.map(function(x){ return [x.no!=null?x.no+'번':'',(x.name||'')+(x.city?' · '+x.city:''),x.warn]; }),true,'wlck');
   if(nm.length) h+=wllFold('▸ 이름 전부 '+nm.length+'명','<p class="msub wlnm">'+nm.map(esc).join(' · ')+'</p>'+(pg?'<p class="msub m">'+(d.pages||[]).map(function(a,i){ return (i+1)+'쪽 '+(a||[]).map(function(c){ return esc(c.city||'')+' '+Number(c.n||0); }).join(' · '); }).join(' / ')+'</p>':''));
   if(hold.length) h+=wlListFold('▸ <span class="mred">미납 보류 '+hold.length+'건</span> · 배송 안 함',hold.map(function(x){ return [x.id,x.name,(x.city||'')+(x.type?' · '+x.type:'')]; }),false,'wlck');
@@ -6385,11 +6385,15 @@ function wllSlackHtml(sl,dry){ var st=sl&&sl.st; if(!st) return '';
   if(st==='unknown') return '<p class="merr" role="alert">슬랙에 올렸는지 답을 못 받았어요 — #swap 을 확인해 주세요</p>';
   return '<p class="merr" role="alert">슬랙 #swap 에 못 올렸어요</p>'; }
 /* PDF 단추 (보관 until 안일 때만 · 예비 인쇄 = HTML) */
-function wllPdfBtns(list){ if(!list||!list.length) return '';
+/* v10.75 출력 기록 (주인 11/02 · 서버 0.9.10 wlStatus run.printed = 앱에서 PDF 를 열거나 받은 사람·시각 · 실제 종이 인쇄는 알 수 없음) */
+function wllPrHtml(pr,kind){ var l=(pr||[]).filter(function(y){ return y&&y.k===kind; }).sort(function(a,b){ return (Number(b.at)||0)-(Number(a.at)||0); });
+  if(!l.length) return '<p class="msub m wlpr">출력 기록 없음 · 아직 아무도 안 열었어요</p>';
+  return '<p class="msub m wlpr">출력 기록 · '+l.slice(0,3).map(function(y){ return esc(y.by||'')+' '+esc(sdTime(Number(y.at)||0)); }).join(' · ')+(l.length>3?' 외 '+(l.length-3)+'번':'')+'</p>'; }
+function wllPdfBtns(list,pr){ if(!list||!list.length) return '';
   return list.map(function(x){ var id=Number(x.id)||0, hd='<span><b>'+esc(WLL_PK[x.kind]||'PDF')+'</b> '+esc(x.name||'')+(Number(x.pages)?' · '+Number(x.pages)+'쪽':'')+(Number(x.size)?' · '+wllKb(x.size):'')+'</span>';
     if(x.until&&Date.now()>Number(x.until)) return '<div class="wlpf">'+hd+'<p class="msub m">보관 끝 — 다시 만들어 주세요</p></div>';
-    if(x.mime==='text/html') return '<div class="wlpf">'+hd+'<p class="msub m">예비 인쇄 (쪽 나누기 추정) — 열면 인쇄 창이 떠요 · \'PDF로 저장\'을 골라 주세요</p><button type="button" class="btn line" onclick="wllPdf('+id+',\'print\')">인쇄해서 PDF 로 저장</button></div>';
-    return '<div class="wlpf">'+hd+'<div class="row"><button type="button" class="btn sm" onclick="wllPdf('+id+',\'save\')">PDF 받기</button><button type="button" class="btn line sm" onclick="wllPdf('+id+',\'open\')">열기</button></div></div>'; }).join(''); }
+    if(x.mime==='text/html') return '<div class="wlpf">'+hd+'<p class="msub m">예비 인쇄 (쪽 나누기 추정) — 열면 인쇄 창이 떠요 · \'PDF로 저장\'을 골라 주세요</p><button type="button" class="btn line" onclick="wllPdf('+id+',\'print\')">인쇄해서 PDF 로 저장</button>'+wllPrHtml(pr,x.kind)+'</div>';
+    return '<div class="wlpf">'+hd+'<div class="row"><button type="button" class="btn sm" onclick="wllPdf('+id+',\'save\')">PDF 받기</button><button type="button" class="btn line sm" onclick="wllPdf('+id+',\'open\')">열기</button></div>'+wllPrHtml(pr,x.kind)+'</div>'; }).join(''); }
 function wllPart(v,k){ var e=$('wll_c_'+k); if(e) e.innerHTML=wllCardInner(v,k); }
 /* 시작 = 바로 (주인 '버튼 하나 누르면') · 같은 누름이 다시 가도 같은 rid (rpWrite) · 다른 실행 중 = 서버가 그 runId 를 줌 → 그 진행을 막대로 */
 function wllGo(kind,dry,slk){ var v=wllView(); if(!v) return; var s=v.state, L=s.info&&s.info.lists;
@@ -6445,15 +6449,17 @@ function wllDockOpen(){ var v=wllView(), r=v&&v.state.run, a=r&&r.r?wllPdfsOf(r.
 function wllPdf(id,how){ var v=wllView(); if(!v||!id) return; var s=v.state, b=s.blob[id];
   if(b){ if(!wllPdfAct(b,how)) toastAct('PDF 를 열지 못했어요','다시',function(){ wllPdfAct(b,how); }); return; }
   if(s.pdfBusy){ toast('PDF 받는 중…'); return; } s.pdfBusy=id; haptic(8); toast('PDF 받는 중…');
-  wllPdfGet(id).then(function(x){ s.pdfBusy=0; if(stack.indexOf(v)<0){ try{ URL.revokeObjectURL(x.url); }catch(e){} return; } s.blob[id]=x; haptic([12,40,18]);
+  wllPdfGet(id,how).then(function(x){ s.pdfBusy=0; if(stack.indexOf(v)<0){ try{ URL.revokeObjectURL(x.url); }catch(e){} return; } s.blob[id]=x; haptic([12,40,18]); wllPrMine(v,id);
       if(wllPdfAct(x,how)) toast(how==='save'?'받았어요 · '+x.name:'PDF 를 열었어요'); else toastAct('PDF 를 받았어요','열기',function(){ wllPdfAct(x,how); }); },
     function(e){ s.pdfBusy=0; toast(e.message||'PDF 를 못 받았어요'); }); }
-function wllPdfGet(id){ var parts=[], meta=null;
-  var next=function(k){ return rpRun('wlPdf',[{id:id,k:k}]).then(function(a){ if(!a||a.ok===false) throw new Error((a&&a.error)||'PDF 를 못 받았어요'); if(!meta) meta=a; parts[k]=String(a.b64||''); return k+1<(Number(a.n)||1)?next(k+1):null; }); };
+function wllPdfGet(id,how){ var parts=[], meta=null;
+  var next=function(k){ return rpRun('wlPdf',[k?{id:id,k:k}:{id:id,k:k,how:how||'open'}]).then(function(a){ if(!a||a.ok===false) throw new Error((a&&a.error)||'PDF 를 못 받았어요'); if(!meta) meta=a; parts[k]=String(a.b64||''); return k+1<(Number(a.n)||1)?next(k+1):null; }); };
   return next(0).then(function(){ var bin=atob(parts.join('')), arr=new Uint8Array(bin.length), mime=String(meta.mime||'application/pdf'), blob;
     for(var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
     blob=mime==='text/html'?new Blob([arr,'<script>window.addEventListener("load",function(){setTimeout(function(){window.print();},400);});<\/script>'],{type:'text/html;charset=utf-8'}):new Blob([arr],{type:mime});   // 예비 인쇄 = 열리면 인쇄 창
     return {id:id,name:String(meta.name||'작업리스트.pdf'),mime:mime,size:Number(meta.size)||arr.length,pages:Number(meta.pages)||0,url:URL.createObjectURL(blob)}; }); }
+function wllPrMine(v,id){ try{ var rr=v.state.run&&v.state.run.r, pd=rr?wllPdfsOf(rr).filter(function(y){ return Number(y.id)===id; })[0]:null; if(!pd) return;   // v10.75 방금 연 것 = 이 화면 출력 기록에 바로 (서버도 남김)
+  rr.printed=(rr.printed||[]).concat([{k:pd.kind,by:(AUTH&&AUTH.master)?'마스터':((AUTH&&AUTH.name)||worker||''),at:Date.now(),how:'open'}]); wllDraw(v); }catch(e){} }
 function wllPdfAct(x,how){ if(how==='save'){ var a=document.createElement('a'); a.href=x.url; a.download=x.name; document.body.appendChild(a); a.click(); a.remove(); return true; }
   var w=null; try{ w=window.open(x.url,'_blank'); }catch(e){ w=null; } return !!w; }
 function wllBlobFree(v){ var b=v.state.blob||{}; Object.keys(b).forEach(function(k){ try{ URL.revokeObjectURL(b[k].url); }catch(e){} }); v.state.blob={}; }
