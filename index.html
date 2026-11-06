@@ -166,13 +166,14 @@
   .mzmempty{text-align:center;color:var(--muted);margin:48px 0}
   .mzmmore{align-self:center;width:auto!important;margin:6px 0}
   .mzmmenu{width:44px;height:44px;font-size:24px;font-weight:800;line-height:1;color:var(--ink2);border-radius:12px}
+  .mzmtop{display:flex;align-items:center;gap:2px} .mzmdots{margin-right:-10px} .mitem.mzmcur .ar{color:var(--p);font-weight:800}   /* v10.84 마스터 ⋮ (세로 점) · 고른 줄 ✓ */
   .mzmrow .bd .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mzmside{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:5px;margin-left:6px;font-size:12px;color:var(--muted)}
   .mzmun{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--danger);color:#fff;font-size:12px;font-weight:800;line-height:20px;text-align:center}
   .mzmcnt{font-size:13px;color:var(--muted);font-weight:600}
   .item .av.mzmgrp svg{width:24px;height:24px;margin:0;stroke-width:1.9}
   .mzmpick .mzmck{flex:0 0 26px;width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--line2);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#fff}
-  .item.mzmrow .nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .mzmpick.sel{background:var(--p-soft)} .mzmpick.sel .av{background:#fff} .mzmpick.sel .mzmck{background:var(--p);box-shadow:none}
+  .item.mzmrow .nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .item.mzmrow .nm.mzmnmx{display:flex;align-items:center;gap:5px;flex-wrap:nowrap} .mzmnmx .mzmnmt{min-width:0;overflow:hidden;text-overflow:ellipsis} .mzmnmx .mzmcnt,.mzmnmx .chip{flex:none}   /* v10.84 모든 방 '보기만' 칩 안 잘림 */ .mzmpick.sel{background:var(--p-soft)} .mzmpick.sel .av{background:#fff} .mzmpick.sel .mzmck{background:var(--p);box-shadow:none}
   .mzmhit mark{background:#ffe680;color:inherit;border-radius:3px;padding:0 1px}
   .mzmmem{max-height:46vh;overflow-y:auto} .mzmmrow{display:flex;align-items:center;gap:12px;padding:6px 0;font-weight:600} .mzmmrow .av{flex:0 0 36px;width:36px;height:36px;border-radius:12px;background:var(--p-soft);color:var(--p-ink);display:flex;align-items:center;justify-content:center;font-weight:800}
   .hsq{padding:14px 16px} .hsq .srch{margin:0}
@@ -1334,7 +1335,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.83';   // v10.83 메신저 모든 방 = 마스터만 (부마스터 = 내 대화만 · 주인 11/06 · Worker 0.9.19 짝) · v10.82 홈 머리 = 로고 옆 '스윙과사람들 워크+' (SWAP·SWING · 주인 11/06) · v10.81 메신저 엔터 = 보내기 · Shift+엔터 = 줄바꿈 (주인 11/06) · v10.80 워크+ 메신저 (SWAP 아래 둘째 탭 · 1:1·단체방 · 글자만 · 마스터·부마스터 = 모든 방 보기·찾기 · 새 글 알림) · SWAP 검색 = 홈 가운데 칸 · 알림 꼭 켜기 (꺼져 있으면 앱 못 씀) (주인 11/06 · Worker 0.9.18 짝) · v10.79 작업현황 블록 날짜 칸: 교체 후 수거·교체오류 대신 작업불량 (작업실수 판정 · −5포인트 · 주인 11/05 · Worker 0.9.15 짝) · v10.78 접속 코드 관리 [새 코드] = 같은 사람(이름·서버·역할·권한)에 코드만 새로 (주인 11/05 · 샌 코드 · Worker 0.9.12 짝) · v10.77 SWING 작업내역 [이 날짜 다시 받기] (관리자 이상 · 나중에 등록한 작업자의 지난 작업이 안 보이던 것 · 주인 11/04 · Worker 0.9.11 짝) · v10.76 사진(차량·배터리) 플래시 버튼 늘 보임 · 눌렀는데 지금 렌즈에 플래시가 없으면 플래시 되는 후면 카메라를 찾아 바꾸고 이 폰에 기억 (주인 11/03 갤럭시 S22) · v10.75 작업 리스트 PDF 출력 기록 (누가·언제 열었는지 · 주인 11/02 · Worker 0.9.10 짝) · v10.74 '미리 받아 두기 (이 폰)' 없앰 (환경설정 카드·열 때·15분마다·서버 바꿀 때 syncPull · 기기 목록 swix · 주인 10/31) · v10.73 SWING 검색 기기 상태 변경 = 관리자 이상만 (주인 10/31 · Worker 0.9.8 짝) · v10.72 미배치 = 향남·수원 탭 (주인 10/31) · v10.71 전산 DAILY 섹션 = 업무기능 다음 · 작업 정리 위 (주인 10/28) · v10.70 전산 DAILY = 추가기능 따로 섹션 (기기입고·미배치·기록 카드 · 주인 10/28) · v10.69 SWING 추가기능 ERP '전산 DAILY' (기기입고 · 미배치 · 기록 · 주인 10/28 · Worker 0.9.7 짝) · v10.68 접속 코드 관리: 코드 삭제 · 이름으로 찾기 (주인 10/27 · Worker 0.9.6 그대로) · v10.67 환경설정: 서버 칸 '… 화면을 쓰는 중이에요' · 관리 줄 부제목 · 작업보고 알림 카드 부제목 없앰 (주인 10/26) · v10.66 작업자 관리: 제목 아래 설명 없앰 · '기록 시트' 링크 없앰 · 작업자 찾기 (주인 10/25 · Worker 0.9.6 그대로) · v10.65 등록 출고·수거 = 작업리스트에 없는 건도 어드민에서 찾아 고름 (Worker 0.9.3 그대로) · v10.64 평일 08:30 자동 = 재고리스트 흐름 (결과 카드·막대·이름 '08:30 자동 · 재고리스트' · Worker 0.9.3 짝) · v10.63 작업 리스트 (재고리스트·배송리스트 PDF · 아래 진행 막대) · 추가기능 줄 정리 · SWING '내 작업 확인' (Worker 0.9.2 짝) · v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
+var APP_VER = '10.84';   // v10.84 메신저 방 목록 끌기 = 슬라임 모션 · 마스터 모든 방 = [+ 새 대화] 옆 ⋮ (주인 11/06) · v10.83 메신저 모든 방 = 마스터만 (부마스터 = 내 대화만 · 주인 11/06 · Worker 0.9.19 짝) · v10.82 홈 머리 = 로고 옆 '스윙과사람들 워크+' (SWAP·SWING · 주인 11/06) · v10.81 메신저 엔터 = 보내기 · Shift+엔터 = 줄바꿈 (주인 11/06) · v10.80 워크+ 메신저 (SWAP 아래 둘째 탭 · 1:1·단체방 · 글자만 · 마스터·부마스터 = 모든 방 보기·찾기 · 새 글 알림) · SWAP 검색 = 홈 가운데 칸 · 알림 꼭 켜기 (꺼져 있으면 앱 못 씀) (주인 11/06 · Worker 0.9.18 짝) · v10.79 작업현황 블록 날짜 칸: 교체 후 수거·교체오류 대신 작업불량 (작업실수 판정 · −5포인트 · 주인 11/05 · Worker 0.9.15 짝) · v10.78 접속 코드 관리 [새 코드] = 같은 사람(이름·서버·역할·권한)에 코드만 새로 (주인 11/05 · 샌 코드 · Worker 0.9.12 짝) · v10.77 SWING 작업내역 [이 날짜 다시 받기] (관리자 이상 · 나중에 등록한 작업자의 지난 작업이 안 보이던 것 · 주인 11/04 · Worker 0.9.11 짝) · v10.76 사진(차량·배터리) 플래시 버튼 늘 보임 · 눌렀는데 지금 렌즈에 플래시가 없으면 플래시 되는 후면 카메라를 찾아 바꾸고 이 폰에 기억 (주인 11/03 갤럭시 S22) · v10.75 작업 리스트 PDF 출력 기록 (누가·언제 열었는지 · 주인 11/02 · Worker 0.9.10 짝) · v10.74 '미리 받아 두기 (이 폰)' 없앰 (환경설정 카드·열 때·15분마다·서버 바꿀 때 syncPull · 기기 목록 swix · 주인 10/31) · v10.73 SWING 검색 기기 상태 변경 = 관리자 이상만 (주인 10/31 · Worker 0.9.8 짝) · v10.72 미배치 = 향남·수원 탭 (주인 10/31) · v10.71 전산 DAILY 섹션 = 업무기능 다음 · 작업 정리 위 (주인 10/28) · v10.70 전산 DAILY = 추가기능 따로 섹션 (기기입고·미배치·기록 카드 · 주인 10/28) · v10.69 SWING 추가기능 ERP '전산 DAILY' (기기입고 · 미배치 · 기록 · 주인 10/28 · Worker 0.9.7 짝) · v10.68 접속 코드 관리: 코드 삭제 · 이름으로 찾기 (주인 10/27 · Worker 0.9.6 그대로) · v10.67 환경설정: 서버 칸 '… 화면을 쓰는 중이에요' · 관리 줄 부제목 · 작업보고 알림 카드 부제목 없앰 (주인 10/26) · v10.66 작업자 관리: 제목 아래 설명 없앰 · '기록 시트' 링크 없앰 · 작업자 찾기 (주인 10/25 · Worker 0.9.6 그대로) · v10.65 등록 출고·수거 = 작업리스트에 없는 건도 어드민에서 찾아 고름 (Worker 0.9.3 그대로) · v10.64 평일 08:30 자동 = 재고리스트 흐름 (결과 카드·막대·이름 '08:30 자동 · 재고리스트' · Worker 0.9.3 짝) · v10.63 작업 리스트 (재고리스트·배송리스트 PDF · 아래 진행 막대) · 추가기능 줄 정리 · SWING '내 작업 확인' (Worker 0.9.2 짝) · v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -1831,7 +1832,7 @@ function tabTo(name){ haptic(6);
 /* 당겨서 새로고침: 화면 맨 위에서 아래로 끌면 현재 화면의 refresh() 실행 */
 (function(){ var st=$('stage'), ind=$('ptr'), sy=null, dy=0, busy=false, el=null;
   function reset(){ sy=null; dy=0; if(el){ el.style.transition=''; el.style.transform=''; } ind.classList.remove('ready','spin'); ind.style.opacity=''; ind.style.transform=''; }
-  st.addEventListener('touchstart',function(e){ var v=stack[stack.length-1]; sy=null; if(!v||!v.refresh||busy||animating||sheetOpen) return; var t=e.touches[0]; if(t.clientX<=28||v.el.scrollTop>0) return; sy=t.clientY; dy=0; el=v.el; },{passive:true});
+  st.addEventListener('touchstart',function(e){ var v=stack[stack.length-1]; sy=null; if(!v||!v.refresh||v.yslime||busy||animating||sheetOpen) return; var t=e.touches[0]; if(t.clientX<=28||v.el.scrollTop>0) return; sy=t.clientY; dy=0; el=v.el; },{passive:true});
   st.addEventListener('touchmove',function(e){ if(sy===null) return; var d=e.touches[0].clientY-sy; if(d<=0||el.scrollTop>0){ if(dy===0){ sy=null; } return; }
     dy=Math.min(d,140); if(e.cancelable) e.preventDefault(); var p=Math.min(1,dy/80); el.style.transition='none'; el.style.transform='translateY('+(dy*.45)+'px)';
     ind.style.opacity=p; ind.style.transform='translate(-50%,'+(dy*.45-14)+'px)'; ind.classList.toggle('ready',p>=1); },{passive:false});
@@ -2174,12 +2175,58 @@ function msgBadgeTick(){ clearTimeout(MSG.badgeT); MSG.badgeT=setTimeout(msgBadg
 function msgAway(v){ if(v&&v.state&&v.state.room&&v.state.room.mine&&msgOn()) rpRun('msgRoom',[v.params.id,{away:1}]).catch(function(){}); }   // 방을 안 봄 → 서버 seen 지움 (그 뒤 글 = 바로 알림)
 document.addEventListener('visibilitychange',function(){ if(document.hidden){ var hv=stack[stack.length-1]; if(appStarted&&AUTH&&hv&&hv.name==='msg_room') msgAway(hv); return; } if(!appStarted||!AUTH) return; msgBadgeTick(); var v=stack[stack.length-1]; if(v&&v.msgPoll) v.msgPoll(); });
 
+/* ---- v10.84 메신저 방 목록 세로 슬라임 (주인 11/06 "대화방들 땡기는 모션을 우리 슬라임 모션으로") — 추가기능 카드 줄 슬라임(XS · xRubber)과 같은 숫자를 세로로
+   맨 위에서 아래로 · (넘칠 때) 맨 아래에서 위로 더 끌면 방 목록 카드가 저항 있게 따라오고 빈자리 쪽으로 늘어남 (가로는 조금 줄어 부피 그대로처럼)
+   놓으면 감쇠 스프링으로 제자리 (살짝 지나쳤다 출렁 · 카드는 젤리처럼 늦게) · 위에서 80px 넘게 끌고 놓으면 새로고침 (로고 그대로) · 움직임 줄이기 = 늘어남·출렁임 없음
+   transform 만 · rAF 하나 (움직일 때만) · 크기는 시작할 때 한 번 읽음 · 떠나면 지움 · 손가락 축 = 처음 8px · 화면 전체 새로고침(ptr)은 이 화면에서 안 씀 (v.yslime) ---- */
+var YS={PULL:0.6, REF:80, HOLD:44};   // HOLD = 새로고침 동안 카드가 머무는 자리 (예전 당겨서 새로고침 44px 와 같음)   // PULL = 고무줄 최대 = 화면 높이 × 0.6 × XS.PULL(0.3) = 18% · REF = 새로고침 손가락 거리
+function ySlimeBind(v){ if(v._ys) return; var s=v._ys={on:false,side:0,P:0,vP:0,E:0,vE:0,raf:0,rel:false}; v.yslime=true; var el=v.el;
+  el.addEventListener('touchstart',function(e){ s.on=false; if(stack[stack.length-1]!==v||animating||sheetOpen||!e.touches||e.touches.length!==1) return; var t=e.touches[0];
+    if(stack.length>1&&t.clientX<=XS.BACK) return; s.on=true; s.axis=''; s.x0=t.clientX; s.y0=t.clientY; s.base=null; s.raw=0; s.hap=false; s.calm=xCalm(); s.H=Math.max(200,el.clientHeight||600)*YS.PULL;
+    if((s.rel||s.hold)&&s.side&&Math.abs(s.P)>0.5){ s.k=xUnrub(Math.abs(s.P),s.H)*(s.P*s.side>0?1:0); }   /* 출렁이는 중에 다시 잡음 = 그 자리에서 이어 당김 (끌기 시작 전엔 스프링 그대로) */ else { s.k=0; if(!s.rel) s.side=0; } },{passive:true});
+  el.addEventListener('touchmove',function(e){ if(!s.on) return; var t=e.touches[0], dx=t.clientX-s.x0, dy=t.clientY-s.y0;
+    if(!s.axis){ if(Math.abs(dx)<XS.AXIS&&Math.abs(dy)<XS.AXIS&&!s.k) return; s.axis=Math.abs(dy)>=Math.abs(dx)?'y':'x'; if(s.axis==='x'){ s.on=false; return; } }
+    if(s.base===null){ var top=el.scrollTop<=0, bot=el.scrollHeight>el.clientHeight+1&&el.scrollTop+el.clientHeight>=el.scrollHeight-1;
+      var side=s.k?s.side:(dy>0&&top?1:(dy<0&&bot?-1:0)); if(!side) return; s.side=side; s.base=t.clientY; ySlimeStart(v); }
+    s.raw=s.side*(t.clientY-s.base)+s.k; if(s.raw===0&&!s.P) return; if(s.raw<=0){ s.raw=0; s.P=0; s.E=0; s.rel=false; ySlimeDraw(v); s.base=null; s.k=0; var pi=$('ptr'); if(pi&&!s.busy){ pi.style.opacity=''; pi.style.transform=''; pi.classList.remove('ready'); } return; }
+    if(e.cancelable) e.preventDefault(); s.rel=false; if(!s.hap){ s.hap=true; haptic(XS.HAP); }
+    s.P=s.side*xRubber(s.raw,s.H); s.vP=0; s.E=s.calm?0:XS.STRETCH*Math.abs(s.P); s.vE=0; ySlimeDraw(v); yPtr(v,s); },{passive:false});
+  var up=function(e){ if(!s.on) return; s.on=false; if(!s.side||s.base===null&&!s.P) return;
+    var go=e.type==='touchend'&&s.side===1&&s.raw>=YS.REF&&v.refresh&&!s.busy; s.hold=(go||s.busy)&&s.side===1?YS.HOLD:0; s.vP=0;
+    if(s.calm){ s.P=s.hold; s.E=0; if(s.hold) ySlimeDraw(v); else ySlimeStop(v); } else yLoop(v);
+    yPtrDone(v,go); };
+  el.addEventListener('touchend',up,{passive:true}); el.addEventListener('touchcancel',up,{passive:true}); }
+function ySlimeCard(v){ var m=v.el.querySelector('#mrl'); return m&&m.firstElementChild&&m.firstElementChild.classList&&m.firstElementChild.classList.contains('card')?m.firstElementChild:null; }
+function ySlimeStart(v){ var s=v._ys, c=ySlimeCard(v); s.hc=c?Math.max(60,c.offsetHeight||0):0;
+  var ind=$('ptr'); if(c&&ind&&!s.P&&c.getBoundingClientRect){ var op=ind.offsetParent, b=op&&op.getBoundingClientRect?op.getBoundingClientRect().top:0; s.ct=c.getBoundingClientRect().top-b-(ind.offsetTop||0)-20; } }   /* 로고 = 카드 위 빈자리 가운데 (검색 칸 위에 안 겹침) */
+function ySlimeDraw(v){ var s=v._ys, c=ySlimeCard(v); if(!c) return; if(!s.P&&!s.E){ c.style.transform=''; c.style.transformOrigin=''; c.style.willChange=''; return; }
+  var hc=s.hc||Math.max(60,c.offsetHeight||0), sy=1+Math.max(-0.08,Math.min(0.3,s.E/hc)), sx=1-XS.SQUASH*(sy-1)*0.5;
+  c.style.willChange='transform'; c.style.transformOrigin=s.side>0?'50% 100%':'50% 0'; c.style.transform='translate3d(0,'+s.P.toFixed(2)+'px,0) scale('+sx.toFixed(4)+','+sy.toFixed(4)+')'; }
+function yLoop(v){ var s=v._ys; cancelAnimationFrame(s.raf); s.last=0; s.rel=true; s.t0=Date.now();
+  var f=function(ts){ if(!s.rel) return; var dt=s.last?Math.min(1/30,(ts-s.last)/1000):1/60, h=s.hold||0; s.last=ts;
+    var aP=-XS.K*(s.P-h)-2*XS.Z*Math.sqrt(XS.K)*s.vP; s.vP+=aP*dt; s.P+=s.vP*dt;
+    var tg=XS.STRETCH*(s.P-h)*s.side, aE=XS.JK*(tg-s.E)-2*XS.JZ*Math.sqrt(XS.JK)*s.vE; s.vE+=aE*dt; s.E+=s.vE*dt;
+    if((Math.abs(s.P-h)<0.3&&Math.abs(s.vP)<6&&Math.abs(s.E)<0.3&&Math.abs(s.vE)<6)||Date.now()-s.t0>XS.MAXMS||stack.indexOf(v)<0){
+      if(h&&stack.indexOf(v)>=0){ s.P=h; s.vP=0; s.E=0; s.vE=0; s.rel=false; ySlimeDraw(v); return; }   // 새로고침 동안 44px 에 머묾
+      ySlimeStop(v); return; }
+    ySlimeDraw(v); s.raf=requestAnimationFrame(f); };
+  s.raf=requestAnimationFrame(f); }
+function ySlimeStop(v){ var s=v&&v._ys; if(!s) return; cancelAnimationFrame(s.raf); s.raf=0; s.rel=false; s.on=false; s.hold=0; s.P=0; s.vP=0; s.E=0; s.vE=0; ySlimeDraw(v); s.side=0; }
+/* 새로고침 로고 (화면 위 #ptr · 예전 당겨서 새로고침과 같은 모양) */
+function yPtr(v,s){ if(s.side!==1||!v.refresh||s.busy) return; var ind=$('ptr'); if(!ind) return; var p=Math.min(1,s.raw/YS.REF); ind.style.opacity=p; ind.style.transform='translate(-50%,'+((s.ct!=null?s.ct:-34)+s.P/2).toFixed(1)+'px)'; ind.classList.toggle('ready',p>=1); }
+function yPtrDone(v,go){ var s=v._ys, ind=$('ptr'); if(!ind||s.busy) return;
+  var off=function(){ ind.style.opacity='0'; setTimeout(function(){ if(s.busy) return; ind.classList.remove('ready','spin'); ind.style.opacity=''; ind.style.transform=''; },350); };
+  if(!go){ off(); return; } s.busy=true; haptic(10); ind.classList.add('spin'); ind.style.opacity='1'; ind.style.transform='translate(-50%,'+((s.ct!=null?s.ct:-34)+YS.HOLD/2).toFixed(1)+'px)';
+  var t0=Date.now(); resetCount(v); Promise.resolve().then(function(){ return v.refresh(v); }).catch(function(e){ toast('새로고침 실패: '+(e&&e.message||e)); })
+    .then(function(){ setTimeout(function(){ s.busy=false; off(); if(s.hold){ s.hold=0; if(stack.indexOf(v)>=0&&!s.on){ if(s.calm) ySlimeStop(v); else yLoop(v); } } },Math.max(0,500-(Date.now()-t0))); }); }   /* 끝 = 44px 에서 스프링으로 제자리 */
+
 /* ---- 방 목록 ---- */
 VIEWS.msg={ render:function(v){ v.state.all=isMaster()&&!!lsGet('msg_all');   /* v10.83 모든 방 = 마스터만 (주인 11/06) */ v.state.q='';
   v.refresh=function(){ return msgListLoad(v); };
   v.onResume=function(){ msgListLoad(v); };
   v.msgPoll=function(){ msgListLoad(v); };
-  v.onLeave=function(){ clearTimeout(v._t); };
+  v.onLeave=function(){ clearTimeout(v._t); ySlimeStop(v); };
+  ySlimeBind(v);   /* v10.84 방 목록 끌기 = 슬라임 (위로 끌면 새로고침도) */
   if(!v.state.all) v.state.d=lsGet('msg_list');
   drawMsgList(v);
   if(!msgOn()){ var el=v.el.querySelector('#mrl'); if(el) el.innerHTML='<div class="card"><div class="empty">'+(SERVER!=='swap'?'메신저는 SWAP 화면에서 써요.':'메신저는 새 서버로만 돼요. 인터넷 연결을 확인하고 앱을 다시 열어 주세요.')+'</div></div>'; return; }
@@ -2189,9 +2236,8 @@ function msgListLoad(v){ clearTimeout(v._t); if(!msgOn()) return Promise.resolve
       if(String(v.state.q||'').trim().length<2) drawMsgRooms(v); msgListNext(v); })
     .catch(function(e){ if(stack.indexOf(v)<0) return; if(!v.state.d){ var el=v.el.querySelector('#mrl'); if(el) el.innerHTML=errBox(e); } msgListNext(v); }); }
 function msgListNext(v){ clearTimeout(v._t); v._t=setTimeout(function(){ if(stack.indexOf(v)<0) return; if(stack[stack.length-1]!==v||document.hidden){ msgListNext(v); return; } msgListLoad(v); },15000); }
-function drawMsgList(v){ var ml=isMaster();
-  var h=title('메신저','','<button class="btn sm" style="width:auto;min-height:44px;padding:0 14px" onclick="push(\'msg_new\')">+ 새 대화</button>');
-  if(ml) h+='<div class="seg"><button class="'+(v.state.all?'':'on')+'" onclick="msgAllSet(0)">내 대화</button><button class="'+(v.state.all?'on':'')+'" onclick="msgAllSet(1)">모든 방</button></div>';
+function drawMsgList(v){ var ml=isMaster();   /* v10.84 마스터 = [+ 새 대화] 옆 ⋮ → 내 대화 / 모든 방 (예전 seg 칸 없앰 · 주인 11/06) */
+  var h=title('메신저',ml&&v.state.all?'모든 방 · 보기만':'','<span class="mzmtop"><button class="btn sm" style="width:auto;min-height:44px;padding:0 14px" onclick="push(\'msg_new\')">+ 새 대화</button>'+(ml?'<button class="mzmmenu mzmdots" onclick="msgAllMenu()" aria-label="메신저 메뉴">⋮</button>':'')+'</span>');
   h+='<div class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input class="input" id="msq" placeholder="'+(ml?'모든 대화에서 글 찾기':'내 대화에서 글 찾기')+'" autocomplete="off" enterkeyhint="search" oninput="msgSearchTyped(this.value)" value="'+esc(v.state.q||'')+'"></div>';
   h+='<div id="mrl"></div>';
   v.el.innerHTML=h;
@@ -2201,9 +2247,12 @@ function drawMsgRooms(v){ var el=v.el.querySelector('#mrl'); if(!el) return; var
   if(!d.rooms.length){ el.innerHTML='<div class="card"><div class="empty">'+(v.state.all?'아직 대화방이 없어요.':'아직 대화가 없어요.<br>오른쪽 위 <b>+ 새 대화</b>로 시작해 보세요.')+'</div></div>'; return; }
   el.innerHTML='<div class="card" style="padding:6px 8px">'+d.rooms.map(function(r){ var l=r.last, g=r.kind==='group';
     var sub=l?(l.sys?esc(l.text):((g&&l.name?esc(l.name)+': ':'')+esc(l.text))):'<span class="muted">아직 글이 없어요</span>';
-    return '<button class="item mzmrow" onclick="msgOpen('+r.id+')">'+msgAv(r.name,g)+'<div class="bd"><div class="nm">'+esc(r.name)+(g?' <span class="mzmcnt">'+r.n+'</span>':'')+(!r.mine?' <span class="chip gray">보기만</span>':'')+'</div><div class="sub">'+sub+'</div></div>'+
+    return '<button class="item mzmrow" onclick="msgOpen('+r.id+')">'+msgAv(r.name,g)+'<div class="bd">'+(r.mine?'<div class="nm">'+esc(r.name)+(g?' <span class="mzmcnt">'+r.n+'</span>':''):'<div class="nm mzmnmx"><span class="mzmnmt">'+esc(r.name)+'</span>'+(g?'<span class="mzmcnt">'+r.n+'</span>':'')+'<span class="chip gray">보기만</span>')+'</div><div class="sub">'+sub+'</div></div>'+
       '<div class="mzmside"><span>'+(r.at?msgTime(r.at):'')+'</span>'+(r.unread?'<b class="mzmun">'+(r.unread>99?'99+':r.unread)+'</b>':'')+'</div></button>'; }).join('')+'</div>'; }
 function msgOpen(id,hit){ push('msg_room',{id:id,hit:hit||0}); }
+function msgAllMenu(){ var v=stack[stack.length-1]; if(!v||v.name!=='msg'||!isMaster()) return; haptic(6); var a=!!v.state.all;
+  var row=function(on,svg,b,sub){ var cur=a===!!on; return '<button class="mitem'+(cur?' mzmcur':'')+'" onclick="closeSheet(); msgAllSet('+on+')"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true">'+svg+'</svg></span><span class="mt"><b>'+b+'</b><span>'+sub+'</span></span><span class="ar">'+(cur?'✓':'›')+'</span></button>'; };
+  openSheet('<h3>메신저</h3>'+row(0,'<path d="M4 5.5h16v10.5H9.5L4 20z"/>','내 대화','내가 들어간 방만')+row(1,'<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>','모든 방','마스터만 · 1:1 포함 · 보기만')); }
 function msgAllSet(on){ var v=stack[stack.length-1]; if(!v||v.name!=='msg'||!!v.state.all===!!on) return; haptic(6); v.state.all=!!on; lsSet('msg_all',on?1:0); v.state.d=on?null:lsGet('msg_list'); v.state.hits=null;
   drawMsgList(v); msgListLoad(v); if(String(v.state.q||'').trim().length>=2) msgSearchTyped(v.state.q); }
 function msgSearchTyped(val){ var v=stack[stack.length-1]; if(!v||v.name!=='msg') return; v.state.q=val; clearTimeout(msgSqT); var q=String(val||'').trim();
