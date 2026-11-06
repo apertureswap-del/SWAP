@@ -1,7 +1,7 @@
 /* SWAP 입출고 — 서비스 워커 (설치 가능 조건 + 오프라인 대비 + 작업보고 알림)
    서버에 새 파일이 있는지 먼저 확인(no-cache)하고, 실패하거나 1.5초 안에 안 오면 저장해 둔 사본을 쓴다 (v10.41 — 창고처럼 신호가 약하면 흰 화면으로 오래 기다리던 것).
    늦게 온 새 파일은 받는 대로 저장 → 다음에 열 때 새 버전. */
-const CACHE = 'swap-v4';
+const CACHE = 'swap-v5';   // v10.80 메신저 알림
 const NET_WAIT_MS = 1500;
 self.addEventListener('install', function (e) { self.skipWaiting(); });
 self.addEventListener('activate', function (e) {
@@ -34,9 +34,11 @@ self.addEventListener('fetch', function (e) {
 self.addEventListener('push', function (e) {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (x) { d = {}; }
-  const url = (typeof d.url === 'string' && /^\.\/\?go=report(&d=\d{4}-\d{2}-\d{2})?$/.test(d.url)) ? d.url : './?go=report';   // 우리 앱 안 주소만
-  e.waitUntil(self.registration.showNotification(String(d.title || 'S&P 워크+ · 작업보고').slice(0, 80), {
-    body: String(d.body || '아직 작업보고를 안 했어요. 눌러서 업무보고를 보내 주세요.').slice(0, 200),
+  // v10.80 메신저 알림: url './?go=msg&room=방' · 방마다 하나로 쌓임 (tag 'msg-방') · 누르면 그 방
+  const msg = typeof d.url === 'string' && /^\.\/\?go=msg&room=\d{1,12}$/.test(d.url);
+  const url = msg ? d.url : ((typeof d.url === 'string' && /^\.\/\?go=report(&d=\d{4}-\d{2}-\d{2})?$/.test(d.url)) ? d.url : './?go=report');   // 우리 앱 안 주소만
+  e.waitUntil(self.registration.showNotification(String(d.title || (msg ? 'S&P 워크+ · 메신저' : 'S&P 워크+ · 작업보고')).slice(0, 80), {
+    body: String(d.body || (msg ? '새 메시지가 왔어요.' : '아직 작업보고를 안 했어요. 눌러서 업무보고를 보내 주세요.')).slice(0, 200),
     icon: 'icon-192.png', badge: 'icon-192.png', tag: String(d.tag || 'report-remind').slice(0, 40), renotify: true,
     data: { url: url }
   }));
@@ -47,7 +49,7 @@ self.addEventListener('notificationclick', function (e) {
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
     for (let i = 0; i < list.length; i++) {
       const w = list[i];
-      if (w.url.indexOf(self.registration.scope) === 0 && 'focus' in w) { try { w.postMessage({ go: 'report', url: url }); } catch (x) {} return w.focus(); }
+      if (w.url.indexOf(self.registration.scope) === 0 && 'focus' in w) { try { w.postMessage({ go: /[?&]go=msg&/.test(url) ? 'msg' : 'report', url: url }); } catch (x) {} return w.focus(); }
     }
     return self.clients.openWindow ? self.clients.openWindow(url) : null;
   }));
