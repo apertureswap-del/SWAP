@@ -137,7 +137,7 @@
   .tabbar button[data-tab="me"].on svg circle{fill:var(--tabbg)}   /* 톱니 가운데 구멍은 비움 */
   .tabbar button:active svg{transform:scale(.85)}
   /* v10.80 둘째 탭: SWAP = 메신저 · SWING = 검색 (SWAP 검색은 홈 가운데 칸) · 메신저 빨간 숫자 = 안 읽은 글 */
-  body.swing .tabbar button[data-tab="msg"],body:not(.swing) .tabbar button[data-tab="search"]{display:none}
+  .tabbar button[data-tab="search"]{display:none}   /* v10.86 검색 탭 없음 (SWAP = 홈 가운데 칸 · SWING = 홈 왼쪽 칸) · 메신저 = 둘 다 둘째 탭 (주인 11/06) */
   .tabbar .tbdg{position:absolute;top:5px;left:50%;margin-left:5px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--danger);color:#fff;font-size:12px;font-style:normal;font-weight:800;line-height:18px;text-align:center;display:none}
   .tabbar .tbdg.on{display:block}
   /* v10.80 메신저 */
@@ -148,6 +148,13 @@
   .mzmcmp textarea{flex:1;min-height:44px;max-height:120px;resize:none;border:0;border-radius:22px;background:var(--fill);padding:11px 16px;font:inherit;font-size:16px;line-height:1.4;color:var(--ink);outline:none}
   .mzmcmp textarea{scrollbar-width:none} .mzmcmp textarea::-webkit-scrollbar{display:none}   /* v10.85 입력 칸 스크롤 화살표 없앰 (PC · 주인 11/06 "거슬려" · 길면 휠·손가락으로 그대로 스크롤) */
   .mzmcmp textarea:focus{background:#fff;box-shadow:0 0 0 2px var(--p)}
+  .mzmatt{flex:0 0 44px;width:44px;height:44px;border-radius:50%;color:var(--ink2);display:flex;align-items:center;justify-content:center} .mzmatt svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .mzmmed{position:relative;display:block;width:min(230px,62vw);max-height:320px;padding:0!important;overflow:hidden;background:#dfe3e8!important;border-radius:16px} .mzmmed img{display:block;width:100%;height:100%;object-fit:cover}
+  .mzmnop{display:block;width:100%;height:100%;background:#2b3038} .mzmplay{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center} .mzmplay svg{width:24px;height:24px;fill:#fff;margin-left:3px}
+  .mzmdur{position:absolute;right:8px;bottom:8px;padding:2px 7px;border-radius:9px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;font-weight:700}
+  .mzmgone{color:var(--muted)!important;font-size:14px;background:var(--fill)!important}
+  .view.mzmview{background:#000;display:flex;align-items:center;justify-content:center;padding:0!important} .mzmview img,.mzmview video{max-width:100%;max-height:100%;display:block}
+  .mzmvx{position:absolute;right:12px;top:calc(12px + env(safe-area-inset-top));width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;z-index:2} .mzmvx svg{width:22px;height:22px;stroke:#fff;stroke-width:2.2;fill:none;stroke-linecap:round}   /* v10.86 사진·동영상 */
   .mzmsend{flex:0 0 44px;width:44px;height:44px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center}
   .mzmsend svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin-left:-2px}
   .mzmsend:active{transform:scale(.92)}
@@ -800,6 +807,12 @@
   .wkq>div.cut b{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--muted)}
   /* SWING 홈 (작업내역 요약) */
   .hello h1.swt{font-size:24px;margin-top:6px}
+  .swtiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 14px}   /* v10.86 SWING 홈 두 칸 (예전 합계 카드 자리 · 반반 네모) */
+  .swtile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:150px;padding:18px 10px;border-radius:22px;background:#fff;box-shadow:0 1px 2px rgba(25,31,40,.04),0 6px 20px rgba(25,31,40,.05);transition:transform .15s}
+  .swtile:active{transform:scale(.97)} .swtile b{font-size:17px;font-weight:800;letter-spacing:-.3px;color:var(--ink)}
+  .swtile .swti{width:56px;height:56px;border-radius:18px;background:var(--p-soft);color:var(--p);display:flex;align-items:center;justify-content:center}
+  .swtile .swti svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .swtile.lock .swti{background:var(--fill);color:var(--muted)} .swtile.lock b{color:var(--muted)}
   .hello h1 .wkt{font-size:22px;letter-spacing:-.6px;white-space:nowrap} .hello h1:has(.wkt){flex-wrap:nowrap}   /* v10.82 로고 옆 한 줄 (360 폭) */
   @media (max-width:350px){ .hello h1 .wkt{font-size:19px} }
   .swwarn{display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:7px 13px;border-radius:999px;background:#fff1e0;color:#b45309;font-weight:800;font-size:14.5px;box-shadow:inset 0 0 0 1.5px #f5c68a}
@@ -1336,7 +1349,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.85';   // v10.85 메신저 입력 칸 스크롤 화살표 없앰 (주인 11/06) · v10.84 메신저 방 목록 끌기 = 슬라임 모션 · 마스터 모든 방 = [+ 새 대화] 옆 ⋮ (주인 11/06) · v10.83 메신저 모든 방 = 마스터만 (부마스터 = 내 대화만 · 주인 11/06 · Worker 0.9.19 짝) · v10.82 홈 머리 = 로고 옆 '스윙과사람들 워크+' (SWAP·SWING · 주인 11/06) · v10.81 메신저 엔터 = 보내기 · Shift+엔터 = 줄바꿈 (주인 11/06) · v10.80 워크+ 메신저 (SWAP 아래 둘째 탭 · 1:1·단체방 · 글자만 · 마스터·부마스터 = 모든 방 보기·찾기 · 새 글 알림) · SWAP 검색 = 홈 가운데 칸 · 알림 꼭 켜기 (꺼져 있으면 앱 못 씀) (주인 11/06 · Worker 0.9.18 짝) · v10.79 작업현황 블록 날짜 칸: 교체 후 수거·교체오류 대신 작업불량 (작업실수 판정 · −5포인트 · 주인 11/05 · Worker 0.9.15 짝) · v10.78 접속 코드 관리 [새 코드] = 같은 사람(이름·서버·역할·권한)에 코드만 새로 (주인 11/05 · 샌 코드 · Worker 0.9.12 짝) · v10.77 SWING 작업내역 [이 날짜 다시 받기] (관리자 이상 · 나중에 등록한 작업자의 지난 작업이 안 보이던 것 · 주인 11/04 · Worker 0.9.11 짝) · v10.76 사진(차량·배터리) 플래시 버튼 늘 보임 · 눌렀는데 지금 렌즈에 플래시가 없으면 플래시 되는 후면 카메라를 찾아 바꾸고 이 폰에 기억 (주인 11/03 갤럭시 S22) · v10.75 작업 리스트 PDF 출력 기록 (누가·언제 열었는지 · 주인 11/02 · Worker 0.9.10 짝) · v10.74 '미리 받아 두기 (이 폰)' 없앰 (환경설정 카드·열 때·15분마다·서버 바꿀 때 syncPull · 기기 목록 swix · 주인 10/31) · v10.73 SWING 검색 기기 상태 변경 = 관리자 이상만 (주인 10/31 · Worker 0.9.8 짝) · v10.72 미배치 = 향남·수원 탭 (주인 10/31) · v10.71 전산 DAILY 섹션 = 업무기능 다음 · 작업 정리 위 (주인 10/28) · v10.70 전산 DAILY = 추가기능 따로 섹션 (기기입고·미배치·기록 카드 · 주인 10/28) · v10.69 SWING 추가기능 ERP '전산 DAILY' (기기입고 · 미배치 · 기록 · 주인 10/28 · Worker 0.9.7 짝) · v10.68 접속 코드 관리: 코드 삭제 · 이름으로 찾기 (주인 10/27 · Worker 0.9.6 그대로) · v10.67 환경설정: 서버 칸 '… 화면을 쓰는 중이에요' · 관리 줄 부제목 · 작업보고 알림 카드 부제목 없앰 (주인 10/26) · v10.66 작업자 관리: 제목 아래 설명 없앰 · '기록 시트' 링크 없앰 · 작업자 찾기 (주인 10/25 · Worker 0.9.6 그대로) · v10.65 등록 출고·수거 = 작업리스트에 없는 건도 어드민에서 찾아 고름 (Worker 0.9.3 그대로) · v10.64 평일 08:30 자동 = 재고리스트 흐름 (결과 카드·막대·이름 '08:30 자동 · 재고리스트' · Worker 0.9.3 짝) · v10.63 작업 리스트 (재고리스트·배송리스트 PDF · 아래 진행 막대) · 추가기능 줄 정리 · SWING '내 작업 확인' (Worker 0.9.2 짝) · v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
+var APP_VER = '10.86';   // v10.86 SWING 도 메신저 (둘째 탭 · SWAP 과 같은 메신저) · SWING 홈 날짜 칩·합계 카드 → [검색 | 수리기기 입력] 두 칸 · 검색 탭 없음 (주인 11/06 · Worker 0.9.20 짝) · v10.85 메신저 입력 칸 스크롤 화살표 없앰 (주인 11/06) · v10.84 메신저 방 목록 끌기 = 슬라임 모션 · 마스터 모든 방 = [+ 새 대화] 옆 ⋮ (주인 11/06) · v10.83 메신저 모든 방 = 마스터만 (부마스터 = 내 대화만 · 주인 11/06 · Worker 0.9.19 짝) · v10.82 홈 머리 = 로고 옆 '스윙과사람들 워크+' (SWAP·SWING · 주인 11/06) · v10.81 메신저 엔터 = 보내기 · Shift+엔터 = 줄바꿈 (주인 11/06) · v10.80 워크+ 메신저 (SWAP 아래 둘째 탭 · 1:1·단체방 · 글자만 · 마스터·부마스터 = 모든 방 보기·찾기 · 새 글 알림) · SWAP 검색 = 홈 가운데 칸 · 알림 꼭 켜기 (꺼져 있으면 앱 못 씀) (주인 11/06 · Worker 0.9.18 짝) · v10.79 작업현황 블록 날짜 칸: 교체 후 수거·교체오류 대신 작업불량 (작업실수 판정 · −5포인트 · 주인 11/05 · Worker 0.9.15 짝) · v10.78 접속 코드 관리 [새 코드] = 같은 사람(이름·서버·역할·권한)에 코드만 새로 (주인 11/05 · 샌 코드 · Worker 0.9.12 짝) · v10.77 SWING 작업내역 [이 날짜 다시 받기] (관리자 이상 · 나중에 등록한 작업자의 지난 작업이 안 보이던 것 · 주인 11/04 · Worker 0.9.11 짝) · v10.76 사진(차량·배터리) 플래시 버튼 늘 보임 · 눌렀는데 지금 렌즈에 플래시가 없으면 플래시 되는 후면 카메라를 찾아 바꾸고 이 폰에 기억 (주인 11/03 갤럭시 S22) · v10.75 작업 리스트 PDF 출력 기록 (누가·언제 열었는지 · 주인 11/02 · Worker 0.9.10 짝) · v10.74 '미리 받아 두기 (이 폰)' 없앰 (환경설정 카드·열 때·15분마다·서버 바꿀 때 syncPull · 기기 목록 swix · 주인 10/31) · v10.73 SWING 검색 기기 상태 변경 = 관리자 이상만 (주인 10/31 · Worker 0.9.8 짝) · v10.72 미배치 = 향남·수원 탭 (주인 10/31) · v10.71 전산 DAILY 섹션 = 업무기능 다음 · 작업 정리 위 (주인 10/28) · v10.70 전산 DAILY = 추가기능 따로 섹션 (기기입고·미배치·기록 카드 · 주인 10/28) · v10.69 SWING 추가기능 ERP '전산 DAILY' (기기입고 · 미배치 · 기록 · 주인 10/28 · Worker 0.9.7 짝) · v10.68 접속 코드 관리: 코드 삭제 · 이름으로 찾기 (주인 10/27 · Worker 0.9.6 그대로) · v10.67 환경설정: 서버 칸 '… 화면을 쓰는 중이에요' · 관리 줄 부제목 · 작업보고 알림 카드 부제목 없앰 (주인 10/26) · v10.66 작업자 관리: 제목 아래 설명 없앰 · '기록 시트' 링크 없앰 · 작업자 찾기 (주인 10/25 · Worker 0.9.6 그대로) · v10.65 등록 출고·수거 = 작업리스트에 없는 건도 어드민에서 찾아 고름 (Worker 0.9.3 그대로) · v10.64 평일 08:30 자동 = 재고리스트 흐름 (결과 카드·막대·이름 '08:30 자동 · 재고리스트' · Worker 0.9.3 짝) · v10.63 작업 리스트 (재고리스트·배송리스트 PDF · 아래 진행 막대) · 추가기능 줄 정리 · SWING '내 작업 확인' (Worker 0.9.2 짝) · v10.62 내 포인트 더 보임 (공제·실지급 · 달말 예상 · 하루 N개 더 · 지난달 한 줄 · Worker 0.9.1 짝) · v10.61 월 마감 · 성과 가산율 · 내 포인트 · 작업리스트 가져오기 · 서버 알림 카드 (Worker 0.9.0 짝)
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -1717,8 +1730,8 @@ var TAB_OF={home:'home',status:'home',extras:'extras',labels:'extras',stocksync:
   rp_new:'',rp_mine:'',rp_rec:'',rp_stmt:'',rp_office:'extras',rp_stock:'extras',rp_clients:'extras',rp_items:'extras',sw_daily:'extras',sw_mine:'extras',sw_who:'extras',wlauto:'',wllist:'extras'};   // v10.52 수리 ERP 화면 · '' = 홈·추가기능 둘 다에서 열림 → 연 자리 탭을 따름 · v10.56 작업보고 알림 = 환경설정 탭 · 속도 기록 없앰 · 수리항목(rp_items) = 추가기능
 /* v10.61 작업자 화면 연결(sw_who) = 추가기능 · 작업리스트 관리(wlauto) = 연 자리 탭 (작업 리스트 ⋯ · 등록 작업리스트)
    v10.63 내 작업 확인(sw_mine) = 추가기능 (SWING 작업 정리 카드 · 홈 카드·환경설정 줄 없앰) · 작업 리스트(wllist) = 추가기능 (SWAP '작업 리스트' 줄) */
-TAB_OF.msg='msg'; TAB_OF.msg_room='msg'; TAB_OF.msg_new='msg';   // v10.80 메신저
-function curTab(){ for(var i=stack.length-1;i>=0;i--){ var t=TAB_OF[stack[i].name]; if(t==='search'&&SERVER!=='swing') t='';   // v10.80 SWAP 은 검색 탭이 없음 (홈 가운데 칸) → 밑 화면 탭 (없으면 홈)
+TAB_OF.msg='msg'; TAB_OF.msg_room='msg'; TAB_OF.msg_new='msg'; TAB_OF.msg_media='msg';   // v10.80 메신저
+function curTab(){ for(var i=stack.length-1;i>=0;i--){ var t=TAB_OF[stack[i].name]; if(t==='search') t='';   /* v10.86 검색 탭 없음 (SWING 도) */   // v10.80 SWAP 은 검색 탭이 없음 (홈 가운데 칸) → 밑 화면 탭 (없으면 홈)
     if(t!=='') return t||'home'; } return 'home'; }   // 아래 탭 불: 맨 위 화면 ('' 면 그 밑 화면 · 표에 없으면 예전처럼 홈)
 /* ---- 권한: 마스터(모든 기능 · 접속 코드 관리) / 관리자(접속 코드 관리 빼고 전부) / 일반(추가기능은 관리자가 켜고 끔 → 꺼진 건 자물쇠) ---- */
 function isMaster(){ return !!(AUTH&&AUTH.master); }   // 마스터 하나 (접속 코드 관리 = 이것만)
@@ -1777,7 +1790,7 @@ function syncChrome(){ var v=stack[stack.length-1]; if(!v) return; $('back').cla
    흐름 = 등록 단계 · QR 찍기 · 고객 매칭 · 수리 내역 입력(고치기 포함) · 명세서 · 업무보고 쓰기 — 쌓인 화면일 때만 (맨 아래 화면이면 메뉴가 유일한 길이라 그대로)
    묻는 때 = 사람이 나가려 할 때만: 왼쪽 위 뒤로 · 왼쪽 끝 밀기 · 폰 뒤로 · 아래 탭 (등록 '이전'으로 화면을 닫을 때도) — 저장·[입력 완료] 뒤 앱이 스스로 닫는 건 안 물음 (pop() 그대로)
    업무보고는 칸마다 바로 이 폰에 초안 저장(reportSave)이라 나가도 안 날아감 → 안 물음 */
-var FLOW_V={register:1,scan:1,stockmatch:1,rp_new:1,rp_stmt:1,report:1,msg_room:1};   // v10.80 대화방 = 아래 메뉴 숨김 (입력 칸이 맨 아래)
+var FLOW_V={register:1,scan:1,stockmatch:1,rp_new:1,rp_stmt:1,report:1,msg_room:1,msg_media:1};   // v10.80 대화방 = 아래 메뉴 숨김 (입력 칸이 맨 아래)
 function flowNow(){ var v=stack[stack.length-1]; return !!(v&&FLOW_V[v.name]&&stack.length>1); }
 function viewDirty(v){ if(!v||v._leaveOk||!v.state) return false; var s=v.state;
   if(v.name==='rp_new') return !s.sent&&!!s.dirty&&(!!v.params.edit||!!v.params.out||(s.sel||[]).length>0||!!String(s.memo||'').trim());   // 고른 항목·특이사항 (고치기·못 보낸 기록 고치기 = 바꾼 게 있으면)
@@ -2161,7 +2174,7 @@ function setFilter(s){ var v=stack[stack.length-1]; v.state.filter=s; drawStatus
    방 목록(msg · 15초마다 새로) → 대화방(msg_room · 3초마다 새 글 · 노란 숫자 = 아직 안 읽은 사람 수) · 새 대화·초대(msg_new · 1명 = 1:1 · 2명 이상 = 단체방)
    아래 탭 빨간 숫자 = 안 읽은 글 (30초 · 앱을 다시 볼 때) · 알림을 누르면 그 방 (?go=msg&room=방 · sw.js) */
 var MSG={badge:0,badgeT:0,me:0}, MSG_PK=0, msgSqT=null, MSG_ROLE={master:'마스터',submaster:'부마스터',admin:'관리자',worker:''};
-function msgOn(){ return !!AUTH&&SERVER==='swap'&&canServer('swap')&&!!rpUrl(); }
+function msgOn(){ return !!AUTH&&(canServer('swap')||canServer('swing'))&&!!rpUrl(); }   /* v10.86 SWAP·SWING 같은 메신저 (주인 11/06) */
 function msgHm(ms){ var d=new Date(ms), h=d.getHours(); return (h<12?'오전 ':'오후 ')+((h%12)||12)+':'+('0'+d.getMinutes()).slice(-2); }
 function msgTime(ms){ var d=new Date(ms), n=new Date(); if(d.toDateString()===n.toDateString()) return msgHm(ms); var y=new Date(n.getFullYear(),n.getMonth(),n.getDate()-1);
   if(d.toDateString()===y.toDateString()) return '어제'; return (d.getFullYear()!==n.getFullYear()?d.getFullYear()+'.':'')+(d.getMonth()+1)+'.'+d.getDate(); }
@@ -2230,7 +2243,7 @@ VIEWS.msg={ render:function(v){ v.state.all=isMaster()&&!!lsGet('msg_all');   /*
   ySlimeBind(v);   /* v10.84 방 목록 끌기 = 슬라임 (위로 끌면 새로고침도) */
   if(!v.state.all) v.state.d=lsGet('msg_list');
   drawMsgList(v);
-  if(!msgOn()){ var el=v.el.querySelector('#mrl'); if(el) el.innerHTML='<div class="card"><div class="empty">'+(SERVER!=='swap'?'메신저는 SWAP 화면에서 써요.':'메신저는 새 서버로만 돼요. 인터넷 연결을 확인하고 앱을 다시 열어 주세요.')+'</div></div>'; return; }
+  if(!msgOn()){ var el=v.el.querySelector('#mrl'); if(el) el.innerHTML='<div class="card"><div class="empty">'+('메신저는 새 서버로만 돼요. 인터넷 연결을 확인하고 앱을 다시 열어 주세요.')+'</div></div>'; return; }
   msgListLoad(v); }};
 function msgListLoad(v){ clearTimeout(v._t); if(!msgOn()) return Promise.resolve(); var all=!!v.state.all, t0=Date.now();
   return rpRun('msgList',[{all:all}]).then(function(d){ if(stack.indexOf(v)<0||!!v.state.all!==all) return; v.state.d=d; v.state.at=t0; MSG.me=d.me; if(!all) lsSet('msg_list',d); msgBadgeSet(d.unread);
@@ -2302,7 +2315,7 @@ function msgRoomLoad(v){ rpRun('msgRoom',[v.params.id]).then(function(r){ if(sta
     if(hit&&!v.state.msgs.some(function(m){ return m.id===hit; })&&v.state.more) msgRoomOlder(v,hit,0); })
   .catch(function(e){ if(stack.indexOf(v)<0) return; v.el.querySelector('.mzmlist').innerHTML=errBox(e); if(e&&(e.net||e.timeout)) msgRoomNext(v,6000); }); }
 function msgLastId(v){ var m=v.state.msgs; return m.length?m[m.length-1].id:0; }
-function msgRoomTake(v,r,how){ var s=v.state; s.room=r.room; s.members=r.members||[]; if(r.me) MSG.me=r.me;
+function msgRoomTake(v,r,how){ var s=v.state; s.room=r.room; s.members=r.members||[]; if(r.me) MSG.me=r.me; s.media=!!r.media;   /* v10.86 사진·영상 저장소 준비됨 (서버 0.9.20) */
   if(how==='init'){ s.msgs=r.msgs; s.more=r.more; }
   else if(how==='after'){ var last=msgLastId(v); r.msgs.forEach(function(m){ if(m.id>last){ s.msgs.push(m); last=m.id; } }); }
   else if(how==='before'){ var first=s.msgs.length?s.msgs[0].id:Infinity; s.msgs=r.msgs.filter(function(m){ return m.id<first; }).concat(s.msgs); s.more=r.more; }
@@ -2323,8 +2336,8 @@ function msgRoomPoll(v,force){ clearTimeout(v._t); if(stack.indexOf(v)<0) return
 function msgRoomDraw(v,how){ var s=v.state, r=s.room; if(!r) return;
   var hd=v.el.querySelector('.mzmrhead'), sub=(r.kind==='group'?s.members.length+'명':'')+(r.mine?'':(r.kind==='group'?' · ':'')+'보기만 (멤버 아님)'), hk=r.name+'|'+sub;
   if(hd._k!==hk){ hd._k=hk; hd.innerHTML=title(esc(r.name),sub,'<button class="mzmmenu" onclick="msgRoomMenu()" aria-label="방 메뉴">⋯</button>'); }
-  var cp=v.el.querySelector('.mzmcmp'), ck=r.mine?'1':'0';
-  if(cp._k!==ck){ cp._k=ck; cp.innerHTML=r.mine?'<textarea id="mtx" rows="1" maxlength="2000" placeholder="메시지 입력" aria-label="메시지 입력" enterkeyhint="send" onkeydown="msgTxKey(event,this)" onbeforeinput="msgTxBefore(event,this)" oninput="msgTxIn(event,this)"></textarea><button class="mzmsend" onclick="msgSendGo()" aria-label="보내기"><svg viewBox="0 0 24 24"><path d="M21 3 10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5L3 9.5z"/></svg></button>'
+  var cp=v.el.querySelector('.mzmcmp'), ck=(r.mine?'1':'0')+(s.media?'m':'');
+  if(cp._k!==ck){ cp._k=ck; cp.innerHTML=r.mine?(s.media?'<button class="mzmatt" onclick="msgAttach()" aria-label="사진·동영상 보내기"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 15.5 15.5 11 6 19.5"/></svg></button>':'')+'<textarea id="mtx" rows="1" maxlength="2000" placeholder="메시지 입력" aria-label="메시지 입력" enterkeyhint="send" onkeydown="msgTxKey(event,this)" onbeforeinput="msgTxBefore(event,this)" oninput="msgTxIn(event,this)"></textarea><button class="mzmsend" onclick="msgSendGo()" aria-label="보내기"><svg viewBox="0 0 24 24"><path d="M21 3 10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5L3 9.5z"/></svg></button>'
       :'<div class="mzmro">'+(isMaster()?'마스터는 모든 방을 볼 수 있어요 · 보내기는 멤버만':'읽기만 할 수 있어요')+'</div>'; }
   var el=v.el.querySelector('.mzmlist'), bottom=el.scrollHeight-el.scrollTop-el.clientHeight<90, fromEnd=el.scrollHeight-el.scrollTop, y=el.scrollTop;
   var lh=msgListHtml(v); if(lh===el._h&&how!=='init'){ return; } el._h=lh; el.innerHTML=lh;
@@ -2334,7 +2347,7 @@ function msgRoomDraw(v,how){ var s=v.state, r=s.room; if(!r) return;
   if(s.hit&&how!=='after'&&how!=='send'){ var hb=el.querySelector('.mzmb.hit'); if(hb){ try{ hb.scrollIntoView({block:'center'}); }catch(e){} } } }
 function msgListHtml(v){ var s=v.state, me=MSG.me, h='', prevDay='', prevBy=null, prevAt=0;
   if(s.more) h+='<button class="btn line sm mzmmore" onclick="msgRoomOlder(stack[stack.length-1])">이전 글 더 보기</button>';
-  var all=s.msgs.concat(s.pend.map(function(p){ return {id:p.id||0,by:me,name:'',at:p.at,text:p.text,pend:p}; }));
+  var all=s.msgs.concat(s.pend.map(function(p){ return {id:p.id||0,by:me,name:'',at:p.at,text:p.text||'',pend:p,kind:p.media?p.media.kind:''}; }));
   if(!all.length) h+='<div class="mzmempty">'+(s.room&&s.room.mine?'첫 메시지를 보내 보세요.':'아직 글이 없어요.')+'</div>';
   all.forEach(function(m){ var day=new Date(m.at).toDateString();
     if(day!==prevDay){ h+='<div class="mzmday">'+msgDay(m.at)+'</div>'; prevDay=day; prevBy=null; }
@@ -2342,8 +2355,8 @@ function msgListHtml(v){ var s=v.state, me=MSG.me, h='', prevDay='', prevBy=null
     var mine=m.by===me, cont=prevBy===m.by&&m.at-prevAt<5*60000, mzur=0;
     if(m.id&&!m.pend) s.members.forEach(function(x){ if(x.id!==m.by&&x.read<m.id) mzur++; });
     if(!mine&&!cont) h+='<div class="mzmnm">'+esc(m.name)+'</div>';
-    var meta=m.pend&&!m.pend.id?(m.pend.fail?'<button class="mzmfail" onclick="msgRetry('+m.pend.k+')">못 보냄 · 다시</button>':'<span>보내는 중</span>'):((mzur?'<span class="mzur">'+mzur+'</span>':'')+'<span>'+msgHm(m.at)+'</span>');
-    h+='<div class="mzmb'+(mine?' me':'')+(m.id&&m.id===s.hit?' hit':'')+'"><div class="mzbub">'+esc(m.text)+'</div><div class="mzmt">'+meta+'</div></div>';
+    var meta=m.pend&&!m.pend.id?(m.pend.fail?'<button class="mzmfail" onclick="msgRetry('+m.pend.k+')">못 보냄 · 다시</button>':'<span>보내는 중'+(m.pend.media?' '+Math.round((m.pend.prog||0)*100)+'%':'')+'</span>'):((mzur?'<span class="mzur">'+mzur+'</span>':'')+'<span>'+msgHm(m.at)+'</span>');
+    h+='<div class="mzmb'+(mine?' me':'')+(m.id&&m.id===s.hit?' hit':'')+'">'+(m.kind==='img'||m.kind==='vid'||(m.pend&&m.pend.media)?msgMediaHtml(m):'<div class="mzbub">'+esc(m.text)+'</div>')+'<div class="mzmt">'+meta+'</div></div>';   /* v10.86 사진·동영상 */
     prevBy=m.by; prevAt=m.at; });
   return h; }
 function msgRoomOlder(v,hit,n){ if(!v||v.name!=='msg_room'||v.state.oldBusy||!v.state.more) return; var first=v.state.msgs.length?v.state.msgs[0].id:0; if(!first) return; v.state.oldBusy=true;
@@ -2365,7 +2378,77 @@ function msgSendGo(){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room'||!
   var p={k:++MSG_PK,text:text.replace(/^\s+/,''),at:Date.now(),cx:runCx()}; v.state.pend.push(p); msgRoomDraw(v,'send'); msgSendOne(v,p); }
 function msgSendOne(v,p){ p.fail=false; rpWrite('msgSend',[v.params.id,p.text],p.cx).then(function(r){ p.id=r.id; p.at=r.at||p.at; if(stack.indexOf(v)>=0){ msgRoomDraw(v,'keep'); msgRoomPoll(v,true); } })
     .catch(function(e){ p.fail=true; toast('못 보냈어요 · '+e.message); if(stack.indexOf(v)>=0) msgRoomDraw(v,'keep'); }); }
-function msgRetry(k){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room') return; var p=v.state.pend.filter(function(x){ return x.k===k; })[0]; if(!p) return; haptic(6); msgSendOne(v,p); msgRoomDraw(v,'keep'); }
+function msgRetry(k){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room') return; var p=v.state.pend.filter(function(x){ return x.k===k; })[0]; if(!p) return; haptic(6); if(p.media) msgMediaSend(v,p); else msgSendOne(v,p); msgRoomDraw(v,'keep'); }
+/* ---- v10.86 사진·동영상 보내기 (주인 11/06 "이미지나 영상을 보낼 수 있게 · 3분까지") — 서버 0.9.20 msgFileStart → PUT 조각 (8MB) → msgFileDone · 받기 = 서명 주소 (6시간)
+   사진 = 앱이 줄여서 (긴 쪽 1600px · JPG 0.82 · GIF 그대로) · 동영상 = 150MB · 3분까지 그대로 + 첫 장면 그림 (미리보기) · 한 번에 10개까지 · 3달 지난 파일은 서버가 지움 (말풍선 = '기간이 지나 지운 사진')
+   목록 안 = 그림만 (재생 X · 새 글이 와서 다시 그려도 안 끊김) → 누르면 크게 보기 화면 (msg_media) ---- */
+var MSG_IMG_MAX=1600, MSG_VID_MB=150, MSG_VID_SEC=180, MSG_PICK_MAX=10;
+function msgFileUrl(u){ return u?rpUrl()+u:''; }
+function msgMediaHtml(m){ var f=m.file||{}, lp=m.pend&&m.pend.media, vid=(lp?lp.kind:m.kind)==='vid';
+  if(f.gone) return '<div class="mzbub mzmgone">기간이 지나 지운 '+(vid?'동영상':'사진')+'</div>';
+  if(!lp&&!f.url) return '<div class="mzbub mzmgone">지금은 '+(vid?'동영상':'사진')+'을 볼 수 없어요</div>';   /* 서버 저장소가 잠깐 꺼짐 (주소 없음) */
+  var w=Number(f.w||(lp&&lp.w))||4, hh=Number(f.h||(lp&&lp.h))||3, r=Math.max(0.5,Math.min(2,w/hh)), src=lp?(vid?lp.posterUrl:lp.prev):msgFileUrl(vid?f.poster:f.url), dur=Number(f.dur||(lp&&lp.dur))||0;
+  var inner=(src?'<img src="'+esc(src)+'" alt="" loading="lazy">':'<span class="mzmnop"></span>')+(vid?'<span class="mzmplay"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg></span>'+(dur?'<span class="mzmdur">'+msgDur(dur)+'</span>':''):'');
+  return m.id&&!lp?'<button class="mzbub mzmmed" style="aspect-ratio:'+r.toFixed(3)+'" onclick="msgMediaOpen('+m.id+')" aria-label="'+(vid?'동영상':'사진')+' 크게 보기">'+inner+'</button>'
+    :'<div class="mzbub mzmmed" style="aspect-ratio:'+r.toFixed(3)+'">'+inner+'</div>'; }
+function msgDur(sec){ sec=Math.round(sec); return Math.floor(sec/60)+':'+('0'+(sec%60)).slice(-2); }
+function msgMediaOpen(id){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room') return; var m=v.state.msgs.filter(function(x){ return x.id===id; })[0]; if(!m||!m.file||m.file.gone||!m.file.url) return; haptic(6);
+  push('msg_media',{kind:m.kind,url:m.file.url,poster:m.file.poster||''}); }
+VIEWS.msg_media={ render:function(v){ var p=v.params, u=msgFileUrl(p.url); v.el.classList.add('mzmview');
+  v.el.innerHTML=   /* 닫기 = 앱 왼쪽 위 뒤로 (따로 × 없음) */
+    (p.kind==='vid'?'<video src="'+esc(u)+'"'+(p.poster?' poster="'+esc(msgFileUrl(p.poster))+'"':'')+' controls autoplay playsinline preload="metadata"></video>':'<img src="'+esc(u)+'" alt="">');
+  v.onLeave=function(){ var vd=v.el.querySelector('video'); if(vd){ try{ vd.pause(); }catch(e){} } }; }};
+function msgAttach(){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room'||!v.state.room||!v.state.room.mine) return; haptic(6);
+  var i=$('mfile'); if(!i){ i=document.createElement('input'); i.type='file'; i.id='mfile'; i.accept='image/*,video/*'; i.multiple=true; i.style.display='none'; i.addEventListener('change',function(){ var fs=[].slice.call(i.files||[]); i.value=''; msgFilesPicked(fs); }); document.body.appendChild(i); }
+  i.click(); }
+function msgFilesPicked(files){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room'||!v.state.room||!v.state.room.mine||!files.length) return;
+  if(files.length>MSG_PICK_MAX){ toast('한 번에 '+MSG_PICK_MAX+'개까지 보낼 수 있어요'); files=files.slice(0,MSG_PICK_MAX); }
+  var chain=Promise.resolve(); files.forEach(function(f){ chain=chain.then(function(){ return msgPrep(f).then(function(md){ if(!md||stack.indexOf(v)<0) return;
+      var p={k:++MSG_PK,text:'',at:Date.now(),media:md,prog:0}; v.state.pend.push(p); msgRoomDraw(v,'send'); msgMediaSend(v,p); }).catch(function(e){ toast(e&&e.message||'못 보냈어요'); }); }); }); }
+/* 파일 → 보낼 모양 {kind, blob, prev, w, h, dur, poster, posterUrl} · 사진 = 줄임 · 동영상 = 길이·첫 장면 */
+function msgPrep(f){ var t=String(f.type||''), vid=/^video\//.test(t);
+  if(!vid&&!/^image\//.test(t)) return Promise.reject(new Error('사진 또는 동영상만 보낼 수 있어요'));
+  if(vid){ if(f.size>MSG_VID_MB*1048576) return Promise.reject(new Error('동영상은 '+MSG_VID_MB+'MB까지 보낼 수 있어요'));
+    return msgVidMeta(f).then(function(mt){ if(!(mt.dur>0)) throw new Error('이 동영상은 길이를 못 읽어서 못 보내요');
+      if(mt.dur>MSG_VID_SEC+0.5) throw new Error('동영상은 3분까지 보낼 수 있어요');
+      var mime=/^video\/(mp4|quicktime|webm)$/.test(t)?t:'video/mp4';
+      return {kind:'vid',blob:mime===t?f:f.slice(0,f.size,mime),prev:'',w:mt.w,h:mt.h,dur:Math.round(mt.dur*10)/10,poster:mt.poster,posterUrl:mt.poster?URL.createObjectURL(mt.poster):''}; }); }
+  return msgImgPrep(f); }
+function msgImgPrep(f){ return new Promise(function(res,rej){ var u=URL.createObjectURL(f), im=new Image();
+  im.onload=function(){ var w=im.naturalWidth||im.width, h=im.naturalHeight||im.height, t=f.type;
+    var keep=(t==='image/gif'&&f.size<=15*1048576)||(/^image\/(jpeg|png|webp)$/.test(t)&&Math.max(w,h)<=MSG_IMG_MAX&&f.size<=1.5*1048576);
+    if(keep){ res({kind:'img',blob:f,prev:u,w:w,h:h}); return; }
+    var k=Math.min(1,MSG_IMG_MAX/Math.max(w,h)), cw=Math.max(1,Math.round(w*k)), ch=Math.max(1,Math.round(h*k)), c=document.createElement('canvas'); c.width=cw; c.height=ch;
+    var g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,cw,ch); g.drawImage(im,0,0,cw,ch);
+    c.toBlob(function(b){ URL.revokeObjectURL(u); if(!b){ rej(new Error('사진을 줄이지 못했어요')); return; } res({kind:'img',blob:b,prev:URL.createObjectURL(b),w:cw,h:ch}); },'image/jpeg',0.82); };
+  im.onerror=function(){ URL.revokeObjectURL(u); rej(new Error('이 사진은 열 수 없어요')); };
+  im.src=u; }); }
+function msgVidMeta(f){ return new Promise(function(res){ var u=URL.createObjectURL(f), vd=document.createElement('video'), out={dur:0,w:0,h:0,poster:null}, fin=false;
+  var end=function(){ if(fin) return; fin=true; clearTimeout(to); try{ vd.removeAttribute('src'); vd.load(); }catch(e){} URL.revokeObjectURL(u); res(out); }, to=setTimeout(end,10000);
+  vd.muted=true; vd.playsInline=true; vd.preload='metadata';
+  vd.onloadedmetadata=function(){ out.dur=Number(vd.duration)||0; out.w=vd.videoWidth||0; out.h=vd.videoHeight||0; if(!isFinite(out.dur)) out.dur=0; try{ vd.currentTime=Math.min(0.2,out.dur/2); }catch(e){ end(); } };
+  vd.onseeked=function(){ try{ var k=Math.min(1,640/Math.max(out.w||1,out.h||1)), c=document.createElement('canvas'); c.width=Math.max(1,Math.round((out.w||320)*k)); c.height=Math.max(1,Math.round((out.h||240)*k));
+      c.getContext('2d').drawImage(vd,0,0,c.width,c.height); c.toBlob(function(b){ if(b&&b.size<=1048576) out.poster=b; end(); },'image/jpeg',0.72); }catch(e){ end(); } };
+  vd.onerror=end; vd.src=u; }); }
+/* 올리기: 시작 → 조각 PUT (진행 %) → 미리보기 그림 → 끝 · 실패 = "못 보냄 · 다시" (다시 = 처음부터 · 앞 것은 서버에 취소) */
+function msgPut(url,blob,onp){ return new Promise(function(res,rej){ var x=new XMLHttpRequest(); x.open('PUT',url); x.timeout=180000;
+  if(x.upload&&onp) x.upload.onprogress=function(e){ if(e.lengthComputable) onp(e.loaded); };
+  x.onload=function(){ var j=null; try{ j=JSON.parse(x.responseText); }catch(e){} if(x.status>=200&&x.status<300&&j&&j.ok) res(j); else rej(new Error((j&&j.error)||('올리기 실패 ('+x.status+')'))); };
+  x.onerror=function(){ rej(new Error('서버 연결 실패(네트워크)')); }; x.ontimeout=function(){ rej(new Error('올리기 시간 초과')); };
+  x.send(blob); }); }
+function msgProg(v,p,f){ p.prog=Math.max(0,Math.min(0.99,f));   /* 100% = 서버가 끝을 받은 뒤만 (마지막 조각 답·msgFileDone 기다리는 동안 99%) */ var t=Date.now(); if(t-(p._pt||0)<250&&f<1) return; p._pt=t; if(stack.indexOf(v)>=0) msgRoomDraw(v,'keep'); }
+function msgMediaSend(v,p){ var m=p.media, room=v.params.id, base=rpUrl(); p.fail=false; p.prog=0;
+  if(!base){ p.fail=true; toast('사진·동영상은 새 서버로만 보내요'); return; }
+  var meta={kind:m.kind,mime:m.blob.type||(m.kind==='vid'?'video/mp4':'image/jpeg'),size:m.blob.size}; if(m.w){ meta.w=m.w; meta.h=m.h; }
+  if(m.kind==='vid'){ meta.dur=m.dur; if(m.poster) meta.poster={mime:'image/jpeg',size:m.poster.size}; }
+  var cxS=runCx(), cxD=runCx(), key=null;
+  rpWrite('msgFileStart',[room,meta],cxS).then(function(st){ key=st.key; var part=st.part||8388608, n=Math.max(1,Math.ceil(m.blob.size/part)), parts=[], i=0, total=m.blob.size+(m.poster?m.poster.size:0), doneB=0;
+      var next=function(){ if(i>=n) return Promise.resolve(); var a=i*part, b=Math.min(m.blob.size,a+part), num=++i;
+        return msgPut(base+st.put+'&n='+num,m.blob.slice(a,b),function(l){ msgProg(v,p,(doneB+l)/total); }).then(function(r){ parts.push({n:num,etag:r.etag}); doneB+=b-a; msgProg(v,p,doneB/total); return next(); }); };
+      return next().then(function(){ if(m.poster&&st.posterPut) return msgPut(base+st.posterPut,m.poster).catch(function(){}); })
+        .then(function(){ return rpWrite('msgFileDone',[room,st.key,parts],cxD); }); })
+    .then(function(r){ p.id=r.id; p.at=r.at||p.at; p.prog=1; if(stack.indexOf(v)>=0){ msgRoomDraw(v,'keep'); msgRoomPoll(v,true); } })
+    .catch(function(e){ p.fail=true; if(key) rpRun('msgFileAbort',[key]).catch(function(){}); toast('못 보냈어요 · '+(e&&e.message||e)); if(stack.indexOf(v)>=0) msgRoomDraw(v,'keep'); }); }
 function msgRoomMenu(){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room'||!v.state.room) return; var s=v.state, r=s.room, g=r.kind==='group'; haptic(6);
   var h='<h3>'+esc(r.name)+'</h3><div class="muted" style="margin:-4px 0 10px;font-size:13.5px">'+(g?'단체방':'1:1 대화')+' · '+s.members.length+'명</div><div class="mzmmem">'+
     s.members.map(function(m){ return '<div class="mzmmrow"><div class="av">'+esc(String(m.name||'?').slice(0,1))+'</div><span>'+esc(m.name)+(m.id===MSG.me?' <span class="muted">(나)</span>':'')+'</span></div>'; }).join('')+'</div>';
@@ -2382,10 +2465,9 @@ function msgLeaveAsk(){ closeSheet(function(){ openSheet('<h3>이 방에서 나�
 function msgLeaveGo(){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room') return;
   closeSheet(function(){ rpWrite('msgLeave',[v.params.id]).then(function(){ toast('방에서 나갔어요'); clearTimeout(v._t); if(stack[stack.length-1]===v) pop(); }).catch(function(e){ toast(e.message); }); }); }
 /* 알림을 눌러 엶 (?go=msg&room=방 · sw.js 메시지) → SWAP 메신저 탭 → 그 방 */
-function msgGo(id){ id=Number(id)||0; if(!AUTH||!appStarted||!id||!canServer('swap')) return; if(leaveAsk(function(){ msgGo(id); })) return; if(sheetOpen) closeSheet();
+function msgGo(id){ id=Number(id)||0; if(!AUTH||!appStarted||!id||!msgOn()) return; if(leaveAsk(function(){ msgGo(id); })) return; if(sheetOpen) closeSheet();
   var top=stack[stack.length-1]; if(top&&top.name==='msg_room'&&Number(top.params.id)===id){ msgRoomPoll(top,true); return; }
-  if(SERVER!=='swap'){ setServer('swap'); tabTo('msg'); if(hDepth>0) hBack(hDepth); }
-  else if(!(stack.length===1&&stack[0].name==='msg')) goTab('msg');
+  if(!(stack.length===1&&stack[0].name==='msg')) goTab('msg');   /* v10.86 SWING 에서도 그 자리에서 메신저 (서버 안 바꿈) */
   var go=function(n){ if(animating||sheetOpen){ if(n<15) setTimeout(function(){ go(n+1); },200); return; } push('msg_room',{id:id}); };
   setTimeout(function(){ go(0); },350); }
 
@@ -3677,7 +3759,7 @@ function swHomeDays(v){ var d=v.state.date, h='<div class="days">';
   for(var i=0;i<=7;i++){ var x=todayISO(-i); h+='<button class="'+(x===d?'on':'')+'" onclick="swHomeGo(\''+x+'\')">'+swDayLabel(x)+'</button>'; }
   return h+'</div>'; }
 function swHomeGo(date){ var v=stack[stack.length-1]; if(!v||v.name!=='home'||SERVER!=='swing'||v.state.date===date) return; haptic(6); v.state.date=date; v.state.auto=(date===todayISO(-1)); resetCount(v); swHomeLoad(v,false); }
-function swHomeHead(v){ return '<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span class="hlogo">'+LOGO_SWING+'</span><span class="wkt">스윙과사람들 워크+</span></h1></div>'+swHomeDays(v); }   // v10.63 내 포인트 카드 없앰 (주인 10/18 6번 · SWING 추가기능 › 작업 정리 › 내 작업 확인) · v10.56 제목 '작업내역 간단 보고' → '작업현황 보고' (주인 요청 1)
+function swHomeHead(v){ return '<div class="hello"><div class="date">'+fmtToday()+'</div><h1><span class="hlogo">'+LOGO_SWING+'</span><span class="wkt">스윙과사람들 워크+</span></h1></div>'+swHomeTiles(); }   /* v10.86 날짜 칩·합계 카드 없앰 → [검색 | 수리기기 입력] 두 칸 (주인 11/06 · 작업자별 = 추가기능 › 작업내역) */   // v10.63 내 포인트 카드 없앰 (주인 10/18 6번 · SWING 추가기능 › 작업 정리 › 내 작업 확인) · v10.56 제목 '작업내역 간단 보고' → '작업현황 보고' (주인 요청 1)
 /* 폰에 저장해 둔 마지막 결과를 먼저 그리고(바로 뜸), 뒤에서 서버 결과로 바꾼다 */
 var SWH_AT={};
 function swHomeLoad(v,quiet,fresh){ var date=v.state.date, tok=v.state.tok=(v.state.tok||0)+1, cached=lsGet('sw_home:'+date), steps=0, fails=0, later=0, t0=Date.now();   // fresh = 당겨서 새로고침 (그냥 열면 오늘도 15분 자동 수집 기록으로 바로 · v10.32)
@@ -3704,20 +3786,12 @@ function swHomeDraw(v,quiet){ if(!quiet) reanim(v); var res=v.state.res; if(!res
   if(res.locked){ v.el.innerHTML=h+swHomeLockHtml(d)+rpHomeBtn(); homeLockPurge('swing'); return; }   // v10.51 서버가 숫자를 안 보냄 (홈 현황 권한 없음) · v10.54 [수리기기 입력] = 최근 7일 카드 밑
   if(res.noWorkers){ v.el.innerHTML=h+'<div class="card"><div class="empty">아직 등록된 작업자가 없어요.<br>'+(admin?'추가기능 → 작업자 관리에서 컬렉터 아이디를 넣어 주세요.':'관리자에게 작업자 등록을 요청해 주세요.')+'</div>'+
     (admin?'<button class="btn" onclick="push(\'sw_workers\',{})">작업자 관리</button>':'')+'</div>'+rpHomeBtn(); return; }
-  var day=res.day||{};   // v10.54 합계 카드에서 분류 칩 줄(배터리 교체 N · 재배치 N …)·'작업내역 미확인 N명'(✓ 모두 확인했어요) 줄 뺌 (주인: 의미 없는 정보 · 분류는 아래 7일 그래프 범례·막대에 그대로)
-  h+='<div class="card sum"><div class="lb">'+swDayLabel(d)+' 작업 합계'+(day.updated?' · '+esc(day.updated)+' 기준':'')+'</div>'+
-    '<div class="big">'+num(day.total||0,'swh')+'<span>건</span></div>'+
-    (res.ldn?'<div class="muted" style="margin-top:10px;font-size:12.5px">'+ic('clock')+'새로 추가한 작업자 '+res.ldn+'명은 서버가 기록을 받는 중이라 합계에 아직 다 안 들어갔어요</div>':'')+
-    (can('swing.sw_work')?'<button class="btn line" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">작업자별 자세히 보기 ›</button>'
-      :'<button class="btn line lockb" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">'+LOCK_I+' 작업자별 자세히 보기</button>')+'</div>';   // 작업자 작업내역 권한이 없으면 push 가 막고 안내
+  if(res.ldn) h+='<div class="muted" style="margin:-6px 4px 12px;font-size:12.5px">'+ic('clock')+'새로 추가한 작업자 '+res.ldn+'명은 서버가 기록을 받는 중이에요</div>';   // v10.86 합계 카드 없앰 (안내 줄만)
   h+=swWeekCard(res.week||[])+rpHomeBtn();   // v10.54 [수리기기 입력] (수리 기록 권한) = 최근 7일 카드 바로 밑 (내용과 같이 스크롤)
   v.el.innerHTML=h; if(!quiet) countUp(v.el); }
 /* v10.51 SWING 홈 현황 권한 없음: 합계 카드·최근 7일 카드 틀(제목·날짜·범례)은 그대로 · 숫자·막대 자리만 흐리게 + 선 자물쇠 · "작업자별 자세히 보기"는 따로 (작업자 작업내역 권한)
    v10.54 잠긴 합계 카드도 분류 칩 줄(흐린 자리표시) 뺌 = 열린 홈과 같은 모양 */
-function swHomeLockHtml(d){ var n='<b>'+hph()+'</b>';
-  var h='<div class="card sum hlk"><div class="lb">'+swDayLabel(d)+' 작업 합계</div><div class="hlkz" onclick="homeLockTap()"><div class="hbl" aria-hidden="true"><div class="big">'+n+'<span>건</span></div></div>'+hlockMark(true)+'</div>'+
-    (can('swing.sw_work')?'<button class="btn line" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">작업자별 자세히 보기 ›</button>'
-      :'<button class="btn line lockb" style="margin-top:14px" onclick="push(\'sw_work\',{date:\''+d+'\'})">'+LOCK_I+' 작업자별 자세히 보기</button>')+'</div>';
+function swHomeLockHtml(d){ var n='<b>'+hph()+'</b>', h='';   // v10.86 잠긴 합계 카드 없앰 (두 칸은 머리에) · 최근 7일 틀은 그대로
   var W=340,H=190,top=22,bot=28,pl=4,pr=4,slot=(W-pl-pr)/7,bw=Math.min(30,slot*0.56),ph=H-top-bot, hs=[.55,.8,.45,.7,.95,.6,.75];   // 막대 높이는 모양만 (숫자 아님)
   var svg='<svg class="wk7" viewBox="0 0 '+W+' '+H+'" aria-hidden="true"><defs><filter id="hlkblur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5"/></filter></defs>'+
     '<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+(top+ph)+'" y2="'+(top+ph)+'" class="ax"/><g filter="url(#hlkblur)">';
@@ -4471,11 +4545,16 @@ function rpHomeKick(){ if(!AUTH||!appStarted) return; rpMeLoad().catch(function(
 /* ---- SWING 홈 [수리기기 입력] · 못 보낸 기록 줄 — v10.54 = 홈 내용 안 최근 7일 카드 바로 밑 (#rphome · 내용과 같이 스크롤 · 주인 "최근 7일 하단에 붙여 놔줘")
         (v10.53 = 아래 고정 자리 #rpdock · v10.52 = 뷰 안 sticky) · 홈 모양마다 내용 끝에 (받는 중·오류·작업자 없음·잠긴 홈도) ---- */
 function rpHomeBtn(){ return '<div class="rphome" id="rphome">'+rpHomeInner()+'</div>'; }
-function rpHomeInner(){ var can=rpCan('repair'), o=rpOut(); if(!can&&!o.length) return '';   // 권한이 꺼져도 못 보낸 기록 줄은 보임 (보고·버릴 수 있게)
+function rpHomeInner(){ var o=rpOut(); if(!o.length) return '';   /* v10.86 [수리기기 입력] = 홈 오른쪽 칸 (swHomeTiles) · 여기는 못 보낸 기록 줄만 */   // 권한이 꺼져도 못 보낸 기록 줄은 보임 (보고·버릴 수 있게)
   var e=o.filter(function(j){ return j.st==='err'; }).length, s=o.length-e;
-  return (can?'<button class="btn rpgo" onclick="rpStart()">'+RP_I.qr+'수리기기 입력</button>':'')+
-    (o.length?'<button class="rpq'+(e||RP_OUT_MEM?' err':'')+'" onclick="push(\'rp_mine\',{})">'+(s?'<i></i>저장 중 '+s+'건':'')+(s&&e?' · ':'')+(e?'저장 못 한 수리 기록 '+e+'건 · 눌러서 확인':'')+(RP_OUT_MEM?' · 폰 저장 안 됨 (앱을 닫지 마세요)':'')+'</button>':''); }
-function rpHomeSync(){ var e=$('rphome'); if(e) e.innerHTML=rpHomeInner(); }   // v10.54 홈 뷰 안 그 자리만 다시 (못 보낸 기록·권한이 바뀔 때 · 홈이 밑에 깔려 있어도 · 아래 고정 자리 버튼은 안 건드림)
+  return (o.length?'<button class="rpq'+(e||RP_OUT_MEM?' err':'')+'" onclick="push(\'rp_mine\',{})">'+(s?'<i></i>저장 중 '+s+'건':'')+(s&&e?' · ':'')+(e?'저장 못 한 수리 기록 '+e+'건 · 눌러서 확인':'')+(RP_OUT_MEM?' · 폰 저장 안 됨 (앱을 닫지 마세요)':'')+'</button>':''); }
+function rpHomeSync(){ var e=$('rphome'); if(e) e.innerHTML=rpHomeInner(); var t=$('swtiles'); if(t) t.innerHTML=swHomeTilesInner(); }   /* v10.86 권한이 바뀌면 오른쪽 칸도 */
+/* v10.86 SWING 홈 두 칸 (주인 11/06 "왼쪽에는 검색 오른쪽에는 수리기기 입력 · 반 나눈 것처럼 네모난 박스") — 예전 합계 카드 자리 */
+function swHomeTiles(){ return '<div class="swtiles" id="swtiles">'+swHomeTilesInner()+'</div>'; }
+function swHomeTilesInner(){ var rc=rpCan('repair');
+  return '<button class="swtile" onclick="push(\'search\',{})"><span class="swti"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><b>검색</b></button>'+
+    (rc?'<button class="swtile" onclick="rpStart()"><span class="swti">'+RP_I.qr+'</span><b>수리기기 입력</b></button>'
+      :'<button class="swtile lock" onclick="toast(\'수리 기록 권한이 없어요 · 관리자에게 요청해 주세요\')"><span class="swti">'+LOCK_I+'</span><b>수리기기 입력</b></button>'); }   // v10.54 홈 뷰 안 그 자리만 다시 (못 보낸 기록·권한이 바뀔 때 · 홈이 밑에 깔려 있어도 · 아래 고정 자리 버튼은 안 건드림)
 /* ---- v10.53 아래 고정 자리 #rpdock (뷰 밖 · #stage 안 · 탭바 바로 위) ----
    예전(v10.52): 버튼이 뷰(스크롤 상자 · 아래 여백 92px · will-change:transform) 안 position:sticky → 탭바보다 ~100px 위에 뜨고, 내용이 짧으면 내용 밑에 붙어 스크롤 따라 움직임
                  (뷰 안에선 position:fixed 도 안 됨 — will-change:transform 이 기준을 뷰로 바꿈)
