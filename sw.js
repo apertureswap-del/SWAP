@@ -37,7 +37,8 @@ self.addEventListener('push', function (e) {
   // v10.80 메신저 알림: url './?go=msg&room=방' · 방마다 하나로 쌓임 (tag 'msg-방') · 누르면 그 방
   const msg = typeof d.url === 'string' && /^\.\/\?go=msg&room=\d{1,12}$/.test(d.url);
   const url = msg ? d.url : ((typeof d.url === 'string' && /^\.\/\?go=report(&d=\d{4}-\d{2}-\d{2})?$/.test(d.url)) ? d.url : './?go=report');   // 우리 앱 안 주소만
-  e.waitUntil(self.registration.showNotification(String(d.title || (msg ? 'S&P 워크+ · 메신저' : 'S&P 워크+ · 작업보고')).slice(0, 80), {
+  if (msg) e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (l) { l.forEach(function (c) { try { c.postMessage({ badge: 1 }); } catch (x) {} }); }).catch(function () {}));   // v10.89 열린 앱 = 탭 빨간 숫자 바로
+  e.waitUntil(self.registration.showNotification(String(d.title || (msg ? 'S&P 워크+ · 대화' : 'S&P 워크+ · 작업보고')).slice(0, 80), {
     body: String(d.body || (msg ? '새 메시지가 왔어요.' : '아직 작업보고를 안 했어요. 눌러서 업무보고를 보내 주세요.')).slice(0, 200),
     icon: 'icon-192.png', badge: 'badge-96.png',   /* 11/07 상단바 작은 아이콘 = 흰 모양 + 투명 (안드로이드가 하얀 네모로 보이던 것) */ tag: String(d.tag || 'report-remind').slice(0, 40), renotify: true,
     data: { url: url }
