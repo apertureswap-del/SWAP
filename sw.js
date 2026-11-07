@@ -37,13 +37,40 @@ self.addEventListener('push', function (e) {
   // v10.80 메신저 알림: url './?go=msg&room=방' · 방마다 하나로 쌓임 (tag 'msg-방') · 누르면 그 방
   const msg = typeof d.url === 'string' && /^\.\/\?go=msg&room=\d{1,12}$/.test(d.url);
   const url = msg ? d.url : ((typeof d.url === 'string' && /^\.\/\?go=report(&d=\d{4}-\d{2}-\d{2})?$/.test(d.url)) ? d.url : './?go=report');   // 우리 앱 안 주소만
-  if (msg) e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (l) { l.forEach(function (c) { try { c.postMessage({ badge: 1 }); } catch (x) {} }); }).catch(function () {}));   // v10.89 열린 앱 = 탭 빨간 숫자 바로
+  const m = msg && d.m && typeof d.m === 'object' && typeof d.m.text === 'string' && Number(d.m.id) > 0 && Number(d.m.room) > 0 && ('./?go=msg&room=' + Number(d.m.room)) === d.url ? d.m : null;   // v10.92 새 글 (서버 0.9.22 · 짧은 글만) → 방 저장본에 미리
+  if (msg) e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (l) { l.forEach(function (c) { try { c.postMessage(m ? { badge: 1, m: m } : { badge: 1 }); } catch (x) {} }); if (m && !l.length) return msgCache(m); }).catch(function () {}));   // v10.89 열린 앱 = 탭 빨간 숫자 바로 · v10.92 앱이 열려 있으면 앱이, 닫혀 있으면 여기서 저장본에   // v10.89 열린 앱 = 탭 빨간 숫자 바로
   e.waitUntil(self.registration.showNotification(String(d.title || (msg ? 'S&P 워크+ · 대화' : 'S&P 워크+ · 작업보고')).slice(0, 80), {
     body: String(d.body || (msg ? '새 메시지가 왔어요.' : '아직 작업보고를 안 했어요. 눌러서 업무보고를 보내 주세요.')).slice(0, 200),
     icon: 'icon-192.png', badge: 'badge-96.png',   /* 11/07 상단바 작은 아이콘 = 흰 모양 + 투명 (안드로이드가 하얀 네모로 보이던 것) */ tag: String(d.tag || 'report-remind').slice(0, 40), renotify: true,
     data: { url: url }
   }));
 });
+/* v10.92 앱이 닫혀 있을 때: IndexedDB swapkv/big 'msgr:방' (앱 v10.91 방 저장본) 끝 글 = 이 글의 바로 앞 글이면 덧붙임 (최근 50개) · 저장본 없거나 빈 칸이면 안 건드림 */
+function msgCache(m) {
+  return new Promise(function (res) {
+    let r; try { r = indexedDB.open('swapkv', 1); } catch (x) { res(); return; }
+    r.onupgradeneeded = function () { try { r.transaction.abort(); } catch (x) {} };
+    r.onerror = r.onblocked = function () { res(); };
+    r.onsuccess = function () {
+      const db = r.result, fin = function () { try { db.close(); } catch (x) {} res(); };
+      try {
+        const tx = db.transaction('big', 'readwrite'), st = tx.objectStore('big'), k = 'msgr:' + Number(m.room), g = st.get(k);
+        g.onsuccess = function () {
+          let c = null; try { c = g.result ? JSON.parse(g.result) : null; } catch (x) { c = null; }
+          if (!c || !Array.isArray(c.msgs) || !c.room) return;
+          const last = c.msgs.length ? c.msgs[c.msgs.length - 1].id : 0;
+          if (last !== Number(m.prev)) return;
+          const o = { id: Number(m.id), by: Number(m.by) || null, name: String(m.name || ''), at: Number(m.at) || Date.now(), sys: false, text: String(m.text) };
+          if (m.re && Number(m.re.id) > 0) o.re = m.re;
+          c.msgs.push(o); if (c.msgs.length > 50) { c.msgs = c.msgs.slice(-50); c.more = true; } c.room.last = o.id;
+          st.put(JSON.stringify(c), k);
+        };
+        tx.oncomplete = tx.onerror = tx.onabort = fin;
+      } catch (x) { fin(); }
+    };
+    setTimeout(res, 3000);
+  });
+}
 self.addEventListener('notificationclick', function (e) {
   e.notification.close();
   const rel = (e.notification.data && e.notification.data.url) || './?go=report', url = new URL(rel, self.registration.scope).href;

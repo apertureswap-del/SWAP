@@ -169,6 +169,19 @@
   .mzmb .mzmt{flex:0 0 auto;display:flex;flex-direction:column;font-size:12px;color:var(--muted);line-height:1.35}
   .mzmb.me .mzmt{align-items:flex-end}
   .mzmb .mzur{color:#d99a00;font-weight:800}
+  .mzmlist .mzbub{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}   /* v10.92 길게 누르기 = 메뉴 (복사는 메뉴로) */
+  .mzmb.lp .mzbub{filter:brightness(.92)}
+  .mzmre{display:block;margin:-2px -4px 6px;padding:5px 9px;border-radius:10px;background:rgba(25,31,40,.06);font-size:13px;line-height:1.35;text-align:left;max-width:100%;overflow:hidden;cursor:pointer}
+  .mzmb.me .mzmre{background:rgba(255,255,255,.18)} .mzmre b{display:block;font-weight:800;font-size:12.5px} .mzmre span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+  .mzmdel{color:var(--muted)!important;background:var(--fill)!important;font-size:14px} .mzmorig{display:block;margin-top:4px;font-size:12.5px;color:var(--ink2);white-space:pre-wrap}
+  .mzmrebar{flex:1 0 100%;order:-1;display:flex;align-items:center;gap:8px;margin:-2px 0 2px;padding:6px 6px 6px 12px;border-left:3px solid var(--p);background:var(--fill);border-radius:8px;font-size:13px;min-width:0}
+  .mzmrebar .t{flex:1;min-width:0} .mzmrebar b{display:block;font-weight:800;color:var(--p-ink)} .mzmrebar span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink2)} .mzmrebar button{flex:0 0 36px;height:36px;font-size:20px;color:var(--muted)}
+  .mzmcmp{flex-wrap:wrap}
+  .mzmnew{position:absolute;left:50%;transform:translateX(-50%);z-index:3;max-width:min(320px,86vw);display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:20px;background:rgba(25,31,40,.86);color:#fff;font-size:13.5px;box-shadow:0 4px 14px rgba(0,0,0,.18)} .mzmnew[hidden]{display:none}
+  .mzmnew .t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .mzmnew .a{flex:none;font-weight:800}
+  .mzmgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;width:min(240px,64vw);padding:0!important;overflow:hidden;border-radius:16px;background:transparent!important;box-shadow:none!important} .mzmgrid.c2{grid-template-columns:repeat(2,1fr)}
+  .mzmgrid button{display:block;aspect-ratio:1;padding:0;background:#dfe3e8;overflow:hidden} .mzmgrid img{display:block;width:100%;height:100%;object-fit:cover}
+  .mzmmact{display:flex;flex-direction:column;gap:8px;margin-top:12px} .mzmmprev{font-size:14px;color:var(--ink2);background:var(--fill);border-radius:10px;padding:8px 12px;margin:-2px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mzmfail{color:var(--danger);font-weight:800;font-size:12px;padding:4px 0}
   .mzmnm{font-size:12.5px;font-weight:700;color:var(--ink2);margin:8px 0 1px 6px}
   .mzmsys{align-self:center;max-width:90%;font-size:12.5px;color:var(--ink2);background:rgba(25,31,40,.06);padding:5px 12px;border-radius:12px;margin:8px 0;text-align:center}
@@ -1351,7 +1364,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.91';   // v10.91 대화방 폰 저장 (방마다 최근 글 50개 · 들어가면 로딩 없이 바로 · 뒤에서 맞춤 · 로그아웃 = 지움 · 주인 11/07) · v10.90 대화방 키보드 맞춤
+var APP_VER = '10.92';   // v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -1681,7 +1694,7 @@ function lsPrune(){ try{ var d8=todayISO(-8), d1=todayISO(-1), n1=todayISO(1);
   reportPrune(); }catch(e){} }   // v10.43 업무보고 초안 30일 정리도 (미리받기가 화면을 안 연 날에도 자동 기록 초안을 만들어서)
 /* v10.41 저장본 주인: 접속 코드 해시(원래 코드는 따로 안 남김). 다른 코드로 들어오면 사람마다 다른 저장본(홈·현황·작업내역·작업리스트·초안·알림 상태 등)을 지움
    — 공유 폰에서 앞사람 화면·초안이 보이지 않게. 기기 설정·사진·QR 기록은 둠 (v10.56 속도 기록은 없앰). adopt = 저장된 코드로 자동 접속 (주인 표시가 없던 예전 폰은 그대로 이어 씀) */
-var LS_USER_RE=/^swapc:(home|tags2|tagv:|sw_home:|sw_roster|report:|pushme|pushAt|stock_pv|wl:|swday:|sysAt|rosterAt|wdnote:|sw_qrmap|swix|sync:|stpend|hlock|rp_|msg_|msgr:)/;   // v10.49 stpend = 결과를 못 본 상태 변경 (다른 코드면 앞사람 것 지움) · v10.51 hlock = 홈 현황 잠김 기억 · v10.52 rp_ = 수리 ERP (권한·품목·못 보낸 기록 — 다른 코드면 지움)
+var LS_USER_RE=/^swapc:(home|tags2|tagv:|sw_home:|sw_roster|report:|pushme|pushAt|stock_pv|wl:|swday:|sysAt|rosterAt|wdnote:|sw_qrmap|swix|sync:|stpend|hlock|rp_|msg_|msgr:|msgd:)/;   // v10.49 stpend = 결과를 못 본 상태 변경 (다른 코드면 앞사람 것 지움) · v10.51 hlock = 홈 현황 잠김 기억 · v10.52 rp_ = 수리 ERP (권한·품목·못 보낸 기록 — 다른 코드면 지움)
 function lsCodeHash(c){ var s=String(c||''), h=0x811c9dc5; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return ('000'+(h&0xffff).toString(16)).slice(-4); }   // 16비트만 (접속 코드 수천만 개 중 하나로 되돌려 찾을 수 없게 · 같은 폰에서 두 코드가 겹칠 확률 1/65536)
 function lsOwner(code,adopt){ if(!code) return; var o=lsCodeHash(code), cur=null; try{ cur=localStorage.getItem('swapc:_owner'); }catch(e){}
   if(cur===o){ if(KVDB&&KV._owner!==o){ KV._owner=o; kvPut('_owner',o); } return; }
@@ -2313,15 +2326,16 @@ VIEWS.msg_room={ render:function(v){ v.state.msgs=[]; v.state.members=[]; v.stat
   v.onLeave=function(){ clearTimeout(v._t); msgAway(v); setTimeout(kbFit,0); };
   v.onResume=function(){ msgRoomPoll(v,true); };
   v.msgPoll=function(){ msgRoomPoll(v,true); };
-  v.el.innerHTML='<div class="mzmrhead">'+title('대화','')+'</div><div class="mzmlist">'+spin()+'</div><div class="mzmcmp"></div>';
-  v.el.querySelector('.mzmlist').addEventListener('scroll',function(){ v.state.atBot=this.scrollHeight-this.scrollTop-this.clientHeight<90; if(this.scrollTop<60&&v.state.more&&!v.state.oldBusy&&v.state.ready) msgRoomOlder(v); },{passive:true});
+  v.el.innerHTML='<div class="mzmrhead">'+title('대화','')+'</div><div class="mzmlist">'+spin()+'</div><button class="mzmnew" hidden onclick="msgToBot()"></button><div class="mzmcmp"></div>';
+  v.el.querySelector('.mzmlist').addEventListener('scroll',function(){ v.state.atBot=this.scrollHeight-this.scrollTop-this.clientHeight<90; if(v.state.atBot&&v.state.newN) msgNewHide(v); if(this.scrollTop<60&&v.state.more&&!v.state.oldBusy&&v.state.ready) msgRoomOlder(v); },{passive:true});
+  msgLpBind(v);
   msgRoomLoad(v); }};
 /* v10.91 대화방 폰 저장 (주인 11/07): 방마다 최근 글 50개·멤버·방 정보 → 들어가면 바로 그림 · 뒤에서 서버 것으로 맞춤 · 찾기로 들어온 건 예전처럼 · 로그아웃·코드 바뀜 = 지움 (LS_USER_RE · kvClear) */
 var MSGR_N=50;
 function msgRoomCache(id){ var c=lsGet('msgr:'+id); return c&&c.room&&Array.isArray(c.msgs)&&Array.isArray(c.members)?c:null; }
 function msgRoomSave(v){ var s=v.state; if(!s.room||loggingOut) return; var m=s.msgs.slice(-MSGR_N), k='msgr:'+s.room.id;
-  var body=JSON.stringify({room:s.room,members:s.members,msgs:m,more:!!(s.more||s.msgs.length>m.length),media:!!s.media,me:MSG.me});
-  if(v._cs===body) return; v._cs=body; var old=lsGet(k); if(old&&Date.now()-(old.at||0)<3600000&&JSON.stringify({room:old.room,members:old.members,msgs:old.msgs,more:old.more,media:old.media,me:old.me})===body) return;
+  var body=JSON.stringify({room:s.room,members:s.members,msgs:m,more:!!(s.more||s.msgs.length>m.length),media:!!s.media,me:MSG.me,dt:s.dt||0});
+  if(v._cs===body) return; v._cs=body; var old=lsGet(k); if(old&&Date.now()-(old.at||0)<3600000&&JSON.stringify({room:old.room,members:old.members,msgs:old.msgs,more:old.more,media:old.media,me:old.me,dt:old.dt||0})===body) return;
   lsSetStr(k,body.slice(0,-1)+',"at":'+Date.now()+'}'); }
 function msgRoomLoad(v){ var c=v.state.hit||v.state.room?null:msgRoomCache(v.params.id);
   if(c){ v.state.cache=true; msgRoomTake(v,c,'cache'); v.state.polling=true; }   // 서버 답까지 새 글 받기는 기다림 (보낸 글이 사라졌다 나타나지 않게 · 끝나면 한 번 더)
@@ -2332,10 +2346,12 @@ function msgRoomLoad(v){ var c=v.state.hit||v.state.room?null:msgRoomCache(v.par
     v.el.querySelector('.mzmlist').innerHTML=errBox(e); if(e&&(e.net||e.timeout)) msgRoomNext(v,6000); }); }
 function msgLastId(v){ var m=v.state.msgs; return m.length?m[m.length-1].id:0; }
 function msgRoomTake(v,r,how){ var s=v.state; s.room=r.room; s.members=r.members||[]; if(r.me) MSG.me=r.me; s.media=!!r.media;   /* v10.86 사진·영상 저장소 준비됨 (서버 0.9.20) */
-  if(how==='init'||how==='cache'){ s.msgs=r.msgs; s.more=r.more; }
-  else if(how==='fresh'){ s.msgs=r.msgs; s.more=r.more; s.cache=false; }   /* v10.91 서버 것으로 바꿈 (사진 주소도 새로 · 위 글은 [이전 글 더 보기]) */
-  else if(how==='after'){ var last=msgLastId(v); r.msgs.forEach(function(m){ if(m.id>last){ s.msgs.push(m); last=m.id; } }); }
+  s.add=0;
+  if(how==='init'||how==='cache'){ s.msgs=r.msgs; s.more=r.more; s.dt=Number(r.dt)||0; }
+  else if(how==='fresh'){ var lc=msgLastId(v); r.msgs.forEach(function(m){ if(m.id>lc&&!m.sys&&m.by!==MSG.me) s.add++; }); s.msgs=r.msgs; s.more=r.more; s.cache=false; s.dt=Number(r.dt)||0; }   /* v10.91 서버 것으로 바꿈 (사진 주소도 새로 · 위 글은 [이전 글 더 보기]) */
+  else if(how==='after'){ var last=msgLastId(v); r.msgs.forEach(function(m){ if(m.id>last){ s.msgs.push(m); last=m.id; if(!m.sys&&m.by!==MSG.me) s.add++; } }); }
   else if(how==='before'){ var first=s.msgs.length?s.msgs[0].id:Infinity; s.msgs=r.msgs.filter(function(m){ return m.id<first; }).concat(s.msgs); s.more=r.more; }
+  if(how==='after'||how==='before'){ if(Array.isArray(r.dels)&&r.dels.length) msgDelMark(s,r.dels,v); if(how==='after'&&Number(r.dt)>(s.dt||0)) s.dt=Number(r.dt); }   /* 검토 고침: dt 는 dsince 를 보낸 새 글 받기 답에서만 (옛 글 받기 답으로 넘기면 그 사이 지운 글을 놓침) */   /* v10.92 다른 사람이 지운 글 (서버 0.9.22 dsince → dels) */
   var have={}; s.msgs.forEach(function(m){ have[m.id]=1; }); s.pend=s.pend.filter(function(p){ return !(p.id&&have[p.id]); });
   msgRoomDraw(v,how); s.ready=true;
   if(how!=='cache') msgRoomSave(v);   /* v10.91 폰 저장 (최근 50개) */
@@ -2347,7 +2363,8 @@ function msgRoomPoll(v,force){ clearTimeout(v._t); if(stack.indexOf(v)<0) return
   if(v.state.polling){ v.state.again=true; return; }
   if(!v.state.room){ msgRoomLoad(v); return; }
   var last=msgLastId(v); v.state.polling=true; v.state.again=false;
-  rpRun('msgRoom',[v.params.id,last?{after:last}:{}]).then(function(r){ v.state.polling=false; if(stack.indexOf(v)<0) return; msgRoomTake(v,r,last?'after':'init'); if(v.state.again) msgRoomPoll(v,true); })
+  var q=last?{after:last}:{}; if(last) q.dsince=v.state.dt||1;   /* 검토 고침: 아직 지운 글 없는 방(dt 0)도 물음 → 첫 지움도 옴 */
+  rpRun('msgRoom',[v.params.id,q]).then(function(r){ v.state.polling=false; if(stack.indexOf(v)<0) return; msgRoomTake(v,r,last?'after':'init'); if(v.state.again) msgRoomPoll(v,true); })
     .catch(function(e){ v.state.polling=false; if(stack.indexOf(v)<0) return;
       if(e&&(e.net||e.timeout||e.off)){ msgRoomNext(v,6000); return; }
       toast(e.message); if(stack[stack.length-1]===v) pop(); }); }   // 방에서 빠졌음 등 → 목록으로
@@ -2355,27 +2372,36 @@ function msgRoomDraw(v,how){ var s=v.state, r=s.room; if(!r) return;
   var hd=v.el.querySelector('.mzmrhead'), sub=(r.kind==='group'?s.members.length+'명':'')+(r.mine?'':(r.kind==='group'?' · ':'')+'보기만 (멤버 아님)'), hk=r.name+'|'+sub;
   if(hd._k!==hk){ hd._k=hk; hd.innerHTML=title(esc(r.name),sub,'<button class="mzmmenu" onclick="msgRoomMenu()" aria-label="방 메뉴">⋯</button>'); }
   var cp=v.el.querySelector('.mzmcmp'), ck=(r.mine?'1':'0')+(s.media?'m':'');
-  if(cp._k!==ck){ cp._k=ck; cp.innerHTML=r.mine?(s.media?'<button class="mzmatt" onclick="msgAttach()" aria-label="사진·동영상 보내기"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 15.5 15.5 11 6 19.5"/></svg></button>':'')+'<textarea id="mtx" rows="1" maxlength="2000" placeholder="메시지 입력" aria-label="메시지 입력" enterkeyhint="send" onkeydown="msgTxKey(event,this)" onbeforeinput="msgTxBefore(event,this)" oninput="msgTxIn(event,this)"></textarea><button class="mzmsend" onclick="msgSendGo()" aria-label="보내기"><svg viewBox="0 0 24 24"><path d="M21 3 10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5L3 9.5z"/></svg></button>'
-      :'<div class="mzmro">'+(isMaster()?'마스터는 모든 방을 볼 수 있어요 · 보내기는 멤버만':'읽기만 할 수 있어요')+'</div>'; }
+  if(cp._k!==ck){ var tx0=cp.querySelector('#mtx'), keepTx=tx0?tx0.value:null; cp._k=ck; cp.innerHTML=r.mine?(s.media?'<button class="mzmatt" onclick="msgAttach()" aria-label="사진·동영상 보내기"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 15.5 15.5 11 6 19.5"/></svg></button>':'')+'<textarea id="mtx" rows="1" maxlength="2000" placeholder="메시지 입력" aria-label="메시지 입력" enterkeyhint="send" onkeydown="msgTxKey(event,this)" onbeforeinput="msgTxBefore(event,this)" oninput="msgTxIn(event,this)"></textarea><button class="mzmsend" onclick="msgSendGo()" aria-label="보내기"><svg viewBox="0 0 24 24"><path d="M21 3 10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5L3 9.5z"/></svg></button>'
+      :'<div class="mzmro">'+(isMaster()?'마스터는 모든 방을 볼 수 있어요 · 보내기는 멤버만':'읽기만 할 수 있어요')+'</div>';
+    var tx=cp.querySelector('#mtx'); if(tx){ var dr=keepTx!=null?keepTx:((lsGet('msgd:'+r.id)||{}).t||''); if(dr){ tx.value=dr; msgTxGrow(tx); } } if(!r.mine) s.re=null; msgReBar(v); }   /* v10.92 쓰던 글 그대로 (방을 나갔다 와도) */
   var el=v.el.querySelector('.mzmlist'), bottom=el.scrollHeight-el.scrollTop-el.clientHeight<90, fromEnd=el.scrollHeight-el.scrollTop, y=el.scrollTop;
+  if((how==='after'||how==='fresh')&&!bottom&&s.add){ s.newN=(s.newN||0)+s.add; msgNewShow(v); }   /* v10.92 위 글을 보는 중 새 글 = 아래 버튼 */
   var lh=msgListHtml(v); if(lh===el._h&&how!=='init'&&how!=='cache'){ return; } el._h=lh; el.innerHTML=lh;
   if(how==='before') el.scrollTop=el.scrollHeight-fromEnd;
-  else if(how==='init'||how==='cache'||how==='send'||((how==='after'||how==='fresh')&&bottom)) el.scrollTop=el.scrollHeight;
+  else if(how==='init'||how==='cache'||how==='send'||((how==='after'||how==='fresh')&&bottom)){ el.scrollTop=el.scrollHeight; if(s.newN) msgNewHide(v); }
   else el.scrollTop=y;
   if(s.hit&&how!=='after'&&how!=='send'&&how!=='fresh'){ var hb=el.querySelector('.mzmb.hit'); if(hb){ try{ hb.scrollIntoView({block:'center'}); }catch(e){} } } }
 function msgListHtml(v){ var s=v.state, me=MSG.me, h='', prevDay='', prevBy=null, prevAt=0;
   if(s.more) h+='<button class="btn line sm mzmmore" onclick="msgRoomOlder(stack[stack.length-1])">이전 글 더 보기</button>';
-  var all=s.msgs.concat(s.pend.map(function(p){ return {id:p.id||0,by:me,name:'',at:p.at,text:p.text||'',pend:p,kind:p.media?p.media.kind:''}; }));
+  var all=s.msgs.concat(s.pend.map(function(p){ return {id:p.id||0,by:me,name:'',at:p.at,text:p.text||'',pend:p,kind:p.media?p.media.kind:'',re:p.re||null}; })), skip=0;
   if(!all.length) h+='<div class="mzmempty">'+(s.room&&s.room.mine?'첫 메시지를 보내 보세요.':'아직 글이 없어요.')+'</div>';
-  all.forEach(function(m){ var day=new Date(m.at).toDateString();
+  all.forEach(function(m,i){ if(skip){ skip--; return; } var day=new Date(m.at).toDateString();
     if(day!==prevDay){ h+='<div class="mzmday">'+msgDay(m.at)+'</div>'; prevDay=day; prevBy=null; }
     if(m.sys){ h+='<div class="mzmsys">'+esc(m.text)+'</div>'; prevBy=null; return; }
     var mine=m.by===me, cont=prevBy===m.by&&m.at-prevAt<5*60000, mzur=0;
     if(m.id&&!m.pend) s.members.forEach(function(x){ if(x.id!==m.by&&x.read<m.id) mzur++; });
     if(!mine&&!cont) h+='<div class="mzmnm">'+esc(m.name)+'</div>';
     var meta=m.pend&&!m.pend.id?(m.pend.fail?'<button class="mzmfail" onclick="msgRetry('+m.pend.k+')">못 보냄 · 다시</button>':'<span>보내는 중'+(m.pend.media?' '+Math.round((m.pend.prog||0)*100)+'%':'')+'</span>'):((mzur?'<span class="mzur">'+mzur+'</span>':'')+'<span>'+msgHm(m.at)+'</span>');
-    h+='<div class="mzmb'+(mine?' me':'')+(m.id&&m.id===s.hit?' hit':'')+'">'+(m.kind==='img'||m.kind==='vid'||(m.pend&&m.pend.media)?msgMediaHtml(m):'<div class="mzbub">'+esc(m.text)+'</div>')+'<div class="mzmt">'+meta+'</div></div>';   /* v10.86 사진·동영상 */
-    prevBy=m.by; prevAt=m.at; });
+    var run=msgImgRun(all,i), lm=run.length>1?run[run.length-1]:m;   /* v10.92 한 번에 보낸 사진 = 묶어서 (카톡처럼) */
+    if(run.length>1){ skip=run.length-1; mzur=0; s.members.forEach(function(x){ if(x.id!==lm.by&&x.read<lm.id) mzur++; }); meta=(mzur?'<span class="mzur">'+mzur+'</span>':'')+'<span>'+msgHm(lm.at)+'</span>'; }
+    var hitIn=run.some(function(x){ return x.id&&x.id===s.hit; }), body;
+    if(run.length>1) body='<div class="mzbub mzmgrid'+(run.length===2||run.length===4?' c2':'')+'">'+run.map(function(x){ return '<button data-id="'+x.id+'" onclick="msgMediaOpen('+x.id+')" aria-label="사진 크게 보기"><img src="'+esc(msgFileUrl(x.file.poster||x.file.url))+'" alt="" loading="lazy"></button>'; }).join('')+'</div>';
+    else if(m.del) body='<div class="mzbub mzmdel">삭제된 메시지'+(m.orig!=null?'<span class="mzmorig">원래 글: '+esc(m.orig)+'</span>':'')+'</div>'+(m.file&&!m.file.gone&&m.orig!=null?msgMediaHtml(m):'');   /* 마스터 = 원래 글도 (서버 orig) */
+    else if(m.kind==='img'||m.kind==='vid'||(m.pend&&m.pend.media)) body=msgMediaHtml(m);
+    else body='<div class="mzbub">'+(m.re?msgReHtml(m.re):'')+esc(m.text)+'</div>';
+    h+='<div class="mzmb'+(mine?' me':'')+(hitIn?' hit':'')+'"'+(m.id&&!m.pend&&run.length<2?' data-id="'+m.id+'"':'')+'>'+body+'<div class="mzmt">'+meta+'</div></div>';   /* v10.86 사진·동영상 */
+    prevBy=lm.by; prevAt=lm.at; });
   return h; }
 function msgRoomOlder(v,hit,n){ if(!v||v.name!=='msg_room'||v.state.oldBusy||!v.state.more||v.state.cache) return;   /* v10.91 저장본으로 보는 동안은 서버 답 기다림 */ var first=v.state.msgs.length?v.state.msgs[0].id:0; if(!first) return; v.state.oldBusy=true;
   rpRun('msgRoom',[v.params.id,{before:first}]).then(function(r){ v.state.oldBusy=false; if(stack.indexOf(v)<0) return; msgRoomTake(v,r,'before');
@@ -2398,24 +2424,25 @@ function msgTxBr(e){ return !!e&&(e.inputType==='insertLineBreak'||e.inputType==
 function msgTxBefore(e,t){ if(!msgTxBr(e)||t._sh) return; e.preventDefault(); if(t._ks&&Date.now()-t._ks<400) return; msgSendGo(); }
 function msgTxIn(e,t){ if(msgTxBr(e)&&!t._sh){ var p=t.selectionStart, v=String(t.value||''); if(p>0&&v.charAt(p-1)==='\n') t.value=v.slice(0,p-1)+v.slice(p);
     if(!(t._ks&&Date.now()-t._ks<400)){ msgSendGo(); return; } }
-  t._sh=false; msgTxGrow(t); }
+  t._sh=false; msgTxGrow(t); var rv=stack[stack.length-1]; if(rv&&rv.name==='msg_room') msgDraftSave(rv,t.value); }
 function msgSendGo(){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room'||!v.state.room||!v.state.room.mine) return; var t=v.el.querySelector('#mtx'); if(!t) return;
   var text=String(t.value||'').replace(/\s+$/,''); if(!text.trim()) return;
   if(text.length>2000){ toast('글은 2000자까지 보낼 수 있어요'); return; }
-  t.value=''; msgTxGrow(t); t.focus(); haptic(6);
-  var p={k:++MSG_PK,text:text.replace(/^\s+/,''),at:Date.now(),cx:runCx()}; v.state.pend.push(p); msgRoomDraw(v,'send'); msgSendOne(v,p); }
-function msgSendOne(v,p){ p.fail=false; rpWrite('msgSend',[v.params.id,p.text],p.cx).then(function(r){ p.id=r.id; p.at=r.at||p.at; if(stack.indexOf(v)>=0){ msgRoomDraw(v,'keep'); msgRoomPoll(v,true); } })
-    .catch(function(e){ p.fail=true; toast('못 보냈어요 · '+e.message); if(stack.indexOf(v)>=0) msgRoomDraw(v,'keep'); }); }
+  t.value=''; msgTxGrow(t); t.focus(); haptic(6); msgDraftSave(v,'');
+  var p={k:++MSG_PK,text:text.replace(/^\s+/,''),at:Date.now(),cx:runCx(),re:v.state.re||null}; v.state.re=null; msgReBar(v); v.state.pend.push(p); msgRoomDraw(v,'send'); msgSendOne(v,p); }
+function msgSendOne(v,p){ p.fail=false; rpWrite('msgSend',p.re?[v.params.id,p.text,{re:p.re.id}]:[v.params.id,p.text],p.cx).then(function(r){ p.id=r.id; p.at=r.at||p.at; if(stack.indexOf(v)>=0){ msgRoomDraw(v,'keep'); msgRoomPoll(v,true); } })
+    .catch(function(e){ if(p.re&&/답장할 글을 못 찾았어요/.test(String(e&&e.message))){ p.re=null; p.cx=runCx(); toast('답장할 글이 지워져서 그냥 보내요'); msgSendOne(v,p); return; }   /* 검토 고침: 답장 글이 지워짐 = 답장 없이 (새 rid) */
+      p.fail=true; toast('못 보냈어요 · '+e.message); if(stack.indexOf(v)>=0) msgRoomDraw(v,'keep'); }); }
 function msgRetry(k){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room') return; var p=v.state.pend.filter(function(x){ return x.k===k; })[0]; if(!p) return; haptic(6); if(p.media) msgMediaSend(v,p); else msgSendOne(v,p); msgRoomDraw(v,'keep'); }
 /* ---- v10.86 사진·동영상 보내기 (주인 11/06 "이미지나 영상을 보낼 수 있게 · 3분까지") — 서버 0.9.20 msgFileStart → PUT 조각 (8MB) → msgFileDone · 받기 = 서명 주소 (6시간)
    사진 = 앱이 줄여서 (긴 쪽 1600px · JPG 0.82 · GIF 그대로) · 동영상 = 150MB · 3분까지 그대로 + 첫 장면 그림 (미리보기) · 한 번에 10개까지 · 3달 지난 파일은 서버가 지움 (말풍선 = '기간이 지나 지운 사진')
    목록 안 = 그림만 (재생 X · 새 글이 와서 다시 그려도 안 끊김) → 누르면 크게 보기 화면 (msg_media) ---- */
-var MSG_IMG_MAX=1600, MSG_VID_MB=150, MSG_VID_SEC=180, MSG_PICK_MAX=10;
+var MSG_IMG_MAX=1600, MSG_VID_MB=150, MSG_VID_SEC=180, MSG_PICK_MAX=30, MSG_THUMB=480;   /* v10.92 한 번에 30장 (서버 한도 1시간 60개) · 미리보기 긴 쪽 480px */
 function msgFileUrl(u){ return u?rpUrl()+u:''; }
 function msgMediaHtml(m){ var f=m.file||{}, lp=m.pend&&m.pend.media, vid=(lp?lp.kind:m.kind)==='vid';
   if(f.gone) return '<div class="mzbub mzmgone">기간이 지나 지운 '+(vid?'동영상':'사진')+'</div>';
   if(!lp&&!f.url) return '<div class="mzbub mzmgone">지금은 '+(vid?'동영상':'사진')+'을 볼 수 없어요</div>';   /* 서버 저장소가 잠깐 꺼짐 (주소 없음) */
-  var w=Number(f.w||(lp&&lp.w))||4, hh=Number(f.h||(lp&&lp.h))||3, r=Math.max(0.5,Math.min(2,w/hh)), src=lp?(vid?lp.posterUrl:lp.prev):msgFileUrl(vid?f.poster:f.url), dur=Number(f.dur||(lp&&lp.dur))||0;
+  var w=Number(f.w||(lp&&lp.w))||4, hh=Number(f.h||(lp&&lp.h))||3, r=Math.max(0.5,Math.min(2,w/hh)), src=lp?(vid?lp.posterUrl:lp.prev):msgFileUrl(vid?f.poster:(f.poster||f.url)), dur=Number(f.dur||(lp&&lp.dur))||0;
   var inner=(src?'<img src="'+esc(src)+'" alt="" loading="lazy">':'<span class="mzmnop"></span>')+(vid?'<span class="mzmplay"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg></span>'+(dur?'<span class="mzmdur">'+msgDur(dur)+'</span>':''):'');
   return m.id&&!lp?'<button class="mzbub mzmmed" style="aspect-ratio:'+r.toFixed(3)+'" onclick="msgMediaOpen('+m.id+')" aria-label="'+(vid?'동영상':'사진')+' 크게 보기">'+inner+'</button>'
     :'<div class="mzbub mzmmed" style="aspect-ratio:'+r.toFixed(3)+'">'+inner+'</div>'; }
@@ -2459,10 +2486,13 @@ function msgPrep(f){ var t=String(f.type||''), vid=/^video\//.test(t);
 function msgImgPrep(f){ return new Promise(function(res,rej){ var u=URL.createObjectURL(f), im=new Image();
   im.onload=function(){ var w=im.naturalWidth||im.width, h=im.naturalHeight||im.height, t=f.type;
     var keep=(t==='image/gif'&&f.size<=15*1048576)||(/^image\/(jpeg|png|webp)$/.test(t)&&Math.max(w,h)<=MSG_IMG_MAX&&f.size<=1.5*1048576);
-    if(keep){ res({kind:'img',blob:f,prev:u,w:w,h:h}); return; }
+    var thumb=function(md){ if(t==='image/gif'||Math.max(w,h)<=MSG_THUMB*1.2&&md.blob.size<=150000){ res(md); return; }   /* v10.92 작은 미리보기 (대화방 목록은 이것만 받음 · 크게 보기 = 원본) · GIF = 움직임 그대로 */
+      try{ var tk=MSG_THUMB/Math.max(w,h), tc=document.createElement('canvas'); tc.width=Math.max(1,Math.round(w*tk)); tc.height=Math.max(1,Math.round(h*tk)); var tg=tc.getContext('2d'); tg.fillStyle='#fff'; tg.fillRect(0,0,tc.width,tc.height); tg.drawImage(im,0,0,tc.width,tc.height);
+        tc.toBlob(function(tb){ if(tb&&tb.size<=1048576) md.thumb=tb; res(md); },'image/jpeg',0.7); }catch(e){ res(md); } };
+    if(keep){ thumb({kind:'img',blob:f,prev:u,w:w,h:h}); return; }
     var k=Math.min(1,MSG_IMG_MAX/Math.max(w,h)), cw=Math.max(1,Math.round(w*k)), ch=Math.max(1,Math.round(h*k)), c=document.createElement('canvas'); c.width=cw; c.height=ch;
     var g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,cw,ch); g.drawImage(im,0,0,cw,ch);
-    c.toBlob(function(b){ URL.revokeObjectURL(u); if(!b){ rej(new Error('사진을 줄이지 못했어요')); return; } res({kind:'img',blob:b,prev:URL.createObjectURL(b),w:cw,h:ch}); },'image/jpeg',0.82); };
+    c.toBlob(function(b){ if(!b){ URL.revokeObjectURL(u); rej(new Error('사진을 줄이지 못했어요')); return; } thumb({kind:'img',blob:b,prev:URL.createObjectURL(b),w:cw,h:ch}); URL.revokeObjectURL(u); },'image/jpeg',0.82); };
   im.onerror=function(){ URL.revokeObjectURL(u); rej(new Error('이 사진은 열 수 없어요')); };
   im.src=u; }); }
 function msgVidMeta(f){ return new Promise(function(res){ var u=URL.createObjectURL(f), vd=document.createElement('video'), out={dur:0,w:0,h:0,poster:null}, fin=false;
@@ -2482,15 +2512,84 @@ function msgProg(v,p,f){ p.prog=Math.max(0,Math.min(0.99,f));   /* 100% = 서버
 function msgMediaSend(v,p){ var m=p.media, room=v.params.id, base=rpUrl(); p.fail=false; p.prog=0;
   if(!base){ p.fail=true; toast('사진·동영상은 새 서버로만 보내요'); return; }
   var meta={kind:m.kind,mime:m.blob.type||(m.kind==='vid'?'video/mp4':'image/jpeg'),size:m.blob.size}; if(m.w){ meta.w=m.w; meta.h=m.h; }
-  if(m.kind==='vid'){ meta.dur=m.dur; if(m.poster) meta.poster={mime:'image/jpeg',size:m.poster.size}; }
+  var pb=m.kind==='vid'?m.poster:m.thumb;   /* v10.92 사진도 작은 미리보기 (서버 0.9.22) */
+  if(m.kind==='vid') meta.dur=m.dur; if(pb) meta.poster={mime:'image/jpeg',size:pb.size};
   var cxS=runCx(), cxD=runCx(), key=null;
-  rpWrite('msgFileStart',[room,meta],cxS).then(function(st){ key=st.key; var part=st.part||8388608, n=Math.max(1,Math.ceil(m.blob.size/part)), parts=[], i=0, total=m.blob.size+(m.poster?m.poster.size:0), doneB=0;
+  rpWrite('msgFileStart',[room,meta],cxS).then(function(st){ key=st.key; var part=st.part||8388608, n=Math.max(1,Math.ceil(m.blob.size/part)), parts=[], i=0, total=m.blob.size+(pb?pb.size:0), doneB=0;
       var next=function(){ if(i>=n) return Promise.resolve(); var a=i*part, b=Math.min(m.blob.size,a+part), num=++i;
         return msgPut(base+st.put+'&n='+num,m.blob.slice(a,b),function(l){ msgProg(v,p,(doneB+l)/total); }).then(function(r){ parts.push({n:num,etag:r.etag}); doneB+=b-a; msgProg(v,p,doneB/total); return next(); }); };
-      return next().then(function(){ if(m.poster&&st.posterPut) return msgPut(base+st.posterPut,m.poster).catch(function(){}); })
+      return next().then(function(){ if(pb&&st.posterPut) return msgPut(base+st.posterPut,pb).catch(function(){}); })
         .then(function(){ return rpWrite('msgFileDone',[room,st.key,parts],cxD); }); })
     .then(function(r){ p.id=r.id; p.at=r.at||p.at; p.prog=1; if(stack.indexOf(v)>=0){ msgRoomDraw(v,'keep'); msgRoomPoll(v,true); } })
     .catch(function(e){ p.fail=true; if(key) rpRun('msgFileAbort',[key]).catch(function(){}); toast('못 보냈어요 · '+(e&&e.message||e)); if(stack.indexOf(v)>=0) msgRoomDraw(v,'keep'); }); }
+/* ================= v10.92 카톡처럼 (주인 11/07) ================= */
+/* 쓰던 글: 방마다 폰에 (msgd:방) · 보내면 지움 · 로그아웃·코드 바뀜 = 지움 */
+function msgDraftSave(v,t){ var id=v&&v.params&&v.params.id; if(!id) return; t=String(t||''); if(t.trim()) lsSet('msgd:'+id,{t:t.slice(0,2000),at:Date.now()}); else lsDelKey('swapc:msgd:'+id); }
+/* 새 메시지 버튼: 위 글을 보는 중 남의 새 글 → 아래에 '이름: 글 ↓' · 누르면 맨 아래 */
+function msgNewShow(v){ var b=v.el.querySelector('.mzmnew'), s=v.state; if(!b) return; var m=null; for(var i=s.msgs.length-1;i>=0;i--){ if(!s.msgs[i].sys&&s.msgs[i].by!==MSG.me){ m=s.msgs[i]; break; } }
+  var cp=v.el.querySelector('.mzmcmp'); b.style.bottom=((cp?cp.offsetHeight:60)+10)+'px';
+  b.innerHTML='<span class="t">'+(m?esc(m.name)+': '+esc(m.del?'삭제된 메시지':(m.kind==='img'?'사진':m.kind==='vid'?'동영상':String(m.text||'').replace(/\s+/g,' '))):'새 메시지')+'</span><span class="a">'+(s.newN>1?s.newN+' ':'')+'↓</span>'; b.hidden=false; }
+function msgNewHide(v){ v.state.newN=0; var b=v.el.querySelector('.mzmnew'); if(b) b.hidden=true; }
+function msgToBot(){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room') return; haptic(6); var el=v.el.querySelector('.mzmlist'); el.scrollTop=el.scrollHeight; v.state.atBot=true; msgNewHide(v); }
+/* 한 번에 보낸 사진 묶음: 같은 사람 · 1분 안 · 같은 날 · 보낸 것(보내는 중 X) · 지운 것·지난 것 X → 2장 이상이면 한 말풍선 */
+function msgImgOk(m){ return m&&m.kind==='img'&&m.id&&!m.pend&&!m.del&&m.file&&!m.file.gone&&!!m.file.url; }
+function msgImgRun(all,i){ var a=all[i]; if(!msgImgOk(a)) return [a]; var out=[a], d=new Date(a.at).toDateString();
+  for(var j=i+1;j<all.length&&out.length<30;j++){ var b=all[j]; if(!msgImgOk(b)||b.by!==a.by||b.at-a.at>60000||new Date(b.at).toDateString()!==d) break; out.push(b); }
+  return out; }
+/* 답장 인용 (말풍선 안 · 누르면 그 글로) */
+function msgReHtml(r){ var t=r.gone?'지난 글':r.del?'삭제된 메시지':(r.kind==='img'?'사진':r.kind==='vid'?'동영상':String(r.text||''));
+  return '<span class="mzmre" onclick="event.stopPropagation();msgJump('+(Number(r.id)||0)+')"><b>'+esc(r.name||'')+'</b><span>'+esc(t.replace(/\s+/g,' '))+'</span></span>'; }
+function msgReBar(v){ var cp=v.el.querySelector('.mzmcmp'); if(!cp) return; var b=v._rb&&v._rb.parentNode===cp?v._rb:null, r=v.state.re;
+  if(!r||!v.state.room||!v.state.room.mine){ if(b) b.remove(); v._rb=null; return; }
+  if(!b){ b=v._rb=document.createElement('div'); b.className='mzmrebar'; cp.insertBefore(b,cp.firstChild); }
+  b.innerHTML='<div class="t"><b>'+esc(r.name)+'에게 답장</b><span>'+esc(r.text.replace(/\s+/g,' '))+'</span></div><button onclick="msgReCancel()" aria-label="답장 취소">×</button>'; }
+function msgReCancel(){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room') return; v.state.re=null; msgReBar(v); }
+function msgJump(id){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room'||!id) return; var s=v.state; haptic(6); s.hit=id; clearTimeout(v._hitT);
+  if(s.msgs.some(function(m){ return m.id===id; })) msgRoomDraw(v,'keep');
+  else if(s.more&&!s.cache) msgRoomOlder(v,id,0);
+  else { s.hit=0; toast('그 글은 찾을 수 없어요'); return; }
+  var n=0, clr=function(){ if(s.hit!==id) return; if(s.oldBusy&&n++<20){ v._hitT=setTimeout(clr,1000); return; } s.hit=0; if(stack.indexOf(v)>=0) msgRoomDraw(v,'keep'); };   /* 검토 고침: 옛 글 받는 동안은 기다림 */
+  v._hitT=setTimeout(clr,2500); }
+/* 지운 글 표시 (내가 지움 · 서버 dels) — 마스터 = 원래 글도 봄 (서버도 orig 를 줌) */
+function msgDelMark(s,ids,v){ var on={}; ids.forEach(function(x){ on[x]=1; }); if(s.re&&on[s.re.id]){ s.re=null; if(v) msgReBar(v); }   /* 검토 고침: 답장하려던 글이 지워짐 = 답장 줄 없앰 */
+  s.msgs.forEach(function(m){ if(on[m.id]&&!m.del){ m.del=true; if(isMaster()) m.orig=m.kind==='img'?'사진':m.kind==='vid'?'동영상':m.text; else delete m.file; m.text=''; }
+    if(m.re&&on[m.re.id]){ m.re.del=true; m.re.text=''; } }); }
+/* 길게 누르기 (0.45초) · PC 오른쪽 클릭 → 메뉴 · 그 뒤 눌림(사진 열기)은 막음 */
+function msgLpBind(v){ var l=v.el.querySelector('.mzmlist'), t=null, x0=0, y0=0, tg=null;
+  var stop=function(){ clearTimeout(t); t=null; if(tg){ tg.classList.remove('lp'); tg=null; } };
+  var fire=function(id){ v._lpAt=MSG_LP_AT=Date.now(); var g=tg; tg=null; stop(); msgMsgMenu(id); setTimeout(function(){ if(g) g.classList.remove('lp'); },400); };
+  l.addEventListener('pointerdown',function(e){ if(e.button) return; var b=e.target.closest&&e.target.closest('[data-id]'); if(!b||e.target.closest('.mzmre')) return; stop(); x0=e.clientX; y0=e.clientY;
+    tg=b.closest('.mzmb'); var id=Number(b.getAttribute('data-id')); t=setTimeout(function(){ if(tg) tg.classList.add('lp'); haptic(12); fire(id); },450); });
+  l.addEventListener('pointermove',function(e){ if(t&&(Math.abs(e.clientX-x0)>8||Math.abs(e.clientY-y0)>8)) stop(); });
+  ['pointerup','pointercancel','scroll'].forEach(function(n){ l.addEventListener(n,stop,{passive:true}); });
+  l.addEventListener('contextmenu',function(e){ var b=e.target.closest&&e.target.closest('[data-id]'); if(!b) return; e.preventDefault(); if(Date.now()-(v._lpAt||0)<800) return; fire(Number(b.getAttribute('data-id'))); });
+}
+var MSG_LP_AT=0; document.addEventListener('click',function(e){ if(Date.now()-MSG_LP_AT<700){ e.preventDefault(); e.stopPropagation(); } },true);   /* 길게 누른 뒤 손을 뗄 때 오는 눌림 = 버림 (말풍선 사진 열기 · 손가락 밑에 뜬 메뉴 버튼이 눌리지 않게) */
+var MSG_DEL_MS=3600000;   /* 서버 0.9.22 DEL_MS (보낸 지 1시간까지 지움) */
+function msgFind(v,id){ return v.state.msgs.filter(function(x){ return x.id===id; })[0]||null; }
+function msgMsgMenu(id){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room'||sheetOpen) return; var m=msgFind(v,id), r=v.state.room; if(!m||m.sys) return;
+  var media=m.kind==='img'||m.kind==='vid', pv=m.del?'삭제된 메시지':media?(m.kind==='img'?'사진':'동영상'):m.text, h='<div class="mzmmprev">'+esc((m.name?m.name+': ':'')+String(pv).replace(/\s+/g,' '))+'</div><div class="mzmmact">';
+  if(r&&r.mine&&!m.del) h+='<button class="btn" onclick="msgReply('+id+')">답장</button>';
+  if(!media&&!m.del) h+='<button class="btn line" onclick="msgCopy('+id+')">복사</button>';
+  if(m.del&&m.orig!=null&&!media) h+='<button class="btn line" onclick="msgCopy('+id+')">원래 글 복사</button>';
+  if(media&&!m.del&&m.file&&!m.file.gone&&m.file.url) h+='<button class="btn line" onclick="closeSheet(function(){ msgMediaOpen('+id+'); })">크게 보기 · 저장</button>';
+  if(r&&r.mine&&!m.del&&m.by===MSG.me&&Date.now()-m.at<MSG_DEL_MS) h+='<button class="btn line" style="color:var(--danger)" onclick="msgDelAsk('+id+')">삭제</button>';
+  h+='<button class="btn line" onclick="closeSheet()">닫기</button></div>'; openSheet(h); }
+function msgCopy(id){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room') return; var m=msgFind(v,id); if(!m) return; var t=m.del?String(m.orig||''):String(m.text||'');
+  closeSheet(); var done=function(){ toast('복사했어요'); }; if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done,function(){ fallbackCopy(t); done(); }); else { fallbackCopy(t); done(); } }
+function msgReply(id){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room') return; var m=msgFind(v,id); if(!m) return;
+  v.state.re={id:id,name:m.by===MSG.me?'나':m.name,text:m.kind==='img'?'사진':m.kind==='vid'?'동영상':String(m.text||'').slice(0,100)};
+  var t=v.el.querySelector('#mtx'); if(t) t.focus();   /* 누른 순간에 (아이폰은 손댄 순간만 자판이 뜸) */
+  closeSheet(function(){ msgReBar(v); var t2=v.el.querySelector('#mtx'); if(t2&&document.activeElement!==t2) t2.focus(); }); }
+function msgDelAsk(id){ closeSheet(function(){ openSheet('<h3>이 메시지를 지울까요?</h3><p>모든 사람에게 \'삭제된 메시지\'로 보여요. 이미 간 알림은 지울 수 없어요.</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--danger)" onclick="msgDelGo('+id+')">삭제</button></div>'); }); }
+function msgDelGo(id){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room') return;
+  closeSheet(function(){ rpWrite('msgDel',[v.params.id,id]).then(function(){ if(stack.indexOf(v)<0) return; msgDelMark(v.state,[id],v); msgRoomDraw(v,'keep'); msgRoomSave(v); toast('지웠어요'); })
+    .catch(function(e){ toast(e.message); }); }); }
+/* 알림 = 방 저장본에 새 글 미리 (sw.js 가 앱이 열려 있으면 여기로 · 닫혀 있으면 sw.js 가 직접) — 저장본 마지막 글 = 알림의 바로 앞 글일 때만 (빈 칸 안 생기게) */
+function msgPushCache(m){ try{ if(!m||!(Number(m.id)>0)||!(Number(m.room)>0)||typeof m.text!=='string') return; var k='msgr:'+m.room, c=msgRoomCache(m.room); if(!c) return;
+  var ms=c.msgs, last=ms.length?ms[ms.length-1].id:0; if(last!==Number(m.prev)) return;
+  ms.push({id:Number(m.id),by:Number(m.by)||null,name:String(m.name||''),at:Number(m.at)||Date.now(),sys:false,text:m.text,re:m.re&&Number(m.re.id)?m.re:undefined});
+  if(ms.length>MSGR_N){ c.msgs=ms.slice(-MSGR_N); c.more=true; } c.room.last=Number(m.id); lsSet(k,c); }catch(e){} }
 function msgRoomMenu(){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room'||!v.state.room) return; var s=v.state, r=s.room, g=r.kind==='group'; haptic(6);
   var h='<h3>'+esc(r.name)+'</h3><div class="muted" style="margin:-4px 0 10px;font-size:13.5px">'+(g?'단체방':'1:1 대화')+' · '+s.members.length+'명</div><div class="mzmmem">'+
     s.members.map(function(m){ return '<div class="mzmmrow"><div class="av">'+esc(String(m.name||'?').slice(0,1))+'</div><span>'+esc(m.name)+(m.id===MSG.me?' <span class="muted">(나)</span>':'')+'</span></div>'; }).join('')+'</div>';
@@ -7566,7 +7665,7 @@ function pushGoReport(d){ if(!AUTH||!appStarted) return; d=/^\d{4}-\d{2}-\d{2}$/
   if(sheetOpen) closeSheet();
   var go=function(n){ var top=stack[stack.length-1]; if(top&&top.name==='report'){ if(d&&top.state.date!==d) reportOpen(top,d,true); else if(d) top.state.pinned=true; return; } if(animating&&n<10){ setTimeout(function(){ go(n+1); },200); return; } push('report',d?{d:d}:{}); };
   if(SERVER!==sv){ setServer(sv); tabTo('home'); if(hDepth>0) hBack(hDepth); setTimeout(function(){ go(0); },500); } else setTimeout(function(){ go(0); },250); }   // goTab('home') 은 이미 홈이면 아무것도 안 해서 다른 서버 홈이 남음 → 새로 그림
-if('serviceWorker' in navigator){ try{ navigator.serviceWorker.addEventListener('message',function(e){ if(e.data&&e.data.badge){ if(appStarted&&AUTH){ var tv=stack[stack.length-1]; if(tv&&tv.name==='msg'&&tv.refresh) tv.refresh(); else msgBadgeTick(); } return; }   /* v10.89 새 대화 알림 = 탭 빨간 숫자 바로 (30초 안 기다림) */ if(e.data&&e.data.go==='msg'){ var r=0; try{ r=Number(new URL(e.data.url||'',location.href).searchParams.get('room'))||0; }catch(x){} msgGo(r); return; }   // v10.80 메신저 알림
+if('serviceWorker' in navigator){ try{ navigator.serviceWorker.addEventListener('message',function(e){ if(e.data&&e.data.badge){ if(e.data.m&&appStarted&&AUTH){ var ov=stack[stack.length-1]; if(!(ov&&ov.name==='msg_room'&&Number(ov.params.id)===Number(e.data.m.room)&&!document.hidden)) msgPushCache(e.data.m); } if(appStarted&&AUTH){ var tv=stack[stack.length-1]; if(tv&&tv.name==='msg'&&tv.refresh) tv.refresh(); else msgBadgeTick(); } return; }   /* v10.89 새 대화 알림 = 탭 빨간 숫자 바로 (30초 안 기다림) */ if(e.data&&e.data.go==='msg'){ var r=0; try{ r=Number(new URL(e.data.url||'',location.href).searchParams.get('room'))||0; }catch(x){} msgGo(r); return; }   // v10.80 메신저 알림
   if(e.data&&e.data.go==='report'){ var d=''; try{ d=new URL(e.data.url||'',location.href).searchParams.get('d')||''; }catch(x){} pushGoReport(d); } }); }catch(e){} }
 
 /* ---- 마스터 (v10.59 + 부마스터): 환경설정 → 작업보고 알림 (사람마다 근무·출근 요일·날짜 예외) · v10.56 추가기능에서 환경설정 마스터 줄로 옮김 (주인 요청 6) ---- */
