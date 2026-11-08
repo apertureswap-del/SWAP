@@ -155,6 +155,10 @@
   .mzmdur{position:absolute;right:8px;bottom:8px;padding:2px 7px;border-radius:9px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;font-weight:700}
   .mzmgone{color:var(--muted)!important;font-size:14px;background:var(--fill)!important}
   .view.mzmview{background:#000;display:flex;align-items:center;justify-content:center;padding:0!important} .mzmview img,.mzmview video{max-width:100%;max-height:100%;display:block}
+  .mzvs{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:none;touch-action:pan-x pinch-zoom;scrollbar-width:none;-webkit-overflow-scrolling:touch} .mzvs::-webkit-scrollbar{display:none}   /* v10.96 사진 묶음 넘기기 */
+  .mzvsl{flex:0 0 100%;width:100%;height:100%;scroll-snap-align:center;scroll-snap-stop:always;display:flex;align-items:center;justify-content:center}
+  .mzvnav{position:absolute;top:50%;margin-top:-24px;width:48px;height:48px;border-radius:24px;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:3;border:0} .mzvnav.l{left:8px} .mzvnav.r{right:8px} .mzvnav[hidden]{display:none} .mzvnav svg{width:26px;height:26px;stroke:#fff;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .mzvcnt{position:absolute;left:50%;transform:translateX(-50%);top:calc(22px + env(safe-area-inset-top));padding:4px 12px;border-radius:14px;background:rgba(0,0,0,.45);color:#fff;font-size:15px;font-weight:600;z-index:3;pointer-events:none}
   .mzmvx{position:absolute;right:12px;top:calc(12px + env(safe-area-inset-top));width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;z-index:2} .mzmvx svg{width:22px;height:22px;stroke:#fff;stroke-width:2.2;fill:none;stroke-linecap:round}   /* v10.86 사진·동영상 */
   .mzmvdl{position:absolute;right:12px;top:calc(12px + env(safe-area-inset-top));height:44px;padding:0 16px 0 12px;border-radius:22px;background:rgba(255,255,255,.18);color:#fff;font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px;z-index:3} .mzmvdl svg{width:22px;height:22px;stroke:#fff;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round} .mzmvdl.busy{opacity:.6}   /* v10.88 사진·동영상 저장 (오른쪽 위 · 왼쪽 위 = 뒤로) */
   .mzmsend{flex:0 0 44px;width:44px;height:44px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center}
@@ -1380,7 +1384,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.95';   // v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
+var APP_VER = '10.96';   // v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -1892,7 +1896,7 @@ function tabTo(name){ haptic(6);
     var t0=Date.now(); resetCount(v); Promise.resolve().then(function(){ return v.refresh(v); }).catch(function(e){ toast('새로고침 실패: '+(e&&e.message||e)); }).then(function(){ setTimeout(done,Math.max(0,500-(Date.now()-t0))); }); });
 })();
 (function(){ var sx=null,dragging=false,top=null,under=null,st=$('stage');
-  st.addEventListener('touchstart',function(e){ if(stack.length<2) return; var t=e.touches[0]; if(t.clientX>28) return; sx=t.clientX; dragging=true;
+  st.addEventListener('touchstart',function(e){ if(stack.length<2||stack[stack.length-1].noEdge) return; var t=e.touches[0]; if(t.clientX>28) return;   /* v10.96 noEdge = 사진 넘기기 화면 (옆 밀기 = 사진 넘김 · 왼쪽 끝 밀기가 같이 뒤로 가면 두 단계 빠짐) */ sx=t.clientX; dragging=true;
     top=stack[stack.length-1].el; under=stack[stack.length-2].el; top.style.transition='none'; under.style.transition='none'; },{passive:true});
   st.addEventListener('touchmove',function(e){ if(!dragging) return; var dx=Math.max(0,e.touches[0].clientX-sx); top.style.transform='translateX('+dx+'px)'; under.style.transform='translateX('+(-28+dx/st.clientWidth*28)+'%)'; },{passive:true});
   st.addEventListener('touchend',function(e){ if(!dragging) return; dragging=false; var dx=e.changedTouches[0].clientX-sx; top.style.transition=''; under.style.transition=''; top.style.transform=''; under.style.transform=''; if(dx>90) backTap(); });   // v10.55 입력 중이면 물어봄
@@ -2477,19 +2481,45 @@ function msgMediaHtml(m){ var f=m.file||{}, lp=m.pend&&m.pend.media, vid=(lp?lp.
     :'<div class="mzbub mzmmed" style="aspect-ratio:'+r.toFixed(3)+'">'+inner+'</div>'; }
 function msgDur(sec){ sec=Math.round(sec); return Math.floor(sec/60)+':'+('0'+(sec%60)).slice(-2); }
 function msgMediaOpen(id){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_room') return; var m=v.state.msgs.filter(function(x){ return x.id===id; })[0]; if(!m||!m.file||m.file.gone||!m.file.url) return; haptic(6);
-  push('msg_media',{kind:m.kind,url:m.file.url,poster:m.file.poster||''}); }
+  /* v10.96 한 번에 보낸 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › 버튼 · 1/N · 주인 11/08) — 묶음은 말풍선과 같은 규칙 (msgImgRun) */
+  var run=[m], ms=v.state.msgs; if(msgImgOk(m)) for(var i=0;i<ms.length;){ var r=msgImgOk(ms[i])?msgImgRun(ms,i):[ms[i]]; if(r.some(function(x){ return x.id===id; })){ run=r; break; } i+=r.length; }
+  run=run.filter(function(x){ return x.file&&!x.file.gone&&x.file.url; }); var at=0; run.forEach(function(x,k){ if(x.id===id) at=k; });
+  var pp={kind:m.kind,url:m.file.url,poster:m.file.poster||''}; if(run.length>1){ pp.items=run.map(function(x){ return {kind:x.kind,url:x.file.url,poster:x.file.poster||''}; }); pp.at=at; } push('msg_media',pp); }
+/* 지금 보는 것 (넘김이면 그 장) */
+function msgMediaCur(v){ var p=v.params; return p.items&&p.items.length>1?(p.items[v.state.i||0]||p.items[0]):p; }
 VIEWS.msg_media={ render:function(v){ var p=v.params, u=msgFileUrl(p.url); v.el.classList.add('mzmview');
+  var dl='<button class="mzmvdl" onclick="msgMediaSave()" aria-label="'+(p.kind==='vid'?'동영상':'사진')+' 저장"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>저장</button>';   /* v10.88 주인 11/07 "다운로드 가능하게" */
+  if(p.items&&p.items.length>1){ msgMediaSlides(v,dl); return; }
   v.el.innerHTML=   /* 닫기 = 앱 왼쪽 위 뒤로 (따로 × 없음) */
-    (p.kind==='vid'?'<video src="'+esc(u)+'"'+(p.poster?' poster="'+esc(msgFileUrl(p.poster))+'"':'')+' controls autoplay playsinline preload="metadata"></video>':'<img src="'+esc(u)+'" alt="">')+
-    '<button class="mzmvdl" onclick="msgMediaSave()" aria-label="'+(p.kind==='vid'?'동영상':'사진')+' 저장"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>저장</button>';   /* v10.88 주인 11/07 "다운로드 가능하게" */
+    (p.kind==='vid'?'<video src="'+esc(u)+'"'+(p.poster?' poster="'+esc(msgFileUrl(p.poster))+'"':'')+' controls autoplay playsinline preload="metadata"></video>':'<img src="'+esc(u)+'" alt="">')+dl;
   v.state.blob=null; if(pushIos()&&p.kind!=='vid') msgMediaFetch(v);   /* 아이폰 = 공유 시트(사진 저장)는 누른 순간에 파일이 있어야 함 → 사진은 미리 받아 둠 */
   v.onLeave=function(){ var vd=v.el.querySelector('video'); if(vd){ try{ vd.pause(); }catch(e){} } }; }};
+/* v10.96 묶음 넘기기: 가로 줄 (scroll-snap · 손가락으로 밀면 한 장씩) + ‹ › 버튼 (PC 는 키보드 ← → 도) + 위 가운데 "2 / 5" · 저장 = 지금 보는 장 */
+function msgMediaSlides(v,dl){ var p=v.params, its=p.items, n=its.length, at=Math.max(0,Math.min(n-1,Number(p.at)||0)); v.state.i=at; v.state.blob=null; v.noEdge=true;
+  v.el.innerHTML='<div class="mzvs">'+its.map(function(x,k){ var u=esc(msgFileUrl(x.url));
+      return '<div class="mzvsl">'+(x.kind==='vid'?'<video src="'+u+'"'+(x.poster?' poster="'+esc(msgFileUrl(x.poster))+'"':'')+' controls playsinline preload="metadata"></video>':'<img src="'+u+'" alt=""'+(Math.abs(k-at)>1?' loading="lazy"':'')+'>')+'</div>'; }).join('')+'</div>'+
+    '<button class="mzvnav l" onclick="msgMediaStep(-1)" aria-label="이전 사진"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>'+
+    '<button class="mzvnav r" onclick="msgMediaStep(1)" aria-label="다음 사진"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>'+
+    '<div class="mzvcnt"></div>'+dl;
+  var s=v.el.querySelector('.mzvs'), go=function(){ s.scrollLeft=v.state.i*s.clientWidth; };
+  go(); requestAnimationFrame(go); msgMediaMark(v);
+  var t=null; s.addEventListener('scroll',function(){ clearTimeout(t); t=setTimeout(function(){ var w=s.clientWidth||1, i=Math.max(0,Math.min(n-1,Math.round(s.scrollLeft/w))); if(i!==v.state.i){ v.state.i=i; msgMediaMark(v); } },60); },{passive:true});
+  var rz=function(){ go(); }, key=function(e){ if(stack[stack.length-1]!==v) return; if(e.key==='ArrowLeft') msgMediaStep(-1); else if(e.key==='ArrowRight') msgMediaStep(1); };
+  window.addEventListener('resize',rz); document.addEventListener('keydown',key);
+  v.onLeave=function(){ window.removeEventListener('resize',rz); document.removeEventListener('keydown',key); [].forEach.call(v.el.querySelectorAll('video'),function(vd){ try{ vd.pause(); }catch(e){} }); }; }
+/* 지금 장 표시: 숫자 · 끝이면 그쪽 버튼 숨김 · 다른 장 동영상 멈춤 · 아이폰 = 이 장 미리 받기 */
+function msgMediaMark(v){ var n=v.params.items.length, i=v.state.i, c=v.el.querySelector('.mzvcnt'); if(c) c.textContent=(i+1)+' / '+n;
+  var l=v.el.querySelector('.mzvnav.l'), r=v.el.querySelector('.mzvnav.r'); if(l) l.hidden=i<=0; if(r) r.hidden=i>=n-1;
+  [].forEach.call(v.el.querySelectorAll('.mzvsl'),function(sl,k){ var vd=sl.querySelector('video'); if(vd&&k!==i){ try{ vd.pause(); }catch(e){} } });
+  var cur=msgMediaCur(v); if(v.state.blobU!==cur.url){ v.state.blob=null; v.state.dl=0; } if(pushIos()&&cur.kind!=='vid') msgMediaFetch(v); }
+function msgMediaStep(d){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_media'||!v.params.items) return; var n=v.params.items.length, i=Math.max(0,Math.min(n-1,(v.state.i||0)+d)), s=v.el.querySelector('.mzvs'); if(!s||i===v.state.i) return; haptic(6);
+  try{ s.scrollTo({left:i*s.clientWidth,behavior:'smooth'}); }catch(e){ s.scrollLeft=i*s.clientWidth; } }
 /* v10.88 저장: 안드로이드·PC = 서버가 파일로 줌 (&dl=1 · 다운로드 폴더 → 갤러리) · 아이폰 = 받아서 공유 시트 → '이미지 저장'/'비디오 저장' (동영상은 받는 동안 기다렸다 한 번 더 누름) */
-function msgMediaFetch(v){ if(v.state.blob||v.state.dl) return Promise.resolve(v.state.blob); var p=v.params; v.state.dl=1;
-  return fetch(msgFileUrl(p.url)).then(function(r){ if(!r.ok) throw new Error('x'); return r.blob(); }).then(function(b){ v.state.dl=0; v.state.blob=b; return b; },function(){ v.state.dl=0; return null; }); }
-function msgMediaSave(){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_media') return; var p=v.params; haptic(8);
+function msgMediaFetch(v){ var c=msgMediaCur(v); if((v.state.blob&&v.state.blobU===c.url)||v.state.dl) return Promise.resolve(v.state.blobU===c.url?v.state.blob:null); v.state.dl=1;   /* v10.96 넘김 = 장마다 (blobU = 그 장 주소) */
+  return fetch(msgFileUrl(c.url)).then(function(r){ if(!r.ok) throw new Error('x'); return r.blob(); }).then(function(b){ v.state.dl=0; if(msgMediaCur(v).url!==c.url) return null; v.state.blob=b; v.state.blobU=c.url; return b; },function(){ v.state.dl=0; return null; }); }
+function msgMediaSave(){ var v=stack[stack.length-1]; if(!v||v.name!=='msg_media') return; var p=msgMediaCur(v); haptic(8);
   if(!pushIos()){ var a=document.createElement('a'); a.href=msgFileUrl(p.url)+'&dl=1'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove(); toast('저장을 시작했어요 · 알림창·다운로드에서 확인'); return; }
-  var b=v.state.blob, btn=v.el.querySelector('.mzmvdl');
+  var b=v.state.blobU===p.url?v.state.blob:null, btn=v.el.querySelector('.mzmvdl');
   if(!b){ if(v.state.dl){ toast('받는 중이에요 · 잠시만요'); return; } if(btn) btn.classList.add('busy'); toast('받는 중이에요 · 다 받으면 한 번 더 눌러 주세요');
     msgMediaFetch(v).then(function(x){ if(btn) btn.classList.remove('busy'); if(stack[stack.length-1]!==v) return; toast(x?'다 받았어요 · [저장] 을 눌러 주세요':'받지 못했어요 · 다시 눌러 주세요'); }); return; }
   var ext=(b.type.split('/')[1]||'').replace('jpeg','jpg').replace('quicktime','mov'), f;
