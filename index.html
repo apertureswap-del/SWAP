@@ -171,6 +171,8 @@
   .mzmb .mzur{color:#d99a00;font-weight:800}
   .mzmlist .mzbub{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}   /* v10.92 길게 누르기 = 메뉴 (복사는 메뉴로) */
   .mzmb.lp .mzbub{filter:brightness(.92)}
+  .mzbub a.mzlink{color:#1b64da;text-decoration:underline;text-underline-offset:2px;word-break:break-all}   /* v10.94 대화 주소 */
+  .mzmb.me .mzbub a.mzlink{color:#fff}
   .mzmre{display:block;margin:-2px -4px 6px;padding:5px 9px;border-radius:10px;background:rgba(25,31,40,.06);font-size:13px;line-height:1.35;text-align:left;max-width:100%;overflow:hidden;cursor:pointer}
   .mzmb.me .mzmre{background:rgba(255,255,255,.18)} .mzmre b{display:block;font-weight:800;font-size:12.5px} .mzmre span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
   .mzmdel{color:var(--muted)!important;background:var(--fill)!important;font-size:14px} .mzmorig{display:block;margin-top:4px;font-size:12.5px;color:var(--ink2);white-space:pre-wrap}
@@ -1378,7 +1380,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.93';   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
+var APP_VER = '10.94';   // v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -2274,12 +2276,12 @@ VIEWS.msg={ render:function(v){ v.state.all=isMaster()&&!!lsGet('msg_all');   /*
   v.msgPoll=function(){ msgListLoad(v); };
   v.onLeave=function(){ clearTimeout(v._t); ySlimeStop(v); };
   ySlimeBind(v);   /* v10.84 방 목록 끌기 = 슬라임 (위로 끌면 새로고침도) */
-  if(!v.state.all) v.state.d=lsGet('msg_list');
+  v.state.d=lsGet(v.state.all?'msg_list_all':'msg_list');   /* v10.94 모든 방도 저장본 먼저 (회색 칸 없이) */
   drawMsgList(v);
   if(!msgOn()){ var el=v.el.querySelector('#mrl'); if(el) el.innerHTML='<div class="card"><div class="empty">'+('대화는 새 서버로만 돼요. 인터넷 연결을 확인하고 앱을 다시 열어 주세요.')+'</div></div>'; return; }
   msgListLoad(v); }};
 function msgListLoad(v){ clearTimeout(v._t); if(!msgOn()) return Promise.resolve(); var all=!!v.state.all, t0=Date.now();
-  return rpRun('msgList',[{all:all}]).then(function(d){ if(stack.indexOf(v)<0||!!v.state.all!==all) return; v.state.d=d; v.state.at=t0; MSG.me=d.me; if(!all) lsSet('msg_list',d); msgBadgeSet(d.unread);
+  return rpRun('msgList',[{all:all}]).then(function(d){ if(stack.indexOf(v)<0||!!v.state.all!==all) return; v.state.d=d; v.state.at=t0; MSG.me=d.me; lsSet(all?'msg_list_all':'msg_list',d); msgBadgeSet(d.unread);
       if(String(v.state.q||'').trim().length<2) drawMsgRooms(v); msgListNext(v); })
     .catch(function(e){ if(stack.indexOf(v)<0) return; if(!v.state.d){ var el=v.el.querySelector('#mrl'); if(el) el.innerHTML=errBox(e); } msgListNext(v); }); }
 function msgListNext(v){ clearTimeout(v._t); v._t=setTimeout(function(){ if(stack.indexOf(v)<0) return; if(stack[stack.length-1]!==v||document.hidden){ msgListNext(v); return; } msgListLoad(v); },15000); }
@@ -2289,18 +2291,20 @@ function drawMsgList(v){ var ml=isMaster();   /* v10.84 마스터 = [+ 새 대�
   h+='<div id="mrl"></div>';
   v.el.innerHTML=h;
   if(String(v.state.q||'').trim().length>=2&&v.state.hits) drawMsgHits(v); else drawMsgRooms(v); }
+/* v10.94 대화 탭 = 한 번만 그려 보이게 (주인 11/08): 저장본으로 그린 목록과 서버 답이 같으면 안 다시 씀 · 다르면 등장 움직임(.anim rise) 없이 바꿈 (예전: 같은 목록이 사라졌다 다시 올라옴) */
+function mrlSet(v,el,h){ var same=el._h&&el.firstChild===el._n; if(same&&el._h===h) return; if(same&&el._h!=='spin'){ clearTimeout(v._at); v.el.classList.remove('anim'); } el._h=h; el.innerHTML=h; el._n=el.firstChild; }   /* _n = 내가 그린 첫 칸 (찾기·오류 글이 덮었으면 다시 씀) */
 function drawMsgRooms(v){ var el=v.el.querySelector('#mrl'); if(!el) return; var d=v.state.d;
-  if(!d){ el.innerHTML=spin(); return; }
-  if(!d.rooms.length){ el.innerHTML='<div class="card"><div class="empty">'+(v.state.all?'아직 대화방이 없어요.':'아직 대화가 없어요.<br>오른쪽 위 <b>+ 새 대화</b>로 시작해 보세요.')+'</div></div>'; return; }
-  el.innerHTML='<div class="card" style="padding:6px 8px">'+d.rooms.map(function(r){ var l=r.last, g=r.kind==='group';
+  if(!d){ if(!(el._h&&el.firstChild===el._n)){ el._h='spin'; el.innerHTML=spin(); el._n=el.firstChild; } return; }
+  if(!d.rooms.length){ mrlSet(v,el,'<div class="card"><div class="empty">'+(v.state.all?'아직 대화방이 없어요.':'아직 대화가 없어요.<br>오른쪽 위 <b>+ 새 대화</b>로 시작해 보세요.')+'</div></div>'); return; }
+  mrlSet(v,el,'<div class="card" style="padding:6px 8px">'+d.rooms.map(function(r){ var l=r.last, g=r.kind==='group';
     var sub=l?(l.sys?esc(l.text):((g&&l.name?esc(l.name)+': ':'')+esc(l.text))):'<span class="muted">아직 글이 없어요</span>';
     return '<button class="item mzmrow" onclick="msgOpen('+r.id+')">'+msgAv(r.name,g)+'<div class="bd">'+(r.mine?'<div class="nm">'+esc(r.name)+(g?' <span class="mzmcnt">'+r.n+'</span>':''):'<div class="nm mzmnmx"><span class="mzmnmt">'+esc(r.name)+'</span>'+(g?'<span class="mzmcnt">'+r.n+'</span>':'')+'<span class="chip gray">보기만</span>')+'</div><div class="sub">'+sub+'</div></div>'+
-      '<div class="mzmside"><span>'+(r.at?msgTime(r.at):'')+'</span>'+(r.unread?'<b class="mzmun">'+(r.unread>99?'99+':r.unread)+'</b>':'')+'</div></button>'; }).join('')+'</div>'; }
+      '<div class="mzmside"><span>'+(r.at?msgTime(r.at):'')+'</span>'+(r.unread?'<b class="mzmun">'+(r.unread>99?'99+':r.unread)+'</b>':'')+'</div></button>'; }).join('')+'</div>'); }
 function msgOpen(id,hit){ push('msg_room',{id:id,hit:hit||0}); }
 function msgAllMenu(){ var v=stack[stack.length-1]; if(!v||v.name!=='msg'||!isMaster()) return; haptic(6); var a=!!v.state.all;
   var row=function(on,svg,b,sub){ var cur=a===!!on; return '<button class="mitem'+(cur?' mzmcur':'')+'" onclick="closeSheet(); msgAllSet('+on+')"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true">'+svg+'</svg></span><span class="mt"><b>'+b+'</b><span>'+sub+'</span></span><span class="ar">'+(cur?'✓':'›')+'</span></button>'; };
   openSheet('<h3>대화</h3>'+row(0,'<path d="M4 5.5h16v10.5H9.5L4 20z"/>','내 대화','내가 들어간 방만')+row(1,'<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>','모든 방','마스터만 · 1:1 포함 · 보기만')); }
-function msgAllSet(on){ var v=stack[stack.length-1]; if(!v||v.name!=='msg'||!!v.state.all===!!on) return; haptic(6); v.state.all=!!on; lsSet('msg_all',on?1:0); v.state.d=on?null:lsGet('msg_list'); v.state.hits=null;
+function msgAllSet(on){ var v=stack[stack.length-1]; if(!v||v.name!=='msg'||!!v.state.all===!!on) return; haptic(6); v.state.all=!!on; lsSet('msg_all',on?1:0); v.state.d=lsGet(on?'msg_list_all':'msg_list'); v.state.hits=null;
   drawMsgList(v); msgListLoad(v); if(String(v.state.q||'').trim().length>=2) msgSearchTyped(v.state.q); }
 function msgSearchTyped(val){ var v=stack[stack.length-1]; if(!v||v.name!=='msg') return; v.state.q=val; clearTimeout(msgSqT); var q=String(val||'').trim();
   if(q.length<2){ v.state.hits=null; v.state.sseq=(v.state.sseq||0)+1; drawMsgRooms(v); return; }
@@ -2397,6 +2401,16 @@ function msgRoomDraw(v,how){ var s=v.state, r=s.room; if(!r) return;
   else if(how==='init'||how==='cache'||how==='send'||((how==='after'||how==='fresh')&&bottom)){ el.scrollTop=el.scrollHeight; if(s.newN) msgNewHide(v); }
   else el.scrollTop=y;
   if(s.hit&&how!=='after'&&how!=='send'&&how!=='fresh'){ var hb=el.querySelector('.mzmb.hit'); if(hb){ try{ hb.scrollIntoView({block:'center'}); }catch(e){} } } }
+/* v10.94 대화 글 속 주소 (http·https·www.) → 누르면 새 인터넷 창 (주인 11/08) · 나머지 글은 esc 그대로 · 끝 문장부호·닫는 괄호는 주소에서 뺌 · http(s) 만 (javascript: 같은 건 글자 그대로) */
+var MSG_URL_RE=/(https?:\/\/|www\.)[^\s<>"']+/gi;
+function msgLinkHtml(t){ t=String(t==null?'':t); var h='', at=0; MSG_URL_RE.lastIndex=0; var m;
+  while((m=MSG_URL_RE.exec(t))){ var u=m[0], cut=u.match(/[.,!?;:)\]}'"…。、]+$/); if(cut){ var tail=cut[0];
+      if(tail.charAt(0)===')'&&u.indexOf('(')>=0&&(u.split('(').length-1)>=(u.split(')').length-1)) tail=tail.slice(1);   /* 위키 주소처럼 ( ) 짝이면 ) 는 주소 */
+      u=u.slice(0,u.length-tail.length); }
+    if(!u||/^(https?:\/\/|www\.)$/i.test(u)){ continue; }
+    var href=/^www\./i.test(u)?'https://'+u:u;
+    h+=esc(t.slice(at,m.index))+'<a class="mzlink" href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">'+esc(u)+'</a>'; at=m.index+u.length; MSG_URL_RE.lastIndex=at; }
+  return h+esc(t.slice(at)); }
 function msgListHtml(v){ var s=v.state, me=MSG.me, h='', prevDay='', prevBy=null, prevAt=0;
   if(s.more) h+='<button class="btn line sm mzmmore" onclick="msgRoomOlder(stack[stack.length-1])">이전 글 더 보기</button>';
   var all=s.msgs.concat(s.pend.map(function(p){ return {id:p.id||0,by:me,name:'',at:p.at,text:p.text||'',pend:p,kind:p.media?p.media.kind:'',re:p.re||null}; })), skip=0;
@@ -2414,7 +2428,7 @@ function msgListHtml(v){ var s=v.state, me=MSG.me, h='', prevDay='', prevBy=null
     if(run.length>1) body='<div class="mzbub mzmgrid'+(run.length===2||run.length===4?' c2':'')+'">'+run.map(function(x){ return '<button data-id="'+x.id+'" onclick="msgMediaOpen('+x.id+')" aria-label="사진 크게 보기"><img src="'+esc(msgFileUrl(x.file.poster||x.file.url))+'" alt="" loading="lazy"></button>'; }).join('')+'</div>';
     else if(m.del) body='<div class="mzbub mzmdel">삭제된 메시지'+(m.orig!=null?'<span class="mzmorig">원래 글: '+esc(m.orig)+'</span>':'')+'</div>'+(m.file&&!m.file.gone&&m.orig!=null?msgMediaHtml(m):'');   /* 마스터 = 원래 글도 (서버 orig) */
     else if(m.kind==='img'||m.kind==='vid'||(m.pend&&m.pend.media)) body=msgMediaHtml(m);
-    else body='<div class="mzbub">'+(m.re?msgReHtml(m.re):'')+esc(m.text)+'</div>';
+    else body='<div class="mzbub">'+(m.re?msgReHtml(m.re):'')+msgLinkHtml(m.text)+'</div>';   /* v10.94 주소 = 누르면 새 창 */
     h+='<div class="mzmb'+(mine?' me':'')+(hitIn?' hit':'')+'"'+(m.id&&!m.pend&&run.length<2?' data-id="'+m.id+'"':'')+'>'+body+'<div class="mzmt">'+meta+'</div></div>';   /* v10.86 사진·동영상 */
     prevBy=lm.by; prevAt=lm.at; });
   return h; }
