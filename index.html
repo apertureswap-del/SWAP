@@ -1384,7 +1384,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.97';   // v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
+var APP_VER = '10.98';   // v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -2678,18 +2678,22 @@ function ngateNeed(){ if(!AUTH||!appStarted) return ''; if(!pushOk()) return 'no
 function ngateSync(){ var k=ngateNeed(), g=$('ngate');
   if(!k){ if(g){ g.remove(); pushSync(); } return; }
   if(!g){ g=document.createElement('div'); g.id='ngate'; g.className='ngate'; g.setAttribute('role','dialog'); g.setAttribute('aria-modal','true'); document.body.appendChild(g); }
-  if(g._k===k) return; g._k=k;
+  var sam=/SamsungBrowser/.test(navigator.userAgent);   // v10.98 삼성 인터넷이 앱을 열면 앱 알림이 안 넘어옴 → 기본 브라우저 크롬 안내
+  if(g._k===k+(sam?'s':'')) return; g._k=k+(sam?'s':'');
   var and=/Android/.test(navigator.userAgent), ios=pushIos();
   g.innerHTML='<div class="ngic">'+ic('bell')+'</div>'+
-    (k==='ask'?'<h2>알림을 켜 주세요</h2><p>워크+는 대화·작업 알림을 꼭 받아야 해요.<br>아래 버튼을 누르고 <b>허용</b>을 눌러 주세요.</p><button class="btn" onclick="pushEnable()">알림 켜기</button>':
+    (sam&&k!=='nosup'?ngateSamHtml(k):k==='ask'?'<h2>알림을 켜 주세요</h2><p>워크+는 대화·작업 알림을 꼭 받아야 해요.<br>아래 버튼을 누르고 <b>허용</b>을 눌러 주세요.</p><button class="btn" onclick="pushEnable()">알림 켜기</button>':
      k==='denied'?'<h2>알림이 꺼져 있어요</h2><p>워크+는 알림을 켜야 쓸 수 있어요.</p><ol>'+
         (and?'<li>폰 <b>설정</b> → <b>애플리케이션</b></li><li><b>S&amp;P 워크+</b> (없으면 <b>Chrome</b>) → <b>알림</b></li><li><b>알림 허용</b> 켜기</li>':
          ios?'<li>아이폰 <b>설정</b> → <b>알림</b></li><li><b>S&amp;P 워크+</b> → <b>알림 허용</b> 켜기</li>':'<li>주소창 왼쪽 <b>자물쇠(사이트 정보)</b> 누르기</li><li><b>알림</b> → <b>허용</b></li>')+
         '<li>이 화면으로 돌아오기</li></ol><button class="btn" onclick="ngateRe()">다시 확인</button>':
      '<h2>이 폰에서는 알림을 못 받아요</h2><p>'+(ios?'아이폰은 <b>홈 화면에 추가한 앱</b>에서만 알림을 받을 수 있어요 (iOS 16.4 이상).<br>사파리 아래 <b>공유</b> → <b>홈 화면에 추가</b> 후 그 앱으로 열어 주세요.':'이 브라우저는 알림을 못 받아요.<br>크롬으로 열거나 앱을 설치해 주세요.')+'</p><button class="btn" onclick="ngateRe()">다시 확인</button>')+
     '<button class="lo" onclick="logoutAsk()">다른 코드로 접속</button>'; }
+function ngateSamHtml(k){ return '<h2>'+(k==='ask'?'알림을 켜 주세요':'알림이 꺼져 있어요')+'</h2><p>지금 <b>삼성 인터넷</b>으로 열려 있어요.<br>워크+ 알림은 <b>크롬</b>으로 열어야 받을 수 있어요.</p><ol><li>폰 <b>설정</b> → <b>애플리케이션</b></li><li><b>기본 앱 선택</b> → <b>브라우저 앱</b></li><li><b>Chrome</b> 고르기</li><li>워크+를 완전히 닫고 다시 열기</li></ol>'+
+    (k==='ask'?'<button class="btn" onclick="pushEnable()">알림 켜기</button>':'<button class="btn" onclick="ngateRe()">다시 확인</button>'); }
 function ngateRe(){ haptic(6); var g=$('ngate'); if(g) g._k=''; ngateSync(); if($('ngate')) toast('아직 알림이 꺼져 있어요'); }
 document.addEventListener('visibilitychange',function(){ if(!document.hidden) ngateSync(); });
+try{ if(navigator.permissions&&navigator.permissions.query) navigator.permissions.query({name:'notifications'}).then(function(st){ st.onchange=function(){ ngateSync(); }; },function(){}); }catch(e){}   // v10.98 허용이 늦게 바뀌어도 바로 다시 봄
 
 /* ================= 검색 ================= */
 VIEWS.search={ render:function(v){ var pq=(!v.state.q&&!v._pq&&v.params&&v.params.q)?String(v.params.q):''; v._pq=1; v.state.q=v.state.q||pq||'';   /* v10.80 홈 검색 칸에서 온 글자 → 바로 찾음 */ v.onResume=function(){ if(v.state.q&&!(v.state.res&&resumeFresh(v))) doSearch(v,v.state.q,true); };   // v10.41 1분 안 · 내가 안 바꿨으면 다시 안 찾음 (서버 2개)
