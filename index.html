@@ -1384,7 +1384,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.98';   // v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
+var APP_VER = '10.99';   // v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -3191,7 +3191,7 @@ function smDraw(v){ var t=v.state.t||{};
   if(v.state.res) smDrawRes(v); }
 function smSearch(){ var v=smView(); if(!v) return; var q=(($('sm_q')||{}).value||'').trim(); if(q.length<2){ toast('2글자 이상 입력해 주세요'); return; }
   v.state.q=q; var seq=v.state.seq=(v.state.seq||0)+1; $('sm_res').innerHTML=spin('어드민 고객요청 찾는 중'); haptic(6);
-  run('findMatchTasks',q).then(function(r){ if(smView()!==v||v.state.seq!==seq) return; v.state.res=r; smDrawRes(v); })
+  run('findMatchTasks',q,String((v.state.t||{})['모델']||'')).then(function(r){ if(smView()!==v||v.state.seq!==seq) return; v.state.res=r; smDrawRes(v); })
     .catch(function(e){ if(smView()===v&&v.state.seq===seq) $('sm_res').innerHTML=errBox(e); }); }
 function smDrawRes(v){ var r=v.state.res||{}, box=$('sm_res'); if(!box) return;
   if(!r.ok){ box.innerHTML='<div class="card"><p class="muted" style="margin:0">어드민 검색 불가 — '+esc(r.error||'')+'</p></div>'; return; }
