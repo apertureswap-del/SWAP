@@ -1385,7 +1385,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.100';   // v10.100 PC 칩 줄(작업내역 분류 탭 등) 얇은 스크롤바 (주인 11/13) · v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
+var APP_VER = '10.101';   // v10.101 고객 매칭 찾기: 같은 이름 고객이 여럿이면 고객마다 한 줄 → 눌러 그 고객 요청 펼침 · 진행 중 요청 없는 같은 이름 고객도 보여 줌 (서버 0.9.26 · 주인 11/13) · v10.100 PC 칩 줄(작업내역 분류 탭 등) 얇은 스크롤바 (주인 11/13) · v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -3191,18 +3191,43 @@ function smDraw(v){ var t=v.state.t||{};
   v.el.innerHTML=h; $('sm_q').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.target.blur(); smSearch(); } });
   if(v.state.res) smDrawRes(v); }
 function smSearch(){ var v=smView(); if(!v) return; var q=(($('sm_q')||{}).value||'').trim(); if(q.length<2){ toast('2글자 이상 입력해 주세요'); return; }
-  v.state.q=q; var seq=v.state.seq=(v.state.seq||0)+1; $('sm_res').innerHTML=spin('어드민 고객요청 찾는 중'); haptic(6);
+  v.state.q=q; v.state.open=''; var seq=v.state.seq=(v.state.seq||0)+1; $('sm_res').innerHTML=spin('어드민 고객요청 찾는 중'); haptic(6);
   run('findMatchTasks',q,String((v.state.t||{})['모델']||'')).then(function(r){ if(smView()!==v||v.state.seq!==seq) return; v.state.res=r; smDrawRes(v); })
     .catch(function(e){ if(smView()===v&&v.state.seq===seq) $('sm_res').innerHTML=errBox(e); }); }
 function smDrawRes(v){ var r=v.state.res||{}, box=$('sm_res'); if(!box) return;
   if(!r.ok){ box.innerHTML='<div class="card"><p class="muted" style="margin:0">어드민 검색 불가 — '+esc(r.error||'')+'</p></div>'; return; }
-  if(!r.items.length){ box.innerHTML='<div class="card"><p class="muted" style="margin:0">그 이름·고객요청을 찾지 못했어요.</p></div>'; return; }
-  box.innerHTML='<div class="sec"><span>어드민 고객요청</span><span>'+r.items.length+'건</span></div><div class="list">'+r.items.map(function(it,i){
+  var items=r.items||[], oth=r.others||[], gs=smGroups(items);
+  if(!items.length&&!oth.length){ box.innerHTML='<div class="card"><p class="muted" style="margin:0">그 이름·고객요청을 찾지 못했어요.</p></div>'; return; }
+  var h='';
+  if(gs.length<2&&!oth.length) h='<div class="sec"><span>어드민 고객요청</span><span>'+items.length+'건</span></div><div class="list">'+items.map(smItemHtml).join('')+'</div>';
+  else {   // v10.101 동명이인 = 고객마다 한 줄 → 눌러서 그 고객 요청 펼침 (주인 11/13 · 서버 0.9.26)
+    if(gs.length) h+='<div class="sec"><span>'+(gs.length>1?'같은 이름 고객 '+gs.length+'명':'어드민 고객요청')+'</span><span>'+items.length+'건</span></div>'+
+      (gs.length>1?'<p class="muted" style="margin:-4px 4px 10px;font-size:13px">고객을 눌러 요청을 보고, 맞는 고객인지 확인해 주세요.</p>':'')+
+      '<div class="list">'+gs.map(function(g,gi){ var f=g.top, on=v.state.open===g.k||gs.length===1;
+        return '<button class="item" aria-expanded="'+(on?'true':'false')+'" onclick="smOpen('+gi+')">'+devAv(f.changeModel||f.model,f.changeColor||f.color)+'<div class="bd">'+
+          '<div class="nm">'+esc(f.name||'이름 없음')+'</div>'+
+          '<div class="sub">'+esc([f.changeModel||f.model,f.changeColor||f.color].filter(Boolean).join(' ')||'모델 모름')+(f.serial?' · <span class="mono">'+esc(f.serial)+'</span>':'')+'</div>'+
+          '<div class="sub">진행 중 요청 <b>'+g.it.length+'건</b>'+(f.date?' · 최근 '+esc(f.date):'')+(g.sub?' · 구독 <span class="mono">'+esc(g.sub)+'</span>':'')+'</div></div>'+
+          '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="transform:rotate('+(on?'-90':'90')+'deg)"><path d="M9 6l6 6-6 6"/></svg></button>'+
+          (on?'<div class="list" style="margin:0 0 8px 18px">'+g.it.map(function(x){ return smItemHtml(x,x._i); }).join('')+'</div>':''); }).join('')+'</div>';
+    else h+='<div class="card"><p class="muted" style="margin:0">진행 중인 고객요청이 없어요.</p></div>';
+    if(oth.length) h+='<div class="sec"><span>진행 중 요청이 없는 고객</span><span>'+oth.length+'명</span></div><div class="list">'+oth.map(function(o){
+      return '<div class="item" style="opacity:.75">'+devAv(o.model,o.color)+'<div class="bd"><div class="nm">'+esc(o.name||'이름 없음')+'</div>'+
+        '<div class="sub">'+esc([o.model,o.color].filter(Boolean).join(' ')||'모델 모름')+(o.serial?' · <span class="mono">'+esc(o.serial)+'</span>':'')+'</div>'+
+        '<div class="sub">마지막 요청 '+esc([o.type,o.status,o.date].filter(Boolean).join(' · '))+' · <span class="mono">'+esc(o.reqId)+'</span></div></div></div>'; }).join('')+'</div>';
+  }
+  box.innerHTML=h; }
+function smGroups(items){ var gs=[], by={}, pre={}, P=function(it){ return String(it.reqId||'').split('-')[0]; };   // v10.101 같은 고객 = 같은 구독ID (없으면 같은 앞자리 줄의 구독ID · 그것도 없으면 고객요청ID 앞자리 · 서버 custKeyFn 과 같음)
+  items.forEach(function(it){ var p=P(it); if(it.subId&&p&&!pre[p]) pre[p]=String(it.subId); });
+  items.forEach(function(it,i){ it._i=i; var k=String(it.subId||pre[P(it)]||P(it)||i); if(!by[k]){ by[k]={k:k,it:[]}; gs.push(by[k]); } by[k].it.push(it); });
+  gs.forEach(function(g){ g.top=g.it.reduce(function(a,b){ return String(b.date||'')>String(a.date||'')?b:a; }); g.sub=(g.it.filter(function(x){ return x.subId; })[0]||{}).subId||''; }); return gs; }   // top = 가장 최근 요청 (고객 줄 모델·일련번호·날짜)
+function smOpen(gi){ var v=smView(); if(!v) return; var g=smGroups((v.state.res&&v.state.res.items)||[])[gi]; if(!g) return; var k=g.k; haptic(6); v.state.open=v.state.open===k?'':k; smDrawRes(v); }
+function smItemHtml(it,i){
     return '<button class="item" onclick="smPick('+i+')">'+devAv(it.changeModel||it.model,it.changeColor||it.color)+'<div class="bd">'+
       '<div class="nm">'+esc(it.name||'이름 없음')+(it.outTag?'<span class="chip gray">출고 QR '+esc(it.outTag)+'</span>':'')+'</div>'+
       '<div class="sub">'+esc(it.type||'')+(it.status?' · '+esc(it.status):'')+(it.date?' · '+esc(it.date):'')+'</div>'+
       '<div class="sub"><span class="mono">'+esc(it.reqId)+'</span>'+((it.changeModel||it.model)?' · '+esc([it.changeModel||it.model,it.changeColor||it.color].filter(Boolean).join(' ')):'')+'</div></div>'+
-      '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>'; }).join('')+'</div>'; }
+      '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>'; }
 function smPick(i){ var v=smView(); if(!v) return; var it=(v.state.res&&v.state.res.items||[])[i]; if(!it) return; var t=v.state.t||{};
   openSheet('<h3>'+esc(it.name||'고객')+' 님께 출고할까요?</h3><p><b class="mono">'+esc(t['일련번호']||'')+'</b> '+esc([t['모델'],t['색상']].filter(Boolean).join(' '))+'<br>→ '+esc(it.type||'')+' · <span class="mono">'+esc(it.reqId)+'</span>'+(it.date?' · '+esc(it.date):'')+'</p>'+
     (it.outTag?'<div class="note" style="margin:0 0 12px">이 고객요청은 이미 출고 QR <b>'+esc(it.outTag)+'</b>이 있어요.</div>':'')+
