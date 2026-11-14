@@ -37,12 +37,13 @@ self.addEventListener('push', function (e) {
   // v10.80 메신저 알림: url './?go=msg&room=방' · 방마다 하나로 쌓임 (tag 'msg-방') · 누르면 그 방
   const msg = typeof d.url === 'string' && /^\.\/\?go=msg&room=\d{1,12}$/.test(d.url);
   const rq = !msg && d.url === './?go=rp_req';   // v10.93 새 품의서 (마스터·부마스터) · 누르면 품의서 목록
-  const url = msg || rq ? d.url : ((typeof d.url === 'string' && /^\.\/\?go=report(&d=\d{4}-\d{2}-\d{2})?$/.test(d.url)) ? d.url : './?go=report');   // 우리 앱 안 주소만
+  const ws = !msg && !rq && typeof d.url === 'string' && /^\.\/\?go=ws&sv=(swap|swing)$/.test(d.url);   // v10.102 근무 수정 요청·허락·거절 · 누르면 근무배정표
+  const url = msg || rq || ws ? d.url : ((typeof d.url === 'string' && /^\.\/\?go=report(&d=\d{4}-\d{2}-\d{2})?$/.test(d.url)) ? d.url : './?go=report');   // 우리 앱 안 주소만
   const m = msg && d.m && typeof d.m === 'object' && typeof d.m.text === 'string' && Number(d.m.id) > 0 && Number(d.m.room) > 0 && ('./?go=msg&room=' + Number(d.m.room)) === d.url ? d.m : null;   // v10.92 새 글 (서버 0.9.22 · 짧은 글만) → 방 저장본에 미리
   if (msg) e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (l) { l.forEach(function (c) { try { c.postMessage(m ? { badge: 1, m: m } : { badge: 1 }); } catch (x) {} }); if (m && !l.length) return msgCache(m); }).catch(function () {}));   // v10.89 열린 앱 = 탭 빨간 숫자 바로 · v10.92 앱이 열려 있으면 앱이, 닫혀 있으면 여기서 저장본에   // v10.89 열린 앱 = 탭 빨간 숫자 바로
-  e.waitUntil(self.registration.showNotification(String(d.title || (rq ? '새 품의서' : (msg ? 'S&P 워크+ · 대화' : 'S&P 워크+ · 작업보고'))).slice(0, 80), {
-    body: String(d.body || (msg ? '새 메시지가 왔어요.' : rq ? '새 품의서가 올라왔어요.' : '아직 작업보고를 안 했어요. 눌러서 업무보고를 보내 주세요.')).slice(0, 200),
-    icon: 'icon-192.png', badge: 'badge-96.png',   /* 11/07 상단바 작은 아이콘 = 흰 모양 + 투명 (안드로이드가 하얀 네모로 보이던 것) */ tag: String(d.tag || (rq ? 'rp-req' : 'report-remind')).slice(0, 40), renotify: true,
+  e.waitUntil(self.registration.showNotification(String(d.title || (ws ? '근무배정표' : rq ? '새 품의서' : (msg ? 'S&P 워크+ · 대화' : 'S&P 워크+ · 작업보고'))).slice(0, 80), {
+    body: String(d.body || (msg ? '새 메시지가 왔어요.' : ws ? '근무 수정 요청 소식이 있어요.' : rq ? '새 품의서가 올라왔어요.' : '아직 작업보고를 안 했어요. 눌러서 업무보고를 보내 주세요.')).slice(0, 200),
+    icon: 'icon-192.png', badge: 'badge-96.png',   /* 11/07 상단바 작은 아이콘 = 흰 모양 + 투명 (안드로이드가 하얀 네모로 보이던 것) */ tag: String(d.tag || (ws ? 'ws' : rq ? 'rp-req' : 'report-remind')).slice(0, 40), renotify: true,
     data: { url: url }
   }));
 });
@@ -78,7 +79,7 @@ self.addEventListener('notificationclick', function (e) {
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
     for (let i = 0; i < list.length; i++) {
       const w = list[i];
-      if (w.url.indexOf(self.registration.scope) === 0 && 'focus' in w) { try { w.postMessage({ go: /[?&]go=msg&/.test(url) ? 'msg' : (/[?&]go=rp_req(&|$)/.test(url) ? 'rp_req' : 'report'), url: url }); } catch (x) {} return w.focus(); }
+      if (w.url.indexOf(self.registration.scope) === 0 && 'focus' in w) { try { w.postMessage({ go: /[?&]go=msg&/.test(url) ? 'msg' : (/[?&]go=rp_req(&|$)/.test(url) ? 'rp_req' : (/[?&]go=ws&/.test(url) ? 'ws' : 'report')), url: url }); } catch (x) {} return w.focus(); }
     }
     return self.clients.openWindow ? self.clients.openWindow(url) : null;
   }));
