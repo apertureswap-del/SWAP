@@ -1285,7 +1285,7 @@
   .wst thead th.we b,.wst thead th.we span{color:var(--danger)} .wst thead th.today b{color:var(--p)}
   .wst .nm{position:sticky;left:0;z-index:1;background:var(--bg);text-align:left;min-width:72px;max-width:96px}
   .wst tbody .nm button{font-size:13.5px;font-weight:700;padding:0 6px;min-height:32px;width:100%;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
-  .wst .wsc.sm{width:30px;height:32px} .wst .wsc.rq{box-shadow:0 0 0 2px var(--amber-ink)}
+  .wst .wsc.sm{width:30px;height:32px} .wst tbody .nm span{display:block;font-size:13.5px;font-weight:700;padding:0 6px;line-height:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .wst tr.me .nm button,.wst tr.me .nm span{color:var(--p)} .wst .wsc.rq{box-shadow:0 0 0 2px var(--amber-ink)}
   .wspick{display:flex;gap:8px;flex-wrap:wrap} .wspick .wsc{flex:1;height:48px;font-size:15px;min-width:72px} .wspick .wsc.on{box-shadow:0 0 0 3px var(--p)}
   .wsrqc{padding:14px 16px} .wsrh{display:flex;gap:8px;align-items:center;margin-bottom:8px} .wsrh b{font-size:16px} .wsrh span{color:var(--muted);font-size:14px;font-weight:600}
   .wsst{margin-left:auto;font-size:12px;font-weight:800;padding:3px 8px;border-radius:999px;color:var(--muted)} .wsst.amber{background:var(--amber);color:var(--amber-ink)} .wsst.green{background:var(--green-soft);color:var(--green-ink)} .wsst.red{background:var(--danger-soft);color:var(--danger)} .wsst.gray{background:var(--fill)}
@@ -1415,7 +1415,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.103';   // v10.103 근무배정표 카드 = 업무기능 줄 끝 ('근무' 섹션 없앰 · 주인 11/14) · v10.102 근무배정표 (추가기능 '근무' · 관리자 = 사람 넣기·칸 고치기·요청 허락 · 일반 = 이번 주 크게·달력·2일 전 수정 요청 · 서버 0.9.27 · design/SCHEDULE.md · 주인 11/13) · v10.101 고객 매칭 찾기: 같은 이름 고객이 여럿이면 고객마다 한 줄 → 눌러 그 고객 요청 펼침 · 진행 중 요청 없는 같은 이름 고객도 보여 줌 (서버 0.9.26 · 주인 11/13) · v10.100 PC 칩 줄(작업내역 분류 탭 등) 얇은 스크롤바 (주인 11/13) · v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
+var APP_VER = '10.104';   // v10.104 근무배정표 일반 직원 = [전체 보기] 탭 (다른 사람 근무 · 읽기만 · 내 줄 = 보라 이름 · 서버 0.9.28 · 주인 11/15) · v10.103 근무배정표 카드 = 업무기능 줄 끝 ('근무' 섹션 없앰 · 주인 11/14) · v10.102 근무배정표 (추가기능 '근무' · 관리자 = 사람 넣기·칸 고치기·요청 허락 · 일반 = 이번 주 크게·달력·2일 전 수정 요청 · 서버 0.9.27 · design/SCHEDULE.md · 주인 11/13) · v10.101 고객 매칭 찾기: 같은 이름 고객이 여럿이면 고객마다 한 줄 → 눌러 그 고객 요청 펼침 · 진행 중 요청 없는 같은 이름 고객도 보여 줌 (서버 0.9.26 · 주인 11/13) · v10.100 PC 칩 줄(작업내역 분류 탭 등) 얇은 스크롤바 (주인 11/13) · v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -5889,10 +5889,10 @@ function wsDraw(v){ var s=v.state, need=wsNeed(v), miss=need.filter(function(ym)
   miss.forEach(function(ym){ if(!s.err[ym]) wsLoad(v,ym); });
   var d0=s.mo[s.aym]||s.mo[need[0]], adm=!!(s.admin||(d0&&d0.admin));
   var h=title('근무배정표',(s.sv==='swing'?'SWING':'SWAP')+(adm?' · 관리자':''));
-  if(adm) h+='<div class="seg" id="wsseg">'+[['me','내 근무'],['all','전체 관리'],['req','요청'+(s.waitN?' '+s.waitN:'')]].map(function(t){ return '<button class="'+(s.tab===t[0]?'on':'')+'" onclick="wsTab(\''+t[0]+'\')">'+t[1]+'</button>'; }).join('')+'</div>';
+  h+='<div class="seg" id="wsseg">'+(adm?[['me','내 근무'],['all','전체 관리'],['req','요청'+(s.waitN?' '+s.waitN:'')]]:[['me','내 근무'],['all','전체 보기']]).map(function(t){ return '<button class="'+(s.tab===t[0]?'on':'')+'" onclick="wsTab(\''+t[0]+'\')">'+t[1]+'</button>'; }).join('')+'</div>';
   var er=need.map(function(ym){ return s.err[ym]; }).filter(Boolean)[0];
   if(er&&miss.length) h+=errBox(er)+'<button class="btn line" onclick="wsRetry()">다시 시도</button>';
-  else if(s.tab==='all'&&adm) h+=wsAllHtml(v);
+  else if(s.tab==='all') h+=wsAllHtml(v,!adm);   // v10.104 일반 = 읽기만
   else if(s.tab==='req'&&adm) h+=wsReqHtml(v);
   else h+=wsMeHtml(v);
   v.el.innerHTML=h; }
@@ -5955,18 +5955,18 @@ function wsCancel(id){ var v=wsView(), b=$('wsxgo'); if(!v) return; if(b){ b.dis
     function(e){ if(b){ b.disabled=false; b.textContent='요청 취소'; } toast(e.message); if(/이미 처리/.test(String(e.message||''))){ closeSheet(); if(v.refresh) v.refresh(); } }); }
 
 /* ---- 전체 관리 (관리자) ---- */
-function wsAllHtml(v){ var s=v.state, ym=s.aym, d=s.mo[ym], t=wsToday();
+function wsAllHtml(v,ro){ var s=v.state, ym=s.aym, d=s.mo[ym], t=wsToday();   // ro = 일반 직원 (보기만 · 넣기·빼기·칸 고치기 없음)
   var h='<div class="wswh wsmh"><button type="button" class="wsnav" onclick="wsAym(-1)" aria-label="지난 달">‹</button><div class="wswt"><b>'+ym.slice(0,4)+'년 '+wsYmTxt(ym)+'</b>'+(d?'<span>'+d.people.length+'명</span>':'')+'</div><button type="button" class="wsnav" onclick="wsAym(1)" aria-label="다음 달">›</button></div>';
-  h+='<button type="button" class="btn" style="margin-bottom:12px" onclick="wsAddAsk()">'+(RP_I&&RP_I.plus||'')+'사람 넣기</button>';
+  if(!ro) h+='<button type="button" class="btn" style="margin-bottom:12px" onclick="wsAddAsk()">'+(RP_I&&RP_I.plus||'')+'사람 넣기</button>';
   if(!d) return h+spin('근무배정표를 불러오는 중');
-  if(!d.people.length) return h+'<div class="card"><div class="empty">아직 넣은 사람이 없어요 · [사람 넣기]로 한 명씩 넣어 주세요.<br>넣으면 평일 = 주간 · 토·일 = 휴무로 채워져요.</div></div>';
+  if(!d.people.length) return h+'<div class="card"><div class="empty">'+(ro?'아직 '+wsYmTxt(ym)+' 근무배정표가 없어요.':'아직 넣은 사람이 없어요 · [사람 넣기]로 한 명씩 넣어 주세요.<br>넣으면 평일 = 주간 · 토·일 = 휴무로 채워져요.')+'</div></div>';
   var n=new Date(Date.UTC(+ym.slice(0,4),+ym.slice(5,7),0)).getUTCDate(), days=[]; for(var i=1;i<=n;i++) days.push(ym+'-'+('0'+i).slice(-2));
   var wait={}; (d.reqs||[]).forEach(function(r){ if(r.st==='wait') wait[r.who.id+'|'+r.day]=1; });
-  h+='<p class="muted" style="margin:0 2px 8px;font-size:13px">칸을 누르면 주간·야간·휴무로 바꿔요 · 이름을 누르면 빼기 · 노란 테두리 = 수정 요청 중</p>';
+  h+='<p class="muted" style="margin:0 2px 8px;font-size:13px">'+(ro?'보기만 돼요 · 내 근무 바꾸기는 [내 근무]에서 날짜를 눌러 요청해요':'칸을 누르면 주간·야간·휴무로 바꿔요 · 이름을 누르면 빼기 · 노란 테두리 = 수정 요청 중')+'</p>';
   h+='<div class="wstw"><table class="wst"><thead><tr><th class="nm">이름</th>'+days.map(function(day){ var w=wsDow(day); return '<th class="'+(w>4?'we':'')+(day===t?' today':'')+'"><b>'+(+day.slice(8,10))+'</b><span>'+WS_DW[w]+'</span></th>'; }).join('')+'</tr></thead><tbody>';
   d.people.forEach(function(p){
-    h+='<tr><th class="nm"><button type="button" onclick="wsDelAsk('+Number(p.id)+')">'+esc(p.name)+'</button></th>'+days.map(function(day){ var ch=wsCell(d,p.id,day)||'-';
-      return '<td><button type="button" class="wsc wsc'+(ch==='-'?'x':ch)+' sm'+(wait[p.id+'|'+day]?' rq':'')+'" onclick="wsCellAsk('+Number(p.id)+',\''+day+'\')" aria-label="'+esc(p.name)+' '+wsDk(day)+' '+WS_SH[ch]+'">'+WS_SH[ch].charAt(0)+'</button></td>'; }).join('')+'</tr>'; });
+    h+='<tr'+(p.mine?' class="me"':'')+'><th class="nm">'+(ro?'<span>'+esc(p.name)+'</span>':'<button type="button" onclick="wsDelAsk('+Number(p.id)+')">'+esc(p.name)+'</button>')+'</th>'+days.map(function(day){ var ch=wsCell(d,p.id,day)||'-', lb=esc(p.name)+' '+wsDk(day)+' '+WS_SH[ch];
+      return '<td>'+(ro?'<span class="wsc wsc'+(ch==='-'?'x':ch)+' sm" role="img" aria-label="'+lb+'">'+WS_SH[ch].charAt(0)+'</span>':'<button type="button" class="wsc wsc'+(ch==='-'?'x':ch)+' sm'+(wait[p.id+'|'+day]?' rq':'')+'" onclick="wsCellAsk('+Number(p.id)+',\''+day+'\')" aria-label="'+lb+'">'+WS_SH[ch].charAt(0)+'</button>')+'</td>'; }).join('')+'</tr>'; });
   h+='</tbody></table></div>';
   var cnt=function(k){ return days.map(function(day){ var c=0; d.people.forEach(function(p){ if(wsCell(d,p.id,day)===k) c++; }); return c; }); }, cd=cnt('D'), cn=cnt('N');
   if(days.indexOf(t)>=0){ var i=days.indexOf(t); h+='<p class="muted" style="margin:8px 2px 0;font-size:13px">오늘 '+wsDk(t)+' · 주간 '+cd[i]+'명 · 야간 '+cn[i]+'명</p>'; }
