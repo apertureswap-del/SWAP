@@ -380,6 +380,13 @@
   .vplft{padding:16px 0 8px;text-align:center;font-size:13px;color:var(--muted);font-weight:600} .vplft button{margin-top:6px}
   .vpvcap{position:absolute;left:50%;transform:translateX(-50%);top:calc(68px + env(safe-area-inset-top));padding:6px 14px;border-radius:14px;background:rgba(0,0,0,.55);color:#fff;font-size:15px;font-weight:700;z-index:3;pointer-events:none;white-space:nowrap} .vpvcap b{color:#ffd54f;margin-right:6px}
   .vpvbk{position:absolute;left:12px;top:calc(12px + env(safe-area-inset-top));height:44px;padding:0 16px;border-radius:22px;background:rgba(255,255,255,.18);color:#fff;font-size:15px;font-weight:700;z-index:3}
+  /* v10.109 차량 사진 월 백업 zip — 달 고르기 ‹ › · 나눈 파일 줄 · 받기 · 안내 글 */
+  .vpzm{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 14px} .vpzm b{min-width:130px;text-align:center;font-size:19px;font-weight:800}
+  .vpzmb{width:44px;height:44px;border-radius:22px;background:var(--fill);font-size:22px;font-weight:800;color:var(--ink2)} .vpzmb:disabled{opacity:.35}
+  .vpzc{padding:6px 14px} .vpzs{padding:10px 0;border-bottom:1px solid var(--edge)} .vpzs b{display:block;font-size:18px;font-weight:800} .vpzs span{font-size:13px;color:var(--muted);font-weight:600}
+  .vpzp{display:flex;align-items:center;gap:10px;min-height:56px;border-bottom:1px solid var(--edge)} .vpzp:last-child{border-bottom:0} .vpzt{flex:1;min-width:0;font-size:14px;font-weight:600;color:var(--ink2)} .vpzt b{font-weight:800;color:var(--p)}
+  .vpdl.got{background:var(--p-soft);color:var(--p)}
+  .vpzn{margin:10px 2px 0;font-size:13px;line-height:1.5;color:var(--muted);font-weight:600}
   .swnum{font-size:24px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums} .swnum::placeholder{color:var(--muted2);font-weight:700}
   .swgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:14px}
   @media (orientation:landscape) and (min-width:640px){ .swgrid{grid-template-columns:repeat(5,1fr)} }
@@ -1463,7 +1470,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.108';   // v10.108 차량 사진 서버 저장 ('차량 사진' = 차량 고르기 → 9장 차례대로 · 2048 · 올리기 줄 IndexedDB · 관리자 이상 '차량 사진 기록' · 서버 0.9.31 vpUp·vpLog · design/VEH-PHOTO.md · 주인 11/17) · v10.107 근무배정표 그 날 칸: '휴무·미정' 한 줄 → '휴무' 줄 · '미정 (근무 안 정함)' 줄 따로 (주인 11/16) · v10.106 보안: 로그인 접속 코드 입력 = ● 가림 (password) · 환경설정에 내 접속 코드 안 보임 (주인 11/16) · 근무배정표 전체 관리 = 한 페이지 (달력 한눈에 · 향남·수원 × 주간·야간 칸 · 이름 → 주 업무지역 + 그 사람 달력에서 날짜 고침 · 고친 뒤 그 자리 그대로 · 서버 0.9.30 wsArea · 주인 11/16) · v10.105 품의서 = SWING 관리자 이상만 (작업자 = 잠긴 카드 · 서버 0.9.29 · 주인 11/16) · v10.104 근무배정표 일반 직원 = [전체 보기] 탭 (다른 사람 근무 · 읽기만 · 내 줄 = 보라 이름 · 서버 0.9.28 · 주인 11/15) · v10.103 근무배정표 카드 = 업무기능 줄 끝 ('근무' 섹션 없앰 · 주인 11/14) · v10.102 근무배정표 (추가기능 '근무' · 관리자 = 사람 넣기·칸 고치기·요청 허락 · 일반 = 이번 주 크게·달력·2일 전 수정 요청 · 서버 0.9.27 · design/SCHEDULE.md · 주인 11/13) · v10.101 고객 매칭 찾기: 같은 이름 고객이 여럿이면 고객마다 한 줄 → 눌러 그 고객 요청 펼침 · 진행 중 요청 없는 같은 이름 고객도 보여 줌 (서버 0.9.26 · 주인 11/13) · v10.100 PC 칩 줄(작업내역 분류 탭 등) 얇은 스크롤바 (주인 11/13) · v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
+var APP_VER = '10.109';   // v10.109 차량 사진 월 백업 zip (차량 사진 기록 [월 백업] → 달 고르기 · 800장씩 나눈 zip 받기·모두 받기 · 관리자 이상 · 서버 vpZipPlan · /vpfile/zip · 주인 11/17) · v10.108 차량 사진 서버 저장 ('차량 사진' = 차량 고르기 → 9장 차례대로 · 2048 · 올리기 줄 IndexedDB · 관리자 이상 '차량 사진 기록' · 서버 0.9.31 vpUp·vpLog · design/VEH-PHOTO.md · 주인 11/17) · v10.107 근무배정표 그 날 칸: '휴무·미정' 한 줄 → '휴무' 줄 · '미정 (근무 안 정함)' 줄 따로 (주인 11/16) · v10.106 보안: 로그인 접속 코드 입력 = ● 가림 (password) · 환경설정에 내 접속 코드 안 보임 (주인 11/16) · 근무배정표 전체 관리 = 한 페이지 (달력 한눈에 · 향남·수원 × 주간·야간 칸 · 이름 → 주 업무지역 + 그 사람 달력에서 날짜 고침 · 고친 뒤 그 자리 그대로 · 서버 0.9.30 wsArea · 주인 11/16) · v10.105 품의서 = SWING 관리자 이상만 (작업자 = 잠긴 카드 · 서버 0.9.29 · 주인 11/16) · v10.104 근무배정표 일반 직원 = [전체 보기] 탭 (다른 사람 근무 · 읽기만 · 내 줄 = 보라 이름 · 서버 0.9.28 · 주인 11/15) · v10.103 근무배정표 카드 = 업무기능 줄 끝 ('근무' 섹션 없앰 · 주인 11/14) · v10.102 근무배정표 (추가기능 '근무' · 관리자 = 사람 넣기·칸 고치기·요청 허락 · 일반 = 이번 주 크게·달력·2일 전 수정 요청 · 서버 0.9.27 · design/SCHEDULE.md · 주인 11/13) · v10.101 고객 매칭 찾기: 같은 이름 고객이 여럿이면 고객마다 한 줄 → 눌러 그 고객 요청 펼침 · 진행 중 요청 없는 같은 이름 고객도 보여 줌 (서버 0.9.26 · 주인 11/13) · v10.100 PC 칩 줄(작업내역 분류 탭 등) 얇은 스크롤바 (주인 11/13) · v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -1942,7 +1949,7 @@ window.addEventListener('popstate',function(e){
   var cur=stack[0]; if(cur&&cur.name!=='home'){ tabTo('home'); if(hDepth>0) hBack(hDepth); }
 });
 function push(name,params){ if(animating) return; if(MASTER_V[name]&&!isMasterLike()){ mlToast(); return; } if((name==='rp_req'||name==='rp_req_ed')&&!rpqOn()){ lockToast(); return; }   // v10.105 품의서 = 관리자 이상만
-  if((name==='vp_log'||name==='vp_view')&&!isAdminUp()){ lockToast(); return; }   // v10.108 차량 사진 기록 = 관리자 이상만   // v10.59 작업현황 = 마스터·부마스터만
+  if((name==='vp_log'||name==='vp_view'||name==='vp_zip')&&!isAdminUp()){ lockToast(); return; }   // v10.109 월 백업 zip 도   // v10.108 차량 사진 기록 = 관리자 이상만   // v10.59 작업현황 = 마스터·부마스터만
   var pk=viewPerm(name,params); if(pk&&!can(pk)){ lockToast(); return; } hPush(); pushView(name,params); }
 function clearInline(v){ if(v&&v.el){ v.el.style.transform=''; v.el.style.transition=''; } }
 function pushView(name,params){ haptic(6); var v=makeView(name,params); var prev=stack[stack.length-1]; clearInline(prev); stack.push(v); v.el.classList.add('enter'); mount(v);
@@ -7952,7 +7959,7 @@ function vpDayTxt(d){ d=String(d||''); if(!/^\d{4}-\d\d-\d\d/.test(d)) return es
   return (+d.slice(5,7))+'월 '+(+d.slice(8,10))+'일 ('+w+')'+(d.slice(0,10)===wsToday()?' · 오늘':''); }
 function vpAtTxt(at){ if(typeof at==='number'&&at>0){ var t=new Date(at); return pad2(t.getHours())+':'+pad2(t.getMinutes()); } var m=/(\d\d:\d\d)/.exec(String(at||'')); return m?m[1]:''; }
 function vpFile(u){ return u?rpUrl()+u:''; }
-function vpLogDraw(v){ var s=v.state, h=title('차량 사진 기록','최근 40일 · SWAP·SWING');
+function vpLogDraw(v){ var s=v.state, h=title('차량 사진 기록','최근 40일 · SWAP·SWING','<button type="button" class="hbtn" onclick="vpZipGo()">'+ic('box')+'월 백업</button>');   // v10.109 [월 백업] = 한 달 zip
   h+='<div class="vpchips" id="vpchips"><button type="button" class="vpchip'+(s.veh?'':' on')+'" onclick="vpLogVeh(-1)"><b>전체</b><span>최근 순</span></button>'+(s.vehs||[]).map(function(x,i){
     return '<button type="button" class="vpchip'+(s.veh===String(x.veh)?' on':'')+'" onclick="vpLogVeh('+i+')"><b>'+esc(x.veh)+'</b><span>'+esc(vpMd(x.last))+(x.sets?' · '+Number(x.sets)+'번':'')+'</span></button>'; }).join('')+'</div>';
   if(s.err&&!s.sets.length) h+=errBox(s.err)+'<button class="btn line" onclick="vpLogRetry()">다시 시도</button>';
@@ -8013,6 +8020,58 @@ function vpSaveFiles(out){ var files=null; try{ files=out.map(function(o){ retur
   if(pushIos()&&files&&navigator.canShare&&navigator.canShare({files:files})){ navigator.share({files:files}).catch(function(){}); return; }
   out.forEach(function(o,i){ setTimeout(function(){ var a=document.createElement('a'); a.href=URL.createObjectURL(o.b); a.download=o.name; document.body.appendChild(a); a.click(); setTimeout(function(){ try{ URL.revokeObjectURL(a.href); }catch(e){} a.remove(); },3000); },i*400); });
   toast(out.length+'장 받았어요 · 다운로드 폴더를 확인해 주세요'); }
+
+/* ---- v10.109 차량 사진 월 백업 zip (관리자 이상 · 주인 11/17 · 서버 vpZipPlan → 800장씩 나눈 zip 주소 · 받기 = 서명 주소 GET /vpfile/zip/<ym>/<n>) ----
+   달 고르기 ‹ 2026년 11월 › (이번 달 ~ 2달 전 · 사진은 40일만 남음) · 모두 받기 = 차례로 (사이 1.5초 · 브라우저가 여러 파일 허락을 물을 수 있음) · 주소 = 6시간 → 5시간 지나면 새로 받음 */
+TAB_OF.vp_zip='extras';
+var VP_ZGAP=1500, VP_ZOLD=5*3600000;
+function vpZipGo(){ haptic(6); push('vp_zip',{}); }
+function vpYm(){ return wsToday().slice(0,7); }
+function vpYmAdd(ym,d){ var y=+ym.slice(0,4), m=+ym.slice(5,7)-1+d; y+=Math.floor(m/12); m=((m%12)+12)%12; return y+'-'+pad2(m+1); }
+function vpYmTxt(ym){ return (+ym.slice(0,4))+'년 '+(+ym.slice(5,7))+'월'; }
+function vpNum(n){ return String(Math.round(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+function vpSize(b){ b=Number(b)||0; if(b<=0) return '0MB'; var mb=b/1048576; if(mb>=1024) return (Math.round(mb/102.4)/10)+'GB'; return Math.max(1,Math.round(mb))+'MB'; }
+function vpRange(a,b){ return a===b||!b?vpMd(a):vpMd(a)+'~'+vpMd(b); }
+VIEWS.vp_zip={ render:function(v){ reanim(v); var s=v.state;
+  if(!isAdminUp()){ v.el.innerHTML=title('월 백업','')+'<div class="card"><div class="empty">관리자만 볼 수 있어요.</div></div>'; return; }
+  s.ym=s.ym||vpYm(); s.tok=s.tok||0; s.got=s.got||{}; s.tm=[];
+  v.refresh=function(){ return vpZipLoad(v); };
+  v.onLeave=function(){ vpZipStop(v); };
+  vpZipDraw(v); vpZipLoad(v); }};
+function vpZipStop(v){ var s=v.state; (s.tm||[]).forEach(function(t){ clearTimeout(t); }); s.tm=[]; s.all=false; }
+function vpZipLoad(v){ var s=v.state, ym=s.ym, tok=++s.tok; vpZipStop(v); s.plan=null; s.err=null; s.got={};
+  if(!rpUrl()){ s.err=new Error('월 백업은 새 서버로만 받아요. 인터넷 연결을 확인하고 앱을 다시 열어 주세요.'); vpZipDraw(v); return Promise.resolve(); }
+  vpZipDraw(v);
+  return rpRun('vpZipPlan',[{ym:ym}]).then(function(r){ if(tok!==s.tok||stack.indexOf(v)<0) return; r=r||{};
+      s.plan={ym:ym,total:Number(r.total)||0,parts:(Array.isArray(r.parts)?r.parts:[]).filter(function(p){ return p&&p.url; }),at:Date.now()}; vpZipDraw(v); },
+    function(e){ if(tok!==s.tok||stack.indexOf(v)<0) return; s.err=e; vpZipDraw(v); }); }
+function vpZipMonth(d){ var v=rpTop('vp_zip'); if(!v) return; var s=v.state, ym=vpYmAdd(s.ym,d), now=vpYm(), lo=vpYmAdd(now,-2); if(ym>now||ym<lo) return; haptic(6); s.ym=ym; vpZipLoad(v); }
+function vpZipDraw(v){ var s=v.state, p=s.plan, now=vpYm(), h=title('월 백업','차량 사진 한 달 · zip 파일');
+  h+='<div class="vpzm"><button type="button" class="vpzmb" onclick="vpZipMonth(-1)" aria-label="이전 달"'+(s.ym<=vpYmAdd(now,-2)?' disabled':'')+'>‹</button><b id="vpzym">'+vpYmTxt(s.ym)+'</b><button type="button" class="vpzmb" onclick="vpZipMonth(1)" aria-label="다음 달"'+(s.ym>=now?' disabled':'')+'>›</button></div>';
+  if(s.err) h+=errBox(s.err)+'<button class="btn line" onclick="vpZipRetry()">다시 시도</button>';
+  else if(!p) h+='<div class="card"><div class="empty">불러오는 중…</div></div>';
+  else if(!p.total||!p.parts.length) h+='<div class="card"><div class="empty">이 달 사진이 없어요</div></div>';
+  else { var N=p.parts.length, by=0; p.parts.forEach(function(x){ by+=Number(x.bytes)||0; });
+    h+='<div class="card vpzc"><div class="vpzs"><b>'+vpNum(p.total)+'장 · '+vpSize(by)+'</b><span>파일 '+N+'개로 나눠 받아요</span></div>';
+    h+=p.parts.map(function(x,i){ var n=Number(x.n)||i+1, g=s.got[n];
+      return '<div class="vpzp"><span class="vpzt"><b>'+n+'/'+N+'</b> · '+esc(vpRange(x.from,x.to))+' · '+vpNum(x.photos)+'장 · '+vpSize(x.bytes)+'</span><button type="button" class="vpdl'+(g?' got':'')+'" onclick="vpZipDl('+i+')">'+(g?'다시 받기':'받기')+'</button></div>'; }).join('');
+    h+='</div>'+(N>1?'<button class="btn" onclick="vpZipAll()"'+(s.all?' disabled':'')+'>'+(s.all?'차례로 받는 중…':'모두 받기')+'</button><p class="vpzn">모두 받기는 파일을 차례로 받아요 · 브라우저가 여러 파일 받기를 물으면 [허용]을 눌러 주세요</p>':''); }
+  h+='<p class="vpzn">파일이 커서 와이파이에서 받는 걸 추천해요 · 사진은 40일 지나면 서버에서 지워져요</p>';
+  v.el.innerHTML=h; }
+function vpZipRetry(){ var v=rpTop('vp_zip'); if(v) vpZipLoad(v); }
+function vpZipName(ym,n,N){ return '차량사진_'+ym+'_'+n+'of'+N+'.zip'; }
+/* 받기 = 서명 주소를 <a download> 로 (서버가 attachment 로 보냄 · 주소가 오래되면 새로 받고 다시 누르게) */
+function vpZipDl(i,quiet){ var v=rpTop('vp_zip'); if(!v||!v.state.plan) return false; var s=v.state, p=s.plan, x=p.parts[i]; if(!x) return false;
+  if(Date.now()-p.at>VP_ZOLD){ vpZipLoad(v); toast('받기 주소를 새로 받았어요 · 다시 눌러 주세요'); return false; }
+  if(!quiet) haptic(8); var n=Number(x.n)||i+1, a=document.createElement('a'); a.href=vpFile(x.url); a.download=vpZipName(p.ym,n,p.parts.length); a.rel='noopener';
+  document.body.appendChild(a); a.click(); a.remove(); s.got[n]=1;
+  if(!quiet){ toast(n+'/'+p.parts.length+' 받기 시작했어요 · 다운로드 폴더를 확인해 주세요'); vpZipDraw(v); }
+  return true; }
+function vpZipAll(){ var v=rpTop('vp_zip'); if(!v||!v.state.plan||v.state.all) return; var s=v.state, p=s.plan, N=p.parts.length;
+  if(Date.now()-p.at>VP_ZOLD){ vpZipLoad(v); toast('받기 주소를 새로 받았어요 · 다시 눌러 주세요'); return; }
+  haptic(8); s.all=true; vpZipDraw(v); toast('zip '+N+'개를 차례로 받아요');
+  p.parts.forEach(function(x,i){ s.tm.push(setTimeout(function(){ if(rpTop('vp_zip')!==v||s.plan!==p) return; vpZipDl(i,true);
+    if(i===N-1){ s.all=false; s.tm=[]; vpZipDraw(v); toast(N+'개 받기 시작했어요 · 다운로드 폴더를 확인해 주세요'); } },i*VP_ZGAP)); }); }
 /* ================= v10.108 차량 사진 끝 ================= */
 
 /* ================= 사진모음 ================= */
