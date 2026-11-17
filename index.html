@@ -1070,6 +1070,8 @@
   .mcheer{margin:12px 0 4px;padding:10px 12px;border-radius:12px;background:#e3e9f8;color:#1e3a8a;font-size:14px;line-height:1.5;font-variant-numeric:tabular-nums} .mcheer b{font-weight:800}
   .mpt.mmore{margin-top:6px} .mpt.mmore td.z{color:var(--muted);font-weight:600}
   .card.mlast{display:block;width:100%;min-height:64px;padding:14px 18px;text-align:left;color:var(--ink)} .card.mlast:active{transform:scale(.98)}
+  /* v10.113 관리자 이상 [보는 사람] (내 작업 확인) */ .card.mpeer{display:flex;align-items:center;gap:10px;width:100%;min-height:56px;padding:12px 18px;text-align:left;color:var(--ink)} .card.mpeer span{color:#5b6573;font-size:14px} .card.mpeer b{flex:1;font-size:17px} .card.mpeer i{font-style:normal;color:#5b6573} .card.mpeer:active{transform:scale(.98)}
+  .mpl{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;margin:6px 0 4px} .mpl button{min-height:52px;padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-size:16px;text-align:left} .mpl button.on{border-color:var(--ink);font-weight:700}
   .mlv{display:block;margin-top:4px;font-size:13.5px;color:var(--ink2);font-variant-numeric:tabular-nums} .mclp2{font-style:normal;font-size:12px;font-weight:800;margin-left:6px;padding:2px 8px;border-radius:999px;background:#e3e9f8;color:#1e3a8a}
   .mclp2.o{background:#f2f4f6;color:#5b6573}   /* v10.62 검증 고침: 지난달 '마감 전' 딱지 (#5b6573 on #f2f4f6 5.36 · 예상 딱지와 같은 회색) */
   .msub .nw{white-space:nowrap}   /* v10.63 홈 내 포인트 카드 (.mhome·.mhv·.mhn) 없앰 */
@@ -1480,7 +1482,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.112';   // v10.112 사진 기록 묶음 지우기 (관리자 이상 · 차량 9장 · 배터리 2장 = 묶음째 · [지우기] → 확인 시트 → 서버 vpDel · 지운 묶음에 올리던 사진 = 줄에서 뺌 · 주인 11/17) · v10.111 배터리 사진 = 수량 넣기 (S9·W9 · I9 체크) → 2장 차례 (배터리 · 점퍼용 배터리) · 초광각 · 서버에 자동 올림 (차량 사진과 같은 줄) · '차량 사진 기록' → '사진 기록' (차량·배터리 탭 · SWING = 작업 정리 작업자 관리 앞) · 서버 0.9.33 · design/BAT-PHOTO.md (주인 11/17) · v10.110 차량·배터리 사진 = 찍을 때 찰칵 소리 + 진동 (아이폰 햅틱) · 초광각 렌즈 먼저 + [렌즈 바꾸기] 이 폰에 기억 (주인 11/17) · v10.109 차량 사진 월 백업 zip (차량 사진 기록 [월 백업] → 달 고르기 · 800장씩 나눈 zip 받기·모두 받기 · 관리자 이상 · 서버 vpZipPlan · /vpfile/zip · 주인 11/17) · v10.108 차량 사진 서버 저장 ('차량 사진' = 차량 고르기 → 9장 차례대로 · 2048 · 올리기 줄 IndexedDB · 관리자 이상 '차량 사진 기록' · 서버 0.9.31 vpUp·vpLog · design/VEH-PHOTO.md · 주인 11/17) · v10.107 근무배정표 그 날 칸: '휴무·미정' 한 줄 → '휴무' 줄 · '미정 (근무 안 정함)' 줄 따로 (주인 11/16) · v10.106 보안: 로그인 접속 코드 입력 = ● 가림 (password) · 환경설정에 내 접속 코드 안 보임 (주인 11/16) · 근무배정표 전체 관리 = 한 페이지 (달력 한눈에 · 향남·수원 × 주간·야간 칸 · 이름 → 주 업무지역 + 그 사람 달력에서 날짜 고침 · 고친 뒤 그 자리 그대로 · 서버 0.9.30 wsArea · 주인 11/16) · v10.105 품의서 = SWING 관리자 이상만 (작업자 = 잠긴 카드 · 서버 0.9.29 · 주인 11/16) · v10.104 근무배정표 일반 직원 = [전체 보기] 탭 (다른 사람 근무 · 읽기만 · 내 줄 = 보라 이름 · 서버 0.9.28 · 주인 11/15) · v10.103 근무배정표 카드 = 업무기능 줄 끝 ('근무' 섹션 없앰 · 주인 11/14) · v10.102 근무배정표 (추가기능 '근무' · 관리자 = 사람 넣기·칸 고치기·요청 허락 · 일반 = 이번 주 크게·달력·2일 전 수정 요청 · 서버 0.9.27 · design/SCHEDULE.md · 주인 11/13) · v10.101 고객 매칭 찾기: 같은 이름 고객이 여럿이면 고객마다 한 줄 → 눌러 그 고객 요청 펼침 · 진행 중 요청 없는 같은 이름 고객도 보여 줌 (서버 0.9.26 · 주인 11/13) · v10.100 PC 칩 줄(작업내역 분류 탭 등) 얇은 스크롤바 (주인 11/13) · v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
+var APP_VER = '10.113';   // v10.113 내 작업 확인 = 관리자 이상 다른 작업자 포인트 보기 ([보는 사람] → 작업자 고르기 · 서버 0.9.35 swmPeer · 주인 11/17) · v10.112 사진 기록 묶음 지우기 (관리자 이상 · 차량 9장 · 배터리 2장 = 묶음째 · [지우기] → 확인 시트 → 서버 vpDel · 지운 묶음에 올리던 사진 = 줄에서 뺌 · 주인 11/17) · v10.111 배터리 사진 = 수량 넣기 (S9·W9 · I9 체크) → 2장 차례 (배터리 · 점퍼용 배터리) · 초광각 · 서버에 자동 올림 (차량 사진과 같은 줄) · '차량 사진 기록' → '사진 기록' (차량·배터리 탭 · SWING = 작업 정리 작업자 관리 앞) · 서버 0.9.33 · design/BAT-PHOTO.md (주인 11/17) · v10.110 차량·배터리 사진 = 찍을 때 찰칵 소리 + 진동 (아이폰 햅틱) · 초광각 렌즈 먼저 + [렌즈 바꾸기] 이 폰에 기억 (주인 11/17) · v10.109 차량 사진 월 백업 zip (차량 사진 기록 [월 백업] → 달 고르기 · 800장씩 나눈 zip 받기·모두 받기 · 관리자 이상 · 서버 vpZipPlan · /vpfile/zip · 주인 11/17) · v10.108 차량 사진 서버 저장 ('차량 사진' = 차량 고르기 → 9장 차례대로 · 2048 · 올리기 줄 IndexedDB · 관리자 이상 '차량 사진 기록' · 서버 0.9.31 vpUp·vpLog · design/VEH-PHOTO.md · 주인 11/17) · v10.107 근무배정표 그 날 칸: '휴무·미정' 한 줄 → '휴무' 줄 · '미정 (근무 안 정함)' 줄 따로 (주인 11/16) · v10.106 보안: 로그인 접속 코드 입력 = ● 가림 (password) · 환경설정에 내 접속 코드 안 보임 (주인 11/16) · 근무배정표 전체 관리 = 한 페이지 (달력 한눈에 · 향남·수원 × 주간·야간 칸 · 이름 → 주 업무지역 + 그 사람 달력에서 날짜 고침 · 고친 뒤 그 자리 그대로 · 서버 0.9.30 wsArea · 주인 11/16) · v10.105 품의서 = SWING 관리자 이상만 (작업자 = 잠긴 카드 · 서버 0.9.29 · 주인 11/16) · v10.104 근무배정표 일반 직원 = [전체 보기] 탭 (다른 사람 근무 · 읽기만 · 내 줄 = 보라 이름 · 서버 0.9.28 · 주인 11/15) · v10.103 근무배정표 카드 = 업무기능 줄 끝 ('근무' 섹션 없앰 · 주인 11/14) · v10.102 근무배정표 (추가기능 '근무' · 관리자 = 사람 넣기·칸 고치기·요청 허락 · 일반 = 이번 주 크게·달력·2일 전 수정 요청 · 서버 0.9.27 · design/SCHEDULE.md · 주인 11/13) · v10.101 고객 매칭 찾기: 같은 이름 고객이 여럿이면 고객마다 한 줄 → 눌러 그 고객 요청 펼침 · 진행 중 요청 없는 같은 이름 고객도 보여 줌 (서버 0.9.26 · 주인 11/13) · v10.100 PC 칩 줄(작업내역 분류 탭 등) 얇은 스크롤바 (주인 11/13) · v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -4868,7 +4870,7 @@ function rpPermKey(f){ return !!f&&/^swing\.repair/.test(String(f.k||'')); }   /
 /* ---- 새 서버 부르기: rp* 는 늘 새 서버(fetch) · 브레이커·?api2=off 도 안 봄 (다른 길이 없음) · 서버가 api2 '' (주인 비상 스위치)면 못 씀 ---- */
 function rpUrl(){ if(!window.fetch) return ''; var s=api2Get('swapApi2Srv'), w=(s!==null)?s:(WORKER_URL||API2_ON); w=String(w||'').replace(/\/+$/,''); return API2_RE.test(w)?w:''; }
 /* v10.61 새 서버가 꺼졌을 때 글 (함수 무리마다 · wl* 작업리스트 · ops* 서버 알림 더함) · v10.63 swmMine = 내 작업 확인 · wl* = 작업 리스트 (재고리스트·배송리스트·관리 화면 같이 씀) */
-function rpOffMsg(fn){ fn=String(fn); var t=fn==='swmMine'?'내 작업 확인은 새 서버로만 봐요.':(/^swm/.test(fn)?'작업현황은 새 서버로만 봐요.':(/^wl/.test(fn)?'작업 리스트는 새 서버로만 돼요.':(/^ops/.test(fn)?'서버 알림은 새 서버로만 봐요.':(fn==='reissueCode'?'코드 새로 받기는 새 서버로만 돼요.':(/^msg/.test(fn)?'대화는 새 서버로만 돼요.':'수리 기록은 새 서버로만 보내요.'))))); return t+' 인터넷 연결을 확인하고 앱을 다시 열어 주세요.'; }
+function rpOffMsg(fn){ fn=String(fn); var t=(fn==='swmMine'||fn==='swmPeer')?'내 작업 확인은 새 서버로만 봐요.':(/^swm/.test(fn)?'작업현황은 새 서버로만 봐요.':(/^wl/.test(fn)?'작업 리스트는 새 서버로만 돼요.':(/^ops/.test(fn)?'서버 알림은 새 서버로만 봐요.':(fn==='reissueCode'?'코드 새로 받기는 새 서버로만 돼요.':(/^msg/.test(fn)?'대화는 새 서버로만 돼요.':'수리 기록은 새 서버로만 보내요.'))))); return t+' 인터넷 연결을 확인하고 앱을 다시 열어 주세요.'; }
 function rpRun(fn,args,cx){ cx=cx||runCx(); var w=rpUrl();
   if(!w){ var eo=new Error(rpOffMsg(fn)); eo.off=true; return Promise.reject(eo); }   // off = 잠깐 못 감 (보낼 목록은 그대로 두고 다시) · v10.58 고침: swm* = 작업현황 글 · v10.61 rpOffMsg
   if(!cx.rid) cx.rid=ridNew();   // 쓰기 = 다시 보낼 때도 같은 rid (서버가 한 번만 처리)
@@ -6668,7 +6670,7 @@ function swmDayAdd(wk){ var v=swmDayView(); if(!v) return; var mi=swmMiTop(), a=
    design/FOUR-FEATURES.md F-1~F-5 · design/WORKLIST-AUTO.md 6장 · 서버 0.9.0 swmClose·swmEval·swmMine·swmWho·swmWhoSet · opsAlert·opsAlertSet · wl* (답 모양 = 설계 B-7·C-5·D-3·E-6·7-1)
    모두 rpRun/rpWrite (새 서버만 · 구글 길 없음) · 이 폰에 남기는 것 없음 (이름·금액·고객 = 화면 상태만 · 파일도 메모리만)
    서버가 모르는 함수 ('허용되지 않은 요청' = Worker 0.8.1) = 그 카드·줄 숨김 (작업현황 마감·평가 버튼은 서버 can 이 없으면 안 그림) */
-RP_SLOW.swmClose=30000; RP_SLOW.swmEval=20000; RP_SLOW.swmWho=20000; RP_SLOW.swmWhoSet=20000; RP_SLOW.swmMine=20000;
+RP_SLOW.swmClose=30000; RP_SLOW.swmEval=20000; RP_SLOW.swmWho=20000; RP_SLOW.swmWhoSet=20000; RP_SLOW.swmMine=20000; RP_SLOW.swmPeer=20000;
 RP_SLOW.wlDates=30000; RP_SLOW.wlDatesSet=75000; RP_SLOW.wlRun=20000; RP_SLOW.wlUpload=30000;   // 설계 6장 · v10.61 검증 고침 wlDatesSet 60 → 75초 (서버 예산 50초 = 확인 포함 + 여유)
 function rpUnk(e){ return /^허용되지 않은 요청/.test(String(e&&e.message||'')); }   // 서버가 모르는 함수 (옛 판)
 function swmRtTxt(rate){ return (Math.round(Number(rate)||0)/10).toFixed(1)+'%'; }   // 가산율 ‰ → '1.9%'
@@ -6914,8 +6916,8 @@ VIEWS.sw_mine={ render:function(v){ reanim(v); var pk=v.params.peek;
   v.state.ym=v.state.ym||''; v.refresh=function(){ return swMineLoad(v,true); };
   v.el.innerHTML=title(pk!=null?'미리 보기':MINE_T,'')+spin(); swMineLoad(v,false); }};
 function swMineView(){ return rpTop('sw_mine'); }
-function swMineLoad(v,force){ var tok=v.state.tok=(v.state.tok||0)+1, pk=v.params.peek, ym=v.state.ym, home=pk==null&&!ym;
-  var p=pk!=null?rpRun('swmWho',[{act:'peek',id:Number(pk),ym:ym||todayISO(0).slice(0,7)}]):((home&&!force&&mineFresh())?Promise.resolve(SWMINE.r):rpRun('swmMine',ym?[ym]:[]));
+function swMineLoad(v,force){ var tok=v.state.tok=(v.state.tok||0)+1, pk=v.params.peek, ym=v.state.ym, pid=swMinePeerOk(v)?v.state.pid:null, home=pk==null&&!ym&&!pid;
+  var p=pk!=null?rpRun('swmWho',[{act:'peek',id:Number(pk),ym:ym||todayISO(0).slice(0,7)}]):pid?rpRun('swmPeer',[{act:'peek',id:Number(pid),ym:ym||todayISO(0).slice(0,7)}]):((home&&!force&&mineFresh())?Promise.resolve(SWMINE.r):rpRun('swmMine',ym?[ym]:[]));
   return p.then(function(r){ if(stack.indexOf(v)<0||v.state.tok!==tok) return; if(r&&r.mine) r=r.mine; if(!(r&&r.legacy)&&(!r||r.ok===false)) throw new Error((r&&r.error)||'오류');   // legacy (작업현황 예전 길) = 안내 화면
       if(home&&AUTH){ SWMINE.r=r; SWMINE.at=Date.now(); SWMINE.code=AUTH.code; }
       v.state.r=r; v.state.err=null; swMineDraw(v); })
@@ -6923,7 +6925,24 @@ function swMineLoad(v,force){ var tok=v.state.tok=(v.state.tok||0)+1, pk=v.param
 function swMineRetry(){ var v=swMineView(); if(!v) return; haptic(6); v.el.innerHTML=title(MINE_T,'')+spin(); swMineLoad(v,true); }
 function swMineGo(ym){ var v=swMineView(); if(!v||!v.state.r||v.state.r.ym===ym) return; haptic(6); v.state.ym=(ym===todayISO(0).slice(0,7))?'':ym; v.el.innerHTML=swMineHeadHtml(v)+swMineMonths(v.state.r,ym)+spin(); swMineLoad(v,true); }   // 받은 답은 안 고침 (홈 기억과 같은 것일 수 있음)
 function swMineHeadHtml(v){ var pk=v.params.peek, r=v.state.r;
-  return title(pk!=null?esc(v.params.name||'작업자')+' 화면 미리 보기':MINE_T,r&&r.at?esc(swmHM(r.at))+' 기준':'')+(pk!=null?nbar('<b>미리 보기</b> — 이 작업자 폰에 보이는 화면이에요 (마스터·부마스터만)'):''); }
+  return title(pk!=null?esc(v.params.name||'작업자')+' 화면 미리 보기':MINE_T,r&&r.at?esc(swmHM(r.at))+' 기준':'')+(pk!=null?nbar('<b>미리 보기</b> — 이 작업자 폰에 보이는 화면이에요 (마스터·부마스터만)'):'')+swMinePeerBar(v); }
+/* v10.113 관리자 이상 (관리자·부마스터·마스터) = 다른 작업자 포인트 보기 (주인 11/17 '내 작업 확인에서 모든 작업자 포인트 조회') · 서버 0.9.35 swmPeer
+   [보는 사람 · 나 ▾] → 시트 (나 + SWING 계정이 연결된 작업자 이름) → 그 사람 화면 (작업자 폰과 같은 모양) · 고른 사람은 이 화면에만 (폰에 안 남김) · 작업자는 단추 없음 */
+function swMinePeerOk(v){ return !!(v&&v.params.peek==null&&isAdminUp()); }
+function swMinePeerBar(v){ if(!swMinePeerOk(v)) return ''; var s=v.state;
+  return '<button type="button" class="card mpeer" onclick="swMinePeerPick()" aria-label="보는 사람 바꾸기"><span>보는 사람</span><b>'+(s.pid?esc(s.pname||'작업자'):'나')+'</b><i aria-hidden="true">바꾸기 ▾</i></button>'; }
+function swMinePeerPick(){ var v=swMineView(); if(!swMinePeerOk(v)) return; haptic(6); var s=v.state;
+  if(s.people){ swMinePeerSheet(v); return; }
+  openSheet('<h3>누구 포인트를 볼까요?</h3>'+spin()); var tok=s.ptok=(s.ptok||0)+1;
+  rpRun('swmPeer',[{act:'list'}]).then(function(r){ if(s.ptok!==tok||!sheetOpen) return; if(!r||r.ok===false) throw new Error((r&&r.error)||'오류'); s.people=r.people||[]; swMinePeerSheet(v); })
+    .catch(function(e){ if(s.ptok!==tok||!sheetOpen) return; openSheet('<h3>누구 포인트를 볼까요?</h3>'+errBox(rpUnk(e)?new Error('새 서버가 아직 작업자 보기를 몰라요 (Worker 0.9.35 필요)'):e)+'<div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">닫기</button><button class="btn sm" onclick="swMinePeerPick()">다시 시도</button></div>'); }); }
+function swMinePeerSheet(v){ var s=v.state, ps=s.people||[], cur=s.pid||0;
+  var h='<button type="button" class="'+(cur?'':'on')+'" onclick="swMinePeerGo(0)">나 (내 작업)</button>'+ps.map(function(p){ return '<button type="button" class="'+(Number(p.id)===cur?'on':'')+'" onclick="swMinePeerGo('+Number(p.id)+')">'+esc(p.name||'')+(p.me?' (나)':'')+'</button>'; }).join('');
+  openSheet('<h3>누구 포인트를 볼까요?</h3><p class="msub m">SWING 계정이 연결된 작업자예요 · 관리자 이상만</p><div class="mpl">'+h+'</div>'+(ps.length?'':'<p class="msub">연결된 작업자가 아직 없어요.</p>')+'<button class="btn line" onclick="closeSheet()">닫기</button>'); }
+function swMinePeerGo(id){ var v=swMineView(); if(!swMinePeerOk(v)) return; var s=v.state, p=null; id=Number(id)||0;
+  (s.people||[]).forEach(function(x){ if(Number(x.id)===id) p=x; }); if(id&&!p) return;
+  closeSheet(); if((s.pid||0)===id) return; haptic(6); s.pid=id||null; s.pname=p?p.name:''; s.ym=''; s.r=null; s.err=null;
+  v.el.innerHTML=swMineHeadHtml(v)+spin(); swMineLoad(v,true); }
 function swMineMonths(r,ym){ var ms=r.months||[]; if(ms.length<2) return '';
   return '<div class="days">'+ms.map(function(m){ return '<button class="'+(m.ym===ym?'on':'')+'" onclick="swMineGo(\''+jsa(m.ym)+'\')">'+esc(swYmLabel(String(m.ym)))+(m.closed?'<b class="mcl">마감</b>':'')+'</button>'; }).join('')+'</div>'; }
 /* v10.63 이번 달 (마감 안 함) 확인된 날이 0 = 화면 전체가 '아직 담당자가 확인 중이에요' · 서버 0.9.2 = r.wait (숫자 없이 me:[])
@@ -6937,10 +6956,11 @@ function swMineDraw(v){ var r=v.state.r, e=v.state.err, h=swMineHeadHtml(v);
   if(r.off){ v.el.innerHTML=h+box(MINE_T+'은 아직 꺼져 있어요.<br>마스터·부마스터가 켜면 보여요.'); return; }
   if(r.legacy){ v.el.innerHTML=h+box('지금은 작업현황을 예전(구글) 길로 보고 있어서<br>'+MINE_T+'을 볼 수 없어요.'); return; }
   if(!r.linked){   // v10.63 연결 없음 = '마스터에게 연결을 요청해 주세요' + 이유 · 마스터 코드 = 작업자 것은 작업현황에서 (v10.61 검증 고침 그대로: 연결은 마스터급만)
-    if(r.why==='master'){ v.el.innerHTML=h+box('마스터 코드는 내 작업이 없어요 · 작업자 것은 작업현황에서 봐요'); return; }
+    if(r.why==='master'){ v.el.innerHTML=h+box('마스터 코드는 내 작업이 없어요 · 위 [보는 사람]에서 작업자를 골라 보세요'); return; }
     var why=r.why==='dup'?'같은 이름 코드가 있어 자동으로 못 찾았어요.':(r.why==='noname'?'접속 코드에 이름이 없어요.':'연결된 SWING 계정이 없어요.');
     v.el.innerHTML=h+'<div class="card mlink" role="status"><b>마스터에게 연결을 요청해 주세요</b><p>'+why+'</p><p class="mnote">마스터·부마스터가 작업현황 › 작업자 화면 연결에서 해요</p></div>'; return; }
   h+=swMineMonths(r,r.ym);
+  if(r.peer) h+=nbar('<b>'+esc(v.state.pname||'작업자')+'</b> 님 화면이에요 · 작업자 폰과 같은 숫자 (관리자 이상만)');   // v10.113
   if(e) h+=nbar('새로고침 실패 · '+esc(e.message),true);
   if(swMineWait(r)){ v.el.innerHTML=h+'<div class="card mwait" role="status"><b>'+MINE_WAIT+'</b><p>관리자나 담당자가 작업을 확인하면 여기에 포인트가 보여요</p></div>'; return; }   // v10.63 숫자 하나도 안 그림 (옛 서버가 숫자를 줘도)
   if(r.closed) h+=nbar('<b>마감한 달이에요</b> · '+esc(swmAtTxt(r.closed.at))+' 기준 숫자');
