@@ -337,6 +337,49 @@
   .swcam .stamp{position:absolute;left:14px;bottom:14px;max-width:80%;color:#fff;font-weight:800;font-size:15px;line-height:1.28;white-space:pre-line;text-shadow:0 0 4px #000,0 0 8px #000,1px 1px 0 #000,-1px -1px 0 #000;pointer-events:none}
   .swcam .camerr{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;color:#fff;font-weight:700;text-align:center;background:rgba(0,0,0,.6)}
   .swcam .panel{background:#fff;border-radius:var(--r);padding:16px}
+  /* v10.108 차량 사진 (주인 11/17 · design/VEH-PHOTO.md) — 차량 고르기 (단추가 아래에서 올라오며 투명 → 선명) · 9장 찍기 (칸 이름 크게 · 위에서 본 차 그림 노랑) · 끝 화면 · 기록 (관리자 이상) */
+  .vpk{padding-top:calc(24px + env(safe-area-inset-top));text-align:center}
+  .vpkt{font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.3;margin:8px 0 6px;text-align:center}
+  .vpks{margin:0 0 20px;font-size:15px;color:var(--muted);font-weight:600}
+  .vpkq{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:12px 14px;border-radius:14px;background:var(--amber);color:var(--amber-ink);font-size:14px;font-weight:700;text-align:left} .vpkq[hidden]{display:none} .vpkq span{flex:1;min-width:0}
+  .vpkq button{flex:0 0 auto;min-height:40px;padding:0 12px;border-radius:10px;background:#fff;color:var(--amber-ink);font-size:14px;font-weight:800}
+  .vpkl{display:grid;grid-template-columns:minmax(0,1fr);gap:10px} @media (min-width:430px){ .vpkl{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} }
+  .vpkb{display:flex;align-items:center;gap:12px;min-height:68px;padding:12px 16px;border-radius:18px;background:var(--card);box-shadow:0 1px 3px rgba(25,31,40,.06),inset 0 0 0 1.5px var(--line);text-align:left;min-width:0;opacity:0;transform:translateY(40px);animation:vpup .6s var(--spring) both}
+  .vpkb b{flex:1;min-width:0;font-size:20px;font-weight:800;letter-spacing:-.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .vpkb em{font-style:normal;font-size:12px;font-weight:800;color:var(--p);background:var(--p-soft);border-radius:999px;padding:3px 8px;white-space:nowrap} .vpkb>i{font-style:normal;font-size:22px;color:var(--muted2)}
+  .vpki{flex:0 0 44px;width:44px;height:44px;border-radius:12px;background:var(--p-soft);color:var(--p);display:flex;align-items:center;justify-content:center} .vpki .lic{width:26px;height:26px;margin:0}
+  @keyframes vpup{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){ .vpkb{opacity:1;transform:none;animation:none} }
+  .vpcam .panel{display:flex;flex-direction:column;gap:10px}
+  .vpveh{display:flex;align-items:center;gap:8px;min-width:0;font-size:14px;font-weight:700;color:#bbb} .vpok{margin-left:auto;min-width:0;font-size:13px;font-weight:800;color:#7ee2a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .vpstep{display:flex;flex-direction:column;gap:2px} .vpn{font-size:15px;font-weight:800;color:#ffd54f} .vpnm{font-size:26px;font-weight:800;line-height:1.2;color:#fff;letter-spacing:-.4px}
+  .vpfig{display:flex;align-items:center;gap:12px} .vpfig svg{flex:0 0 auto;width:84px;height:118px} .vpfig span{font-size:12px;color:#bbb;line-height:1.5;font-weight:600}
+  .vpbd{fill:#2b3038;stroke:#7c8794;stroke-width:2.2} .vpln{fill:none;stroke:#7c8794;stroke-width:2.2} .vptr{fill:#59616c} .vptr.on{fill:#ffd54f}
+  .vpsd{fill:transparent} .vpsd.on{fill:#ffd54f} .vpar{fill:#ffd54f}
+  .vphint{margin:0;font-size:15px;font-weight:700;color:#fff;line-height:1.45}
+  .vpshut{background:#c62828;min-height:56px;font-size:18px}
+  .vpstrip{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px}
+  .vps{position:relative;height:44px;min-width:0;border-radius:8px;background:rgba(255,255,255,.12);overflow:hidden;color:#ddd;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .vps img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover} .vps span{position:relative} .vps.done span{display:none}
+  .vps i{position:absolute;right:2px;bottom:2px;width:16px;height:16px;border-radius:50%;background:#0b7a40;color:#fff;font-style:normal;font-size:12px;line-height:16px;text-align:center} .vps.on{box-shadow:inset 0 0 0 3px #ffd54f}
+  .vpov{position:absolute;left:50%;top:calc(66px + env(safe-area-inset-top));transform:translateX(-50%);display:flex;align-items:baseline;gap:8px;padding:8px 16px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff;font-size:17px;font-weight:800;white-space:nowrap;pointer-events:none;max-width:calc(100% - 24px)} .vpov b{color:#ffd54f}
+  @media (max-height:760px){ .vpcam .panel{gap:6px} .swcam.full.vpcam .panel{max-height:none;padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom))} .vpn{font-size:13px} .vpnm{font-size:21px} .vpfig svg{width:50px;height:70px} .vpfig span{line-height:1.35} .vphint{font-size:14px;line-height:1.35} .vpshut{min-height:48px;font-size:17px} .vpov{top:calc(60px + env(safe-area-inset-top));padding:6px 14px;font-size:15px} }   /* 작은 화면 (360×740 등) = 9칸 줄·촬영이 내리지 않아도 보이게 */
+  .vpfin{padding:14px} .vpst{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:16px;font-weight:800} .vpst .ok{color:var(--green-ink)} .vpst .wt{color:var(--amber-ink)} .vpsn{font-size:13px;color:var(--muted);font-weight:600}
+  .vpst button{min-height:36px;padding:0 12px;border-radius:10px;background:var(--fill);font-size:13px;font-weight:800}
+  .vpg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .vpph{position:relative;display:block;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:var(--fill);min-width:0}
+  .vpph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .vpph span{position:absolute;left:0;right:0;bottom:0;padding:12px 5px 4px;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-size:12px;font-weight:700;line-height:1.3;text-align:left;word-break:keep-all;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .vpph.no{display:flex;align-items:flex-start;justify-content:center} .vpph.no em{margin-top:10px;font-style:normal;font-size:12px;color:var(--muted2);font-weight:700} .vpph.no span{background:none;color:var(--muted)}
+  .vpfn{margin:10px 2px 0;font-size:13px;color:var(--muted)}
+  .vpchips{display:flex;gap:8px;overflow-x:auto;margin:0 -20px 6px;padding:2px 20px 8px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+  .vpchip{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:52px;padding:6px 14px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line)} .vpchip b{font-size:15px;font-weight:800;white-space:nowrap} .vpchip span{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
+  .vpchip.on{background:var(--p);box-shadow:none;color:#fff} .vpchip.on span{color:#fff}
+  .vpdh{position:sticky;top:0;z-index:2;margin:14px -20px 8px;padding:12px 20px 12px 70px;line-height:22px;background:var(--bg);font-size:16px;font-weight:800}
+  .vpsc{padding:12px} .vpsh{display:flex;align-items:center;gap:10px;margin-bottom:10px} .vpsm{flex:1;min-width:0} .vpsm b{font-size:17px;font-weight:800;margin-right:6px}
+  .vpsv{font-size:12px;font-weight:800;color:var(--p);background:var(--p-soft);padding:2px 6px;border-radius:6px} .vpsb{display:block;font-size:13px;color:var(--muted);font-weight:600;margin-top:2px}
+  .vpdl{flex:0 0 auto;min-height:40px;padding:0 12px;border-radius:10px;background:var(--fill);font-size:13px;font-weight:800;color:var(--ink2)}
+  .vplft{padding:16px 0 8px;text-align:center;font-size:13px;color:var(--muted);font-weight:600} .vplft button{margin-top:6px}
+  .vpvcap{position:absolute;left:50%;transform:translateX(-50%);top:calc(68px + env(safe-area-inset-top));padding:6px 14px;border-radius:14px;background:rgba(0,0,0,.55);color:#fff;font-size:15px;font-weight:700;z-index:3;pointer-events:none;white-space:nowrap} .vpvcap b{color:#ffd54f;margin-right:6px}
+  .vpvbk{position:absolute;left:12px;top:calc(12px + env(safe-area-inset-top));height:44px;padding:0 16px;border-radius:22px;background:rgba(255,255,255,.18);color:#fff;font-size:15px;font-weight:700;z-index:3}
   .swnum{font-size:24px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums} .swnum::placeholder{color:var(--muted2);font-weight:700}
   .swgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:14px}
   @media (orientation:landscape) and (min-width:640px){ .swgrid{grid-template-columns:repeat(5,1fr)} }
@@ -1420,7 +1463,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.107';   // v10.107 근무배정표 그 날 칸: '휴무·미정' 한 줄 → '휴무' 줄 · '미정 (근무 안 정함)' 줄 따로 (주인 11/16) · v10.106 보안: 로그인 접속 코드 입력 = ● 가림 (password) · 환경설정에 내 접속 코드 안 보임 (주인 11/16) · 근무배정표 전체 관리 = 한 페이지 (달력 한눈에 · 향남·수원 × 주간·야간 칸 · 이름 → 주 업무지역 + 그 사람 달력에서 날짜 고침 · 고친 뒤 그 자리 그대로 · 서버 0.9.30 wsArea · 주인 11/16) · v10.105 품의서 = SWING 관리자 이상만 (작업자 = 잠긴 카드 · 서버 0.9.29 · 주인 11/16) · v10.104 근무배정표 일반 직원 = [전체 보기] 탭 (다른 사람 근무 · 읽기만 · 내 줄 = 보라 이름 · 서버 0.9.28 · 주인 11/15) · v10.103 근무배정표 카드 = 업무기능 줄 끝 ('근무' 섹션 없앰 · 주인 11/14) · v10.102 근무배정표 (추가기능 '근무' · 관리자 = 사람 넣기·칸 고치기·요청 허락 · 일반 = 이번 주 크게·달력·2일 전 수정 요청 · 서버 0.9.27 · design/SCHEDULE.md · 주인 11/13) · v10.101 고객 매칭 찾기: 같은 이름 고객이 여럿이면 고객마다 한 줄 → 눌러 그 고객 요청 펼침 · 진행 중 요청 없는 같은 이름 고객도 보여 줌 (서버 0.9.26 · 주인 11/13) · v10.100 PC 칩 줄(작업내역 분류 탭 등) 얇은 스크롤바 (주인 11/13) · v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
+var APP_VER = '10.108';   // v10.108 차량 사진 서버 저장 ('차량 사진' = 차량 고르기 → 9장 차례대로 · 2048 · 올리기 줄 IndexedDB · 관리자 이상 '차량 사진 기록' · 서버 0.9.31 vpUp·vpLog · design/VEH-PHOTO.md · 주인 11/17) · v10.107 근무배정표 그 날 칸: '휴무·미정' 한 줄 → '휴무' 줄 · '미정 (근무 안 정함)' 줄 따로 (주인 11/16) · v10.106 보안: 로그인 접속 코드 입력 = ● 가림 (password) · 환경설정에 내 접속 코드 안 보임 (주인 11/16) · 근무배정표 전체 관리 = 한 페이지 (달력 한눈에 · 향남·수원 × 주간·야간 칸 · 이름 → 주 업무지역 + 그 사람 달력에서 날짜 고침 · 고친 뒤 그 자리 그대로 · 서버 0.9.30 wsArea · 주인 11/16) · v10.105 품의서 = SWING 관리자 이상만 (작업자 = 잠긴 카드 · 서버 0.9.29 · 주인 11/16) · v10.104 근무배정표 일반 직원 = [전체 보기] 탭 (다른 사람 근무 · 읽기만 · 내 줄 = 보라 이름 · 서버 0.9.28 · 주인 11/15) · v10.103 근무배정표 카드 = 업무기능 줄 끝 ('근무' 섹션 없앰 · 주인 11/14) · v10.102 근무배정표 (추가기능 '근무' · 관리자 = 사람 넣기·칸 고치기·요청 허락 · 일반 = 이번 주 크게·달력·2일 전 수정 요청 · 서버 0.9.27 · design/SCHEDULE.md · 주인 11/13) · v10.101 고객 매칭 찾기: 같은 이름 고객이 여럿이면 고객마다 한 줄 → 눌러 그 고객 요청 펼침 · 진행 중 요청 없는 같은 이름 고객도 보여 줌 (서버 0.9.26 · 주인 11/13) · v10.100 PC 칩 줄(작업내역 분류 탭 등) 얇은 스크롤바 (주인 11/13) · v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -1824,6 +1867,7 @@ function viewPerm(name,params){ params=params||{};
   if(m[name]) return m[name];
   if(name==='sw_cam') return SERVER+'.'+(params.kind==='battery'?'battery':'vehicle');
   if(name==='sw_gallery') return SERVER+'.gallery';
+  if(name==='vp_pick'||name==='vp_cam') return SERVER+'.vehicle';   // v10.108 차량 사진 (새 화면) = 예전 차량 사진 권한 그대로
   return ''; }
 function lockToast(){ haptic([10,40,10]); toast('권한이 없어요 · 관리자에게 요청해 주세요'); }
 /* v10.55 그룹 C 4-1: 아이콘 한 세트 = 선 아이콘 (지금 앱 아래 메뉴·환경설정과 같은 모양: 24칸 · 채움 없음 · 둥근 끝 · 색 = 놓인 자리 글자색 · 굵기는 CSS: 24px 이상 1.9 · 작으면 2.2)
@@ -1897,7 +1941,8 @@ window.addEventListener('popstate',function(e){
     popView(); return; }
   var cur=stack[0]; if(cur&&cur.name!=='home'){ tabTo('home'); if(hDepth>0) hBack(hDepth); }
 });
-function push(name,params){ if(animating) return; if(MASTER_V[name]&&!isMasterLike()){ mlToast(); return; } if((name==='rp_req'||name==='rp_req_ed')&&!rpqOn()){ lockToast(); return; }   // v10.105 품의서 = 관리자 이상만   // v10.59 작업현황 = 마스터·부마스터만
+function push(name,params){ if(animating) return; if(MASTER_V[name]&&!isMasterLike()){ mlToast(); return; } if((name==='rp_req'||name==='rp_req_ed')&&!rpqOn()){ lockToast(); return; }   // v10.105 품의서 = 관리자 이상만
+  if((name==='vp_log'||name==='vp_view')&&!isAdminUp()){ lockToast(); return; }   // v10.108 차량 사진 기록 = 관리자 이상만   // v10.59 작업현황 = 마스터·부마스터만
   var pk=viewPerm(name,params); if(pk&&!can(pk)){ lockToast(); return; } hPush(); pushView(name,params); }
 function clearInline(v){ if(v&&v.el){ v.el.style.transform=''; v.el.style.transition=''; } }
 function pushView(name,params){ haptic(6); var v=makeView(name,params); var prev=stack[stack.length-1]; clearInline(prev); stack.push(v); v.el.classList.add('enter'); mount(v);
@@ -3591,7 +3636,7 @@ function xPage(v,secs,rpk){ v.el.innerHTML='<h1 class="sr">업무</h1>'+secs+xOn
    v10.63 주인 4·5 (10/18): 업무기능 [차량 사진 · 사진모음] → 재고 [QR 라벨 생성 · 재고 시트 반영] → 작업 리스트 [재고리스트 · 배송리스트] (관리자 이상 + SWAP 서버 · 아니면 줄째 없음) · 권한 키 그대로
      작업 리스트 두 카드 = 같은 화면 wllist (화면만 엶 · 바로 시작 안 함 · 누른 쪽 버튼 테두리) */
 VIEWS.extras={ render:function(v){ reanim(v);
-  xPage(v,xSec('업무기능',xCard('sw_cam','{kind:\'vehicle\'}',ic('car'),'차량 사진','swap.vehicle')+xCard('sw_gallery','{}',ic('image'),'사진모음','swap.gallery')+wsCard())+   // v10.103 근무배정표 = 업무기능 줄 끝 (주인 11/14 · 관리자 = 기다리는 요청 수 · wsBadgeLoad 가 숫자만 고침)
+  xPage(v,xSec('업무기능',vpCard()+vpLogCard()+xCard('sw_gallery','{}',ic('image'),'사진모음','swap.gallery')+wsCard())+   // v10.103 근무배정표 = 업무기능 줄 끝 (주인 11/14 · 관리자 = 기다리는 요청 수 · wsBadgeLoad 가 숫자만 고침)
     
     xSec('재고',xCard('labels','{}',ic('qr'),'QR 라벨 생성','swap.labels')+xCard('stocksync','{}',ic('table'),'재고 시트 반영','swap.stocksync'))+
     (wlCanUse()?xSec('작업 리스트',xCard('wllist','{go:\'stock\'}',ic('list'),'재고리스트','')+xCard('wllist','{go:\'deliv\'}',ic('truck'),'배송리스트','')):''),'swap.report'); wsBadgeLoad(); }};
@@ -3857,7 +3902,7 @@ function swStamp(cv,lines){ var ctx=cv.getContext('2d'); var W=cv.width,H=cv.hei
 
 /* ---- 카메라 공통 ---- */
 var swStream=null, swTrack=null;
-function swCamStart(vid,ideal,dev){ var c={width:{ideal:ideal||1920},height:{ideal:1080}}; if(dev) c.deviceId={exact:dev}; else c.facingMode={ideal:'environment'};   // v10.76 dev = 그 카메라 (플래시 되는 렌즈)
+function swCamStart(vid,ideal,dev){ var c={width:{ideal:ideal||1920},height:{ideal:ideal>1920?1440:1080}}; /* v10.108 차량 사진 = 2560×1440 을 바람 */ if(dev) c.deviceId={exact:dev}; else c.facingMode={ideal:'environment'};   // v10.76 dev = 그 카메라 (플래시 되는 렌즈)
   return navigator.mediaDevices.getUserMedia({video:c,audio:false}).then(function(st){ swStream=st; swTrack=st.getVideoTracks()[0]; vid.srcObject=st; vid.setAttribute('playsinline',''); vid.muted=true; return vid.play().catch(function(){}); }); }
 function swCamStop(){ if(swStream){ swStream.getTracks().forEach(function(t){ t.stop(); }); } swStream=null; swTrack=null; swWake(false); }
 function swTorchOK(){ try{ return !!(swTrack&&swTrack.getCapabilities&&swTrack.getCapabilities().torch); }catch(e){ return false; } }
@@ -3969,7 +4014,7 @@ function swSearchPick(serial){ var v=stack[stack.length-1]; v.state.q=serial; va
 VIEWS.sw_extras={ render:function(v){ reanim(v);
   var c=function(view,params,svg,b){ return xCard(view,params,svg,b,viewPerm(view,view==='sw_cam'?{kind:/battery/.test(params)?'battery':'vehicle'}:{})); }, erp=rpExtrasRows(), sd=sdExtRows();
   xPage(v,   // v10.57 주인 4: 부제 'SWING' 없앰
-    xSec('업무기능',c('sw_cam','{kind:\'battery\'}',ic('battery'),'배터리 사진')+c('sw_cam','{kind:\'vehicle\'}',ic('car'),'차량 사진')+c('sw_qr','{}',ic('scan'),'QR 스캔')+c('sw_gallery','{}',ic('image'),'사진모음')+wsCard())+   // v10.103 근무배정표 = 업무기능 줄 끝
+    xSec('업무기능',c('sw_cam','{kind:\'battery\'}',ic('battery'),'배터리 사진')+vpCard()+vpLogCard()+c('sw_qr','{}',ic('scan'),'QR 스캔')+c('sw_gallery','{}',ic('image'),'사진모음')+wsCard())+   // v10.103 근무배정표 = 업무기능 줄 끝
     '<div id="sdext">'+sd+'</div>'+   // v10.71 전산 DAILY = 작업 정리 위 (rpMe 를 받으면 rpExtSync 가 다시 그림)
     xSec('작업 정리',c('sw_work','{}',ic('clip'),'작업내역')+c('sw_mine','{}',ic('chart'),'내 작업 확인')+(isMasterLike()?c('sw_sum','{}',ic('table'),'작업현황'):'')+(isAdminUp()?c('sw_workers','{}',ic('users'),'작업자 관리'):''))+   // 이름 '작업자 작업내역'·'작업 현황정리' → '작업내역'·'작업현황' (주인 요청 5) · v10.59 작업현황 카드 = 마스터·부마스터만 (다른 사람은 카드 없음 · 잠금 타일 아님) · v10.63 '내 작업 확인' = 모든 사람 (각자 자기 것만 · 잠금 없음)
     '<div id="rpext">'+erp+'</div>',   // v10.52 수리 ERP → v10.56 ERP 섹션 (내 수리 내역 · 수리현황 · 부품 재고 · 수리항목 · 거래처 관리 — 권한 있는 것만)
@@ -7692,6 +7737,284 @@ function swShoot(){ var v=stack[stack.length-1]; if(!v||v.state.saving) return; 
   }catch(e){ v.state.saving=false; btn.disabled=false; btn.textContent='촬영'; swWarn(); toast('사진을 처리하지 못했습니다'); } }
 function swToBlob(cv,q){ return new Promise(function(res,rej){ try{ cv.toBlob(function(b){ b?res(b):rej(new Error('blob')); },'image/jpeg',q); }catch(e){ rej(e); } }); }
 
+/* ================= v10.108 차량 사진 서버 저장 (주인 11/17 · design/VEH-PHOTO.md · 서버 0.9.31 vpUp·vpLog · rpRun = 새 서버만) =================
+   '차량 사진' 카드 → vp_pick (가운데 '차량을 선택해주세요' · 차량 단추가 아래에서 올라오며 투명 → 선명 · 차례로 50ms) → vp_cam (9장 차례대로)
+   칸마다: 위 '1 / 9' + 큰 이름 + 위에서 본 차 그림 (찍을 쪽·타이어·문 노랑 · 운전석 = 왼쪽) + 한 줄 도움말 · 아래 9칸 줄 (찍은 칸 = 작은 사진 + ✓ · 누르면 그 칸 다시) · 찍으면 다음 칸 자동
+   찍은 사진 = 지금 도장 (이름·시각·차량 + 몇 번째 무엇) → 긴 쪽 2048 · JPG 0.85 → 폰 사진모음 (지금처럼) + 올리기 줄 (IndexedDB swap-vp · 앱 꺼져도·인터넷 끊겨도 남음 → 되면 이어서 · 실패 = 3초·10초·30초·1분·2분·5분 뒤 다시)
+   올리기 = vpUp (같은 rid 한 번) → 받은 put 주소에 PUT (서버 base + put · 대화 사진과 같은 꼴) · 다른 접속 코드로 찍은 사진은 그 사람이 다시 들어올 때만 올림
+   관리자 이상 = '차량 사진 기록' 카드 → vp_log (차량 칩 · 날짜 머리 · 묶음 카드 3×3 · 쭉 내리면 20개씩 더) → 사진 누르면 vp_view (옆으로 넘김 · 칸 이름 · 받기) · [9장 받기] = 차량_날짜_번호_칸.jpg */
+TAB_OF.vp_pick='extras'; TAB_OF.vp_cam='extras'; TAB_OF.vp_log='extras'; TAB_OF.vp_view='extras';
+var VP_SLOTS=[
+  ['차량 전면','차 앞에서 번호판이 보이게 찍어 주세요'],
+  ['차량 운전석면','운전석 쪽(왼쪽) 옆면이 앞뒤 다 나오게 찍어 주세요'],
+  ['차량 후면','차 뒤에서 번호판이 보이게 찍어 주세요'],
+  ['차량 조수석면','조수석 쪽(오른쪽) 옆면이 앞뒤 다 나오게 찍어 주세요'],
+  ['조수석 앞 타이어','조수석 쪽 앞바퀴를 가까이 찍어 주세요'],
+  ['조수석 뒤 타이어','조수석 쪽 뒷바퀴를 가까이 찍어 주세요'],
+  ['운전석 뒤 타이어','운전석 쪽 뒷바퀴를 가까이 찍어 주세요'],
+  ['운전석 앞 타이어','운전석 쪽 앞바퀴를 가까이 찍어 주세요'],
+  ['운전석 문 열고 내부','운전석 문을 열고 핸들·계기판·시트가 보이게 찍어 주세요']];
+/* 그림: [강조할 곳, 화살표 시작 x,y → 끝 x,y] (위 = 앞 · 왼쪽 = 운전석 · 차 둘레를 시계 방향으로) */
+var VP_FIG=[['fr',40,-17,40,-2],['ls',-15,60,0,60],['bk',40,137,40,122],['rs',95,60,80,60],['rf',95,29,75,29],['rr',95,91,75,91],['lr',-15,91,5,91],['lf',-15,29,5,29],['dr',-15,82,3,64]];
+var VP_MAX=2048, VP_JPG=0.85, VP_BACK=[3000,10000,30000,60000,120000,300000], VP_NETB=[5000,10000,20000,40000,80000,120000], VP_NETN=0, VP_PAUSE=0, VP_DROPN=0, VP_CUR={}, VP_Q=null, VP_QP=null, VP_RUN=null, VP_T=null, VP_QN=0, VP_ING=null, VP_DB=null, VP_SETS={}, VP_DLC=null;
+function vpSv(){ return SERVER==='swing'?'swing':'swap'; }
+function vpCard(){ var n=VP_QN; return xCard('vp_pick','{}',ic('car'),'차량 사진',viewPerm('vp_pick',{}),n,n?'못 올린 차량 사진 '+n+'장':''); }
+function vpLogCard(){ return isAdminUp()?xCard('vp_log','{}',ic('clock'),'차량 사진 기록',''):''; }
+function vpBadgeDom(){ var v=stack[0], n=VP_QN; if(!v||!v.el||!v.el.querySelectorAll) return; [].forEach.call(v.el.querySelectorAll('.xcard'),function(b){ if(String(b.getAttribute('onclick')||'').indexOf("push('vp_pick',")!==0||b.classList.contains('lock')) return;
+  var x=b.querySelector('.xbdg'); if(n){ if(!x){ x=document.createElement('span'); x.className='xbdg'; x.setAttribute('aria-hidden','true'); b.appendChild(x); } x.textContent=String(n); b.setAttribute('aria-label','차량 사진 · 못 올린 차량 사진 '+n+'장'); } else { if(x) x.remove(); b.removeAttribute('aria-label'); } }); }
+
+/* ---- 차량 고르기 ---- */
+VIEWS.vp_pick={ render:function(v){ reanim(v); vpPickDraw(v); v.onResume=function(){ vpPickDraw(v); }; vpQKick(); }};
+function vpPickDraw(v){ var L=(swPrefs().vehicles||[]).slice(); v.state.list=L;
+  var h='<div class="vpk"><h1 class="vpkt">차량을 선택해주세요</h1><p class="vpks">고른 차량을 9장 차례대로 찍어요</p><div class="vpkq" id="vpkq"'+(VP_QN?'':' hidden')+'>'+vpQNote()+'</div>';
+  if(!L.length) h+='<div class="card"><div class="empty">차량 목록이 없어요 · 관리자에게 말해 주세요</div></div>';
+  else h+='<div class="vpkl">'+L.map(function(x,i){ var c=vpCurOk(VP_CUR[x]);
+    return '<button type="button" class="vpkb" style="animation-delay:'+Math.min(i*50,900)+'ms" onclick="vpPick('+i+')"><span class="vpki">'+ic('car')+'</span><b>'+esc(x)+'</b>'+(c?'<em>'+c.n+'/9 찍는 중</em>':'')+'<i aria-hidden="true">›</i></button>'; }).join('')+'</div>';
+  v.el.innerHTML=h+'</div>'; }
+function vpQNote(){ var n=VP_QN; if(!n) return ''; return '<span>'+(VP_ING?'차량 사진 올리는 중 · <b>'+n+'</b>장 남음':'못 올린 차량 사진 <b>'+n+'</b>장 · 인터넷이 되면 자동으로 올려요')+'</span><button type="button" onclick="vpQRetry()">지금 올리기</button>'; }
+function vpPick(i){ var v=rpTop('vp_pick'); if(!v) return; var veh=(v.state.list||[])[i]; if(!veh) return; push('vp_cam',{veh:veh}); }
+
+/* ---- 9장 찍기 ---- */
+function vpCurOk(c){ return c&&c.n<9&&Date.now()-c.at<3600000?c:null; }   // 다 못 찍고 나갔으면 1시간 안 같은 차량 = 이어 찍기 (같은 set)
+function vpCurDrop(c){ if(VP_CUR[c.veh]===c) delete VP_CUR[c.veh]; c.shots.forEach(function(x){ if(x&&x.th){ try{ URL.revokeObjectURL(x.th); }catch(e){} } }); }
+function vpNext(c,k){ var j; for(j=k+1;j<9;j++) if(!c.shots[j]) return j; for(j=0;j<9;j++) if(!c.shots[j]) return j; return -1; }
+VIEWS.vp_cam={ render:function(v){ var s=v.state, veh=String(v.params.veh||''), c=vpCurOk(VP_CUR[veh]); v.noEdge=true;
+  if(!c){ if(VP_CUR[veh]) vpCurDrop(VP_CUR[veh]); c=VP_CUR[veh]={set:ridNew()||('s'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)),veh:veh,sv:vpSv(),shots:[],n:0,at:Date.now()}; }
+  s.cur=c; s.i=Math.max(0,vpNext(c,-1)); s.fin=false; s.cam=false;
+  v.onLeave=function(){ s.cam=false; vpCamOff(); if(c.n>=9) vpCurDrop(c); };
+  vpCamDraw(v); }};
+function vpCamDraw(v){ var s=v.state;
+  if(s.fin){ s.cam=false; vpCamOff(); v.el.innerHTML=vpFinHtml(v); return; }
+  if(!s.cam){ s.cam=true;
+    v.el.innerHTML='<div class="swcam full vpcam"><div class="cam" id="swcambox"><video id="swvid" playsinline muted></video><div class="stamp" id="swstamp"></div>'+
+      '<button class="camtop left" onclick="pop()">← 뒤로</button><button class="camtop right" id="swtorch" style="display:none" onclick="swTorchCam(this)">'+ic('torch')+'플래시</button>'+
+      '<div class="vpov" id="vpov"></div><div class="camerr" id="swcamerr" style="display:none"></div></div><div class="panel vppan" id="vppan"></div></div>';
+    vpCamOpen(v); }
+  vpPanSync(v); }
+function vpPanSync(v){ var s=v.state, k=s.i, o=$('vpov'), p=$('vppan'), st=$('swstamp');
+  if(o) o.innerHTML='<b>'+(k+1)+' / 9</b><span>'+VP_SLOTS[k][0]+'</span>';
+  if(p) p.innerHTML=vpPanHtml(v);
+  if(st) st.textContent=vpLines(v,Date.now()).join('\n'); }
+function vpPanHtml(v){ var s=v.state, c=s.cur, k=s.i, sl=VP_SLOTS[k];
+  return '<div class="vpveh">'+esc(c.veh)+(s.note?'<span class="vpok" id="vpok" role="status">'+esc(s.note)+'</span>':'')+'</div><div class="vpstep"><span class="vpn">'+(k+1)+' / 9</span><b class="vpnm">'+sl[0]+'</b></div>'+
+    '<div class="vpfig">'+vpFig(k)+'<span>위에서 본 차<br>위 = 앞 · 왼쪽 = 운전석<br>노란 곳을 찍어요</span></div>'+
+    '<p class="vphint">'+sl[1]+'</p>'+
+    '<button class="btn vpshut" id="swshut" onclick="vpShoot()"'+(s.camErr||s.saving?' disabled':'')+'>'+(s.saving?'저장 중...':(c.shots[k]?'다시 찍기':'촬영'))+'</button>'+vpStripHtml(c,k); }
+function vpStripHtml(c,k){ var h='<div class="vpstrip">';
+  for(var j=0;j<9;j++){ var x=c.shots[j];
+    h+='<button type="button" class="vps'+(j===k?' on':'')+(x?' done':'')+'" onclick="vpGoSlot('+j+')" aria-label="'+(j+1)+'번 '+VP_SLOTS[j][0]+(x?' · 찍음 · 누르면 다시 찍기':'')+'">'+(x&&x.th?'<img src="'+esc(x.th)+'" alt="">':'')+'<span>'+(j+1)+'</span>'+(x?'<i aria-hidden="true">✓</i>':'')+'</button>'; }
+  return h+'</div>'; }
+function vpArrow(a,b,c,d){ var dx=c-a, dy=d-b, L=Math.sqrt(dx*dx+dy*dy)||1, ux=dx/L, uy=dy/L, nx=-uy, ny=ux, hx=c-ux*9, hy=d-uy*9, r=function(n){ return Math.round(n*10)/10; }, pt=function(x,y){ return r(x)+' '+r(y); };   // 채운 화살표 (선 굵기 규칙 밖 · 그림)
+  return '<path class="vpar" d="M'+pt(a+nx*1.8,b+ny*1.8)+'L'+pt(hx+nx*1.8,hy+ny*1.8)+'L'+pt(hx+nx*6,hy+ny*6)+'L'+pt(c,d)+'L'+pt(hx-nx*6,hy-ny*6)+'L'+pt(hx-nx*1.8,hy-ny*1.8)+'L'+pt(a-nx*1.8,b-ny*1.8)+'Z"/>'; }
+function vpFig(k){ var f=VP_FIG[k]||VP_FIG[0], on=function(p){ return f[0]===p?' on':''; };
+  return '<svg viewBox="-16 -18 112 156" aria-hidden="true"><rect class="vpbd" x="16" y="6" width="48" height="108" rx="16"/>'+
+    '<path class="vpln" d="M22 38q18-9 36 0M24 94q16 6 32 0'+(f[0]==='dr'?'':'M16 44V68')+'"/><circle class="vpln" cx="30" cy="48" r="5"/>'+   // 앞유리·뒷유리·운전석 문 · 핸들 (운전석 = 왼쪽)
+    '<rect class="vptr'+on('lf')+'" x="9" y="20" width="7" height="18" rx="2.5"/><rect class="vptr'+on('rf')+'" x="64" y="20" width="7" height="18" rx="2.5"/>'+
+    '<rect class="vptr'+on('lr')+'" x="9" y="82" width="7" height="18" rx="2.5"/><rect class="vptr'+on('rr')+'" x="64" y="82" width="7" height="18" rx="2.5"/>'+
+    '<rect class="vpsd'+on('fr')+'" x="26" y="-1" width="28" height="4" rx="2"/><rect class="vpsd'+on('bk')+'" x="26" y="117" width="28" height="4" rx="2"/><rect class="vpsd'+on('ls')+'" x="2" y="12" width="4" height="96" rx="2"/><rect class="vpsd'+on('rs')+'" x="74" y="12" width="4" height="96" rx="2"/>'+
+    (f[0]==='dr'?'<path class="vpsd on" d="M16 42L18.8 44.8L5.6 63.6L2.8 60.8Z"/>':'')+vpArrow(f[1],f[2],f[3],f[4])+'</svg>'; }   // 문 열림 = 노란 판
+function vpLines(v,ts){ var s=v.state, k=s.i; return swVehicleLines(worker,ts,s.cur.veh).concat([(k+1)+'/9 '+VP_SLOTS[k][0]]); }
+function vpCamOpen(v){ document.body.classList.add('camfull'); swLandscape(true); if(swPrefs().keepScreen) swWake(true); v.state.camErr='';
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ vpCamFail(v,'카메라 API 없음 (https 주소인지 확인)'); return; }
+  var td=swTorchDev();
+  swCamStart($('swvid'),2560,td||null).catch(function(err){ if(!td) throw err; swTorchDev(''); swStreamOff(); return swCamStart($('swvid'),2560); })   // 긴 쪽 2048 로 줄일 거라 2560 을 바람
+    .then(function(){ if(stack.indexOf(v)<0||!v.state.cam){ swCamStop(); return; } var tb=$('swtorch'); if(tb) tb.style.display=''; })
+    .catch(function(err){ if(stack.indexOf(v)<0||!v.state.cam) return; vpCamFail(v,swCamErr(err)); }); }
+function vpCamFail(v,msg){ v.state.camErr=msg; swCamFail(msg); }
+function vpCamOff(){ swCamStop(); document.body.classList.remove('camfull'); swLandscape(false); }
+function vpShoot(){ var v=rpTop('vp_cam'); if(!v||v.state.saving||v.state.fin) return; var vid=$('swvid');
+  if(!vid||vid.readyState<2||!vid.videoWidth){ toast('카메라가 아직 준비되지 않았습니다'); swWarn(); return; }
+  var s=v.state, k=s.i, ts=Date.now(), b=$('swshut'); s.saving=true; if(b){ b.disabled=true; b.textContent='저장 중...'; } swTick();
+  var box=$('swcambox'); if(box){ box.classList.add('flash'); setTimeout(function(){ box.classList.remove('flash'); },300); }
+  vpGrab(vid,vpLines(v,ts)).then(function(g){ s.saving=false; return vpSave(v,k,g,ts); },function(){ s.saving=false; swWarn(); toast('사진을 처리하지 못했습니다'); if(rpTop('vp_cam')===v&&!s.fin) vpPanSync(v); }); }
+/* 화면 → 도장 → 긴 쪽 2048 · JPG 0.85 (+ 작은 그림 = 9칸 줄·폰 사진모음) */
+function vpGrab(src,lines){ return new Promise(function(res,rej){ try{ var w=src.videoWidth||src.width, h=src.videoHeight||src.height, k=Math.min(1,VP_MAX/Math.max(w,h)), cv=document.createElement('canvas');
+    cv.width=Math.round(w*k); cv.height=Math.round(h*k); cv.getContext('2d').drawImage(src,0,0,cv.width,cv.height); swStamp(cv,lines);
+    var th=document.createElement('canvas'), sc=Math.min(1,300/Math.min(cv.width,cv.height)); th.width=Math.round(cv.width*sc); th.height=Math.round(cv.height*sc); th.getContext('2d').drawImage(cv,0,0,th.width,th.height);
+    swToBlob(cv,VP_JPG).then(function(b){ return swToBlob(th,.8).then(function(tb){ res({blob:b,thumb:tb,w:cv.width,h:cv.height}); }); }).catch(rej); }catch(e){ rej(e); } }); }
+/* 찍은 한 장: 9칸 줄 · 폰 사진모음 · 올리기 줄 → 다음 칸 (9칸 다 = 끝 화면) */
+function vpSave(v,k,g,ts){ var s=v.state, c=s.cur, old=c.shots[k], th='';
+  if(old&&old.th){ try{ URL.revokeObjectURL(old.th); }catch(e){} }
+  try{ th=URL.createObjectURL(g.thumb||g.blob); }catch(e){ th=''; }
+  c.shots[k]={th:th,ts:ts}; c.n=c.shots.filter(Boolean).length; c.at=Date.now();
+  vpGal(c,k,g,ts);
+  var q=vpQAdd({sv:c.sv,set:c.set,veh:c.veh,slot:k+1,w:g.w,h:g.h,size:g.blob.size,ts:ts,blob:g.blob});
+  swSuccess(); var nx=vpNext(c,k);
+  if(nx<0) s.fin=true; else s.i=nx;
+  s.note=nx<0?'':(k+1)+'번 '+VP_SLOTS[k][0]+' 저장 ✓';   // 판 안 한 줄 (토스트가 촬영 단추를 가리지 않게)
+  if(rpTop('vp_cam')===v) vpCamDraw(v);
+  if(nx<0) toast('9장 다 찍었어요');
+  return q; }
+function vpGal(c,k,g,ts){ if(!window.indexedDB) return Promise.resolve(); var id='p'+ts+'_'+Math.random().toString(36).slice(2,6);
+  return swPut(id,g.blob).then(function(){ return swPut('thumb_'+id,g.thumb||g.blob); }).then(function(){
+    var L=swPhotos(); L.unshift({id:id,kind:'vehicle',summary:c.veh+' · '+(k+1)+'/9 '+VP_SLOTS[k][0],ts:ts,name:swFileName(ts)});
+    var over=L.splice(SW_MAX_PHOTOS); over.forEach(function(o){ swDel(o.id); }); swPhotosSave(L); }).catch(function(){ toast('폰 사진모음에는 저장하지 못했어요 · 서버에는 올려요'); }); }
+function vpGoSlot(k){ var v=rpTop('vp_cam'); if(!v||v.state.saving||!(k>=0&&k<9)) return; haptic(6); v.state.i=k; v.state.fin=false; v.state.note=''; vpCamDraw(v); }
+function vpHome(){ if(rpTop('vp_cam')) pop(); }
+function vpFinHtml(v){ var c=v.state.cur, h=title('9장 다 찍었어요',esc(c.veh));
+  h+='<div class="card vpfin"><div class="vpst" id="vpst">'+vpStHtml(c)+'</div><div class="vpg">';
+  for(var j=0;j<9;j++){ var x=c.shots[j]; h+='<button type="button" class="vpph" onclick="vpGoSlot('+j+')" aria-label="'+(j+1)+'번 '+VP_SLOTS[j][0]+' 다시 찍기">'+(x&&x.th?'<img src="'+esc(x.th)+'" alt="">':'')+'<span>'+(j+1)+'. '+VP_SLOTS[j][0]+'</span></button>'; }
+  return h+'</div><p class="vpfn">사진을 누르면 그 칸만 다시 찍어요 · 폰 사진모음에도 저장했어요</p></div><button class="btn" onclick="vpHome()">처음으로</button>'; }
+/* 끝 화면 올리기 상태 */
+function vpStHtml(c){ var l=(VP_Q||[]).filter(function(x){ return x.set===c.set; }), up=Math.max(0,c.n-l.length);
+  if(!l.length) return '<b class="ok">다 올렸어요 ✓</b>';
+  if(!rpUrl()||navigator.onLine===false||VP_NETN>0) return '<b class="wt">인터넷 연결을 기다리는 중 '+up+'/9</b><span class="vpsn">연결되면 자동으로 올려요</span>';
+  return '<b>서버에 올리는 중 '+up+'/9</b>'+(l.some(function(x){ return x.tries>0; })?'<button type="button" onclick="vpQRetry()">지금 다시 올리기</button>':''); }
+function vpTick(){ var v=stack[stack.length-1];
+  if(v&&v.name==='vp_cam'&&v.state.fin){ var e=$('vpst'); if(e) e.innerHTML=vpStHtml(v.state.cur); }
+  if(v&&v.name==='vp_pick'){ var q=$('vpkq'); if(q){ q.innerHTML=vpQNote(); if(VP_QN) q.removeAttribute('hidden'); else q.setAttribute('hidden',''); } }
+  vpBadgeDom(); }
+
+/* ---- 올리기 줄 (IndexedDB 'swap-vp' · 'q' · 줄 하나 = 사진 한 장 {id, own, sv, set, veh, slot, w, h, size, ts, blob, rid, tries, at, err}) ---- */
+function vpOwn(){ return AUTH&&AUTH.code?lsCodeHash(AUTH.code):''; }
+function vpDb(){ return new Promise(function(res,rej){ if(VP_DB) return res(VP_DB); if(!window.indexedDB){ rej(new Error('idb')); return; }
+  try{ var r=indexedDB.open('swap-vp',1); r.onupgradeneeded=function(){ var db=r.result; if(!db.objectStoreNames.contains('q')) db.createObjectStore('q',{keyPath:'id'}); };
+    r.onsuccess=function(){ VP_DB=r.result; res(VP_DB); }; r.onerror=function(){ rej(r.error||new Error('idb')); }; }catch(e){ rej(e); } }); }
+function vpDbDo(mode,f){ return vpDb().then(function(db){ return new Promise(function(res,rej){ var t=db.transaction('q',mode), r=f(t.objectStore('q'));
+  t.oncomplete=function(){ res(r?r.result:undefined); }; t.onerror=t.onabort=function(){ rej(t.error||new Error('idb')); }; }); }); }
+function vpQLoad(){ if(VP_Q) return Promise.resolve(VP_Q); if(VP_QP) return VP_QP;
+  VP_QP=vpDbDo('readonly',function(st){ return st.getAll(); }).catch(function(){ return []; }).then(function(l){ VP_QP=null;
+    VP_Q=(l||[]).filter(function(x){ return x&&x.id&&x.blob; }).sort(function(a,b){ return ((a.ts||0)-(b.ts||0))||(a.slot-b.slot); }); vpQCount(); return VP_Q; });
+  return VP_QP; }
+function vpQSave(it){ return vpDbDo('readwrite',function(st){ st.put(it); }).catch(function(){}); }
+function vpQDel(id){ return vpDbDo('readwrite',function(st){ st['delete'](id); }).catch(function(){}); }
+function vpQMine(){ var o=vpOwn(); return (VP_Q||[]).filter(function(x){ return x.own===o; }); }
+function vpQCount(){ VP_QN=vpQMine().length; }
+function vpQAdd(o){ o.id='v'+o.set+'_'+o.slot; o.own=vpOwn(); o.tries=0; o.at=0; o.rid=''; o.err='';   // 같은 칸 다시 찍음 = 같은 id (앞 것을 바꿈)
+  return vpQLoad().then(function(Q){ for(var i=Q.length-1;i>=0;i--) if(Q[i].id===o.id) Q.splice(i,1); Q.push(o); vpQCount(); vpTick(); return vpQSave(o); }).then(function(){ vpQKick(); }); }
+function vpQKick(){ if(AUTH) vpQRun(); }
+function vpQRetry(){ haptic(6); vpNetOk(); vpQMine().forEach(function(x){ x.at=0; }); vpQRun(); }
+function vpQRun(){ if(VP_RUN) return VP_RUN; clearTimeout(VP_T); VP_T=null;
+  VP_RUN=vpQLoad().then(function(){ return vpQStep(); }).catch(function(){}).then(function(){ VP_RUN=null; VP_ING=null; vpQCount(); vpTick();
+    if(VP_DROPN){ var n=VP_DROPN; VP_DROPN=0; toast('차량 사진 '+n+'장을 서버에 못 올렸어요 · 폰 사진모음엔 남아 있어요'); }   // 서버가 받지 않는 사진 = 줄에서 뺌 (한 번만 알림)
+    vpQWake(); });
+  return VP_RUN; }
+function vpQWake(){ var l=vpQMine(); if(!l.length||!AUTH) return; var t=Math.max(VP_PAUSE,Math.min.apply(null,l.map(function(x){ return x.at||0; })));
+  clearTimeout(VP_T); VP_T=setTimeout(function(){ VP_T=null; vpQRun(); },Math.max(1000,t-Date.now())); }
+/* 연결 문제 = 줄 전체 쉼 (5초·10초·20초·40초·80초·2분) · 인터넷 다시 됨·앱 다시 봄·지금 올리기 = 바로 */
+function vpNetWait(){ VP_PAUSE=Date.now()+VP_NETB[Math.min(VP_NETN,VP_NETB.length-1)]; VP_NETN++; }
+function vpNetOk(){ VP_NETN=0; VP_PAUSE=0; }
+function vpSoftErr(e){ return !!(e&&(e.net||e.timeout||e.off||e.guard==='freeze'||/다른 작업 중/.test(String(e.message||'')))); }
+/* 다시 해도 안 되는 오류 = 줄에서 뺌 (1시간 한도·저장소 준비 중·주소 못 받음·로그인 풀림 = 잠깐 · 올리기 거절(서명 지남) = 6번까지 새 주소로) */
+function vpPermErr(e,it){ if(!e||vpSoftErr(e)||e.auth===false) return false; if(/1시간에|아직 준비|올릴 주소/.test(String(e.message||''))) return false;
+  if(e.reput) return (it.tries||0)>=VP_BACK.length; return true; }
+function vpQStep(){ var base=rpUrl(), now=Date.now(); if(!AUTH||VP_PAUSE>now) return Promise.resolve();
+  var it=vpQMine().filter(function(x){ return (x.at||0)<=now; })[0]; if(!it) return Promise.resolve();
+  if(!base||navigator.onLine===false){ vpNetWait(); return Promise.resolve(); }
+  VP_ING=it; vpTick();
+  return vpUp1(it,base).then(function(){ VP_ING=null; vpNetOk(); var i=VP_Q.indexOf(it); if(i>=0){ VP_Q.splice(i,1); vpQDel(it.id); } vpQCount(); vpTick(); return vpQStep(); },   // 올리는 사이 같은 칸을 다시 찍었으면 새 것은 그대로 둠
+    function(e){ VP_ING=null; it.tries=(it.tries||0)+1; it.err=String(e&&e.message||e).slice(0,120);
+      if(vpSoftErr(e)){ it.at=0; if(VP_Q.indexOf(it)>=0) vpQSave(it); vpTick(); vpNetWait(); return; }   // 연결 문제 = 줄 전체 쉼 (같은 rid 로 나중에)
+      if(vpPermErr(e,it)){ var i=VP_Q.indexOf(it); if(i>=0){ VP_Q.splice(i,1); vpQDel(it.id); VP_DROPN++; } vpQCount(); vpTick(); return vpQStep(); }
+      it.at=Date.now()+VP_BACK[Math.min(it.tries,VP_BACK.length)-1]; if(e&&e.reput) it.rid='';
+      if(VP_Q.indexOf(it)>=0) vpQSave(it); vpTick(); return vpQStep(); }); }   // 그 사진만 잠깐 = 다음 사진
+function vpUp1(it,base){ if(!it.rid){ it.rid=ridNew(); vpQSave(it); } var cx=runCx(); cx.rid=it.rid;
+  return rpWrite('vpUp',[{sv:it.sv,set:it.set,veh:it.veh,slot:it.slot,size:it.size,w:it.w,h:it.h,at:it.ts}],cx).then(function(r){ it.rid='';
+    if(!r||!r.put) throw new Error('올릴 주소를 못 받았어요');
+    return vpPut(base+r.put,it.blob); }); }
+function vpPut(url,blob){ return new Promise(function(res,rej){ var x, fail=function(m,k){ var er=new Error(m); er[k]=true; rej(er); };
+  try{ x=new XMLHttpRequest(); x.open('PUT',url); x.timeout=120000; }catch(e){ fail('서버 연결 실패(네트워크)','net'); return; }
+  x.onload=function(){ var j=null; try{ j=JSON.parse(x.responseText); }catch(e){} if(x.status>=200&&x.status<300&&!(j&&j.ok===false)){ res(j||{}); return; }
+    var er=new Error((j&&j.error)||('올리기 실패 ('+x.status+')')); er.status=x.status; if(x.status>=500||x.status===429||x.status===0) er.net=true; else er.reput=true; rej(er); };   // 서명 지남·거절 = 다음엔 새 주소
+  x.onerror=function(){ fail('서버 연결 실패(네트워크)','net'); }; x.ontimeout=function(){ fail('올리기 시간 초과','timeout'); };
+  x.send(blob); }); }
+window.addEventListener('online',function(){ if(appStarted&&AUTH){ vpNetOk(); vpQKick(); } });
+document.addEventListener('visibilitychange',function(){ if(!document.hidden&&appStarted&&AUTH){ vpNetOk(); vpQKick(); } });   // 앱 다시 봄 = 바로 이어서
+/* 앱 열 때 남은 사진 (끄기 전에 못 올린 것) = startApp (로그인이 오래 걸려도 · 로그인 뒤 vpQKick) */
+
+/* ---- 차량 사진 기록 (관리자 이상 · SWAP·SWING 모두 · 40일) ---- */
+VIEWS.vp_log={ render:function(v){ reanim(v); var s=v.state;
+  if(!isAdminUp()){ v.el.innerHTML=title('차량 사진 기록','')+'<div class="card"><div class="empty">관리자만 볼 수 있어요.</div></div>'; return; }
+  s.veh=s.veh||''; s.sets=s.sets||[]; s.tok=s.tok||0;
+  v.refresh=function(){ s.sets=[]; s.done=false; s.err=null; s.more=false; s.tok++; s.ld=null; vpLogDraw(v); return vpLogLoad(v,true); };
+  v.el.addEventListener('scroll',function(){ vpLogNear(v); },{passive:true});
+  vpLogDraw(v); vpLogLoad(v,true); }};
+function vpLogLoad(v,first){ var s=v.state; if(s.ld) return s.ld; var a={}, veh=s.veh, tok=s.tok;
+  if(veh) a.veh=veh; if(!first&&s.sets.length) a.before=s.sets[s.sets.length-1].id;
+  if(!rpUrl()){ s.err=new Error('차량 사진 기록은 새 서버로만 봐요. 인터넷 연결을 확인하고 앱을 다시 열어 주세요.'); s.done=true; vpLogDraw(v); return Promise.resolve(); }
+  s.ld=rpRun('vpLog',[a]).then(function(r){ if(tok!==s.tok) return; s.ld=null; if(stack.indexOf(v)<0) return; r=r||{}; s.err=null;
+      if(first&&!veh&&Array.isArray(r.vehicles)) s.vehs=r.vehicles;   // 칩 = 전체 첫 쪽 답만 (내리며 더 받을 때 안 바뀜)
+      var l=(Array.isArray(r.sets)?r.sets:[]).filter(function(x){ return x&&x.id!=null; }), seen={}; l.forEach(function(x){ VP_SETS[x.id]=x; });
+      var old=first?[]:s.sets; old.forEach(function(x){ seen[x.id]=1; }); var add=l.filter(function(x){ return !seen[x.id]; });
+      s.sets=old.concat(add); s.more=typeof r.more==='boolean'?r.more:l.length>=20; if(!add.length) s.more=false;
+      var was=s.done; s.done=true;
+      if(first||!was) vpLogDraw(v); else vpLogAppend(v,add); },
+    function(e){ if(tok!==s.tok) return; s.ld=null; if(stack.indexOf(v)<0) return; s.err=e; s.done=true; if(s.sets.length) vpLogFoot(v); else vpLogDraw(v); });
+  if(!first) vpLogFoot(v);
+  return s.ld; }
+function vpLogNear(v){ var s=v.state, e=v.el; if(!s.more||s.ld||s.err||rpTop('vp_log')!==v) return; if(e.scrollHeight-e.scrollTop-e.clientHeight<900) vpLogLoad(v,false); }   // 끝 가까이 = 다음 20개
+function vpLogMore(){ var v=rpTop('vp_log'); if(!v||!v.state.more) return; v.state.err=null; vpLogLoad(v,false); }
+function vpLogRetry(){ var v=rpTop('vp_log'); if(!v) return; v.state.err=null; v.state.done=false; vpLogDraw(v); vpLogLoad(v,true); }
+function vpLogVeh(i){ var v=rpTop('vp_log'); if(!v) return; var s=v.state, x=i<0?null:(s.vehs||[])[i], veh=x?String(x.veh):''; if(veh===s.veh) return; haptic(6);
+  s.veh=veh; s.sets=[]; s.done=false; s.err=null; s.more=false; s.tok++; s.ld=null; vpLogDraw(v); vpLogLoad(v,true); }
+function vpMd(d){ d=String(d||''); return /^\d{4}-\d\d-\d\d/.test(d)?(+d.slice(5,7))+'/'+(+d.slice(8,10)):d; }
+function vpDayTxt(d){ d=String(d||''); if(!/^\d{4}-\d\d-\d\d/.test(d)) return esc(d); var w='일월화수목금토'.charAt(new Date(Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10))).getUTCDay());
+  return (+d.slice(5,7))+'월 '+(+d.slice(8,10))+'일 ('+w+')'+(d.slice(0,10)===wsToday()?' · 오늘':''); }
+function vpAtTxt(at){ if(typeof at==='number'&&at>0){ var t=new Date(at); return pad2(t.getHours())+':'+pad2(t.getMinutes()); } var m=/(\d\d:\d\d)/.exec(String(at||'')); return m?m[1]:''; }
+function vpFile(u){ return u?rpUrl()+u:''; }
+function vpLogDraw(v){ var s=v.state, h=title('차량 사진 기록','최근 40일 · SWAP·SWING');
+  h+='<div class="vpchips" id="vpchips"><button type="button" class="vpchip'+(s.veh?'':' on')+'" onclick="vpLogVeh(-1)"><b>전체</b><span>최근 순</span></button>'+(s.vehs||[]).map(function(x,i){
+    return '<button type="button" class="vpchip'+(s.veh===String(x.veh)?' on':'')+'" onclick="vpLogVeh('+i+')"><b>'+esc(x.veh)+'</b><span>'+esc(vpMd(x.last))+(x.sets?' · '+Number(x.sets)+'번':'')+'</span></button>'; }).join('')+'</div>';
+  if(s.err&&!s.sets.length) h+=errBox(s.err)+'<button class="btn line" onclick="vpLogRetry()">다시 시도</button>';
+  else if(!s.done) h+='<div class="card"><div class="empty">불러오는 중…</div></div>';
+  else if(!s.sets.length) h+='<div class="card"><div class="empty">'+(s.veh?'이 차량은 최근 40일 사진이 없어요.':'최근 40일 차량 사진이 없어요.')+'</div></div>';
+  else h+='<div id="vplist">'+vpLogList(s.sets,'')+'</div><div class="vplft" id="vplft">'+vpLogFootHtml(s)+'</div>';
+  var sy=s.drawn===s.veh?v.el.scrollTop:0; v.el.innerHTML=h; v.el.scrollTop=sy; s.drawn=s.veh; }
+function vpLogList(l,pd){ var h=''; l.forEach(function(x){ if(x.day!==pd){ h+='<h3 class="vpdh">'+vpDayTxt(x.day)+'</h3>'; pd=x.day; } h+=vpSetHtml(x); }); return h; }
+function vpSetHtml(x){ var ph={}, n=0; (x.photos||[]).forEach(function(p){ if(p&&p.slot>=1&&p.slot<=9){ ph[p.slot]=p; if(p.url) n++; } });
+  var h='<div class="card vpsc"><div class="vpsh"><div class="vpsm"><b>'+esc(x.veh)+'</b><span class="vpsv">'+(x.sv==='swing'?'SWING':'SWAP')+'</span><span class="vpsb">'+esc((x.by&&x.by.name)||'이름 없음')+' · '+vpAtTxt(x.at)+' · '+n+'장</span></div>'+
+    (n?'<button type="button" class="vpdl" onclick="vpSetDl('+Number(x.id)+')">'+(n>=9?'9장':n+'장')+' 받기</button>':'')+'</div><div class="vpg">';
+  for(var j=1;j<=9;j++){ var p=ph[j], nm=VP_SLOTS[j-1][0];
+    h+=p&&p.url?'<button type="button" class="vpph" onclick="vpViewOpen('+Number(x.id)+','+j+')" aria-label="'+nm+' 크게 보기"><img src="'+esc(vpFile(p.thumb||p.url))+'" alt="" loading="lazy"><span>'+j+'. '+nm+'</span></button>'
+      :'<div class="vpph no"><em>없음</em><span>'+j+'. '+nm+'</span></div>'; }
+  return h+'</div></div>'; }
+function vpLogFootHtml(s){ if(s.ld) return '불러오는 중…'; if(s.err) return '<span>'+esc(s.err.message||s.err)+'</span><br><button class="btn line sm" onclick="vpLogMore()">다시 시도</button>';
+  if(s.more) return '<button class="btn line sm" onclick="vpLogMore()">더 보기</button>'; return '최근 40일 사진은 여기까지예요'; }
+function vpLogFoot(v){ var e=$('vplft'); if(e) e.innerHTML=vpLogFootHtml(v.state); }
+function vpLogAppend(v,add){ var s=v.state, L=$('vplist');
+  if(!L||!L.insertAdjacentHTML){ vpLogDraw(v); return; }
+  var k=s.sets.length-add.length-1; L.insertAdjacentHTML('beforeend',vpLogList(add,k>=0?s.sets[k].day:'')); vpLogFoot(v); }
+
+/* ---- 크게 보기 (옆으로 넘김 · 칸 이름 · 받기) ---- */
+function vpPhotos(x){ return (x&&x.photos||[]).filter(function(p){ return p&&p.url&&p.slot>=1&&p.slot<=9; }).sort(function(a,b){ return a.slot-b.slot; }); }
+function vpViewOpen(id,slot){ if(!VP_SETS[id]) return; haptic(6); push('vp_view',{id:id,slot:slot}); }
+VIEWS.vp_view={ render:function(v){ var x=VP_SETS[v.params.id], its=vpPhotos(x), at=0; v.noEdge=true; v.el.classList.add('mzmview');
+  its.forEach(function(p,k){ if(p.slot===Number(v.params.slot)) at=k; }); v.state.items=its; v.state.i=at; v.state.x=x;
+  document.body.classList.add('camfull');
+  v.el.innerHTML='<div class="mzvs">'+its.map(function(p,k){ return '<div class="mzvsl"><img src="'+esc(vpFile(p.url))+'" alt="'+VP_SLOTS[p.slot-1][0]+'"'+(Math.abs(k-at)>1?' loading="lazy"':'')+'></div>'; }).join('')+'</div>'+
+    '<button class="mzvnav l" onclick="vpViewStep(-1)" aria-label="이전 사진"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>'+
+    '<button class="mzvnav r" onclick="vpViewStep(1)" aria-label="다음 사진"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>'+
+    '<div class="vpvcap" id="vpvcap"></div><button class="vpvbk" onclick="pop()" aria-label="뒤로">← 뒤로</button>'+
+    '<button class="mzmvdl" onclick="vpViewSave()" aria-label="사진 받기"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>받기</button>';
+  var sc=v.el.querySelector('.mzvs'), go=function(){ if(sc) sc.scrollLeft=v.state.i*sc.clientWidth; }, t=null;
+  go(); requestAnimationFrame(go); vpViewMark(v);
+  if(sc) sc.addEventListener('scroll',function(){ clearTimeout(t); t=setTimeout(function(){ var w=sc.clientWidth||1, i=Math.max(0,Math.min(its.length-1,Math.round(sc.scrollLeft/w))); if(i!==v.state.i){ v.state.i=i; vpViewMark(v); } },60); },{passive:true});
+  var key=function(e){ if(stack[stack.length-1]!==v) return; if(e.key==='ArrowLeft') vpViewStep(-1); else if(e.key==='ArrowRight') vpViewStep(1); };
+  window.addEventListener('resize',go); document.addEventListener('keydown',key);
+  v.onLeave=function(){ window.removeEventListener('resize',go); document.removeEventListener('keydown',key); document.body.classList.remove('camfull'); }; }};
+function vpViewMark(v){ var its=v.state.items, i=v.state.i, p=its[i], c=$('vpvcap'), l=v.el.querySelector('.mzvnav.l'), r=v.el.querySelector('.mzvnav.r');
+  if(c) c.innerHTML=p?'<b>'+p.slot+' / 9</b>'+VP_SLOTS[p.slot-1][0]:'사진이 없어요'; if(l) l.hidden=i<=0; if(r) r.hidden=i>=its.length-1; }
+function vpViewStep(d){ var v=rpTop('vp_view'); if(!v) return; var n=v.state.items.length, i=Math.max(0,Math.min(n-1,v.state.i+d)), sc=v.el.querySelector('.mzvs'); if(i===v.state.i) return; haptic(6);
+  v.state.i=i; vpViewMark(v); if(sc){ try{ sc.scrollTo({left:i*sc.clientWidth,behavior:'smooth'}); }catch(e){ sc.scrollLeft=i*sc.clientWidth; } } }
+function vpViewSave(){ var v=rpTop('vp_view'); if(!v) return; var p=v.state.items[v.state.i]; if(!p) return; vpDl(v.state.x,[p]); }
+/* 받기: 파일 이름 = 차량_날짜_번호_칸.jpg (백업용) · 안드로이드·PC = 다운로드 · 아이폰 = 다 받은 뒤 한 번 더 누르면 공유 시트 (사진 저장) */
+function vpName(x,p){ var cl=function(t){ return String(t==null?'':t).replace(/[\\\/:*?"<>|\s]+/g,''); }; return cl(x.veh)+'_'+cl(x.day)+'_'+p.slot+'_'+cl(VP_SLOTS[p.slot-1][0])+'.jpg'; }
+function vpSetDl(id){ var x=VP_SETS[id]; if(!x) return; vpDl(x,vpPhotos(x)); }
+function vpDl(x,l){ if(!l.length){ toast('받을 사진이 없어요'); return; } haptic(8); var key=x.id+':'+l.map(function(p){ return p.slot; }).join(',');
+  if(VP_DLC&&VP_DLC.key===key&&VP_DLC.out){ var o=VP_DLC.out; VP_DLC=null; vpSaveFiles(o); return; }
+  if(VP_DLC&&VP_DLC.busy){ toast('받는 중이에요 · 잠시만요'); return; }
+  VP_DLC={key:key,busy:true}; toast('사진 '+l.length+'장 받는 중…');
+  var out=[], ch=Promise.resolve();
+  l.forEach(function(p){ ch=ch.then(function(){ return fetch(vpFile(p.url),{credentials:'omit'}).then(function(r){ if(!r.ok) throw new Error('x'); return r.blob(); }).then(function(b){ out.push({b:b,name:vpName(x,p)}); },function(){}); }); });
+  ch.then(function(){ if(!out.length){ VP_DLC=null; toast('받지 못했어요 · 다시 눌러 주세요'); return; }
+    if(pushIos()){ VP_DLC={key:key,out:out}; toast('다 받았어요 · 한 번 더 눌러 저장해 주세요'); return; }   // 아이폰 = 누른 순간에만 공유 시트
+    VP_DLC=null; vpSaveFiles(out); }); }
+function vpSaveFiles(out){ var files=null; try{ files=out.map(function(o){ return new File([o.b],o.name,{type:'image/jpeg'}); }); }catch(e){ files=null; }
+  if(pushIos()&&files&&navigator.canShare&&navigator.canShare({files:files})){ navigator.share({files:files}).catch(function(){}); return; }
+  out.forEach(function(o,i){ setTimeout(function(){ var a=document.createElement('a'); a.href=URL.createObjectURL(o.b); a.download=o.name; document.body.appendChild(a); a.click(); setTimeout(function(){ try{ URL.revokeObjectURL(a.href); }catch(e){} a.remove(); },3000); },i*400); });
+  toast(out.length+'장 받았어요 · 다운로드 폴더를 확인해 주세요'); }
+/* ================= v10.108 차량 사진 끝 ================= */
+
 /* ================= 사진모음 ================= */
 VIEWS.sw_gallery={ render:function(v){ reanim(v); v.state.filter=v.state.filter||null; v.state.sel=v.state.sel||{}; v.state.selMode=!!v.state.selMode; v.state.urls=v.state.urls||{};
   v.onLeave=function(){ Object.keys(v.state.urls).forEach(function(k){ try{ URL.revokeObjectURL(v.state.urls[k]); }catch(e){} }); v.state.urls={}; }; v.onResume=function(){ swGalDraw(v); };
@@ -8626,6 +8949,7 @@ function startApp(){ if(appStarted) return; appStarted=true;
   setTimeout(function(){ if(Date.now()-(Number(lsGet('pushAt'))||0)<1800000) return; pushSync().then(function(){ if(!sheetOpen&&stack.length===1) pushPrompt(); }); },1500);   // v10.41: 30분 안에 확인했으면 열 때마다 다시 안 물음
   setTimeout(function(){ (KV_BIGP||Promise.resolve()).then(lsPrune); },3000);   // 작업보고 알림 상태 · 지정됐는데 이 폰이 안 켰으면 물어봄 (v10.30) · 정리는 큰 저장본을 다 읽은 뒤 (v10.43)
   if(window.indexedDB&&AUTH&&(AUTH.servers||[]).indexOf('swing')>=0) setTimeout(swPhotoRevive,6000);   // v10.46 숨어 버린 사진을 사진모음에 다시 (SWING 쓰는 사람만 · 사진 DB 를 괜히 만들지 않게)
+  setTimeout(vpQKick,2500);   // v10.108 못 올린 차량 사진 (앱 다시 켬 · 로그인 뒤 언제든)
   setTimeout(function(){ (KV_BIGP||Promise.resolve()).then(function(){ try{ ['sync:swap','sync:swing','swix'].forEach(function(k){ if(lsHas(k)) lsDelKey('swapc:'+k); }); }catch(e){} }); },3500);   // v10.74 미리받기 없앰 → 남은 기록(sync:서버)·기기 목록(swix) 지움 (큰 저장본을 다 읽은 뒤)
   if(MINV) setTimeout(function(){ minVerGo(); },1500); }   // v10.47 login 답에 minVer 가 있었으면 앱이 다 뜬 뒤 새로 읽기 (로그인 화면에선 안 함 · 안쪽 화면이면 돌아올 때)
 function boot(){ document.body.classList.remove('booting'); try{ history.replaceState({d:0},''); }catch(e){}
