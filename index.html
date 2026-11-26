@@ -552,6 +552,13 @@
   .block{margin-top:16px;background:var(--fill2);border-radius:8px;padding:16px}
   .block .sn-big{font-family:ui-monospace,Menlo,monospace;font-size:24px;font-weight:700;margin-top:4px;letter-spacing:-.3px;word-break:break-all;line-height:1.2}
   .sect{margin-top:20px}
+  .tinfo .tih{font-size:13px;font-weight:600;color:var(--muted)}   /* v10.123 기기 화면 고객요청 칸 (수거·출고 기기 칸 위) */
+  .tinfo .tiaddr{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-top:6px}
+  .tinfo .tiaddr .tiv{font-size:16px;font-weight:600;line-height:1.4;flex:1;min-width:0}
+  .tinfo .edit{flex:0 0 auto;white-space:nowrap}   /* 긴 주소에서도 '복사'·'다시 시도' 가 두 줄로 안 깨지게 */
+  .tinfo .tir{margin-top:10px} .tinfo .til{font-size:12px;color:var(--muted)} .tinfo .tiv{font-size:15px;line-height:1.45;color:var(--ink);overflow-wrap:anywhere;word-break:keep-all}
+  .tinfo .tim{margin:6px 0 0;font-size:13px} .tinfo .tisrc{margin:8px 0 0;font-size:12px}
+  .tinfo .tierr{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;font-size:13px}
   .sect h3{margin:0}
 
   .kv{display:grid;grid-template-columns:76px 1fr;gap:10px 12px;font-size:15px;margin-top:14px}
@@ -1484,7 +1491,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzMJwOJE3D-kfpa9Fl8ifeZiXwMRxmQgBS6vXvrRLq2MY7qvuS98fudUHzuTAk9HXVR/exec";
 var WEBAPP = location.origin + location.pathname.replace(/index\.html$/,'');
 var CODE = (new URLSearchParams(location.search).get('q') || '').trim().toUpperCase();
-var APP_VER = '10.122';   // v10.122 글꼴 IBM Plex Sans KR + 굵기 한 단계 낮춤·모서리 8px 정리 (인쇄 양식은 그대로 · 주인 11/26) · v10.121 수리 기록 '건 = 수리 기록(기기) 수 · 개 = 수리 항목 줄 수' 안내 글 뺌 (주인 11/21) · v10.120 내 작업 확인 날짜 칸 '●정산 안 함 있음' → '●작업 불량 n건' (서버 0.9.44 날짜 bad · 없으면 안 보임 · 주인 11/20) · v10.119 내 작업 확인: 보는 사람 시트 '연결된 작업자 · 관리자 이상만' 글 뺌 · 달말 예상 = 최근 3일 평균 (서버 0.9.42 · 주인 11/20) · v10.118 작업자(배터리) 역할 · 고장기기 신고 (rpRepPut) · 전산 DAILY 고장신고 전산 (rpRepList·rpRepApply·rpRepClose · 수거대상+고장 · 사유 배터리 교체중 고장 확인) · 서버 0.9.41 · 주인 11/20 · v10.117 미수거 절대 안 함 (SWING 검색 상태 버튼에서 [미수거] 뺌 · 기기이상 판정 수거대상이 어드민에 막히면 어드민 그대로 + 판정만 + 알림 · 서버 0.9.40 · 주인 11/20) · v10.116 고장수거 탭 [미수거] → [수거대상] (확인 창 '수거대상으로 바꾸기') · 기기이상 판정이 어드민에 막혀 미수거로 바뀌면 알림 (서버 0.9.39 · 배터리 교체로 수거된 기기 = 어드민 403 → 미수거 거쳐 수거대상 · 주인 11/20) · v10.115 대화 빨리 받기 (방을 보는 동안 서버가 새 글을 기다렸다 바로 줌 · 0.5초 안 · 상대가 읽음 '1' 도 바로 · 서버 0.9.38 wait · 주인 11/19) · 기기이상 수거해야함 판정 = 어드민 수거대상 + 사유 '기기이상으로 수거해야함' (예전 미수거 · 서버 0.9.38 · 확인 창 글자 · 주인 11/20) · v10.114 고장 기기 입고 (예전 QR 스캔 · 찍기·수기 입력 → [고장 기기 입고 완료] = 서버 rpInPut) · 전산 DAILY 기기입고 → 입고기기 매칭 (작업자가 넣은 QR 을 실물 QR 로 다시 확인 → 입고됨 · 안 되면 사유 · 서버 0.9.36 · 주인 11/18) · v10.113 내 작업 확인 = 관리자 이상 다른 작업자 포인트 보기 ([보는 사람] → 작업자 고르기 · 서버 0.9.35 swmPeer · 주인 11/17) · v10.112 사진 기록 묶음 지우기 (관리자 이상 · 차량 9장 · 배터리 2장 = 묶음째 · [지우기] → 확인 시트 → 서버 vpDel · 지운 묶음에 올리던 사진 = 줄에서 뺌 · 주인 11/17) · v10.111 배터리 사진 = 수량 넣기 (S9·W9 · I9 체크) → 2장 차례 (배터리 · 점퍼용 배터리) · 초광각 · 서버에 자동 올림 (차량 사진과 같은 줄) · '차량 사진 기록' → '사진 기록' (차량·배터리 탭 · SWING = 작업 정리 작업자 관리 앞) · 서버 0.9.33 · design/BAT-PHOTO.md (주인 11/17) · v10.110 차량·배터리 사진 = 찍을 때 찰칵 소리 + 진동 (아이폰 햅틱) · 초광각 렌즈 먼저 + [렌즈 바꾸기] 이 폰에 기억 (주인 11/17) · v10.109 차량 사진 월 백업 zip (차량 사진 기록 [월 백업] → 달 고르기 · 800장씩 나눈 zip 받기·모두 받기 · 관리자 이상 · 서버 vpZipPlan · /vpfile/zip · 주인 11/17) · v10.108 차량 사진 서버 저장 ('차량 사진' = 차량 고르기 → 9장 차례대로 · 2048 · 올리기 줄 IndexedDB · 관리자 이상 '차량 사진 기록' · 서버 0.9.31 vpUp·vpLog · design/VEH-PHOTO.md · 주인 11/17) · v10.107 근무배정표 그 날 칸: '휴무·미정' 한 줄 → '휴무' 줄 · '미정 (근무 안 정함)' 줄 따로 (주인 11/16) · v10.106 보안: 로그인 접속 코드 입력 = ● 가림 (password) · 환경설정에 내 접속 코드 안 보임 (주인 11/16) · 근무배정표 전체 관리 = 한 페이지 (달력 한눈에 · 향남·수원 × 주간·야간 칸 · 이름 → 주 업무지역 + 그 사람 달력에서 날짜 고침 · 고친 뒤 그 자리 그대로 · 서버 0.9.30 wsArea · 주인 11/16) · v10.105 품의서 = SWING 관리자 이상만 (작업자 = 잠긴 카드 · 서버 0.9.29 · 주인 11/16) · v10.104 근무배정표 일반 직원 = [전체 보기] 탭 (다른 사람 근무 · 읽기만 · 내 줄 = 보라 이름 · 서버 0.9.28 · 주인 11/15) · v10.103 근무배정표 카드 = 업무기능 줄 끝 ('근무' 섹션 없앰 · 주인 11/14) · v10.102 근무배정표 (추가기능 '근무' · 관리자 = 사람 넣기·칸 고치기·요청 허락 · 일반 = 이번 주 크게·달력·2일 전 수정 요청 · 서버 0.9.27 · design/SCHEDULE.md · 주인 11/13) · v10.101 고객 매칭 찾기: 같은 이름 고객이 여럿이면 고객마다 한 줄 → 눌러 그 고객 요청 펼침 · 진행 중 요청 없는 같은 이름 고객도 보여 줌 (서버 0.9.26 · 주인 11/13) · v10.100 PC 칩 줄(작업내역 분류 탭 등) 얇은 스크롤바 (주인 11/13) · v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
+var APP_VER = '10.123';   // v10.123 기기 화면 고객요청 칸 (주소 복사 · 공동현관 비밀번호 · 희망 배송지 · 특이 사항 · 서버 0.9.46 getTaskInfo) · '작업 상세' → '고객요청' (주인 11/26) · v10.122 글꼴 IBM Plex Sans KR + 굵기 한 단계 낮춤·모서리 8px 정리 (인쇄 양식은 그대로 · 주인 11/26) · v10.121 수리 기록 '건 = 수리 기록(기기) 수 · 개 = 수리 항목 줄 수' 안내 글 뺌 (주인 11/21) · v10.120 내 작업 확인 날짜 칸 '●정산 안 함 있음' → '●작업 불량 n건' (서버 0.9.44 날짜 bad · 없으면 안 보임 · 주인 11/20) · v10.119 내 작업 확인: 보는 사람 시트 '연결된 작업자 · 관리자 이상만' 글 뺌 · 달말 예상 = 최근 3일 평균 (서버 0.9.42 · 주인 11/20) · v10.118 작업자(배터리) 역할 · 고장기기 신고 (rpRepPut) · 전산 DAILY 고장신고 전산 (rpRepList·rpRepApply·rpRepClose · 수거대상+고장 · 사유 배터리 교체중 고장 확인) · 서버 0.9.41 · 주인 11/20 · v10.117 미수거 절대 안 함 (SWING 검색 상태 버튼에서 [미수거] 뺌 · 기기이상 판정 수거대상이 어드민에 막히면 어드민 그대로 + 판정만 + 알림 · 서버 0.9.40 · 주인 11/20) · v10.116 고장수거 탭 [미수거] → [수거대상] (확인 창 '수거대상으로 바꾸기') · 기기이상 판정이 어드민에 막혀 미수거로 바뀌면 알림 (서버 0.9.39 · 배터리 교체로 수거된 기기 = 어드민 403 → 미수거 거쳐 수거대상 · 주인 11/20) · v10.115 대화 빨리 받기 (방을 보는 동안 서버가 새 글을 기다렸다 바로 줌 · 0.5초 안 · 상대가 읽음 '1' 도 바로 · 서버 0.9.38 wait · 주인 11/19) · 기기이상 수거해야함 판정 = 어드민 수거대상 + 사유 '기기이상으로 수거해야함' (예전 미수거 · 서버 0.9.38 · 확인 창 글자 · 주인 11/20) · v10.114 고장 기기 입고 (예전 QR 스캔 · 찍기·수기 입력 → [고장 기기 입고 완료] = 서버 rpInPut) · 전산 DAILY 기기입고 → 입고기기 매칭 (작업자가 넣은 QR 을 실물 QR 로 다시 확인 → 입고됨 · 안 되면 사유 · 서버 0.9.36 · 주인 11/18) · v10.113 내 작업 확인 = 관리자 이상 다른 작업자 포인트 보기 ([보는 사람] → 작업자 고르기 · 서버 0.9.35 swmPeer · 주인 11/17) · v10.112 사진 기록 묶음 지우기 (관리자 이상 · 차량 9장 · 배터리 2장 = 묶음째 · [지우기] → 확인 시트 → 서버 vpDel · 지운 묶음에 올리던 사진 = 줄에서 뺌 · 주인 11/17) · v10.111 배터리 사진 = 수량 넣기 (S9·W9 · I9 체크) → 2장 차례 (배터리 · 점퍼용 배터리) · 초광각 · 서버에 자동 올림 (차량 사진과 같은 줄) · '차량 사진 기록' → '사진 기록' (차량·배터리 탭 · SWING = 작업 정리 작업자 관리 앞) · 서버 0.9.33 · design/BAT-PHOTO.md (주인 11/17) · v10.110 차량·배터리 사진 = 찍을 때 찰칵 소리 + 진동 (아이폰 햅틱) · 초광각 렌즈 먼저 + [렌즈 바꾸기] 이 폰에 기억 (주인 11/17) · v10.109 차량 사진 월 백업 zip (차량 사진 기록 [월 백업] → 달 고르기 · 800장씩 나눈 zip 받기·모두 받기 · 관리자 이상 · 서버 vpZipPlan · /vpfile/zip · 주인 11/17) · v10.108 차량 사진 서버 저장 ('차량 사진' = 차량 고르기 → 9장 차례대로 · 2048 · 올리기 줄 IndexedDB · 관리자 이상 '차량 사진 기록' · 서버 0.9.31 vpUp·vpLog · design/VEH-PHOTO.md · 주인 11/17) · v10.107 근무배정표 그 날 칸: '휴무·미정' 한 줄 → '휴무' 줄 · '미정 (근무 안 정함)' 줄 따로 (주인 11/16) · v10.106 보안: 로그인 접속 코드 입력 = ● 가림 (password) · 환경설정에 내 접속 코드 안 보임 (주인 11/16) · 근무배정표 전체 관리 = 한 페이지 (달력 한눈에 · 향남·수원 × 주간·야간 칸 · 이름 → 주 업무지역 + 그 사람 달력에서 날짜 고침 · 고친 뒤 그 자리 그대로 · 서버 0.9.30 wsArea · 주인 11/16) · v10.105 품의서 = SWING 관리자 이상만 (작업자 = 잠긴 카드 · 서버 0.9.29 · 주인 11/16) · v10.104 근무배정표 일반 직원 = [전체 보기] 탭 (다른 사람 근무 · 읽기만 · 내 줄 = 보라 이름 · 서버 0.9.28 · 주인 11/15) · v10.103 근무배정표 카드 = 업무기능 줄 끝 ('근무' 섹션 없앰 · 주인 11/14) · v10.102 근무배정표 (추가기능 '근무' · 관리자 = 사람 넣기·칸 고치기·요청 허락 · 일반 = 이번 주 크게·달력·2일 전 수정 요청 · 서버 0.9.27 · design/SCHEDULE.md · 주인 11/13) · v10.101 고객 매칭 찾기: 같은 이름 고객이 여럿이면 고객마다 한 줄 → 눌러 그 고객 요청 펼침 · 진행 중 요청 없는 같은 이름 고객도 보여 줌 (서버 0.9.26 · 주인 11/13) · v10.100 PC 칩 줄(작업내역 분류 탭 등) 얇은 스크롤바 (주인 11/13) · v10.99 고객 매칭 찾기 = 이 기기 모델도 보냄 (서버 0.9.25 · 같은 모델 먼저 · 같은 이름 다른 고객 많아도 찾음 · 주인 11/11) · v10.98 알림 덮개: 삼성 인터넷으로 열리면 '기본 브라우저 = 크롬' 안내 · 알림 허용 바뀌면 바로 다시 봄 (주인 11/10) · v10.97 추가작업 '강제 배치' 탭 (S9·W9 강제 배치 ± · 작업현황 S9·W9 배치 칸에 더함 · 서버 0.9.24 · 주인 11/10) · v10.96 대화 사진 묶음 = 크게 보기에서 옆으로 넘김 (밀기 · ‹ › · 1/N · 주인 11/08) · v10.95 품의서 위 '마스터 · 부마스터 = 모두 보기' 글 없앰 (주인 11/08) · v10.94 대화 글 속 주소 = 누르면 새 인터넷 창 · 대화 탭 한 번만 그림 (같으면 안 다시 씀 · 모든 방도 저장본) (주인 11/08) ·   // v10.93 품의서 (ERP 카드 · 장바구니·확인 체크 · 마스터·부마스터 모두 보기 · 서버 0.9.23 · 주인 11/08) · v10.92 대화 카톡처럼 (새 메시지 버튼 · 쓰던 글 남김 · 길게 누르기 복사·답장·삭제 · 알림 = 저장본에 미리 · 사진 30장 묶음 · 작은 미리보기 · 서버 0.9.22 · 주인 11/07) · v10.91 대화방 폰 저장
 /* ★ v10.47 새 서버(Cloudflare Worker) 주소. 비워 두면('') 서버(login·getMe)가 api2 주소를 줄 때만 새 서버로 — 둘 다 없으면 지금처럼 Google(JSONP) 그대로.
    이 폰만: 주소 뒤 ?api2=on (켬 · 서버가 api2 를 안 줄 때만) · ?api2=off (끔) · ?api2=auto (서버에 맡김) → 이 폰에 저장됨 */
 var WORKER_URL = '';
@@ -1582,7 +1589,7 @@ function devAv(model,color){ var c=devColor(color); var t=devShort(model); var f
   var border=(c[1]!=='#fff')?'box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.08);':'';
   return '<div class="av dev" style="background:'+c[0]+';color:'+c[1]+';font-size:'+fs+';'+border+'" title="'+esc(model||'')+' '+esc(color||'')+'">'+esc(t)+'</div>'; }
 /* 서버 호출: <script> 태그(JSONP) 방식 — 브라우저 CORS 제한을 받지 않아 Apps Script와 가장 잘 맞는다 */
-var _rid=0; var READ_FNS={getTag:1,listTags:1,homeTags:1,getWorkList:1,getTaskDevices:1,getConfig:1,getMyWork:1,search:1,searchAdmin:1};
+var _rid=0; var READ_FNS={getTag:1,listTags:1,homeTags:1,getWorkList:1,getTaskDevices:1,getConfig:1,getMyWork:1,search:1,searchAdmin:1,getTaskInfo:1};
 var SLOW_FNS={sendWorkReport:60000,   // 서버가 자동 기록을 다시 읽고(SWING 은 작업내역 받기) 슬랙까지 → 25초로 끊으면 슬랙엔 갔는데 실패로 보여 다시 보내게 됨
   swingWorkSlack:60000,swingWorkRecheck:60000,swingWorkConfirm:45000,swingWorkJudge:45000,swingWorkProcSet:45000,
   stockPreview:45000,stockSetRow:45000,stockApply:60000,syncPull:60000};   // v10.43 묶음 미리받기 (처음엔 SWING 작업내역 며칠치를 한 번에)   // v10.40 재고 시트: 다른 파일(재고 테이블)을 열고 태그·이력을 비교해 10~25초 걸릴 때가 있음 (25초에 끊겨 화면이 안 열리던 것 · 반영은 끊겨도 서버는 씀)   // v10.32: 작업자 작업내역 저장·보내기도 (서버는 저장했는데 25초에 끊겨 "실패"로 보이고 다시 누르는 일 방지)
@@ -2867,7 +2874,7 @@ function pickSearch(key){ var v=stack[stack.length-1]; if(key[0]==='w'&&v.state.
     '<p>'+esc([it.model,it.color].filter(Boolean).join(' '))+(it.serial?' · '+esc(it.serial):'')+(it.date?'<br>작업 예정 '+esc(it.date):'')+(it.reqId?'<br>고객요청 '+esc(it.reqId):'')+'</p>'+
     (kinds.length?'<div class="note" style="margin:0 0 14px">이미 '+kinds.map(function(k){return k==='출고'?'출고':'수거';}).join('·')+' 기기가 QR에 등록된 건이에요.</div>':'')+
     '<button class="btn" onclick="closeSheet(function(){ matchQR(stack[stack.length-1].state.picked); })"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3.2"/></svg>QR 찍어서 매칭하기</button>'+
-    (it.reqId?'<a class="btn line" style="margin-top:8px" href="https://swap.admin.swingmobility.dev/task-v2/'+esc(it.reqId)+'" target="_blank">어드민 작업 상세</a>':''));
+    (it.reqId?'<a class="btn line" style="margin-top:8px" href="https://swap.admin.swingmobility.dev/task-v2/'+esc(it.reqId)+'" target="_blank">어드민 고객요청</a>':''));
   v.state.picked=it; }
 function manualStock(q){ q=q||''; var isSerial=/[0-9]/.test(q);
   openSheet('<h3>재고 기기 등록</h3><p>고객·작업 없이 창고 재고로 등록해요. 일련번호만 있으면 됩니다.</p>'+
@@ -2928,6 +2935,7 @@ function tagStale(){ var v=tagView(); if(v&&v.state.stale){ toast(v.state.staleE
   return false; }
 VIEWS.tag={ render:function(v){ var code=v.params.code; v.dock='tag';   // v10.55 8-1 다음 상태 버튼 = 아래 고정 자리 (drawTag 가 켬)
   v.refresh=function(){ return run('getTag',code).then(function(tag){ tagGot(v,code,tag); }); };
+  v.onResume=function(){ var c=TINFO[tinfoId(v.state.tag)]; if(c&&c.st!=='load'&&v.el&&String(v.el.innerHTML).indexOf('고객요청 불러오는 중')>=0) drawTag(v); };   // v10.123 다른 화면 위에 있는 동안 고객요청 답이 오면 돌아올 때 그림 ('불러오는 중…'에 안 멈추게)
   if(v.params.tag){ v.state.tag=v.params.tag; drawTag(v); return; }
   var snap=(AUTH&&canServer('swap'))?tagSnap(code):null; if(snap){ v.state.tag=snap; v.state.stale=true; drawTag(v); }   // SWAP 권한이 있는 코드일 때만 (같은 폰을 쓰던 다른 사람의 저장 화면을 안 보이게)
   tagLoad(v); }};
@@ -2948,7 +2956,7 @@ function drawTag(v){ if(!v._tagDrawn){ v._tagDrawn=true; reanim(v); } var t=norm
       '<div class="muted" style="margin-top:3px">'+esc(t['작업타입'])+' · '+esc(t['작업예정일'])+'</div></div>'+
       '<div class="tagst" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="pill s-'+esc(t['상태'])+'">'+esc(stName(t['상태']))+'</span>'+sysBadge(t)+matchBadge(t)+'</div></div>'+
     (sysPending(t)?'<div class="note" style="margin-top:12px;background:var(--danger-soft);color:var(--danger)"><b>'+ic('warn')+'전산미완료</b> — 어드민 고객요청이 아직 완료 처리되지 않았어요'+(t['어드민상태']?' (현재: '+esc(t['어드민상태'])+')':' (상태 미확인)')+'. 어드민에서 완료 처리 후 오른쪽 위 ⋯ → "어드민 새로고침"을 누르면 사라집니다.</div>':'')+
-    stockOutCard(t)+
+    stockOutCard(t)+tinfoHtml(v,t)+   // v10.123 고객요청 칸 (주소 복사 · 세부)
     '<div class="block">'+
       '<div class="field-row"><div class="muted" style="font-size:13px;font-weight:500">'+(out?'출고 기기':(t['구분']==='재고'?'재고 기기':'수거 기기'))+' · '+esc(t['모델'])+' '+esc(t['색상'])+'</div><button class="edit" onclick="editSerial()">수정</button></div>'+
       '<div class="sn-big">'+(t['일련번호']?esc(t['일련번호']):'<span class="muted" style="font-weight:500;font-size:15px;font-family:inherit">일련번호 없음</span>')+'</div>'+
@@ -3019,7 +3027,7 @@ function tagOtherAsk(){ var v=tagView(); if(!v||tagStale()) return; var t=normSt
   haptic(6); actSheet('다른 상태로 바꾸기',rows.length?rows:[{lb:'바꿀 수 있는 다른 상태가 없어요',off:1}]); }
 /* 8-2 오른쪽 위 ⋯ — 작업·구독 상세(새 탭) · 어드민 새로고침 · QR 교체 · 태그 비우기(빨강) · 저장된 화면이어도 열림 (링크는 되고 나머지는 예전처럼 각자 막음) */
 function tagMoreAsk(){ var v=tagView(); if(!v) return; var t=v.state.tag||{}; haptic(6);
-  actSheet('기기 '+esc(t['코드']||v.params.code),[t.taskUrl?{href:t.taskUrl,lb:'작업 상세',sub:'어드민 작업 화면 (새 탭)'}:null,t.adminUrl?{href:t.adminUrl,lb:'구독 상세',sub:'어드민 구독 화면 (새 탭)'}:null,
+  actSheet('기기 '+esc(t['코드']||v.params.code),[t.taskUrl?{href:t.taskUrl,lb:'고객요청',sub:'어드민 고객요청 화면 (새 탭)'}:null,t.adminUrl?{href:t.adminUrl,lb:'구독 상세',sub:'어드민 구독 화면 (새 탭)'}:null,
     {fn:'syncAdmin()',lb:'어드민 새로고침',sub:t['어드민동기화']?'마지막 동기화 '+esc(t['어드민동기화']):'어드민 정보를 다시 가져와요'},
     {fn:'rematchAsk()',lb:'QR 교체',sub:'라벨이 찢어졌을 때 · 기기 정보는 그대로 두고 QR만 바꿔요'},
     {fn:'doRelease()',lb:'태그 비우기',sub:'기기가 나간 뒤 용지를 다른 기기에 다시 쓸 때 · 이력은 남아요',danger:1}]); }
@@ -3259,7 +3267,7 @@ function editAcc(){ if(tagStale()) return; var t=stack[stack.length-1].state.tag
   openSheet('<h3>액세서리</h3><p>함께 들어온/나가는 물품을 전부 체크하세요. 바구니·짐받이·레인커버는 누르면 위치·사이즈를 골라요.</p>'+accSheetHtml(t['액세서리'])+'<button class="btn" style="margin-top:12px" onclick="saveFields({accessories:collectAcc()},\'액세서리 저장\')">저장</button>'); }
 function editNote(){ if(tagStale()) return; var t=stack[stack.length-1].state.tag;
   openSheet('<h3>특이사항</h3><p>파손·분실·고객 요청 등</p><textarea class="input" id="f_note">'+esc(t['특이사항'])+'</textarea><button class="btn" style="margin-top:10px" onclick="saveFields({note:$(\'f_note\').value},\'특이사항 저장\')">저장</button>'); }
-function syncAdmin(){ if(tagStale()) return; var v=stack[stack.length-1]; v.el.innerHTML=spin('어드민에서 불러오는 중'); rpDockSet(v,false);
+function syncAdmin(){ if(tagStale()) return; var v=stack[stack.length-1]; delete TINFO[tinfoId(v.state.tag)]; v.el.innerHTML=spin('어드민에서 불러오는 중'); rpDockSet(v,false);   // v10.123 고객요청 칸도 다시 받음
   run('syncFromAdmin',v.params.code,worker).then(function(res){ if(res.ok){ v.state.tag=res.tag; drawTag(v); toast('어드민 동기화 완료'); } else { drawTag(v); toast(res.error); } }).catch(function(e){ v.el.innerHTML=errBox(e); }); }
 function doRelease(){ if(tagStale()) return; needWorker(function(){ var v=stack[stack.length-1]; var code=v.params.code;
   openSheet('<h3>태그를 비울까요?</h3><p>'+esc(code)+' 용지를 다른 기기에 다시 쓸 수 있게 됩니다. 이력은 그대로 남습니다.</p><div class="row" style="margin-top:0"><button class="btn line sm" onclick="closeSheet()">취소</button><button class="btn sm" style="background:var(--danger);color:#fff" onclick="closeSheet();releaseNow()">비우기</button></div>'); }); }
@@ -3281,6 +3289,29 @@ function stockOutCard(t){ if(!t||!t.stockOut) return '';
   return '<div class="block" style="margin-top:12px">'+head+body+
     '<div class="row" style="margin-top:10px"><button class="btn line sm" onclick="verifyMatchNow()">전산 매칭 다시 확인</button>'+(t['상태']==='출고준비완료'?'<button class="btn line sm" onclick="unmatchAsk()">재고로 되돌리기</button>':'')+'</div></div>'; }
 function tagView(){ var v=stack[stack.length-1]; return (v&&v.name==='tag')?v:null; }
+/* v10.123 기기 화면 고객요청 칸 (주인 11/26) — 어드민 고객요청의 주소·상세 주소(복사)·공동현관 비밀번호·희망 배송지·특이 사항 = getTaskInfo (새 서버 0.9.46 · 어드민이 안 되면 작업리스트 기준)
+   앱이 켜 있는 동안 고객요청ID 마다 한 번 (메모리만 · 폰에 저장 안 함) · 어드민 새로고침·다시 시도 = 다시 받음 · SWAP 권한 코드일 때만 · 받으면 그 기기 화면이 맨 위일 때만 다시 그림 */
+var TINFO={};
+function tinfoId(t){ return String((t&&t['고객요청ID'])||'').trim(); }
+function tinfoGet(id,force){ if(!id||!AUTH||!canServer('swap')) return null; var c=TINFO[id]; if(c&&!force) return c;
+  c=TINFO[id]={st:'load'};
+  run('getTaskInfo',id).then(function(r){ if(TINFO[id]!==c) return; r=r||{}; if(r.ok){ c.st='ok'; c.r=r; } else { c.st='err'; c.err=String(r.error||''); } tinfoDraw(id); },
+    function(e){ if(TINFO[id]!==c) return; c.st='err'; c.err=String((e&&e.message)||e||''); tinfoDraw(id); });
+  return c; }
+function tinfoDraw(id){ var v=tagView(); if(!v||tinfoId(v.state.tag)!==id||!v.el||String(v.el.innerHTML).indexOf('id="tinfo"')<0) return; drawTag(v); }   // 다른 화면·불러오는 중(어드민 새로고침 등) 화면이면 안 그림
+function tinfoHtml(v,t){ var id=tinfoId(t), c=tinfoGet(id); if(!c) return '';
+  var h='<div class="block tinfo" id="tinfo"><div class="tih">고객요청</div>';
+  if(c.st==='load') h+='<p class="muted tim">고객요청 불러오는 중…</p>';
+  else if(c.st==='err') h+='<div class="tierr"><span class="muted">고객요청을 못 불러왔어요'+(c.err?' ('+esc(c.err)+')':'')+'</span><button class="edit" onclick="tinfoRetry()">다시 시도</button></div>';
+  else { var r=c.r, row=function(l,x){ return x?'<div class="tir"><div class="til">'+l+'</div><div class="tiv">'+esc(x).replace(/\n/g,'<br>')+'</div></div>':''; };
+    if(r.addr||r.addr2) h+='<div class="tiaddr"><div class="tiv">'+esc([r.addr,r.addr2].filter(Boolean).join(' '))+'</div><button class="edit" onclick="tinfoCopy()">복사</button></div>';
+    var rows=row('공동현관 비밀번호',r.gate)+row('희망 배송지',r.place)+row('특이 사항',r.memo);
+    h+=rows; if(!(r.addr||r.addr2)&&!rows) h+='<p class="muted tim">주소 정보 없음</p>';
+    if(r.src==='wl') h+='<p class="muted tisrc">작업리스트 기준</p>'; }
+  return h+'</div>'; }
+function tinfoRetry(){ var v=tagView(); if(!v) return; haptic(8); tinfoGet(tinfoId(v.state.tag),true); drawTag(v); }
+function tinfoCopy(){ var v=tagView(), c=v&&TINFO[tinfoId(v.state.tag)]; if(!c||c.st!=='ok') return; var t=[c.r.addr,c.r.addr2].filter(Boolean).join(' '); if(!t) return; haptic(8);
+  var done=function(){ toast('주소를 복사했어요'); }; if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done,function(){ fallbackCopy(t); done(); }); else { fallbackCopy(t); done(); } }
 function openStockMatch(){ var v=tagView(); if(!v||tagStale()) return; needWorker(function(){ push('stockmatch',{code:v.params.code}); }); }
 /* 말풍선: 화면 가운데 잠깐 떴다 사라짐 → 끝나면 resolve */
 function bubble(msg,ms){ return new Promise(function(res){ var b=document.createElement('div'); b.className='mbubble'; b.textContent=msg; document.body.appendChild(b);
@@ -3361,7 +3392,7 @@ function verifyMatchNow(auto,code,warn){ if(!code){ var v0=tagView(); if(!v0||ta
       else toast('✓ 전산 매칭 확인 — 어드민 출고 기기가 이 기기예요'); return r; }
     haptic([150,120,150]);
     openSheet('<h3>'+ic('warn','dng')+'전산 매칭 안됨</h3><p>QR <b>'+esc(code)+'</b> · '+esc(t['고객명']||'')+'<br>어드민 고객요청 <b class="mono">'+esc(t['고객요청ID']||'')+'</b>의 출고 기기가 '+(r.adminSerial?'<b class="mono">'+esc(r.adminSerial)+'</b> 예요 (이 기기 아님).':'아직 없어요.')+'<br>어드민에서 이 기기(<b class="mono">'+esc(t['일련번호']||'')+'</b>)를 배정한 뒤 <b>전산 매칭 다시 확인</b>을 눌러 주세요. 1시간마다 자동으로도 확인해요(밤 22~07시 제외).</p>'+wl+
-      (t.taskUrl?'<a class="btn" style="text-decoration:none" href="'+esc(t.taskUrl)+'" target="_blank" rel="noopener" onclick="closeSheet()">어드민 작업 상세 열기</a>':'<button class="btn" onclick="closeSheet()">확인</button>'));
+      (t.taskUrl?'<a class="btn" style="text-decoration:none" href="'+esc(t.taskUrl)+'" target="_blank" rel="noopener" onclick="closeSheet()">어드민 고객요청 열기</a>':'<button class="btn" onclick="closeSheet()">확인</button>'));
     return r; })
     .catch(function(e){ toast('확인 실패: '+(e&&e.message||e)); return null; }); }
 function unmatchAsk(){ var v=tagView(); if(!v||tagStale()) return; var t=v.state.tag||{};
